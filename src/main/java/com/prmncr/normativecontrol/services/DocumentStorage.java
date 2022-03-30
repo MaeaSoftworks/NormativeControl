@@ -3,9 +3,6 @@ package com.prmncr.normativecontrol.services;
 import com.prmncr.normativecontrol.dtos.Document;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -21,8 +18,7 @@ public class DocumentStorage {
 		return documentMap.get(id);
 	}
 
-	public void remove(String id) throws IOException {
-		Files.delete(documentMap.get(id).getPath());
+	public void remove(String id) {
 		documentMap.remove(id);
 	}
 }

@@ -1,46 +1,22 @@
 package com.prmncr.normativecontrol.dtos;
 
-import java.nio.file.Path;
-
 public class Document {
-	private final Path path;
 	private final String id;
-	private State state;
-	private Result result;
+	public State state;
+	public Result result;
+	private final byte[] file;
 
-	public Document(Path path, String id) {
-		this.path = path;
+	public Document(String id, byte[] file) {
 		this.id = id;
 		this.state = State.QUEUE;
+		this.file = file;
 	}
 
-	public Document(Path path, String id, State state) {
-	    this.path = path;
-		this.id = id;
-		this.state = state;
-	}
-
-	public Path getPath() {
-		return path;
+	public byte[] getFile() {
+		return file;
 	}
 
 	public String getId() {
 		return id;
-	}
-
-	public State getState() {
-		return state;
-	}
-
-	public void setState(State state) {
-		this.state = state;
-	}
-
-	public Result getResult() {
-		return result;
-	}
-
-	public void setResult(Result result) {
-		this.result = result;
 	}
 }
