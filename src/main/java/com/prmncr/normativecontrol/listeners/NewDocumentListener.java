@@ -28,10 +28,9 @@ public class NewDocumentListener {
 
 	@Async
 	@EventListener
-	public void handleDocument(NewDocumentEvent event) throws InterruptedException {
+	public void handleDocument(NewDocumentEvent event) {
 		var document = documentStorage.getById(event.getDocumentId());
 		document.state = State.PROCESSING;
-		Thread.sleep(5000);
 		XWPFDocument docx;
 		try {
 			docx = new XWPFDocument(new ByteArrayInputStream(document.getFile()));
