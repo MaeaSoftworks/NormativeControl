@@ -19,11 +19,6 @@ public class DocumentProcessingController {
 		this.documentsManager = documentsManager;
 	}
 
-	@GetMapping("/")
-	public String listMappings() {
-		return "OK";
-	}
-
 	@GetMapping("get-status")
 	@ResponseBody
 	public ResponseEntity<State> getStatus(@RequestParam(value = "id") String id) {
@@ -33,13 +28,14 @@ public class DocumentProcessingController {
 	@GetMapping("get-result")
 	@ResponseBody
 	public ResponseEntity<Result> getResult(@RequestParam(value = "id") String id) {
-		return new ResponseEntity<>(documentsManager.getResult(id), HttpStatus.OK);
+		return new ResponseEntity<>(documentsManager.getResult(id), HttpStatus.ACCEPTED);
 	}
 
 	@PostMapping("upload-document")
-	public ResponseEntity<String> getFile(@RequestParam("file") MultipartFile file) throws IOException {
-		var id = documentsManager.addToQueue(file.getBytes());
-		return new ResponseEntity<>(id, HttpStatus.ACCEPTED);
+	@ResponseBody
+	public ResponseEntity<Object> uploadDocument(@RequestParam("file") MultipartFile file) throws IOException {
+		var documentId = documentsManager.addToQueue(file.getBytes());
+		return new ResponseEntity<>(new Object(){public final String id = documentId;}, HttpStatus.OK);
 	}
 
 	@GetMapping("load-result")
