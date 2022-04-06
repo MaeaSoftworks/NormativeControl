@@ -8,17 +8,17 @@ import javax.persistence.Table;
 @Entity
 @Table
 public class ProcessedDocument {
-	@Id
-	private String id;
-	@Lob
-	private byte[] file;
+    @Id
+    private String id;
+    @Lob
+    private byte[] file;
 
-	public ProcessedDocument(String id, byte[] file) {
-		this.id = id;
-		this.file = file;
-	}
+    public ProcessedDocument(String id, byte[] file) {
+        this.id = id;
+        this.file = file;
+    }
 
-	public ProcessedDocument() {
+    public ProcessedDocument() {
 
-	}
+    }
 }

@@ -8,17 +8,17 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class DocumentStorage {
-	private final Map<String, Document> documentMap = new ConcurrentHashMap<>();
+    private final Map<String, Document> documentMap = new ConcurrentHashMap<>();
 
-	public void put(Document document) {
-		documentMap.put(document.getId(), document);
-	}
+    public void put(Document document) {
+        documentMap.put(document.getId(), document);
+    }
 
-	public Document getById(String id) {
-		return documentMap.get(id);
-	}
+    public Document getById(String id) {
+        return documentMap.get(id);
+    }
 
-	public void remove(String id) {
-		documentMap.remove(id);
-	}
+    public void remove(String id) {
+        documentMap.remove(id);
+    }
 }
