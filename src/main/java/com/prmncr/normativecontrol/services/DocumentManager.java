@@ -49,4 +49,9 @@ public class DocumentManager {
             return "file not found";
         }
     }
+
+    public void dropDatabase() {
+        String sql = "TRUNCATE tbl_name;";
+        documentRepository.deleteAll();
+    }
 }

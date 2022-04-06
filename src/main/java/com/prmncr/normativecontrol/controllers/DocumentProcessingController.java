@@ -46,4 +46,11 @@ public class DocumentProcessingController {
     public ResponseEntity<String> loadResult(@RequestParam(value = "id") String id) {
         return new ResponseEntity<>(documentsManager.loadResult(id), HttpStatus.OK);
     }
+
+    @GetMapping("drop-db")
+    @ResponseBody
+    public ResponseEntity<String> dropDatabase() {
+        documentsManager.dropDatabase();
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }
