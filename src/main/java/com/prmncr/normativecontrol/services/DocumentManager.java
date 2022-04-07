@@ -5,53 +5,49 @@ import com.prmncr.normativecontrol.dtos.Document;
 import com.prmncr.normativecontrol.dtos.Result;
 import com.prmncr.normativecontrol.dtos.State;
 import com.prmncr.normativecontrol.events.NewDocumentEvent;
+import com.prmncr.normativecontrol.repositories.DocumentRepository;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
-import java.util.Objects;
 import java.util.UUID;
 
 @Service
+@SuppressWarnings("ClassCanBeRecord")
 public class DocumentManager {
-    private final DocumentStorage documentStorage;
-    private final DocumentRepository documentRepository;
+    private final DocumentStorage storage;
+    private final DocumentRepository repository;
     private final ApplicationEventPublisher publisher;
 
-    public DocumentManager(
-            DocumentStorage documentStorage,
-            DocumentRepository documentRepository,
-            ApplicationEventPublisher publisher) {
-        this.documentStorage = documentStorage;
-        this.documentRepository = documentRepository;
+    public DocumentManager(DocumentStorage storage,
+                           DocumentRepository repository,
+                           ApplicationEventPublisher publisher) {
+        this.storage = storage;
+        this.repository = repository;
         this.publisher = publisher;
     }
 
     public String addToQueue(byte[] file) {
         var document = new Document(UUID.randomUUID().toString(), file);
-        documentStorage.put(document);
+        storage.put(document);
         publisher.publishEvent(new NewDocumentEvent(this, document.getId()));
         return document.getId();
     }
 
     public State getStatus(String id) {
-        return documentStorage.getById(id).getState();
+        return storage.getById(id).getState();
     }
 
     public Result getResult(String id) {
-        var result = documentStorage.getById(id).getResult();
-        documentStorage.remove(id);
+        var result = storage.getById(id).getResult();
+        storage.remove(id);
         return result;
     }
 
     public ProcessedDocument getFile(String id) {
-        return documentRepository.findById(id).orElse(null);
+        return repository.findById(id).orElse(null);
     }
 
     public void dropDatabase() {
-        documentRepository.deleteAll();
-    }
-
-    public String getSavedResult(String id) {
-        return Objects.requireNonNull(documentRepository.findById(id).orElse(null)).getErrors();
+        repository.deleteAll();
     }
 }

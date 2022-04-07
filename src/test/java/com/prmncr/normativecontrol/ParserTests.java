@@ -1,7 +1,7 @@
 package com.prmncr.normativecontrol;
 
 import com.prmncr.normativecontrol.components.CorrectDocumentParams;
-import com.prmncr.normativecontrol.services.DocxParser;
+import com.prmncr.normativecontrol.services.DocumentParser;
 import com.prmncr.normativecontrol.dtos.Error;
 import com.prmncr.normativecontrol.dtos.ErrorType;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
@@ -22,7 +22,7 @@ public class ParserTests {
 
     @Test
     public void incorrectSizeTest() {
-        var parser = new DocxParser(params);
+        var parser = new DocumentParser(params);
         try {
             parser.init(new XWPFDocument(new FileInputStream("src/main/resources/test files/incorrectWidth.docx")));
         } catch (IOException e) {
@@ -32,14 +32,14 @@ public class ParserTests {
         var result = new ArrayList<Error>();
         ReflectionTestUtils.invokeMethod(parser, "checkPageSize", result);
         Assert.notEmpty(result, "Error not found!");
-        Assert.state(result.get(0).getErrorType() == ErrorType.INCORRECT_PAGE_SIZE
-                && result.get(0).getParagraph() == -1
-                && result.get(0).getRun() == -1, "Wrong error!");
+        Assert.state(result.get(0).errorType() == ErrorType.INCORRECT_PAGE_SIZE
+                && result.get(0).paragraph() == -1
+                && result.get(0).run() == -1, "Wrong error!");
     }
 
     @Test
     public void incorrectMarginTest() {
-        var parser = new DocxParser(params);
+        var parser = new DocumentParser(params);
         try {
             parser.init(new XWPFDocument(new FileInputStream("src/main/resources/test files/incorrectWidth.docx")));
         } catch (IOException e) {
@@ -49,8 +49,8 @@ public class ParserTests {
         var result = new ArrayList<Error>();
         ReflectionTestUtils.invokeMethod(parser, "checkPageMargins", result);
         Assert.notEmpty(result, "Error not found!");
-        Assert.state(result.get(0).getErrorType() == ErrorType.INCORRECT_PAGE_MARGINS
-                && result.get(0).getParagraph() == -1
-                && result.get(0).getRun() == -1, "Wrong error!");
+        Assert.state(result.get(0).errorType() == ErrorType.INCORRECT_PAGE_MARGINS
+                && result.get(0).paragraph() == -1
+                && result.get(0).run() == -1, "Wrong error!");
     }
 }

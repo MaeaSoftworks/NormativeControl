@@ -12,12 +12,8 @@ public class ByteArraySerializer extends JsonSerializer<byte[]> {
     public void serialize(byte[] bytes, JsonGenerator gen, SerializerProvider provider) throws IOException {
         gen.writeStartArray();
         for (byte b : bytes) {
-            gen.writeNumber(unsignedToBytes(b));
+            gen.writeNumber(b & 0xFF);
         }
         gen.writeEndArray();
-    }
-
-    private static int unsignedToBytes(byte b) {
-        return b & 0xFF;
     }
 }

@@ -1,10 +1,10 @@
 package com.prmncr.normativecontrol.dtos;
 
 public class Document {
-    private State state;
-    private Result result;
     private final String id;
     private final byte[] file;
+    private State state;
+    private Result result;
 
     public Document(String id, byte[] file) {
         this.id = id;

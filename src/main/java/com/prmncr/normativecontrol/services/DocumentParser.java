@@ -16,23 +16,24 @@ import org.jdom2.input.SAXBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.StringReader;
 import java.math.BigInteger;
 import java.util.*;
 
-public class DocxParser {
+public class DocumentParser {
     private static final int POINTS = 20;
     private final SAXBuilder builder;
-    private XWPFDocument document;
-    private final Logger logger = LoggerFactory.getLogger(DocxParser.class);
+    private final Logger logger = LoggerFactory.getLogger(DocumentParser.class);
     private final CorrectDocumentParams params;
+    private XWPFDocument document;
 
-    public DocxParser(CorrectDocumentParams params) {
+    public DocumentParser(CorrectDocumentParams params) {
         this.builder = new SAXBuilder();
         this.params = params;
     }
 
-    public DocxParser init(XWPFDocument doc) {
+    public DocumentParser init(XWPFDocument doc) {
         document = doc;
         return this;
     }
@@ -126,6 +127,7 @@ public class DocxParser {
             return null;
         }
     }
+
     /*
     private String generateHtml() {
         var html = new HtmlBody("generatePageConfig()");

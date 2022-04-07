@@ -6,8 +6,8 @@ import org.springframework.scheduling.annotation.EnableAsync;
 
 @SpringBootApplication
 @EnableAsync
-public class DocxParserApplication {
+public class NormativeControlApplication {
     public static void main(String[] args) {
-        SpringApplication.run(DocxParserApplication.class, args);
+        SpringApplication.run(NormativeControlApplication.class, args);
     }
 }

@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.List;
 
 @Service
+@SuppressWarnings("ClassCanBeRecord")
 public class DocumentHandler {
     private final CorrectDocumentParams params;
 
@@ -31,7 +32,7 @@ public class DocumentHandler {
     }
 
     private List<Error> getResult(XWPFDocument docx) {
-        DocxParser parser = new DocxParser(params).init(docx);
+        DocumentParser parser = new DocumentParser(params).init(docx);
         return parser.runStyleCheck();
     }
 }

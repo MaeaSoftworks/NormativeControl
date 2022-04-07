@@ -4,10 +4,7 @@ import com.prmncr.normativecontrol.dbos.ProcessedDocument;
 import com.prmncr.normativecontrol.dtos.Result;
 import com.prmncr.normativecontrol.dtos.State;
 import com.prmncr.normativecontrol.services.DocumentManager;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -41,8 +38,9 @@ public class DocumentProcessingController {
     public ResponseEntity<Object> uploadDocument(@RequestParam("file") MultipartFile file) throws IOException {
         var documentId = documentsManager.addToQueue(file.getBytes());
         return new ResponseEntity<>(new Object() {
+            @SuppressWarnings({"CheckStyle", "unused"})
             public final String id = documentId;
-            }, HttpStatus.ACCEPTED);
+        }, HttpStatus.ACCEPTED);
     }
 
     @GetMapping(value = "load-result")

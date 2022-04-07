@@ -1,5 +1,6 @@
 package com.prmncr.normativecontrol.dbos;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -17,6 +18,7 @@ import java.util.List;
 @Table
 public class ProcessedDocument {
     @Id
+    @JsonIgnore
     private String id;
     @JsonSerialize(using = ByteArraySerializer.class)
     @Lob
