@@ -1,4 +1,4 @@
-package com.prmncr.normativecontrol.docx4nc;
+package com.prmncr.normativecontrol.services;
 
 import com.prmncr.normativecontrol.components.CorrectDocumentParams;
 import com.prmncr.normativecontrol.dtos.Error;
@@ -45,10 +45,9 @@ public class DocxParser {
         return Double.toString(Double.parseDouble(points) / POINTS);
     }
 
-    private void checkPageConfig(ArrayList<Error> errors) {
+    private void checkPageSize(ArrayList<Error> errors) {
         var sector = document.getDocument().getBody().getSectPr();
         var pageSize = sector.getPgSz();
-        var pageMargins = sector.getPgMar();
 
         var width = getLongPixels(pageSize.getW());
         var height = getLongPixels(pageSize.getH());
@@ -58,7 +57,11 @@ public class DocxParser {
             logger.warn("Page size: incorrect! ({} {})", width, height);
             errors.add(new Error(-1, -1, ErrorType.INCORRECT_PAGE_SIZE));
         }
+    }
 
+    private void checkPageMargins(ArrayList<Error> errors) {
+        var sector = document.getDocument().getBody().getSectPr();
+        var pageMargins = sector.getPgMar();
         var marginTop = getLongPixels(pageMargins.getTop());
         var marginLeft = getLongPixels(pageMargins.getLeft());
         var marginBottom = getLongPixels(pageMargins.getBottom());
@@ -237,7 +240,8 @@ public class DocxParser {
 
     public List<Error> runStyleCheck() {
         var errors = new ArrayList<Error>();
-        checkPageConfig(errors);
+        checkPageSize(errors);
+        checkPageMargins(errors);
 
         return errors;
     }

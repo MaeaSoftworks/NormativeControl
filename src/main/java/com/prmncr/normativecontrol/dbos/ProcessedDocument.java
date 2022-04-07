@@ -1,7 +1,10 @@
-package com.prmncr.normativecontrol.dtos;
+package com.prmncr.normativecontrol.dbos;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.prmncr.normativecontrol.dtos.Error;
+import com.prmncr.normativecontrol.serializers.ByteArraySerializer;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -15,6 +18,7 @@ import java.util.List;
 public class ProcessedDocument {
     @Id
     private String id;
+    @JsonSerialize(using = ByteArraySerializer.class)
     @Lob
     private byte[] file;
     private String errors;

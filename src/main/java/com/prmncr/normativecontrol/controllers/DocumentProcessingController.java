@@ -1,5 +1,6 @@
 package com.prmncr.normativecontrol.controllers;
 
+import com.prmncr.normativecontrol.dbos.ProcessedDocument;
 import com.prmncr.normativecontrol.dtos.Result;
 import com.prmncr.normativecontrol.dtos.State;
 import com.prmncr.normativecontrol.services.DocumentManager;
@@ -12,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
 
 @CrossOrigin
 @RestController
@@ -45,17 +45,10 @@ public class DocumentProcessingController {
             }, HttpStatus.ACCEPTED);
     }
 
-    @GetMapping(value = "get-document", produces = MediaType.TEXT_PLAIN_VALUE)
+    @GetMapping(value = "load-result")
     @ResponseBody
-    public ResponseEntity<Resource> getDocument(@RequestParam(value = "id") String id) {
-        var resource = new ByteArrayResource(documentsManager.getFile(id));
-        return new ResponseEntity<>(resource, HttpStatus.OK);
-    }
-
-    @GetMapping("get-saved-result")
-    @ResponseBody
-    public ResponseEntity<String> getSavedResult(@RequestParam(value = "id") String id) {
-        return new ResponseEntity<>(documentsManager.getSavedResult(id), HttpStatus.OK);
+    public ResponseEntity<ProcessedDocument> getDocument(@RequestParam(value = "id") String id) {
+        return new ResponseEntity<>(documentsManager.getFile(id), HttpStatus.OK);
     }
 
     @GetMapping("drop-db")

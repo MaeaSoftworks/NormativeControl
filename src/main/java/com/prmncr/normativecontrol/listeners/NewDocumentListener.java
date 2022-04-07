@@ -1,7 +1,7 @@
 package com.prmncr.normativecontrol.listeners;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.prmncr.normativecontrol.dtos.ProcessedDocument;
+import com.prmncr.normativecontrol.dbos.ProcessedDocument;
 import com.prmncr.normativecontrol.dtos.State;
 import com.prmncr.normativecontrol.events.NewDocumentEvent;
 import com.prmncr.normativecontrol.services.DocumentHandler;
