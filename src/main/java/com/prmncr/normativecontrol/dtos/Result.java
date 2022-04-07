@@ -1,39 +1,33 @@
 package com.prmncr.normativecontrol.dtos;
 
+import java.util.List;
+
 public class Result {
-    private final boolean isError;
-    private final String result;
-    private ResultBody body;
+    private final boolean isFail;
+    private final FailureType failureType;
+    private final List<Error> errors;
 
-    public Result(boolean isError, String result) {
-        this.isError = isError;
-        this.result = result;
+    public Result(FailureType failureType) {
+        this.isFail = true;
+        this.failureType = failureType;
+        errors = null;
     }
 
-    public Result(String result) {
-        this.isError = false;
-        this.result = result;
+    public Result(List<Error> errors) {
+        this.isFail = false;
+        this.failureType = FailureType.NONE;
+        this.errors = errors;
     }
 
-    public Result(ResultBody body) {
-        this.isError = false;
-        this.result = null;
-        this.body = body;
+    public boolean isFail() {
+        return isFail;
     }
 
-    public boolean isError() {
-        return isError;
+    public FailureType getFailureType() {
+        return failureType;
     }
 
-    public String getResult() {
-        return result;
-    }
-
-    public ResultBody getBody() {
-        return body;
-    }
-
-    public void setBody(ResultBody body) {
-        this.body = body;
+    public List<Error> getErrors() {
+        return errors;
     }
 }

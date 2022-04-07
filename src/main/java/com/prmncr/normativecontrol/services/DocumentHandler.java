@@ -1,34 +1,38 @@
 package com.prmncr.normativecontrol.services;
 
-import com.prmncr.normativecontrol.dtos.Document;
-import com.prmncr.normativecontrol.dtos.Result;
-import com.prmncr.normativecontrol.dtos.ResultBody;
-import com.prmncr.normativecontrol.dtos.State;
+import com.prmncr.normativecontrol.components.CorrectDocumentParams;
+import com.prmncr.normativecontrol.docx4nc.DocxParser;
+import com.prmncr.normativecontrol.dtos.*;
+import com.prmncr.normativecontrol.dtos.Error;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.List;
 
 @Service
 public class DocumentHandler {
+    private final CorrectDocumentParams params;
+
+    public DocumentHandler(CorrectDocumentParams params) {
+        this.params = params;
+    }
+
     public void handle(Document document) {
         XWPFDocument docx;
         try {
             docx = new XWPFDocument(new ByteArrayInputStream(document.getFile()));
         } catch (IOException e) {
-            document.state = State.ERROR;
-            document.result = new Result(true, e.getMessage());
+            document.setState(State.ERROR);
+            document.setResult(new Result(FailureType.FILE_READING_ERROR));
             return;
         }
-        document.result = new Result(new ResultBody(getMargins(docx)));
+        document.setResult(new Result(getResult(docx)));
     }
 
-    private String getMargins(XWPFDocument docx) {
-        var margin = docx.getDocument().getBody().getSectPr().getPgMar();
-        return margin.getTop().toString()
-                + margin.getRight().toString()
-                + margin.getBottom().toString()
-                + margin.getLeft().toString();
+    private List<Error> getResult(XWPFDocument docx) {
+        DocxParser parser = new DocxParser(params).init(docx);
+        return parser.runStyleCheck();
     }
 }

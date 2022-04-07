@@ -1,12 +1,16 @@
 package com.prmncr.normativecontrol.services;
 
 import com.prmncr.normativecontrol.dtos.Document;
+import com.prmncr.normativecontrol.dtos.Error;
+import com.prmncr.normativecontrol.dtos.ProcessedDocument;
 import com.prmncr.normativecontrol.dtos.Result;
 import com.prmncr.normativecontrol.dtos.State;
 import com.prmncr.normativecontrol.events.NewDocumentEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -32,26 +36,24 @@ public class DocumentManager {
     }
 
     public State getStatus(String id) {
-        return documentStorage.getById(id).state;
+        return documentStorage.getById(id).getState();
     }
 
     public Result getResult(String id) {
-        var result = documentStorage.getById(id).result;
+        var result = documentStorage.getById(id).getResult();
         documentStorage.remove(id);
         return result;
     }
 
-    public String loadResult(String id) {
-        var result = documentRepository.findById(id);
-        if (result.isPresent()) {
-            return "html will be here";
-        } else {
-            return "file not found";
-        }
+    public byte[] getFile(String id) {
+        return Objects.requireNonNull(documentRepository.findById(id).orElse(null)).getFile();
     }
 
     public void dropDatabase() {
-        String sql = "TRUNCATE tbl_name;";
         documentRepository.deleteAll();
+    }
+
+    public String getSavedResult(String id) {
+        return Objects.requireNonNull(documentRepository.findById(id).orElse(null)).getErrors();
     }
 }

@@ -1,5 +1,6 @@
 package com.prmncr.normativecontrol.listeners;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.prmncr.normativecontrol.dtos.ProcessedDocument;
 import com.prmncr.normativecontrol.dtos.State;
 import com.prmncr.normativecontrol.events.NewDocumentEvent;
@@ -28,9 +29,16 @@ public class NewDocumentListener {
     @EventListener
     public void handleDocument(NewDocumentEvent event) {
         var document = documentStorage.getById(event.getDocumentId());
-        document.state = State.PROCESSING;
+        document.setState(State.PROCESSING);
         documentHandler.handle(document);
-        document.state = State.READY;
-        documentRepository.save(new ProcessedDocument(document.getId(), document.getFile()));
+        document.setState(State.READY);
+        ProcessedDocument doc;
+        try {
+            doc = new ProcessedDocument(document.getId(), document.getFile(), document.getResult().getErrors());
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return;
+        }
+        documentRepository.save(doc);
     }
 }

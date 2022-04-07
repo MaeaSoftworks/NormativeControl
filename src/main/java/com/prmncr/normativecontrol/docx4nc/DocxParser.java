@@ -1,7 +1,8 @@
 package com.prmncr.normativecontrol.docx4nc;
 
-import com.prmncr.normativecontrol.docx4nc.html.HtmlBody;
-import com.prmncr.normativecontrol.docx4nc.html.HtmlElement;
+import com.prmncr.normativecontrol.components.CorrectDocumentParams;
+import com.prmncr.normativecontrol.dtos.Error;
+import com.prmncr.normativecontrol.dtos.ErrorType;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
@@ -14,38 +15,25 @@ import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 
 import java.io.*;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
-@Service
 public class DocxParser {
     private static final int POINTS = 20;
     private final SAXBuilder builder;
     private XWPFDocument document;
     private final Logger logger = LoggerFactory.getLogger(DocxParser.class);
+    private final CorrectDocumentParams params;
 
-    public DocxParser() {
+    public DocxParser(CorrectDocumentParams params) {
         this.builder = new SAXBuilder();
+        this.params = params;
     }
 
-    public static void main(String[] args) throws IOException {
-        var parser = new DocxParser().init(new FileInputStream("src/main/resources/e0.docx"));
-        parser.checkPageConfig();
-        parser.findDefaultStyles();
-        //try (var file = new FileOutputStream("src/main/resources/result.html")) {
-        //    var html = parser.generateHtml();
-        //    file.write(html.getBytes(StandardCharsets.UTF_16));
-        //}
-    }
-
-    public DocxParser init(InputStream doc) throws IOException {
-        document = new XWPFDocument(doc);
+    public DocxParser init(XWPFDocument doc) {
+        document = doc;
         return this;
     }
 
@@ -57,17 +45,18 @@ public class DocxParser {
         return Double.toString(Double.parseDouble(points) / POINTS);
     }
 
-    private void checkPageConfig() {
+    private void checkPageConfig(ArrayList<Error> errors) {
         var sector = document.getDocument().getBody().getSectPr();
         var pageSize = sector.getPgSz();
         var pageMargins = sector.getPgMar();
 
         var width = getLongPixels(pageSize.getW());
         var height = getLongPixels(pageSize.getH());
-        if (width - 595 < 2 && height - 842 < 2) {
+        if (width == params.pageWidth && height == params.pageHeight) {
             logger.info("Page size: correct! ({} {})", width, height);
         } else {
             logger.warn("Page size: incorrect! ({} {})", width, height);
+            errors.add(new Error(-1, -1, ErrorType.INCORRECT_PAGE_SIZE));
         }
 
         var marginTop = getLongPixels(pageMargins.getTop());
@@ -75,15 +64,19 @@ public class DocxParser {
         var marginBottom = getLongPixels(pageMargins.getBottom());
         var marginRight = getLongPixels(pageMargins.getRight());
 
-        if (marginTop == 56 && marginRight == 42 && marginBottom == 56 && marginLeft == 85) {
+        if (marginTop == params.pageMarginTop
+                && marginRight == params.pageMarginRight
+                && marginBottom == params.pageMarginBottom
+                && marginLeft == params.pageMarginLeft) {
             logger.info("Margins: correct! ({} {} {} {})", marginTop, marginRight, marginBottom, marginLeft);
         } else {
             logger.warn("Margins: incorrect! ({} {} {} {})", marginTop, marginRight, marginBottom, marginLeft);
+            errors.add(new Error(-1, -1, ErrorType.INCORRECT_PAGE_MARGINS));
         }
     }
 
-    private StyleLayer findDefaultStyles() {
-        var globalStyles = new StyleLayer();
+    private Map<String, Object> findDefaultStyles() {
+        var globalStyles = new HashMap<String, Object>();
         try {
             var paragraph = getXmlFromField(document.getStyles().getDefaultParagraphStyle(), "ppr");
             var root = paragraph.getRootElement();
@@ -91,18 +84,18 @@ public class DocxParser {
 
             var after = root.getAttributeValue("after", namespace);
             if (after != null) {
-                globalStyles.addDeclaration("p/after", getDoublePixels(after));
+                globalStyles.put("p/after", getDoublePixels(after));
             }
             var line = root.getAttributeValue("line", namespace);
             if (line != null) {
                 var px = Double.parseDouble(line) / POINTS;
                 if (px >= 0) {
-                    globalStyles.addDeclaration("p/line", getDoublePixels(line));
+                    globalStyles.put("p/line", getDoublePixels(line));
                 }
             }
             var rule = root.getAttributeValue("lineRule", namespace);
             if (rule != null) {
-                globalStyles.addDeclaration("p/lineRule", rule);
+                globalStyles.put("p/lineRule", rule);
             }
 
             var run = getXmlFromField(document.getStyles().getDefaultRunStyle(), "rpr");
@@ -123,15 +116,14 @@ public class DocxParser {
                     fonts.add(font);
                 }
             }
-            globalStyles.addDeclaration("r/font-family", String.join(", ", fonts));
-            globalStyles.printStyles();
+            globalStyles.put("r/font-family", String.join(", ", fonts));
             return globalStyles;
         } catch (JDOMException | IOException | IllegalAccessException e) {
             e.printStackTrace();
             return null;
         }
     }
-
+    /*
     private String generateHtml() {
         var html = new HtmlBody("generatePageConfig()");
         var page = new HtmlElement("div", "page");
@@ -159,7 +151,7 @@ public class DocxParser {
         }
         return html.toString();
     }
-
+    */
     private List<String> checkRunStyle(XWPFRun run, long id) {
         var style = new StringBuilder();
         var data = new StringBuilder();
@@ -241,5 +233,12 @@ public class DocxParser {
     private Document getXmlFromField(Object object, String fieldName)
             throws IllegalAccessException, IOException, JDOMException {
         return builder.build(new StringReader(FieldUtils.readField(object, fieldName, true).toString()));
+    }
+
+    public List<Error> runStyleCheck() {
+        var errors = new ArrayList<Error>();
+        checkPageConfig(errors);
+
+        return errors;
     }
 }
