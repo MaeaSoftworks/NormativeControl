@@ -22,35 +22,33 @@ public class ParserTests {
 
     @Test
     public void incorrectSizeTest() {
-        var parser = new DocumentParser(params);
         try {
-            parser.init(new XWPFDocument(new FileInputStream("src/main/resources/test files/incorrectWidth.docx")));
+            var parser = new DocumentParser(new XWPFDocument(new FileInputStream("src/main/resources/test files/incorrectWidth.docx")), params);
+            var result = new ArrayList<Error>();
+            ReflectionTestUtils.invokeMethod(parser, "checkPageSize", result);
+            Assert.notEmpty(result, "Error not found!");
+            Assert.state(result.get(0).errorType() == ErrorType.INCORRECT_PAGE_SIZE
+                    && result.get(0).paragraph() == -1
+                    && result.get(0).run() == -1, "Wrong error!");
         } catch (IOException e) {
             System.out.println(e.getMessage());
             Assert.isTrue(false, "Parser cannot initialize!");
         }
-        var result = new ArrayList<Error>();
-        ReflectionTestUtils.invokeMethod(parser, "checkPageSize", result);
-        Assert.notEmpty(result, "Error not found!");
-        Assert.state(result.get(0).errorType() == ErrorType.INCORRECT_PAGE_SIZE
-                && result.get(0).paragraph() == -1
-                && result.get(0).run() == -1, "Wrong error!");
     }
 
     @Test
     public void incorrectMarginTest() {
-        var parser = new DocumentParser(params);
         try {
-            parser.init(new XWPFDocument(new FileInputStream("src/main/resources/test files/incorrectWidth.docx")));
+            var parser = new DocumentParser(new XWPFDocument(new FileInputStream("src/main/resources/test files/incorrectWidth.docx")), params);
+            var result = new ArrayList<Error>();
+            ReflectionTestUtils.invokeMethod(parser, "checkPageMargins", result);
+            Assert.notEmpty(result, "Error not found!");
+            Assert.state(result.get(0).errorType() == ErrorType.INCORRECT_PAGE_MARGINS
+                    && result.get(0).paragraph() == -1
+                    && result.get(0).run() == -1, "Wrong error!");
         } catch (IOException e) {
             System.out.println(e.getMessage());
             Assert.isTrue(false, "Parser cannot initialize!");
         }
-        var result = new ArrayList<Error>();
-        ReflectionTestUtils.invokeMethod(parser, "checkPageMargins", result);
-        Assert.notEmpty(result, "Error not found!");
-        Assert.state(result.get(0).errorType() == ErrorType.INCORRECT_PAGE_MARGINS
-                && result.get(0).paragraph() == -1
-                && result.get(0).run() == -1, "Wrong error!");
     }
 }

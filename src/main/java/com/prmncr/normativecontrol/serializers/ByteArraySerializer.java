@@ -7,9 +7,11 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import java.io.IOException;
 
 public class ByteArraySerializer extends JsonSerializer<byte[]> {
-    private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
+    private static final char[] HEX_ARRAY = new char[]
+        {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 
     @Override
+    @SuppressWarnings("MagicNumber")
     public void serialize(byte[] bytes, JsonGenerator gen, SerializerProvider provider) throws IOException {
         char[] hexChars = new char[bytes.length * 2];
         for (int j = 0; j < bytes.length; j++) {

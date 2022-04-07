@@ -32,7 +32,7 @@ public class DocumentHandler {
     }
 
     private List<Error> getResult(XWPFDocument docx) {
-        DocumentParser parser = new DocumentParser(params).init(docx);
+        DocumentParser parser = new DocumentParser(docx, params);
         return parser.runStyleCheck();
     }
 }

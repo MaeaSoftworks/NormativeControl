@@ -20,7 +20,7 @@ public class ProcessedDocument {
     @Id
     @JsonIgnore
     private String id;
-    @JsonSerialize(using = ByteArraySerializer.class)
+    //@JsonSerialize(using = ByteArraySerializer.class)
     @Lob
     private byte[] file;
     private String errors;

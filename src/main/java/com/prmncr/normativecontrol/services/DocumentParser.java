@@ -13,8 +13,6 @@ import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -24,18 +22,13 @@ import java.util.*;
 public class DocumentParser {
     private static final int POINTS = 20;
     private final SAXBuilder builder;
-    private final Logger logger = LoggerFactory.getLogger(DocumentParser.class);
     private final CorrectDocumentParams params;
-    private XWPFDocument document;
+    private final XWPFDocument document;
 
-    public DocumentParser(CorrectDocumentParams params) {
+    public DocumentParser(XWPFDocument doc, CorrectDocumentParams params) {
         this.builder = new SAXBuilder();
-        this.params = params;
-    }
-
-    public DocumentParser init(XWPFDocument doc) {
         document = doc;
-        return this;
+        this.params = params;
     }
 
     private long getLongPixels(Object points) {
@@ -52,10 +45,7 @@ public class DocumentParser {
 
         var width = getLongPixels(pageSize.getW());
         var height = getLongPixels(pageSize.getH());
-        if (width == params.pageWidth && height == params.pageHeight) {
-            logger.info("Page size: correct! ({} {})", width, height);
-        } else {
-            logger.warn("Page size: incorrect! ({} {})", width, height);
+        if (width != params.pageWidth || height != params.pageHeight) {
             errors.add(new Error(-1, -1, ErrorType.INCORRECT_PAGE_SIZE));
         }
     }
@@ -68,13 +58,8 @@ public class DocumentParser {
         var marginBottom = getLongPixels(pageMargins.getBottom());
         var marginRight = getLongPixels(pageMargins.getRight());
 
-        if (marginTop == params.pageMarginTop
-                && marginRight == params.pageMarginRight
-                && marginBottom == params.pageMarginBottom
-                && marginLeft == params.pageMarginLeft) {
-            logger.info("Margins: correct! ({} {} {} {})", marginTop, marginRight, marginBottom, marginLeft);
-        } else {
-            logger.warn("Margins: incorrect! ({} {} {} {})", marginTop, marginRight, marginBottom, marginLeft);
+        if (marginTop != params.pageMarginTop || marginRight != params.pageMarginRight
+                || marginBottom != params.pageMarginBottom || marginLeft != params.pageMarginLeft) {
             errors.add(new Error(-1, -1, ErrorType.INCORRECT_PAGE_MARGINS));
         }
     }
