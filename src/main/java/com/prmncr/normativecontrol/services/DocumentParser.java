@@ -1,10 +1,12 @@
 package com.prmncr.normativecontrol.services;
 
 import com.prmncr.normativecontrol.components.CorrectDocumentParams;
+import com.prmncr.normativecontrol.components.SectorKeywords;
 import com.prmncr.normativecontrol.dtos.Error;
 import com.prmncr.normativecontrol.dtos.ErrorType;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
+import org.apache.commons.math3.util.Pair;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
@@ -23,12 +25,32 @@ public class DocumentParser {
     private static final int POINTS = 20;
     private final SAXBuilder builder;
     private final CorrectDocumentParams params;
+    private final SectorKeywords keywords;
     private final XWPFDocument document;
+    private final int paragraphsCount;
 
-    public DocumentParser(XWPFDocument doc, CorrectDocumentParams params) {
+    private final List<XWPFParagraph> frontPage = new ArrayList<>();
+    private final List<XWPFParagraph> contents = new ArrayList<>();
+    private final List<XWPFParagraph> introduction = new ArrayList<>();
+    private final List<XWPFParagraph> essay = new ArrayList<>();
+    private final List<XWPFParagraph> conclusion = new ArrayList<>();
+    private final List<XWPFParagraph> references = new ArrayList<>();
+    private final List<XWPFParagraph> appendix = new ArrayList<>();
+    private final List<List<XWPFParagraph>> sectors = new ArrayList<>();
+
+    public DocumentParser(XWPFDocument doc, CorrectDocumentParams params, SectorKeywords keywords) {
         this.builder = new SAXBuilder();
+        this.keywords = keywords;
         document = doc;
         this.params = params;
+        paragraphsCount = document.getParagraphs().size();
+        sectors.add(frontPage);
+        sectors.add(contents);
+        sectors.add(introduction);
+        sectors.add(essay);
+        sectors.add(conclusion);
+        sectors.add(references);
+        sectors.add(appendix);
     }
 
     private long getLongPixels(Object points) {
@@ -37,6 +59,11 @@ public class DocumentParser {
 
     private String getDoublePixels(String points) {
         return Double.toString(Double.parseDouble(points) / POINTS);
+    }
+
+    private Document getXmlFromField(Object object, String fieldName)
+            throws IllegalAccessException, IOException, JDOMException {
+        return builder.build(new StringReader(FieldUtils.readField(object, fieldName, true).toString()));
     }
 
     private void checkPageSize(ArrayList<Error> errors) {
@@ -62,6 +89,54 @@ public class DocumentParser {
                 || marginBottom != params.pageMarginBottom || marginLeft != params.pageMarginLeft) {
             errors.add(new Error(-1, -1, ErrorType.INCORRECT_PAGE_MARGINS));
         }
+    }
+
+    private void findSectors(ArrayList<Error> errors) {
+        var s0 = new Pair<>(0, 0);
+        var s1 = collectSector(s0, errors);
+        var s2 = collectSector(s1, errors);
+        var s3 = collectSector(s2, errors);
+        var s4 = collectSector(s3, errors);
+        var s5 = collectSector(s4, errors);
+        var s6 = collectSector(s5, errors);
+        collectSector(s6, errors);
+    }
+
+    private Pair<Integer, Integer> collectSector(Pair<Integer, Integer> coordinates, List<Error> errors) {
+        var paragraph = coordinates.getKey();
+        var sectorId = coordinates.getValue();
+        var paragraphs = document.getParagraphs();
+        for (; paragraph < paragraphs.size(); paragraph++) {
+            var text = paragraphs.get(paragraph).getText();
+            // are we collecting last sector? (he hasn't got next header)
+            if (keywords.allKeywords.size() + 1 == sectorId) {
+                sectors.get(sectorId).add(paragraphs.get(paragraph));
+                continue;
+            }
+            var words = text.split("\s+");
+            // did we find some header?
+            if (words.length > 0 && words.length <= keywords.getMaxLength()
+                    && keywords.allKeywordsFlat.contains(text.toUpperCase(Locale.ROOT))) {
+                // yes, some header is here
+                var error = new Error(paragraph, -1, ErrorType.INCORRECT_SECTORS);
+                for (int i = sectorId + 1; i <= keywords.allKeywords.size(); i++) {
+                    // what sector is this header?
+                    if (keywords.allKeywords.get(i - 1).contains(text.toUpperCase(Locale.ROOT))) {
+                        // we found next sector
+                        //todo checkSectorHeader()
+                        paragraph++;
+                        return new Pair<>(paragraph, i);
+                    } else if (!errors.contains(error)) {
+                        // it is not next sector! error!
+                        errors.add(error);
+                    }
+                }
+            } else {
+                //it's not a header
+                sectors.get(sectorId).add(paragraphs.get(paragraph));
+            }
+        }
+        return null;
     }
 
     private Map<String, Object> findDefaultStyles() {
@@ -142,6 +217,7 @@ public class DocumentParser {
         return html.toString();
     }
     */
+
     private List<String> checkRunStyle(XWPFRun run, long id) {
         var style = new StringBuilder();
         var data = new StringBuilder();
@@ -220,13 +296,9 @@ public class DocumentParser {
         return Arrays.asList(style.toString(), data.toString());
     }
 
-    private Document getXmlFromField(Object object, String fieldName)
-            throws IllegalAccessException, IOException, JDOMException {
-        return builder.build(new StringReader(FieldUtils.readField(object, fieldName, true).toString()));
-    }
-
     public List<Error> runStyleCheck() {
         var errors = new ArrayList<Error>();
+        findSectors(errors);
         checkPageSize(errors);
         checkPageMargins(errors);
 

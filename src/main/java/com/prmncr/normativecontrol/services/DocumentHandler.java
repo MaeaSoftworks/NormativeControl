@@ -1,6 +1,7 @@
 package com.prmncr.normativecontrol.services;
 
 import com.prmncr.normativecontrol.components.CorrectDocumentParams;
+import com.prmncr.normativecontrol.components.SectorKeywords;
 import com.prmncr.normativecontrol.dtos.*;
 import com.prmncr.normativecontrol.dtos.Error;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
@@ -14,9 +15,11 @@ import java.util.List;
 @SuppressWarnings("ClassCanBeRecord")
 public class DocumentHandler {
     private final CorrectDocumentParams params;
+    private final SectorKeywords keywords;
 
-    public DocumentHandler(CorrectDocumentParams params) {
+    public DocumentHandler(CorrectDocumentParams params, SectorKeywords keywords) {
         this.params = params;
+        this.keywords = keywords;
     }
 
     public void handle(Document document) {
@@ -32,7 +35,7 @@ public class DocumentHandler {
     }
 
     private List<Error> getResult(XWPFDocument docx) {
-        DocumentParser parser = new DocumentParser(docx, params);
+        DocumentParser parser = new DocumentParser(docx, params, keywords);
         return parser.runStyleCheck();
     }
 }

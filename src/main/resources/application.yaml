@@ -1,0 +1,27 @@
+document:
+  page:
+    margin:
+      bottom: '56'
+      left: '85'
+      right: '42'
+      top: '56'
+    width: '595'
+    height: '841'
+  sectors:
+    keywords:
+      essay: РЕФЕРАТ,
+      appendix: ПРИЛОЖЕНИЕ,ПРИЛОЖЕНИЯ,
+      references: БИБЛИОГРАФИЧЕСКИЙ СПИСОК,СПИСОК ИСПОЛЬЗОВАННОЙ ЛИТЕРАТУРЫ,СПИСОК ЛИТЕРАТУРЫ,
+      contents: СОДЕРЖАНИЕ,
+      introduction: ВВЕДЕНИЕ,
+      conclusion: ЗАКЛЮЧЕНИЕ,
+spring:
+  datasource:
+    password: meaasoftworks52(
+    username: meaasoftworks
+    url: jdbc:h2:~/database/documents
+  jpa:
+    hibernate:
+      ddl-auto: update
+server:
+  port: '8080'
