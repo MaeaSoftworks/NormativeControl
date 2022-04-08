@@ -6,7 +6,6 @@ import com.prmncr.normativecontrol.dtos.Error;
 import com.prmncr.normativecontrol.dtos.ErrorType;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
-import org.apache.commons.math3.util.Pair;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
@@ -27,7 +26,6 @@ public class DocumentParser {
     private final CorrectDocumentParams params;
     private final SectorKeywords keywords;
     private final XWPFDocument document;
-    private final int paragraphsCount;
 
     private final List<XWPFParagraph> frontPage = new ArrayList<>();
     private final List<XWPFParagraph> contents = new ArrayList<>();
@@ -43,7 +41,6 @@ public class DocumentParser {
         this.keywords = keywords;
         document = doc;
         this.params = params;
-        paragraphsCount = document.getParagraphs().size();
         sectors.add(frontPage);
         sectors.add(contents);
         sectors.add(introduction);
@@ -91,20 +88,12 @@ public class DocumentParser {
         }
     }
 
-    private void findSectors(ArrayList<Error> errors) {
-        var s0 = new Pair<>(0, 0);
-        var s1 = collectSector(s0, errors);
-        var s2 = collectSector(s1, errors);
-        var s3 = collectSector(s2, errors);
-        var s4 = collectSector(s3, errors);
-        var s5 = collectSector(s4, errors);
-        var s6 = collectSector(s5, errors);
-        collectSector(s6, errors);
+    private void findSectors(List<Error> errors) {
+        findSectors(0, 0, errors);
     }
 
-    private Pair<Integer, Integer> collectSector(Pair<Integer, Integer> coordinates, List<Error> errors) {
-        var paragraph = coordinates.getKey();
-        var sectorId = coordinates.getValue();
+    private void findSectors(int paragraphId, int sectorId, List<Error> errors) {
+        var paragraph = paragraphId;
         var paragraphs = document.getParagraphs();
         for (; paragraph < paragraphs.size(); paragraph++) {
             var text = paragraphs.get(paragraph).getText();
@@ -125,7 +114,8 @@ public class DocumentParser {
                         // we found next sector
                         //todo checkSectorHeader()
                         paragraph++;
-                        return new Pair<>(paragraph, i);
+                        findSectors(paragraph, i, errors);
+                        return;
                     } else if (!errors.contains(error)) {
                         // it is not next sector! error!
                         errors.add(error);
@@ -136,7 +126,6 @@ public class DocumentParser {
                 sectors.get(sectorId).add(paragraphs.get(paragraph));
             }
         }
-        return null;
     }
 
     private Map<String, Object> findDefaultStyles() {
@@ -298,7 +287,7 @@ public class DocumentParser {
 
     public List<Error> runStyleCheck() {
         var errors = new ArrayList<Error>();
-        findSectors(errors);
+        findSectors(0, 0, errors);
         checkPageSize(errors);
         checkPageMargins(errors);
 

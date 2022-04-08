@@ -10,21 +10,21 @@ import java.util.List;
 
 @Component
 public class SectorKeywords {
-    @Value("#{'${document.sectors.keywords.contents}'.split(',')}")
-    public List<String> contents;
-    @Value("#{'${document.sectors.keywords.introduction}'.split(',')}")
-    public List<String> introduction;
-    @Value("#{'${document.sectors.keywords.essay}'.split(',')}")
-    public List<String> essay;
-    @Value("#{'${document.sectors.keywords.conclusion}'.split(',')}")
-    public List<String> conclusion;
-    @Value("#{'${document.sectors.keywords.references}'.split(',')}")
-    public List<String> references;
-    @Value("#{'${document.sectors.keywords.appendix}'.split(',')}")
-    public List<String> appendix;
-
     public List<String> allKeywordsFlat;
     public List<List<String>> allKeywords;
+
+    @Value("#{'${document.sectors.keywords.contents}'.split(',')}")
+    private List<String> contents;
+    @Value("#{'${document.sectors.keywords.introduction}'.split(',')}")
+    private List<String> introduction;
+    @Value("#{'${document.sectors.keywords.essay}'.split(',')}")
+    private List<String> essay;
+    @Value("#{'${document.sectors.keywords.conclusion}'.split(',')}")
+    private List<String> conclusion;
+    @Value("#{'${document.sectors.keywords.references}'.split(',')}")
+    private List<String> references;
+    @Value("#{'${document.sectors.keywords.appendix}'.split(',')}")
+    private List<String> appendix;
 
     private int maxLength = -1;
 

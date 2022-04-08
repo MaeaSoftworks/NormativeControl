@@ -17,6 +17,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @SpringBootTest
 public class ParserTests {
@@ -59,9 +60,9 @@ public class ParserTests {
 
     @Test
     @SuppressWarnings("unchecked")
-    public void sectorsFound() {
+    public void correctSectorsFound() {
         try {
-            var parser = new DocumentParser(new XWPFDocument(new FileInputStream("src/main/resources/test files/e2.docx")), params, keywords);
+            var parser = new DocumentParser(new XWPFDocument(new FileInputStream("src/main/resources/test files/correctSectors.docx")), params, keywords);
             var result = new ArrayList<Error>();
             ReflectionTestUtils.invokeMethod(parser, "findSectors", result);
             Assert.notEmpty((List<Object>) ReflectionTestUtils.getField(parser, "frontPage"), "1 not found!");
@@ -72,6 +73,29 @@ public class ParserTests {
             Assert.notEmpty((List<Object>) ReflectionTestUtils.getField(parser, "references"), "6 not found!");
             Assert.notEmpty((List<Object>) ReflectionTestUtils.getField(parser, "appendix"), "7 not found!");
             Assert.isTrue(result.size() == 0, "There shouldn't be any errors!");
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+            Assert.isTrue(false, "Parser cannot be initialized!");
+        } catch (ClassCastException ex) {
+            Assert.isTrue(false, "Wrong field!");
+        }
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void incorrectSectorsFound() {
+        try {
+            var parser = new DocumentParser(new XWPFDocument(new FileInputStream("src/main/resources/test files/skippedSector.docx")), params, keywords);
+            var result = new ArrayList<Error>();
+            ReflectionTestUtils.invokeMethod(parser, "findSectors", result);
+            Assert.notEmpty((List<Object>) ReflectionTestUtils.getField(parser, "frontPage"), "1 MUST BE found!");
+            Assert.notEmpty((List<Object>) ReflectionTestUtils.getField(parser, "contents"), "2 MUST BE found!");
+            Assert.notEmpty((List<Object>) ReflectionTestUtils.getField(parser, "introduction"), "3 MUST BE found!");
+            Assert.isTrue(((List<Object>) Objects.requireNonNull(ReflectionTestUtils.getField(parser, "essay"))).size() == 0, "4 MUST BE not found!");
+            Assert.notEmpty((List<Object>) ReflectionTestUtils.getField(parser, "conclusion"), "5 MUST BE found!");
+            Assert.notEmpty((List<Object>) ReflectionTestUtils.getField(parser, "references"), "6 MUST BE found!");
+            Assert.notEmpty((List<Object>) ReflectionTestUtils.getField(parser, "appendix"), "7 MUST BE found!");
+            Assert.isTrue(result.size() == 1, "There should be error!");
         } catch (IOException e) {
             System.out.println(e.getMessage());
             Assert.isTrue(false, "Parser cannot be initialized!");
