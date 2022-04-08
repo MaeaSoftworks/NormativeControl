@@ -50,6 +50,10 @@ public class DocumentParser {
         sectors.add(appendix);
     }
 
+    public List<List<XWPFParagraph>> getSectors() {
+        return sectors;
+    }
+
     private long getLongPixels(Object points) {
         return ((BigInteger) points).longValue() / POINTS;
     }
@@ -63,7 +67,7 @@ public class DocumentParser {
         return builder.build(new StringReader(FieldUtils.readField(object, fieldName, true).toString()));
     }
 
-    private void checkPageSize(ArrayList<Error> errors) {
+    public void checkPageSize(ArrayList<Error> errors) {
         var sector = document.getDocument().getBody().getSectPr();
         var pageSize = sector.getPgSz();
 
@@ -74,7 +78,7 @@ public class DocumentParser {
         }
     }
 
-    private void checkPageMargins(ArrayList<Error> errors) {
+    public void checkPageMargins(ArrayList<Error> errors) {
         var sector = document.getDocument().getBody().getSectPr();
         var pageMargins = sector.getPgMar();
         var marginTop = getLongPixels(pageMargins.getTop());
@@ -88,7 +92,7 @@ public class DocumentParser {
         }
     }
 
-    private void findSectors(List<Error> errors) {
+    public void findSectors(List<Error> errors) {
         findSectors(0, 0, errors);
     }
 
