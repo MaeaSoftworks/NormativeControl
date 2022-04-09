@@ -4,7 +4,8 @@ import com.prmncr.normativecontrol.components.CorrectDocumentParams;
 import com.prmncr.normativecontrol.components.SectorKeywords;
 import com.prmncr.normativecontrol.dtos.*;
 import com.prmncr.normativecontrol.dtos.Error;
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.docx4j.openpackaging.exceptions.Docx4JException;
+import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
@@ -23,10 +24,10 @@ public class DocumentHandler {
     }
 
     public void handle(Document document) {
-        XWPFDocument docx;
+        WordprocessingMLPackage docx;
         try {
-            docx = new XWPFDocument(new ByteArrayInputStream(document.getFile()));
-        } catch (IOException e) {
+            docx = WordprocessingMLPackage.load(new ByteArrayInputStream(document.getFile()));
+        } catch (Docx4JException e) {
             document.setState(State.ERROR);
             document.setResult(new Result(FailureType.FILE_READING_ERROR));
             return;
@@ -34,7 +35,7 @@ public class DocumentHandler {
         document.setResult(new Result(getResult(docx)));
     }
 
-    private List<Error> getResult(XWPFDocument docx) {
+    private List<Error> getResult(WordprocessingMLPackage docx) {
         DocumentParser parser = new DocumentParser(docx, params, keywords);
         return parser.runStyleCheck();
     }

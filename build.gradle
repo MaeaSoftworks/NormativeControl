@@ -21,7 +21,8 @@ dependencies {
 
     implementation 'org.slf4j:slf4j-api:1.7.36'
 
-    implementation 'org.apache.poi:poi-ooxml:5.2.2'
+    implementation 'org.docx4j:docx4j-JAXB-ReferenceImpl:8.3.4'
+
     implementation 'org.apache.commons:commons-lang3:3.12.0'
 
     developmentOnly 'org.springframework.boot:spring-boot-starter-actuator'

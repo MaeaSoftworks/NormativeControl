@@ -9,12 +9,13 @@ document:
     height: '841'
   sectors:
     keywords:
-      essay: РЕФЕРАТ,
-      appendix: ПРИЛОЖЕНИЕ,ПРИЛОЖЕНИЯ,
-      references: БИБЛИОГРАФИЧЕСКИЙ СПИСОК,СПИСОК ИСПОЛЬЗОВАННОЙ ЛИТЕРАТУРЫ,СПИСОК ЛИТЕРАТУРЫ,
-      contents: СОДЕРЖАНИЕ,
+      annotation: РЕФЕРАТ,
+      contents: СОДЕРЖАНИЕ,ОГЛАВЛЕНИЕ
       introduction: ВВЕДЕНИЕ,
+      body: ГЛАВА,
       conclusion: ЗАКЛЮЧЕНИЕ,
+      references: БИБЛИОГРАФИЧЕСКИЙ СПИСОК,СПИСОК ИСПОЛЬЗОВАННОЙ ЛИТЕРАТУРЫ,СПИСОК ЛИТЕРАТУРЫ,
+      appendix: ПРИЛОЖЕНИЕ,ПРИЛОЖЕНИЯ,
 spring:
   datasource:
     password: meaasoftworks52(

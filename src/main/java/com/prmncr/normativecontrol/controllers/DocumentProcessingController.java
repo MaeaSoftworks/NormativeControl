@@ -38,7 +38,7 @@ public class DocumentProcessingController {
     public ResponseEntity<Object> uploadDocument(@RequestParam("file") MultipartFile file) throws IOException {
         var documentId = documentsManager.addToQueue(file.getBytes());
         return new ResponseEntity<>(new Object() {
-            @SuppressWarnings({"CheckStyle", "unused"})
+            @SuppressWarnings("unused")
             public final String id = documentId;
         }, HttpStatus.ACCEPTED);
     }

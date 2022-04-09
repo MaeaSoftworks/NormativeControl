@@ -4,14 +4,14 @@ import com.prmncr.normativecontrol.components.CorrectDocumentParams;
 import com.prmncr.normativecontrol.components.SectorKeywords;
 import com.prmncr.normativecontrol.dtos.Error;
 import com.prmncr.normativecontrol.dtos.ErrorType;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
-import org.apache.poi.xwpf.usermodel.XWPFParagraph;
-import org.apache.poi.xwpf.usermodel.XWPFRun;
-import org.jdom2.Attribute;
+import org.docx4j.TextUtils;
+import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
+import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
+import org.docx4j.wml.Br;
+import org.docx4j.wml.P;
+import org.docx4j.wml.R;
 import org.jdom2.Document;
-import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
 
@@ -25,32 +25,36 @@ public class DocumentParser {
     private final SAXBuilder builder;
     private final CorrectDocumentParams params;
     private final SectorKeywords keywords;
-    private final XWPFDocument document;
+    private final MainDocumentPart mainDocumentPart;
+    private final WordprocessingMLPackage document;
 
-    private final List<XWPFParagraph> frontPage = new ArrayList<>();
-    private final List<XWPFParagraph> contents = new ArrayList<>();
-    private final List<XWPFParagraph> introduction = new ArrayList<>();
-    private final List<XWPFParagraph> essay = new ArrayList<>();
-    private final List<XWPFParagraph> conclusion = new ArrayList<>();
-    private final List<XWPFParagraph> references = new ArrayList<>();
-    private final List<XWPFParagraph> appendix = new ArrayList<>();
-    private final List<List<XWPFParagraph>> sectors = new ArrayList<>();
+    private final List<Object> frontPage = new ArrayList<>();
+    private final List<Object> annotation = new ArrayList<>();
+    private final List<Object> contents = new ArrayList<>();
+    private final List<Object> introduction = new ArrayList<>();
+    private final List<Object> body = new ArrayList<>();
+    private final List<Object> conclusion = new ArrayList<>();
+    private final List<Object> references = new ArrayList<>();
+    private final List<Object> appendix = new ArrayList<>();
+    private final List<List<Object>> sectors = new ArrayList<>();
 
-    public DocumentParser(XWPFDocument doc, CorrectDocumentParams params, SectorKeywords keywords) {
+    public DocumentParser(WordprocessingMLPackage doc, CorrectDocumentParams params, SectorKeywords keywords) {
         this.builder = new SAXBuilder();
         this.keywords = keywords;
+        mainDocumentPart = doc.getMainDocumentPart();
         document = doc;
         this.params = params;
         sectors.add(frontPage);
+        sectors.add(annotation);
         sectors.add(contents);
         sectors.add(introduction);
-        sectors.add(essay);
+        sectors.add(body);
         sectors.add(conclusion);
         sectors.add(references);
         sectors.add(appendix);
     }
 
-    public List<List<XWPFParagraph>> getSectors() {
+    public List<List<Object>> getSectors() {
         return sectors;
     }
 
@@ -68,7 +72,7 @@ public class DocumentParser {
     }
 
     public void checkPageSize(ArrayList<Error> errors) {
-        var sector = document.getDocument().getBody().getSectPr();
+        var sector = mainDocumentPart.getJaxbElement().getBody().getSectPr();
         var pageSize = sector.getPgSz();
 
         var width = getLongPixels(pageSize.getW());
@@ -79,7 +83,7 @@ public class DocumentParser {
     }
 
     public void checkPageMargins(ArrayList<Error> errors) {
-        var sector = document.getDocument().getBody().getSectPr();
+        var sector = mainDocumentPart.getJaxbElement().getBody().getSectPr();
         var pageMargins = sector.getPgMar();
         var marginTop = getLongPixels(pageMargins.getTop());
         var marginLeft = getLongPixels(pageMargins.getLeft());
@@ -97,45 +101,77 @@ public class DocumentParser {
     }
 
     private void findSectors(int paragraphId, int sectorId, List<Error> errors) {
-        var paragraph = paragraphId;
-        var paragraphs = document.getParagraphs();
-        for (; paragraph < paragraphs.size(); paragraph++) {
-            var text = paragraphs.get(paragraph).getText();
+        var paragraphs = mainDocumentPart.getContent();
+        for (var paragraph = paragraphId; paragraph < paragraphs.size(); paragraph++) {
             // are we collecting last sector? (he hasn't got next header)
             if (keywords.allKeywords.size() + 1 == sectorId) {
                 sectors.get(sectorId).add(paragraphs.get(paragraph));
                 continue;
             }
-            var words = text.split("\s+");
-            // did we find some header?
-            if (words.length > 0 && words.length <= keywords.getMaxLength()
-                    && keywords.allKeywordsFlat.contains(text.toUpperCase(Locale.ROOT))) {
-                // yes, some header is here
-                var error = new Error(paragraph, -1, ErrorType.INCORRECT_SECTORS);
-                for (int i = sectorId + 1; i <= keywords.allKeywords.size(); i++) {
-                    // what sector is this header?
-                    if (keywords.allKeywords.get(i - 1).contains(text.toUpperCase(Locale.ROOT))) {
-                        // we found next sector
-                        //todo checkSectorHeader()
-                        paragraph++;
-                        findSectors(paragraph, i, errors);
-                        return;
-                    } else if (!errors.contains(error)) {
-                        // it is not next sector! error!
-                        errors.add(error);
+            var p = paragraphs.get(paragraph);
+            if (p instanceof P && ((P) p).getContent().size() <= 2) {
+                var text = TextUtils.getText(paragraphs.get(paragraph));
+                // did we find some header?
+                if (isHeader(paragraph, text)) {
+                    // yes, some header is here
+                    var error = new Error(paragraph, -1, ErrorType.INCORRECT_SECTORS);
+                    for (int i = sectorId + 1; i <= keywords.allKeywords.size(); i++) {
+                        // what sector is this header?
+                        if (keywords.allKeywords.get(i - 1).contains(text.toUpperCase(Locale.ROOT))) {
+                            // we found next sector
+                            checkHeaderStyle(paragraph, errors);
+                            paragraph++;
+                            findSectors(paragraph, i, errors);
+                            return;
+                        } else if (!errors.contains(error)) {
+                            // it is not next sector! error!
+                            errors.add(error);
+                        }
                     }
+                } else {
+                    //it's not a header
+                    sectors.get(sectorId).add(paragraphs.get(paragraph));
                 }
             } else {
-                //it's not a header
                 sectors.get(sectorId).add(paragraphs.get(paragraph));
             }
         }
     }
 
+    public boolean isHeader(int paragraph, String text) {
+        var words = text.split("\s+");
+        if (words.length == 0 || words.length > keywords.getMaxLength()) {
+            return false;
+        }
+        var paragraphs = mainDocumentPart.getContent();
+        if (paragraph > 0) {
+            if (paragraphs.get(paragraph - 1) instanceof P previous) {
+                var runs = previous.getContent();
+                if (runs.size() > 0) {
+                    var lastRun = runs.get(runs.size() - 1);
+                    if (lastRun instanceof R r) {
+                        if (r.getContent().get(r.getContent().size() -1) instanceof Br) {
+                            return true;
+                        }
+                    }
+                    if (!(lastRun instanceof Br)) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return keywords.allKeywordsFlat.contains(text.toUpperCase(Locale.ROOT));
+    }
+
+    public void checkHeaderStyle(int paragraph, List<Error> errors) {
+
+    }
+
+    /*
     private Map<String, Object> findDefaultStyles() {
         var globalStyles = new HashMap<String, Object>();
         try {
-            var paragraph = getXmlFromField(document.getStyles().getDefaultParagraphStyle(), "ppr");
+            var paragraph = getXmlFromField(mainDocumentPart.getStyles().getDefaultParagraphStyle(), "ppr");
             var root = paragraph.getRootElement();
             var namespace = root.getNamespace();
 
@@ -155,7 +191,7 @@ public class DocumentParser {
                 globalStyles.put("p/lineRule", rule);
             }
 
-            var run = getXmlFromField(document.getStyles().getDefaultRunStyle(), "rpr");
+            var run = getXmlFromField(mainDocumentPart.getStyles().getDefaultRunStyle(), "rpr");
             root = run.getRootElement();
             var attributes =
                     FieldUtils.readField(
@@ -209,7 +245,6 @@ public class DocumentParser {
         }
         return html.toString();
     }
-    */
 
     private List<String> checkRunStyle(XWPFRun run, long id) {
         var style = new StringBuilder();
@@ -288,6 +323,7 @@ public class DocumentParser {
         data.append("data-border-between='").append(p.getBorderRight().toString()).append("'");
         return Arrays.asList(style.toString(), data.toString());
     }
+*/
 
     public List<Error> runStyleCheck() {
         var errors = new ArrayList<Error>();
