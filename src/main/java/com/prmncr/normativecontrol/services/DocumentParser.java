@@ -18,7 +18,9 @@ import org.jdom2.input.SAXBuilder;
 import java.io.IOException;
 import java.io.StringReader;
 import java.math.BigInteger;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 public class DocumentParser {
     private static final int POINTS = 20;
@@ -150,7 +152,7 @@ public class DocumentParser {
                 if (runs.size() > 0) {
                     var lastRun = runs.get(runs.size() - 1);
                     if (lastRun instanceof R r) {
-                        if (r.getContent().get(r.getContent().size() -1) instanceof Br) {
+                        if (r.getContent().get(r.getContent().size() - 1) instanceof Br) {
                             return true;
                         }
                     }

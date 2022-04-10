@@ -24,5 +24,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+  messages:
+    basename: i18n/messages
 server:
   port: '8080'

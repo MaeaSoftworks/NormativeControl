@@ -2,14 +2,13 @@ package com.prmncr.normativecontrol.services;
 
 import com.prmncr.normativecontrol.components.CorrectDocumentParams;
 import com.prmncr.normativecontrol.components.SectorKeywords;
-import com.prmncr.normativecontrol.dtos.*;
 import com.prmncr.normativecontrol.dtos.Error;
+import com.prmncr.normativecontrol.dtos.*;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.util.List;
 
 @Service
