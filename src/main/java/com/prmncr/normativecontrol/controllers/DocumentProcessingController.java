@@ -4,6 +4,8 @@ import com.prmncr.normativecontrol.dbos.ProcessedDocument;
 import com.prmncr.normativecontrol.dtos.Result;
 import com.prmncr.normativecontrol.dtos.State;
 import com.prmncr.normativecontrol.services.DocumentManager;
+import lombok.AllArgsConstructor;
+import lombok.val;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,12 +16,9 @@ import java.io.IOException;
 @CrossOrigin
 @RestController
 @RequestMapping("api")
+@AllArgsConstructor
 public class DocumentProcessingController {
     private final DocumentManager documentsManager;
-
-    public DocumentProcessingController(DocumentManager documentsManager) {
-        this.documentsManager = documentsManager;
-    }
 
     @GetMapping("get-status")
     @ResponseBody
@@ -36,7 +35,7 @@ public class DocumentProcessingController {
     @PostMapping("upload-document")
     @ResponseBody
     public ResponseEntity<Object> uploadDocument(@RequestParam("file") MultipartFile file) throws IOException {
-        var documentId = documentsManager.addToQueue(file.getBytes());
+        val documentId = documentsManager.addToQueue(file.getBytes());
         return new ResponseEntity<>(new Object() {
             @SuppressWarnings("unused")
             public final String id = documentId;

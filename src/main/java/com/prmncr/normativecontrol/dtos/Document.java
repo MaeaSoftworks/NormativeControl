@@ -1,38 +1,19 @@
 package com.prmncr.normativecontrol.dtos;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+
+@RequiredArgsConstructor
 public class Document {
+    @Getter
     private final String id;
+    @Getter
     private final byte[] file;
-    private State state;
+    @Getter
+    @Setter
+    private State state = State.QUEUE;
+    @Getter
+    @Setter
     private Result result;
-
-    public Document(String id, byte[] file) {
-        this.id = id;
-        this.state = State.QUEUE;
-        this.file = file;
-    }
-
-    public byte[] getFile() {
-        return file;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public State getState() {
-        return state;
-    }
-
-    public void setState(State state) {
-        this.state = state;
-    }
-
-    public Result getResult() {
-        return result;
-    }
-
-    public void setResult(Result result) {
-        this.result = result;
-    }
 }

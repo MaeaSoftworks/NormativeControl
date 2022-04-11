@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
-public class DocumentStorage {
+public class DocumentQueue {
     private final Map<String, Document> documentMap = new ConcurrentHashMap<>();
 
     public void put(Document document) {

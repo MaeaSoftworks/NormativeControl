@@ -1,66 +1,37 @@
 package com.prmncr.normativecontrol;
 
-import com.prmncr.normativecontrol.components.CorrectDocumentParams;
-import com.prmncr.normativecontrol.components.SectorKeywords;
-import com.prmncr.normativecontrol.services.DocumentParser;
-import com.prmncr.normativecontrol.dtos.Error;
 import com.prmncr.normativecontrol.dtos.ErrorType;
-import org.docx4j.openpackaging.exceptions.Docx4JException;
-import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
+import lombok.val;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.util.Assert;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-
 @SpringBootTest
-public class ParserTests {
-    @MockBean
-    private CorrectDocumentParams params;
-    @Autowired
-    private SectorKeywords keywords;
-
-    private DocumentParser createParser(String filename) {
-        try {
-            return new DocumentParser(WordprocessingMLPackage.load(new FileInputStream("src/main/resources/test files/" + filename)), params, keywords);
-        } catch (IOException | Docx4JException e) {
-            System.out.println(e.getMessage());
-            Assert.isTrue(false, "Parser cannot be initialized!");
-            return new DocumentParser(null, params, keywords);
-        }
+class ParserTests extends TestSetup {
+    @Test
+    void incorrectSizeTest() {
+        val parser = createParser("incorrectWidth.docx");
+        parser.checkPageSize();
+        Assert.notEmpty(parser.getErrors(), "Error not found!");
+        Assert.state(parser.getErrors().get(0).errorType() == ErrorType.INCORRECT_PAGE_SIZE
+                && parser.getErrors().get(0).paragraph() == -1
+                && parser.getErrors().get(0).run() == -1, "Wrong error!");
     }
 
     @Test
-    public void incorrectSizeTest() {
-        var parser = createParser("incorrectWidth.docx");
-        var result = new ArrayList<Error>();
-        parser.checkPageSize(result);
-        Assert.notEmpty(result, "Error not found!");
-        Assert.state(result.get(0).errorType() == ErrorType.INCORRECT_PAGE_SIZE
-                && result.get(0).paragraph() == -1
-                && result.get(0).run() == -1, "Wrong error!");
+    void incorrectMarginTest() {
+        val parser = createParser("incorrectMargin.docx");
+        parser.checkPageMargins();
+        Assert.notEmpty(parser.getErrors(), "Error not found!");
+        Assert.state(parser.getErrors().get(0).errorType() == ErrorType.INCORRECT_PAGE_MARGINS
+                && parser.getErrors().get(0).paragraph() == -1
+                && parser.getErrors().get(0).run() == -1, "Wrong error!");
     }
 
     @Test
-    public void incorrectMarginTest() {
-        var parser = createParser("incorrectWidth.docx");
-        var result = new ArrayList<Error>();
-        parser.checkPageMargins(result);
-        Assert.notEmpty(result, "Error not found!");
-        Assert.state(result.get(0).errorType() == ErrorType.INCORRECT_PAGE_MARGINS
-                && result.get(0).paragraph() == -1
-                && result.get(0).run() == -1, "Wrong error!");
-    }
-
-    @Test
-    public void correctSectorsFound() {
-        var parser = createParser("correctSectors.docx");
-        var result = new ArrayList<Error>();
-        parser.findSectors(result);
+    void correctSectorsFound() {
+        val parser = createParser("correctSectors.docx");
+        parser.findSectors();
         Assert.notEmpty(parser.getSectors().get(0), "0 not found!");
         Assert.notEmpty(parser.getSectors().get(1), "1 not found!");
         Assert.notEmpty(parser.getSectors().get(2), "2 not found!");
@@ -69,14 +40,13 @@ public class ParserTests {
         Assert.notEmpty(parser.getSectors().get(5), "5 not found!");
         Assert.notEmpty(parser.getSectors().get(6), "6 not found!");
         Assert.notEmpty(parser.getSectors().get(7), "7 not found!");
-        Assert.isTrue(result.size() == 0, "There shouldn't be any errors!");
+        Assert.isTrue(parser.getErrors().size() == 0, "There shouldn't be any error!");
     }
 
     @Test
-    public void incorrectSectorsFound() {
-        var parser = createParser("skippedSector.docx");
-        var result = new ArrayList<Error>();
-        parser.findSectors(result);
+    void incorrectSectorsFound() {
+        val parser = createParser("skippedSector.docx");
+        parser.findSectors();
         Assert.notEmpty(parser.getSectors().get(0), "0 must be found!");
         Assert.notEmpty(parser.getSectors().get(1), "1 must be found!");
         Assert.notEmpty(parser.getSectors().get(2), "2 must be found!");
@@ -85,14 +55,13 @@ public class ParserTests {
         Assert.notEmpty(parser.getSectors().get(5), "5 must be found!");
         Assert.notEmpty(parser.getSectors().get(6), "6 must be found!");
         Assert.notEmpty(parser.getSectors().get(7), "7 must be found!");
-        Assert.isTrue(result.size() == 1, "There should be error!");
+        Assert.isTrue(parser.getErrors().size() == 1, "There should be error!");
     }
 
     @Test
-    public void allSectorsSkipped() {
-        var parser = createParser("skippedAllSectors.docx");
-        var result = new ArrayList<Error>();
-        parser.findSectors(result);
+    void allSectorsSkipped() {
+        val parser = createParser("skippedAllSectors.docx");
+        parser.findSectors();
         Assert.notEmpty(parser.getSectors().get(0), "0 must be found!");
         Assert.isTrue(parser.getSectors().get(1).size() == 0, "1 must be NOT found!");
         Assert.isTrue(parser.getSectors().get(2).size() == 0, "2 must be NOT found!");
@@ -101,21 +70,21 @@ public class ParserTests {
         Assert.isTrue(parser.getSectors().get(5).size() == 0, "5 must be NOT found!");
         Assert.isTrue(parser.getSectors().get(6).size() == 0, "6 must be NOT found!");
         Assert.notEmpty(parser.getSectors().get(7), "6 must be found!");
-        Assert.isTrue(result.size() == 1, "There should be errors!");
+        Assert.isTrue(parser.getErrors().size() == 1, "There should be error!");
     }
 
     @Test
-    public void headerDetectedWithoutLineBreak() {
-        var parser = createParser("headerWithoutLineBreak.docx");
-        parser.findSectors(new ArrayList<>());
+    void headerDetectedWithoutLineBreak() {
+        val parser = createParser("headerWithoutLineBreak.docx");
+        parser.findSectors();
         Assert.notEmpty(parser.getSectors().get(0), "0 not found!");
         Assert.notEmpty(parser.getSectors().get(1), "1 not found!");
     }
 
     @Test
-    public void headerDetectedWithLineBreak() {
-        var parser = createParser("headerWithLineBreak.docx");
-        parser.findSectors(new ArrayList<>());
+    void headerDetectedWithLineBreak() {
+        val parser = createParser("headerWithLineBreak.docx");
+        parser.findSectors();
         Assert.notEmpty(parser.getSectors().get(0), "0 not found!");
         Assert.notEmpty(parser.getSectors().get(1), "1 not found!");
     }

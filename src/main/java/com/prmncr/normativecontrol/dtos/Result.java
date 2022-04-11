@@ -1,10 +1,15 @@
 package com.prmncr.normativecontrol.dtos;
 
+import lombok.Getter;
+
 import java.util.List;
 
 public class Result {
+    @Getter
     private final boolean isFail;
+    @Getter
     private final FailureType failureType;
+    @Getter
     private final List<Error> errors;
 
     public Result(FailureType failureType) {
@@ -17,17 +22,5 @@ public class Result {
         this.isFail = false;
         this.failureType = FailureType.NONE;
         this.errors = errors;
-    }
-
-    public boolean isFail() {
-        return isFail;
-    }
-
-    public FailureType getFailureType() {
-        return failureType;
-    }
-
-    public List<Error> getErrors() {
-        return errors;
     }
 }

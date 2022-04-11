@@ -6,29 +6,26 @@ import com.prmncr.normativecontrol.dtos.State;
 import com.prmncr.normativecontrol.events.NewDocumentEvent;
 import com.prmncr.normativecontrol.repositories.DocumentRepository;
 import com.prmncr.normativecontrol.services.DocumentHandler;
-import com.prmncr.normativecontrol.services.DocumentStorage;
+import com.prmncr.normativecontrol.services.DocumentQueue;
+import lombok.AllArgsConstructor;
+import lombok.val;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@AllArgsConstructor
 public class NewDocumentListener {
     private final DocumentRepository repository;
-    private final DocumentStorage storage;
+    private final DocumentQueue storage;
     private final DocumentHandler handler;
-
-    public NewDocumentListener(DocumentRepository repository, DocumentStorage storage, DocumentHandler handler) {
-        this.repository = repository;
-        this.storage = storage;
-        this.handler = handler;
-    }
 
     @Async
     @EventListener
     @Transactional
     public void handleDocument(NewDocumentEvent event) {
-        var document = storage.getById(event.getDocumentId());
+        val document = storage.getById(event.getDocumentId());
         document.setState(State.PROCESSING);
         handler.handle(document);
         document.setState(State.READY);

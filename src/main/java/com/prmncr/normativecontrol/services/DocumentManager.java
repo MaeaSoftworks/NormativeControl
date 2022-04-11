@@ -6,28 +6,22 @@ import com.prmncr.normativecontrol.dtos.Result;
 import com.prmncr.normativecontrol.dtos.State;
 import com.prmncr.normativecontrol.events.NewDocumentEvent;
 import com.prmncr.normativecontrol.repositories.DocumentRepository;
+import lombok.AllArgsConstructor;
+import lombok.val;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
 @Service
-@SuppressWarnings("ClassCanBeRecord")
+@AllArgsConstructor
 public class DocumentManager {
-    private final DocumentStorage storage;
+    private final DocumentQueue storage;
     private final DocumentRepository repository;
     private final ApplicationEventPublisher publisher;
 
-    public DocumentManager(DocumentStorage storage,
-                           DocumentRepository repository,
-                           ApplicationEventPublisher publisher) {
-        this.storage = storage;
-        this.repository = repository;
-        this.publisher = publisher;
-    }
-
     public String addToQueue(byte[] file) {
-        var document = new Document(UUID.randomUUID().toString(), file);
+        val document = new Document(UUID.randomUUID().toString(), file);
         storage.put(document);
         publisher.publishEvent(new NewDocumentEvent(this, document.getId()));
         return document.getId();
@@ -38,7 +32,7 @@ public class DocumentManager {
     }
 
     public Result getResult(String id) {
-        var result = storage.getById(id).getResult();
+        val result = storage.getById(id).getResult();
         storage.remove(id);
         return result;
     }

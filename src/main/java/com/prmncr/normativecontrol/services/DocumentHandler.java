@@ -1,26 +1,19 @@
 package com.prmncr.normativecontrol.services;
 
-import com.prmncr.normativecontrol.components.CorrectDocumentParams;
-import com.prmncr.normativecontrol.components.SectorKeywords;
-import com.prmncr.normativecontrol.dtos.Error;
 import com.prmncr.normativecontrol.dtos.*;
+import com.prmncr.normativecontrol.factories.DocumentParserFactory;
+import lombok.AllArgsConstructor;
+import lombok.val;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
-import java.util.List;
 
 @Service
-@SuppressWarnings("ClassCanBeRecord")
+@AllArgsConstructor
 public class DocumentHandler {
-    private final CorrectDocumentParams params;
-    private final SectorKeywords keywords;
-
-    public DocumentHandler(CorrectDocumentParams params, SectorKeywords keywords) {
-        this.params = params;
-        this.keywords = keywords;
-    }
+    private final DocumentParserFactory factory;
 
     public void handle(Document document) {
         WordprocessingMLPackage docx;
@@ -31,11 +24,8 @@ public class DocumentHandler {
             document.setResult(new Result(FailureType.FILE_READING_ERROR));
             return;
         }
-        document.setResult(new Result(getResult(docx)));
-    }
-
-    private List<Error> getResult(WordprocessingMLPackage docx) {
-        DocumentParser parser = new DocumentParser(docx, params, keywords);
-        return parser.runStyleCheck();
+        val parser = factory.build(docx);
+        val errors = parser.runStyleCheck();
+        document.setResult(new Result(errors));
     }
 }
