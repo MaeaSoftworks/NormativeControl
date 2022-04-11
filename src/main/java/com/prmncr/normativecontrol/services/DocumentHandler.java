@@ -1,7 +1,10 @@
 package com.prmncr.normativecontrol.services;
 
-import com.prmncr.normativecontrol.dtos.*;
-import com.prmncr.normativecontrol.factories.DocumentParserFactory;
+import com.prmncr.normativecontrol.dtos.Document;
+import com.prmncr.normativecontrol.dtos.FailureType;
+import com.prmncr.normativecontrol.dtos.Result;
+import com.prmncr.normativecontrol.dtos.State;
+import com.prmncr.normativecontrol.components.DocumentParserBuilder;
 import lombok.AllArgsConstructor;
 import lombok.val;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
@@ -13,7 +16,7 @@ import java.io.ByteArrayInputStream;
 @Service
 @AllArgsConstructor
 public class DocumentHandler {
-    private final DocumentParserFactory factory;
+    private final DocumentParserBuilder factory;
 
     public void handle(Document document) {
         WordprocessingMLPackage docx;

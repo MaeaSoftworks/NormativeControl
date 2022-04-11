@@ -99,7 +99,7 @@ public class DocumentParser {
         val paragraphs = mainDocumentPart.getContent();
         for (var paragraph = paragraphId; paragraph < paragraphs.size(); paragraph++) {
             // are we collecting last sector? (he hasn't got next header)
-            if (keywords.allKeywords.size() + 1 == sectorId) {
+            if (keywords.getAllKeywords().size() + 1 == sectorId) {
                 sectors.get(sectorId).add(paragraphs.get(paragraph));
                 continue;
             }
@@ -109,9 +109,9 @@ public class DocumentParser {
                 if (isHeader(paragraph, text)) {
                     // yes, some header is here
                     val error = new Error(paragraph, -1, ErrorType.INCORRECT_SECTORS);
-                    for (int i = sectorId + 1; i <= keywords.allKeywords.size(); i++) {
+                    for (int i = sectorId + 1; i <= keywords.getAllKeywords().size(); i++) {
                         // what sector is this header?
-                        if (keywords.allKeywords.get(i - 1).contains(text.toUpperCase(Locale.ROOT))) {
+                        if (keywords.getAllKeywords().get(i - 1).contains(text.toUpperCase(Locale.ROOT))) {
                             // we found next sector
                             checkHeaderStyle(paragraph);
                             paragraph++;
@@ -154,7 +154,7 @@ public class DocumentParser {
                 }
             }
         }
-        return keywords.allKeywordsFlat.contains(text.toUpperCase(Locale.ROOT));
+        return keywords.getAllKeywordsFlat().contains(text.toUpperCase(Locale.ROOT));
     }
 
     public void checkHeaderStyle(int paragraph) {
@@ -171,7 +171,7 @@ public class DocumentParser {
     }
 
     private void checkInvalidProperties(R run, int paragraph) {
-        if (run.getRPr() == null){
+        if (run.getRPr() == null) {
             return;
         }
         if (!run.getRPr().getRFonts().getAscii().equals("Times New Roman")) {

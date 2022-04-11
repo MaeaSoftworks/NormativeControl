@@ -1,5 +1,6 @@
 package com.prmncr.normativecontrol.controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.prmncr.normativecontrol.dbos.ProcessedDocument;
 import com.prmncr.normativecontrol.dtos.Result;
 import com.prmncr.normativecontrol.dtos.State;
@@ -20,35 +21,68 @@ import java.io.IOException;
 public class DocumentProcessingController {
     private final DocumentManager documentsManager;
 
-    @GetMapping("get-status")
+    @GetMapping("state")
     @ResponseBody
-    public ResponseEntity<State> getStatus(@RequestParam(value = "id") String id) {
-        return new ResponseEntity<>(documentsManager.getStatus(id), HttpStatus.OK);
+    public ResponseEntity<Object> getState(@RequestParam(value = "id") String id) {
+        val s = documentsManager.getState(id);
+        return s != null ? new ResponseEntity<>(new Object() {public final State state = s;}, HttpStatus.OK)
+                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @GetMapping("get-result")
+    @GetMapping("result")
     @ResponseBody
-    public ResponseEntity<Result> getResult(@RequestParam(value = "id") String id) {
-        return new ResponseEntity<>(documentsManager.getResult(id), HttpStatus.OK);
+    public ResponseEntity<Object> getResult(@RequestParam(value = "id") String id) {
+        val r = documentsManager.getResult(id);
+        return r != null ? new ResponseEntity<>(new Object() {public final Result result = r;}, HttpStatus.OK)
+                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @PostMapping("upload-document")
+    @PostMapping("document")
     @ResponseBody
-    public ResponseEntity<Object> uploadDocument(@RequestParam("file") MultipartFile file) throws IOException {
-        val documentId = documentsManager.addToQueue(file.getBytes());
-        return new ResponseEntity<>(new Object() {
-            @SuppressWarnings("unused")
-            public final String id = documentId;
-        }, HttpStatus.ACCEPTED);
+    public ResponseEntity<Object> uploadDocument(@RequestParam("file") MultipartFile file) {
+        if (file == null) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        val filename = file.getOriginalFilename();
+        if (filename == null || filename.equals("")) {
+            return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
+        }
+        val extension = filename.split("\\.");
+        if (!extension[1].equals("docx")) {
+            return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
+        }
+        byte[] bytes;
+        try {
+            bytes = file.getBytes();
+        } catch (IOException e) {
+            return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
+        }
+        val documentId = documentsManager.addToQueue(bytes);
+        return new ResponseEntity<>(new Object() {public final String id = documentId;}, HttpStatus.ACCEPTED);
     }
 
-    @GetMapping(value = "load-result")
+    @GetMapping(value = "result/{id}")
     @ResponseBody
-    public ResponseEntity<ProcessedDocument> getDocument(@RequestParam(value = "id") String id) {
-        return new ResponseEntity<>(documentsManager.getFile(id), HttpStatus.OK);
+    public ResponseEntity<ProcessedDocument> loadResult(@PathVariable(value = "id") String id) {
+        val file = documentsManager.getFile(id);
+        return file != null ? new ResponseEntity<>(documentsManager.getFile(id), HttpStatus.OK)
+                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @GetMapping("drop-db")
+    @GetMapping(value = "save-result")
+    @ResponseBody
+    public ResponseEntity<String> saveResult(@RequestParam(value = "id") String id) {
+        try {
+            documentsManager.saveResult(id);
+        } catch (NullPointerException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (JsonProcessingException e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping("drop-database")
     @ResponseBody
     public ResponseEntity<String> dropDatabase() {
         documentsManager.dropDatabase();

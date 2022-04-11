@@ -1,6 +1,6 @@
 package com.prmncr.normativecontrol;
 
-import com.prmncr.normativecontrol.factories.DocumentParserFactory;
+import com.prmncr.normativecontrol.components.DocumentParserBuilder;
 import com.prmncr.normativecontrol.services.DocumentParser;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
@@ -14,7 +14,7 @@ import java.io.IOException;
 @TestConfiguration
 public class TestSetup {
     @Autowired
-    protected DocumentParserFactory factory;
+    protected DocumentParserBuilder factory;
 
     protected DocumentParser createParser(String filename) {
         try {

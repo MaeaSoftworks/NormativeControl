@@ -1,15 +1,13 @@
-package com.prmncr.normativecontrol.factories;
+package com.prmncr.normativecontrol.components;
 
-import com.prmncr.normativecontrol.components.CorrectDocumentParams;
-import com.prmncr.normativecontrol.components.SectorKeywords;
 import com.prmncr.normativecontrol.services.DocumentParser;
 import lombok.AllArgsConstructor;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 
-@Configuration
+@Component
 @AllArgsConstructor
-public class DocumentParserFactory {
+public class DocumentParserBuilder {
     private CorrectDocumentParams params;
     private SectorKeywords keywords;
 

@@ -1,5 +1,6 @@
 package com.prmncr.normativecontrol.components;
 
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -9,8 +10,10 @@ import java.util.List;
 
 @Component
 public class SectorKeywords {
-    public List<String> allKeywordsFlat;
-    public List<List<String>> allKeywords;
+    @Getter
+    private List<String> allKeywordsFlat;
+    @Getter
+    private List<List<String>> allKeywords;
 
     @Value("#{'${document.sectors.keywords.annotation}'.split(',')}")
     private List<String> annotation;

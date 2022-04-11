@@ -1,6 +1,7 @@
 package com.prmncr.normativecontrol.services;
 
 import com.prmncr.normativecontrol.dtos.Document;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -14,8 +15,14 @@ public class DocumentQueue {
         documentMap.put(document.getId(), document);
     }
 
+    @Nullable
     public Document getById(String id) {
-        return documentMap.get(id);
+        try {
+            return documentMap.get(id);
+        } catch (NullPointerException e) {
+            return null;
+        }
+
     }
 
     public void remove(String id) {
