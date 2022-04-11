@@ -16,7 +16,7 @@ import java.io.IOException;
 
 @CrossOrigin
 @RestController
-@RequestMapping("api")
+@RequestMapping("api/documents")
 @AllArgsConstructor
 public class DocumentProcessingController {
     private final DocumentManager documentsManager;
@@ -37,7 +37,7 @@ public class DocumentProcessingController {
                 : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @PostMapping("document")
+    @PostMapping("upload")
     @ResponseBody
     public ResponseEntity<Object> uploadDocument(@RequestParam("file") MultipartFile file) {
         if (file == null) {
@@ -63,13 +63,18 @@ public class DocumentProcessingController {
 
     @GetMapping(value = "result/{id}")
     @ResponseBody
-    public ResponseEntity<ProcessedDocument> loadResult(@PathVariable(value = "id") String id) {
-        val file = documentsManager.getFile(id);
-        return file != null ? new ResponseEntity<>(documentsManager.getFile(id), HttpStatus.OK)
+    public ResponseEntity<Object> loadResult(@PathVariable(value = "id") String id) {
+        Object file = null;
+        try {
+            file = documentsManager.getFile(id);
+        } catch (JsonProcessingException e) {
+            new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return file != null ? new ResponseEntity<>(file, HttpStatus.OK)
                 : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @GetMapping(value = "save-result")
+    @PatchMapping(value = "result")
     @ResponseBody
     public ResponseEntity<String> saveResult(@RequestParam(value = "id") String id) {
         try {
@@ -79,6 +84,13 @@ public class DocumentProcessingController {
         } catch (JsonProcessingException e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @DeleteMapping("result")
+    @ResponseBody
+    public ResponseEntity<String> deleteResult(@RequestParam(value = "id") String id) {
+        documentsManager.delete(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

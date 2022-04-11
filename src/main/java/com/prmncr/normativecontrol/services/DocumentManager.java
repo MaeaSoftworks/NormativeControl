@@ -1,17 +1,22 @@
 package com.prmncr.normativecontrol.services;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.prmncr.normativecontrol.dbos.ProcessedDocument;
 import com.prmncr.normativecontrol.dtos.Document;
+import com.prmncr.normativecontrol.dtos.Error;
 import com.prmncr.normativecontrol.dtos.Result;
 import com.prmncr.normativecontrol.dtos.State;
 import com.prmncr.normativecontrol.events.NewDocumentEvent;
 import com.prmncr.normativecontrol.repositories.DocumentRepository;
+import com.prmncr.normativecontrol.serializers.ByteArraySerializer;
 import lombok.AllArgsConstructor;
 import lombok.val;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
+import javax.persistence.Lob;
+import java.util.List;
 import java.util.UUID;
 
 @Component
@@ -44,8 +49,16 @@ public class DocumentManager {
         return document.getResult();
     }
 
-    public ProcessedDocument getFile(String id) {
-        return repository.findById(id).orElse(null);
+    public Object getFile(String id) throws JsonProcessingException {
+        val fileObject = repository.findById(id);
+        if (!fileObject.isPresent()) {
+            return null;
+        }
+        return new Object() {
+            @JsonSerialize(using = ByteArraySerializer.class)
+            public byte[] file = fileObject.get().getFile();
+            public final List<Error> errors = fileObject.get().getDeserializedErrors();
+        };
     }
 
     public void saveResult(String id) throws JsonProcessingException {
@@ -54,11 +67,15 @@ public class DocumentManager {
             throw new NullPointerException();
         }
         val doc = new ProcessedDocument(document.getId(), document.getFile(), document.getResult().getErrors());
-        queue.remove(id);
         repository.save(doc);
+        queue.remove(id);
     }
 
     public void dropDatabase() {
         repository.deleteAll();
+    }
+
+    public void delete(String id) {
+        queue.remove(id);
     }
 }
