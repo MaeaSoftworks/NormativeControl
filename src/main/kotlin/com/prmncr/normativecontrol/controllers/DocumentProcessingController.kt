@@ -52,7 +52,7 @@ class DocumentProcessingController(private var documentsManager: DocumentManager
         }, HttpStatus.ACCEPTED)
     }
 
-    @GetMapping(value = ["result/{id}"])
+    @GetMapping("result/{id}")
     @ResponseBody
     fun loadResult(@PathVariable(value = "id") id: String): ResponseEntity<Any> {
         var file: Any? = null
@@ -64,7 +64,7 @@ class DocumentProcessingController(private var documentsManager: DocumentManager
         return if (file != null) ResponseEntity(file, HttpStatus.OK) else ResponseEntity(HttpStatus.NOT_FOUND)
     }
 
-    @PatchMapping(value = ["result"])
+    @PatchMapping("result")
     @ResponseBody
     fun saveResult(@RequestParam(value = "id") id: String): ResponseEntity<String> {
         try {

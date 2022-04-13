@@ -39,7 +39,7 @@ internal class HeaderTests : TestsBase() {
         parser.checkHeaderStyle(3)
         Assert.isTrue(parser.errors.size == 4, "There should be 4 errors!")
         Assert.isTrue(parser.errors[0].errorType === ErrorType.INCORRECT_TEXT_COLOR, "Color not detected!")
-        Assert.isTrue(parser.errors[1].errorType === ErrorType.INCORRECT_HEADER_FONT, "Font not detected!")
+        Assert.isTrue(parser.errors[1].errorType === ErrorType.INCORRECT_FONT, "Font not detected!")
         Assert.isTrue(parser.errors[2].errorType === ErrorType.INCORRECT_FONT_SIZE, "Font size not detected!")
         Assert.isTrue(parser.errors[3].errorType === ErrorType.INCORRECT_HEADER_ALIGNMENT, "Alignment not detected!")
     }
@@ -53,7 +53,7 @@ internal class HeaderTests : TestsBase() {
         parser.checkHeaderStyle(3)
         Assert.isTrue(parser.errors.size == 4, "There should be 4 errors!")
         Assert.isTrue(parser.errors[0].errorType === ErrorType.INCORRECT_TEXT_COLOR, "Color not detected!")
-        Assert.isTrue(parser.errors[1].errorType === ErrorType.INCORRECT_HEADER_FONT, "Font not detected!")
+        Assert.isTrue(parser.errors[1].errorType === ErrorType.INCORRECT_FONT, "Font not detected!")
         Assert.isTrue(parser.errors[2].errorType === ErrorType.INCORRECT_FONT_SIZE, "Font size not detected!")
         Assert.isTrue(parser.errors[3].errorType === ErrorType.INCORRECT_HEADER_ALIGNMENT, "Alignment not detected!")
     }

@@ -171,12 +171,12 @@ class DocumentParser(
     }
 
     private fun checkInvalidProperties(run: R, paragraph: Int) {
-        if (run.rPr == null) {
-            return
+        val rStyle = StyleChecker.defineRStyle(run, styles)
+        if (TextUtils.getText(run).isNotEmpty()
+            && StyleChecker.isFontWrong(mainDocumentPart.content[paragraph] as P, run, styles, rStyle)) {
+            errors.add(Error(paragraph.toLong(), 0, ErrorType.INCORRECT_FONT));
         }
-        //if (StyleChecker.checkFont(mainDocumentPart.content[paragraph] as P, run, styles, "Normal")) {
-        //    errors.add(Error(paragraph.toLong(), 0, ErrorType.INCORRECT_HEADER_FONT));
-        //}
+
         if (!Objects.equals(run.rPr.color.getVal(), "FFFFFF")
             && !Objects.equals(run.rPr.color.getVal(), "auto")
         ) {

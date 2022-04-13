@@ -5,22 +5,40 @@ import org.docx4j.wml.P
 import org.docx4j.wml.R
 
 object StyleChecker {
-    @JvmStatic
-    fun checkFont(p: P, r: R, tree: StyleTree, stylesheet: String?): Boolean {
-        val font: String
-        val rStyle = defineRStyle(r, tree)
+    fun isFontWrong(p: P, r: R, tree: StyleTree, stylesheet: String?): Boolean {
+        var font = ""
+        if (r.rPr == null) {
+            val a = tree.characterStylesTree.toList()
+            //val b = tree.paragraphStylesTree.toList().first({ x -> x. == stylesheet })
+            print("dsf")
+        }
         if (r.rPr.rFonts == null) {
             if (p.pPr.rPr.rFonts == null) {
-                val a = tree.characterStylesTree[rStyle].data.style
+                val a = tree.characterStylesTree[stylesheet].data.style
             } else {
                 font = p.pPr.rPr.rFonts.ascii
             }
         }
-        return r.rPr.rFonts.ascii != "Times New Roman"
+        return font != "Times New Roman"
+    }
+
+    fun isColorWrong(p: P, r: R, tree: StyleTree, stylesheet: String?): Boolean {
+        var color = ""
+        if (r.rPr.color == null) {
+            if (p.pPr.rPr.color == null) {
+                val a = tree.characterStylesTree[stylesheet].data.style
+            } else {
+                color = p.pPr.rPr.color.`val`
+            }
+        }
+        return color != "auto" && color  != "000000"
     }
 
     fun defineRStyle(r: R, tree: StyleTree?): String? {
         var style: String? = null
+        if (r.rPr == null) {
+            return null
+        }
         if (r.rPr.rStyle != null) {
             style = r.rPr.rStyle.getVal()
         } else {

@@ -9,8 +9,10 @@ import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component
 
 @Component
-class NewDocumentListener(private val storage: DocumentQueue,
-                          private val handler: DocumentHandler) {
+class NewDocumentListener(
+    private val storage: DocumentQueue,
+    private val handler: DocumentHandler
+) {
     @Async
     @EventListener
     fun handleDocument(event: NewDocumentEvent) {

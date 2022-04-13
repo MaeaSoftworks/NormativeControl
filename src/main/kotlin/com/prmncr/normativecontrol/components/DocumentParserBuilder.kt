@@ -10,7 +10,6 @@ class DocumentParserBuilder(private val params: CorrectDocumentParams, private v
     fun build(docx: WordprocessingMLPackage?): DocumentParser {
         if (docx != null) {
             return DocumentParser(docx, params, keywords)
-        }
-        else throw IllegalArgumentException()
+        } else throw IllegalArgumentException()
     }
 }

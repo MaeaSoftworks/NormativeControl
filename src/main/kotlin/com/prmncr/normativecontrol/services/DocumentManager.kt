@@ -15,9 +15,10 @@ import org.springframework.stereotype.Component
 import java.util.*
 
 @Component
-class DocumentManager(private val queue: DocumentQueue,
-                      private val repository: DocumentRepository,
-                      private val publisher: ApplicationEventPublisher
+class DocumentManager(
+    private val queue: DocumentQueue,
+    private val repository: DocumentRepository,
+    private val publisher: ApplicationEventPublisher
 ) {
     fun addToQueue(file: ByteArray): String {
         val document = Document(UUID.randomUUID().toString(), file, result = null)

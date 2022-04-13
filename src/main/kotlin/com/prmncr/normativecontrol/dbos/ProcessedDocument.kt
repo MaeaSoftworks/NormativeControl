@@ -37,9 +37,10 @@ class ProcessedDocument {
         this.errors = errors
     }
 
-    constructor() {}
+    constructor()
 
-    private inline fun <reified T> ObjectMapper.readValue(s: String): T = this.readValue(s, object : TypeReference<T>() {})
+    private inline fun <reified T> ObjectMapper.readValue(s: String): T =
+        this.readValue(s, object : TypeReference<T>() {})
 
     fun getDeserializedErrors(): List<Error> {
         return ObjectMapper().readValue<List<Error>>(errors!!)

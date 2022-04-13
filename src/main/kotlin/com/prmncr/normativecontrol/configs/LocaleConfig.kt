@@ -10,16 +10,16 @@ import org.springframework.web.servlet.i18n.LocaleChangeInterceptor
 import java.util.*
 
 @Configuration
-open class LocaleConfig : WebMvcConfigurer {
+class LocaleConfig : WebMvcConfigurer {
     @Bean
-    open fun localeResolver(): LocaleResolver {
+    fun localeResolver(): LocaleResolver {
         val resolver = AcceptHeaderLocaleResolver()
         resolver.defaultLocale = Locale.US
         return resolver
     }
 
     @Bean
-    open fun localeChangeInterceptor(): LocaleChangeInterceptor {
+    fun localeChangeInterceptor(): LocaleChangeInterceptor {
         return LocaleChangeInterceptor()
     }
 

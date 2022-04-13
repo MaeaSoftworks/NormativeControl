@@ -17,7 +17,7 @@ class DocumentHandler(private val factory: DocumentParserBuilder) {
             WordprocessingMLPackage.load(ByteArrayInputStream(document.file))
         } catch (e: Docx4JException) {
             document.state = State.ERROR
-            document.result =Result(FailureType.FILE_READING_ERROR)
+            document.result = Result(FailureType.FILE_READING_ERROR)
             return
         }
         val parser = factory.build(docx)
