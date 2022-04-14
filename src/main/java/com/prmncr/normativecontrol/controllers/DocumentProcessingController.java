@@ -16,7 +16,7 @@ import java.io.IOException;
 
 @CrossOrigin
 @RestController
-@RequestMapping("api/documents")
+@RequestMapping("documents")
 @AllArgsConstructor
 public class DocumentProcessingController {
     private final DocumentManager documentsManager;
