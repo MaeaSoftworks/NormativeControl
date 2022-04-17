@@ -27,7 +27,14 @@ public class DocumentHandler {
             document.setResult(new Result(FailureType.FILE_READING_ERROR));
             return;
         }
-        val parser = factory.build(docx);
+        DocumentParser parser;
+        try {
+            parser = factory.build(docx);
+        } catch (IllegalAccessException e) {
+            document.setState(State.ERROR);
+            document.setResult(new Result(FailureType.CANNOT_READ_STYLESHEET));
+            return;
+        }
         val errors = parser.runStyleCheck();
         document.setResult(new Result(errors));
     }

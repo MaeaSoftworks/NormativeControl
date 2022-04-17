@@ -10,24 +10,38 @@ import java.util.List;
 
 @Component
 public class SectorKeywords {
-    @Getter
     private List<String> allKeywordsFlat;
-    @Getter
+
     private List<List<String>> allKeywords;
 
+    public List<String> getAllKeywordsFlat() {
+        return allKeywordsFlat;
+    }
+
+    public List<List<String>> getAllKeywords() {
+        return allKeywords;
+    }
+
     @Value("#{'${document.sectors.keywords.annotation}'.split(',')}")
+    @Getter
     private List<String> annotation;
     @Value("#{'${document.sectors.keywords.contents}'.split(',')}")
+    @Getter
     private List<String> contents;
     @Value("#{'${document.sectors.keywords.introduction}'.split(',')}")
+    @Getter
     private List<String> introduction;
     @Value("#{'${document.sectors.keywords.body}'.split(',')}")
+    @Getter
     private List<String> body;
     @Value("#{'${document.sectors.keywords.conclusion}'.split(',')}")
+    @Getter
     private List<String> conclusion;
     @Value("#{'${document.sectors.keywords.references}'.split(',')}")
+    @Getter
     private List<String> references;
     @Value("#{'${document.sectors.keywords.appendix}'.split(',')}")
+    @Getter
     private List<String> appendix;
 
     private int maxLength = -1;
