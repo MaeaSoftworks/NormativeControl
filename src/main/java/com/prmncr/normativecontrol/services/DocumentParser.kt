@@ -211,6 +211,7 @@ class DocumentParser @Throws(IllegalAccessException::class) constructor(
                     rpr.sz = (r.parent as P).pPr.rPr.sz
                 } else {
                     if (styleTree.characterStylesTree[(r.parent as P).pPr.pStyle.getVal()] != null) {
+
                     }
                 }
             }
