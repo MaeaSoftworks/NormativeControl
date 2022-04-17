@@ -17,7 +17,7 @@ import org.docx4j.wml.*;
 import java.math.BigInteger;
 import java.util.*;
 
-public class DocumentParser {
+public class DocumentParserJava {
     private static final int POINTS = 20;
     private final CorrectDocumentParams params;
     private final SectorKeywords keywords;
@@ -30,7 +30,7 @@ public class DocumentParser {
     private final StyleTree styleTree;
     private final Map<String, Prs> styles = new HashMap<>();
 
-    public DocumentParser(WordprocessingMLPackage document, CorrectDocumentParams params, SectorKeywords keywords)
+    public DocumentParserJava(WordprocessingMLPackage document, CorrectDocumentParams params, SectorKeywords keywords)
             throws IllegalAccessException {
         this.document = document;
         mainDocumentPart = document.getMainDocumentPart();

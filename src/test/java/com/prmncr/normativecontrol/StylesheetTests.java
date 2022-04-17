@@ -11,6 +11,6 @@ class StylesheetTests extends TestsBase {
     void headerIsCorrect() {
         val parser = createParser("overwrittenDefaultStyle.docx");
         parser.detectRStyle(0, 0);
-        Assert.isTrue(parser.getErrors().size() == 0, "There shouldn't be any error!");
+        Assert.isTrue(parser.errors.size() == 0, "There shouldn't be any error!");
     }
 }
