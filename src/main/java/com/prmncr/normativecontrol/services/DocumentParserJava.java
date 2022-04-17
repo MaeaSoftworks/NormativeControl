@@ -153,7 +153,7 @@ public class DocumentParserJava {
         var run = (R) p.getContent().get(0);
         var text = TextUtils.getText(run);
         if (!text.toUpperCase().equals(text)) {
-            errors.add(new Error(paragraph, 0, ErrorType.HEADER_IS_NOT_UPPER_CASE));
+            errors.add(new Error(paragraph, 0, ErrorType.HEADER_IS_NOT_UPPERCASE));
         }
         checkInvalidProperties(run, paragraph);
     }
@@ -163,7 +163,7 @@ public class DocumentParserJava {
             return;
         }
         if (!run.getRPr().getRFonts().getAscii().equals("Times New Roman")) {
-            errors.add(new Error(paragraph, 0, ErrorType.INCORRECT_HEADER_FONT));
+            errors.add(new Error(paragraph, 0, ErrorType.INCORRECT_TEXT_FONT));
         }
         if (!Objects.equals(run.getRPr().getColor().getVal(), "FFFFFF")
                 && !Objects.equals(run.getRPr().getColor().getVal(), "auto")) {

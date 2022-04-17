@@ -4,10 +4,8 @@ import com.prmncr.normativecontrol.components.CorrectDocumentParams
 import com.prmncr.normativecontrol.components.SectorKeywords
 import com.prmncr.normativecontrol.dtos.Error
 import com.prmncr.normativecontrol.dtos.ErrorType
-import com.prmncr.normativecontrol.dtos.Prs
-import org.apache.commons.lang3.reflect.FieldUtils
 import org.docx4j.TextUtils
-import org.docx4j.model.styles.StyleTree
+import org.docx4j.model.PropertyResolver
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
 import org.docx4j.wml.*
@@ -25,14 +23,13 @@ class DocumentParser @Throws(IllegalAccessException::class) constructor(
     val sectors: MutableList<MutableList<Any>> = ArrayList()
     @JvmField
     val errors: MutableList<Error> = ArrayList()
-    private var styleTree: StyleTree = document.mainDocumentPart.styleTree
-    private val styles: MutableMap<String, Prs> = HashMap()
+    private val resolver: PropertyResolver
 
     init {
         for (i in 0..7) {
             sectors.add(ArrayList<Any>())
         }
-        createStyleMap()
+        resolver = PropertyResolver(document)
     }
 
     fun runStyleCheck(): List<Error?> {
@@ -59,14 +56,12 @@ class DocumentParser @Throws(IllegalAccessException::class) constructor(
     fun checkPageMargins() {
         val sector = mainDocumentPart.jaxbElement.body.sectPr
         val pageMargins = sector.pgMar
-        val marginTop = getLongPixels(pageMargins.top)
-        val marginLeft = getLongPixels(pageMargins.left)
-        val marginBottom = getLongPixels(pageMargins.bottom)
-        val marginRight = getLongPixels(pageMargins.right)
-        if (marginTop.toDouble() != params.pageMarginTop
-            || marginRight.toDouble() != params.pageMarginRight
-            || marginBottom.toDouble() != params.pageMarginBottom
-            || marginLeft.toDouble() != params.pageMarginLeft
+        val marginTop = pageMargins.top.toDouble() / points
+        val marginLeft = pageMargins.left.toDouble() / points
+        val marginBottom =pageMargins.bottom.toDouble() / points
+        val marginRight = pageMargins.right.toDouble() / points
+        if (marginTop != params.pageMarginTop || marginRight != params.pageMarginRight
+            || marginBottom != params.pageMarginBottom || marginLeft != params.pageMarginLeft
         ) {
             errors.add(Error(-1, -1, ErrorType.INCORRECT_PAGE_MARGINS))
         }
@@ -120,6 +115,7 @@ class DocumentParser @Throws(IllegalAccessException::class) constructor(
         if (words.isEmpty() || words.size > keywords.maxLength) {
             return false
         }
+
         val paragraphs = mainDocumentPart.content
         if (paragraph > 0) {
             val previous = paragraphs[paragraph - 1]
@@ -146,76 +142,30 @@ class DocumentParser @Throws(IllegalAccessException::class) constructor(
         if (p.pPr.pStyle.getVal() != "Heading1") {
             errors.add(Error(paragraph.toLong(), 0, ErrorType.BUILT_IN_HEADER_STYLE_IS_NOT_USED))
         }
+        val pPr = resolver.getEffectivePPr(p.pPr)
+        if (pPr.jc == null || pPr.jc.`val` != JcEnumeration.CENTER) {
+            errors.add(Error(paragraph.toLong(), 0, ErrorType.INCORRECT_HEADER_ALIGNMENT))
+        }
+        val rPr = resolver.getEffectiveRPr((p.content[0] as R).rPr, p.pPr)
         val run = p.content[0] as R
         val text = TextUtils.getText(run)
-        if (text.uppercase(Locale.getDefault()) != text) {
-            errors.add(Error(paragraph.toLong(), 0, ErrorType.HEADER_IS_NOT_UPPER_CASE))
+        if (text.uppercase() != text) {
+            errors.add(Error(paragraph.toLong(), 0, ErrorType.HEADER_IS_NOT_UPPERCASE))
         }
-        checkInvalidProperties(run, paragraph)
+        findIncorrectProperties(rPr, pPr, paragraph.toLong(), 0)
     }
 
-    private fun checkInvalidProperties(run: R, paragraph: Int) {
-        if (run.rPr == null) {
-            return
+    private fun findIncorrectProperties(rPr: RPr, pPr: PPr, p: Long, r: Long) {
+        if (rPr.rFonts.ascii != "Times New Roman") {
+            errors.add(Error(p, r, ErrorType.INCORRECT_TEXT_FONT))
         }
-        if (run.rPr.rFonts.ascii != "Times New Roman") {
-            errors.add(Error(paragraph.toLong(), 0, ErrorType.INCORRECT_HEADER_FONT))
+        if (rPr.color != null && rPr.color.`val` != "FFFFFF" && rPr.color.`val` != "auto") {
+            errors.add(Error(p, r, ErrorType.INCORRECT_TEXT_COLOR))
         }
-        if (run.rPr.color.getVal() != "FFFFFF"
-            && run.rPr.color.getVal() != "auto"
-        ) {
-            errors.add(Error(paragraph.toLong(), 0, ErrorType.INCORRECT_TEXT_COLOR))
+        if (rPr.sz.`val`.toInt() / 2 != 14) {
+            errors.add(Error(p, r, ErrorType.INCORRECT_FONT_SIZE))
         }
-        if (run.rPr.sz.getVal().toInt() / 2 != 14) {
-            errors.add(Error(paragraph.toLong(), 0, ErrorType.INCORRECT_TEXT_COLOR))
-        }
-    }
 
-    @Throws(IllegalAccessException::class)
-    private fun createStyleMap() {
-        val nodesP = styleTree.paragraphStylesTree.toList()
-        // todo add character style props overwriting rules
-        // val nodesR = styleTree.getCharacterStylesTree().toList();
-        var defaultRPr: RPr? = null
-        var defaultPPr: PPr? = null
-        for (style in nodesP) {
-            if (FieldUtils.readField(style, "name", true) == "DocDefaults") {
-                defaultRPr = style.data.style.rPr
-                defaultPPr = style.data.style.pPr
-            } else {
-                styles[(FieldUtils.readField(style, "name", true) as String)] =
-                    Prs(
-                        if (style.data.style.rPr == null) defaultRPr else style.data.style.rPr,
-                        if (style.data.style.pPr == null) defaultPPr else style.data.style.pPr
-                    )
-            }
-        }
-    }
-
-    fun detectRStyle(paragraph: Int, run: Int): RPr {
-        val rpr = RPr()
-        val r = (mainDocumentPart.content[paragraph] as P).content[run] as R
-
-        // font size
-        if (r.rPr == null) {
-            if ((r.parent as P).pPr.rPr == null) {
-                // get style from style tree
-            } else {
-                // get from p
-            }
-        } else {
-            if (r.rPr.sz != null) {
-                rpr.sz = r.rPr.sz
-            } else {
-                if ((r.parent as P).pPr.rPr.sz != null) {
-                    rpr.sz = (r.parent as P).pPr.rPr.sz
-                } else {
-                    if (styleTree.characterStylesTree[(r.parent as P).pPr.pStyle.getVal()] != null) {
-
-                    }
-                }
-            }
-        }
-        return rpr
+        // todo add other checks
     }
 }
