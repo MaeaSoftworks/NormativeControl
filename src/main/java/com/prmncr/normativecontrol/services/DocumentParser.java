@@ -4,20 +4,18 @@ import com.prmncr.normativecontrol.components.CorrectDocumentParams;
 import com.prmncr.normativecontrol.components.SectorKeywords;
 import com.prmncr.normativecontrol.dtos.Error;
 import com.prmncr.normativecontrol.dtos.ErrorType;
+import com.prmncr.normativecontrol.dtos.Prs;
 import lombok.Getter;
 import lombok.val;
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.docx4j.TextUtils;
+import org.docx4j.model.styles.StyleTree;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
-import org.docx4j.wml.Br;
-import org.docx4j.wml.P;
-import org.docx4j.wml.R;
+import org.docx4j.wml.*;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
+import java.util.*;
 
 public class DocumentParser {
     private static final int POINTS = 20;
@@ -25,34 +23,24 @@ public class DocumentParser {
     private final SectorKeywords keywords;
     private final MainDocumentPart mainDocumentPart;
     private final WordprocessingMLPackage document;
-
-    private final List<Object> frontPage = new ArrayList<>();
-    private final List<Object> annotation = new ArrayList<>();
-    private final List<Object> contents = new ArrayList<>();
-    private final List<Object> introduction = new ArrayList<>();
-    private final List<Object> body = new ArrayList<>();
-    private final List<Object> conclusion = new ArrayList<>();
-    private final List<Object> references = new ArrayList<>();
-    private final List<Object> appendix = new ArrayList<>();
     @Getter
     private final List<List<Object>> sectors = new ArrayList<>();
     @Getter
     private final List<Error> errors = new ArrayList<>();
+    private final StyleTree styleTree;
+    private final Map<String, Prs> styles = new HashMap<>();
 
-    public DocumentParser(WordprocessingMLPackage document, CorrectDocumentParams params, SectorKeywords keywords) {
+    public DocumentParser(WordprocessingMLPackage document, CorrectDocumentParams params, SectorKeywords keywords)
+            throws IllegalAccessException {
         this.document = document;
         mainDocumentPart = document.getMainDocumentPart();
         this.keywords = keywords;
         this.params = params;
-
-        sectors.add(frontPage);
-        sectors.add(annotation);
-        sectors.add(contents);
-        sectors.add(introduction);
-        sectors.add(body);
-        sectors.add(conclusion);
-        sectors.add(references);
-        sectors.add(appendix);
+        this.styleTree = document.getMainDocumentPart().getStyleTree();
+        for (int i = 0; i <8; i++) {
+            sectors.add(new ArrayList<>());
+        }
+        createStyleMap();
     }
 
     public List<Error> runStyleCheck() {
@@ -184,5 +172,50 @@ public class DocumentParser {
         if (run.getRPr().getSz().getVal().intValue() / 2 != 14) {
             errors.add(new Error(paragraph, 0, ErrorType.INCORRECT_TEXT_COLOR));
         }
+    }
+
+    private void createStyleMap() throws IllegalAccessException {
+        val nodesP = styleTree.getParagraphStylesTree().toList();
+        // todo add character style props overriting rules
+        // val nodesR = styleTree.getCharacterStylesTree().toList();
+        RPr defaultRPr = null;
+        PPr defaultPPr = null;
+        for (val style : nodesP) {
+            if (FieldUtils.readField(style, "name", true).equals("DocDefaults")) {
+                defaultRPr = style.data.getStyle().getRPr();
+                defaultPPr = style.data.getStyle().getPPr();
+            } else {
+                this.styles.put((String) FieldUtils.readField(style, "name", true),
+                        new Prs(style.data.getStyle().getRPr() == null ? defaultRPr : style.data.getStyle().getRPr(),
+                                style.data.getStyle().getPPr() == null ? defaultPPr : style.data.getStyle().getPPr()));
+            }
+        }
+    }
+
+    public RPr detectRStyle(int paragraph, int run) {
+        val rpr = new RPr();
+        val r = (R) ((P) mainDocumentPart.getContent().get(paragraph)).getContent().get(run);
+
+        // font size
+        if (r.getRPr() == null) {
+            if (((P) r.getParent()).getPPr().getRPr() == null) {
+                // get style from style tree
+            } else {
+                // get from p
+            }
+        } else {
+            if (r.getRPr().getSz() != null) {
+                rpr.setSz(r.getRPr().getSz());
+            } else {
+                if (((P) r.getParent()).getPPr().getRPr().getSz() != null) {
+                    rpr.setSz(((P) r.getParent()).getPPr().getRPr().getSz());
+                } else {
+                    if (styleTree.getCharacterStylesTree().get(((P) r.getParent()).getPPr().getPStyle().getVal()) != null) {
+
+                    }
+                }
+            }
+        }
+        return rpr;
     }
 }

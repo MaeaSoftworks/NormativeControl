@@ -11,7 +11,7 @@ public class DocumentParserBuilder {
     private CorrectDocumentParams params;
     private SectorKeywords keywords;
 
-    public DocumentParser build(WordprocessingMLPackage docx) {
+    public DocumentParser build(WordprocessingMLPackage docx) throws IllegalAccessException {
         return new DocumentParser(docx, params, keywords);
     }
 }

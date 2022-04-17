@@ -12,18 +12,16 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 @TestConfiguration
-public class TestSetup {
+public class TestsBase {
     @Autowired
     protected DocumentParserBuilder factory;
 
     protected DocumentParser createParser(String filename) {
         try {
             return factory.build(WordprocessingMLPackage.load(new FileInputStream("src/main/resources/test files/" + filename)));
-        } catch (IOException | Docx4JException e) {
+        } catch (IOException | Docx4JException | IllegalAccessException e) {
             System.out.println(e.getMessage());
-            Assert.isTrue(false, "Parser cannot be initialized!");
-            return factory.build(null);
+            throw new RuntimeException("Parser cannot be initialized!");
         }
     }
 }
-

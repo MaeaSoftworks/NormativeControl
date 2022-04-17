@@ -7,7 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.util.Assert;
 
 @SpringBootTest
-class ParserTests extends TestSetup {
+class ParserTests extends TestsBase {
     @Test
     void incorrectSizeTest() {
         val parser = createParser("incorrectWidth.docx");
