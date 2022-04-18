@@ -1,12 +1,12 @@
 document:
   page:
     margin:
-      bottom: '56'
-      left: '85'
-      right: '42'
-      top: '56'
-    width: '595'
-    height: '841'
+      bottom: 1134
+      left: 1701
+      right: 850
+      top: 1134
+    width: 11906
+    height: 16838
   sectors:
     keywords:
       annotation: РЕФЕРАТ,

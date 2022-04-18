@@ -9,8 +9,6 @@ import org.docx4j.model.PropertyResolver
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
 import org.docx4j.wml.*
-import java.math.BigInteger
-import java.util.*
 
 class DocumentParser @Throws(IllegalAccessException::class) constructor(
     private var document: WordprocessingMLPackage,
@@ -27,7 +25,7 @@ class DocumentParser @Throws(IllegalAccessException::class) constructor(
 
     init {
         for (i in 0..7) {
-            sectors.add(ArrayList<Any>())
+            sectors.add(ArrayList())
         }
         resolver = PropertyResolver(document)
     }
@@ -39,16 +37,10 @@ class DocumentParser @Throws(IllegalAccessException::class) constructor(
         return errors
     }
 
-    private fun getLongPixels(points: Any): Long {
-        return (points as BigInteger).toLong() / this.points
-    }
-
     fun checkPageSize() {
         val sector = mainDocumentPart.jaxbElement.body.sectPr
         val pageSize = sector.pgSz
-        val width = getLongPixels(pageSize.w)
-        val height = getLongPixels(pageSize.h)
-        if (width != params.pageWidth || height != params.pageHeight) {
+        if (pageSize.w != params.pageWidth || pageSize.h != params.pageHeight) {
             errors.add(Error(-1, -1, ErrorType.INCORRECT_PAGE_SIZE))
         }
     }
@@ -56,12 +48,8 @@ class DocumentParser @Throws(IllegalAccessException::class) constructor(
     fun checkPageMargins() {
         val sector = mainDocumentPart.jaxbElement.body.sectPr
         val pageMargins = sector.pgMar
-        val marginTop = pageMargins.top.toDouble() / points
-        val marginLeft = pageMargins.left.toDouble() / points
-        val marginBottom =pageMargins.bottom.toDouble() / points
-        val marginRight = pageMargins.right.toDouble() / points
-        if (marginTop != params.pageMarginTop || marginRight != params.pageMarginRight
-            || marginBottom != params.pageMarginBottom || marginLeft != params.pageMarginLeft
+        if (pageMargins.top != params.pageMarginTop || pageMargins.right != params.pageMarginRight
+            || pageMargins.bottom != params.pageMarginBottom || pageMargins.left != params.pageMarginLeft
         ) {
             errors.add(Error(-1, -1, ErrorType.INCORRECT_PAGE_MARGINS))
         }
