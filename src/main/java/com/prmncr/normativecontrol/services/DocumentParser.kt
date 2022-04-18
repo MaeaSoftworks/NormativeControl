@@ -71,7 +71,7 @@ class DocumentParser @Throws(IllegalAccessException::class) constructor(
         findSectors(0, 0)
     }
 
-    fun findSectors(paragraphId: Int, sectorId: Int) {
+    private fun findSectors(paragraphId: Int, sectorId: Int) {
         val paragraphs = mainDocumentPart.content
         var paragraph = paragraphId
         while (paragraph < paragraphs.size) {
@@ -85,12 +85,12 @@ class DocumentParser @Throws(IllegalAccessException::class) constructor(
                 // did we find some header?
                 if (isHeader(paragraph, text)) {
                     // yes, some header is here
-                    val error = Error(paragraph.toLong(), -1, ErrorType.INCORRECT_SECTORS)
+                    val error = Error(paragraph, -1, ErrorType.INCORRECT_SECTORS)
                     for (i in sectorId + 1..keywords.allKeywords.size) {
                         // what sector is this header?
                         if (keywords.allKeywords[i - 1].contains(text.uppercase())) {
                             // we found next sector
-                            checkHeaderStyle(paragraph)
+                            findHeaderAllErrors(paragraph)
                             paragraph++
                             findSectors(paragraph, i)
                             return
@@ -110,7 +110,7 @@ class DocumentParser @Throws(IllegalAccessException::class) constructor(
         }
     }
 
-    fun isHeader(paragraph: Int, text: String): Boolean {
+    private fun isHeader(paragraph: Int, text: String): Boolean {
         val words = text.split("\\s+")
         if (words.isEmpty() || words.size > keywords.maxLength) {
             return false
@@ -137,35 +137,95 @@ class DocumentParser @Throws(IllegalAccessException::class) constructor(
         return keywords.allKeywordsFlat.contains(text.uppercase())
     }
 
-    fun checkHeaderStyle(paragraph: Int) {
+    fun findGeneralAllErrors(p: Int) {
+        findGeneralAllErrors(p, resolver.getEffectivePPr((mainDocumentPart.content[p] as P).pPr))
+    }
+
+    private fun findGeneralAllErrors(p: Int, pPr: PPr) {
+        fun findGeneralPErrors(pPr: PPr, p: Int) {
+            if (pPr.textAlignment != null && pPr.textAlignment.`val` != "left") {
+                errors.add(Error(p, -1, ErrorType.INCORRECT_TEXT_DIRECTION))
+            }
+            if (pPr.pBdr != null) {
+                errors.add(Error(p, -1, ErrorType.BORDER))
+            }
+            if (pPr.shd != null && pPr.shd.fill != null && pPr.shd.fill != "FFFFFF") {
+                errors.add(Error(p, -1, ErrorType.BACKGROUND_FILLED))
+            }
+        }
+
+        fun findGeneralRErrors(rPr: RPr, p: Int, r: Int) {
+            if (rPr.rFonts.ascii != "Times New Roman") {
+                errors.add(Error(p, r, ErrorType.INCORRECT_TEXT_FONT))
+            }
+            if (rPr.color != null && rPr.color.`val` != "FFFFFF" && rPr.color.`val` != "auto") {
+                errors.add(Error(p, r, ErrorType.INCORRECT_TEXT_COLOR))
+            }
+            if (rPr.sz.`val`.toInt() / 2 != 14) {
+                errors.add(Error(p, r, ErrorType.INCORRECT_FONT_SIZE))
+            }
+            if (!(rPr.i == null || !rPr.i.isVal)) {
+                errors.add(Error(p, r, ErrorType.ITALIC_TEXT))
+            }
+            if (!(rPr.strike == null || !rPr.strike.isVal)) {
+                errors.add(Error(p, r, ErrorType.STRIKETHROUGH))
+            }
+            if (!(rPr.highlight == null || rPr.highlight.`val` == "white")) {
+                errors.add(Error(p, r, ErrorType.HIGHLIGHT))
+            }
+        }
+
+        val paragraph = mainDocumentPart.content[p] as P
+        findGeneralPErrors(pPr, p)
+        for (run in 0 until paragraph.content.size) {
+            val rPr = resolver.getEffectiveRPr((paragraph.content[run] as R).rPr, paragraph.pPr)
+            findGeneralRErrors(rPr, p, run)
+        }
+    }
+
+    fun findHeaderAllErrors(paragraph: Int) {
         val p = mainDocumentPart.content[paragraph] as P
         if (p.pPr.pStyle.getVal() != "Heading1") {
-            errors.add(Error(paragraph.toLong(), 0, ErrorType.BUILT_IN_HEADER_STYLE_IS_NOT_USED))
+            errors.add(Error(paragraph, 0, ErrorType.BUILT_IN_HEADER_STYLE_IS_NOT_USED))
         }
         val pPr = resolver.getEffectivePPr(p.pPr)
         if (pPr.jc == null || pPr.jc.`val` != JcEnumeration.CENTER) {
-            errors.add(Error(paragraph.toLong(), 0, ErrorType.INCORRECT_HEADER_ALIGNMENT))
+            errors.add(Error(paragraph, 0, ErrorType.INCORRECT_HEADER_ALIGNMENT))
         }
-        val rPr = resolver.getEffectiveRPr((p.content[0] as R).rPr, p.pPr)
         val run = p.content[0] as R
         val text = TextUtils.getText(run)
         if (text.uppercase() != text) {
-            errors.add(Error(paragraph.toLong(), 0, ErrorType.HEADER_IS_NOT_UPPERCASE))
+            errors.add(Error(paragraph, 0, ErrorType.HEADER_IS_NOT_UPPERCASE))
         }
-        findIncorrectProperties(rPr, pPr, paragraph.toLong(), 0)
+        findGeneralAllErrors(paragraph, pPr)
     }
 
-    private fun findIncorrectProperties(rPr: RPr, pPr: PPr, p: Long, r: Long) {
-        if (rPr.rFonts.ascii != "Times New Roman") {
-            errors.add(Error(p, r, ErrorType.INCORRECT_TEXT_FONT))
-        }
-        if (rPr.color != null && rPr.color.`val` != "FFFFFF" && rPr.color.`val` != "auto") {
-            errors.add(Error(p, r, ErrorType.INCORRECT_TEXT_COLOR))
-        }
-        if (rPr.sz.`val`.toInt() / 2 != 14) {
-            errors.add(Error(p, r, ErrorType.INCORRECT_FONT_SIZE))
+    fun findRegularTextAllErrors(paragraph: Int) {
+        fun findRegularTextPErrors(pPr: PPr) {
+            if (pPr.jc == null || pPr.jc.`val` != JcEnumeration.BOTH) {
+                errors.add(Error(paragraph, -1, ErrorType.INCORRECT_REGULAR_TEXT_ALIGNMENT))
+            }
         }
 
-        // todo add other checks
+        fun findRegularTextRErrors(rPr: RPr, run: Int) {
+            if (rPr.b.isVal) {
+                errors.add(Error(paragraph, run, ErrorType.REGULAR_TEXT_WAS_BOLD))
+            }
+            if (rPr.u.`val`.value() != "none") {
+                errors.add(Error(paragraph, run, ErrorType.REGULAR_TEXT_WAS_UNDERLINED))
+            }
+        }
+
+        val p = mainDocumentPart.content[paragraph] as P
+        val pPr = resolver.getEffectivePPr(p.pPr)
+
+        findRegularTextPErrors(pPr)
+
+        for (run in 0 until p.content.size) {
+            val rPr = resolver.getEffectiveRPr((p.content[run] as R).rPr, p.pPr)
+            findRegularTextRErrors(rPr, run)
+        }
+
+        findGeneralAllErrors(paragraph, pPr)
     }
 }

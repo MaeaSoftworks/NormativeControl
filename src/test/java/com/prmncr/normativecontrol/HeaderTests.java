@@ -11,14 +11,14 @@ class HeaderTests extends TestsBase {
     @Test
     void headerIsCorrect() {
         val parser = createParser("correctHeaderStyle.docx");
-        parser.checkHeaderStyle(0);
+        parser.findHeaderAllErrors(0);
         Assert.isTrue(parser.errors.size() == 0, "There shouldn't be any error!");
     }
 
     @Test
     void headerIsIncorrect() {
         val parser = createParser("wrongHeaderStyle.docx");
-        parser.checkHeaderStyle(0);
+        parser.findHeaderAllErrors(0);
         Assert.isTrue(parser.errors.size() == 5, "There should be errors!");
         Assert.state(parser.errors.get(0).errorType() == ErrorType.INCORRECT_HEADER_ALIGNMENT
                 && parser.errors.get(0).paragraph() == 0
