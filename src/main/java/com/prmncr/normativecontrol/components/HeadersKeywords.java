@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class SectorKeywords {
+public class HeadersKeywords {
     @Getter
     private final List<String> body = null;
     private List<String> allKeywords;
@@ -87,16 +87,5 @@ public class SectorKeywords {
             }
         }
         return max;
-    }
-
-    public enum SectorOrder {
-        FIRST_PAGE,
-        ANNOTATION,
-        CONTENTS,
-        INTRODUCTION,
-        BODY,
-        CONCLUSION,
-        REFERENCES,
-        APPENDIX
     }
 }

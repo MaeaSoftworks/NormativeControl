@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @AllArgsConstructor
 public class DocumentParserBuilder {
     private CorrectDocumentParams params;
-    private SectorKeywords keywords;
+    private HeadersKeywords keywords;
 
     public DocumentParser build(WordprocessingMLPackage docx) throws IllegalAccessException {
         return new DocumentParser(docx, params, keywords);

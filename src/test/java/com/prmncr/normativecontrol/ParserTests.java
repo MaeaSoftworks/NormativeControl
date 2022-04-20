@@ -2,12 +2,9 @@ package com.prmncr.normativecontrol;
 
 import com.prmncr.normativecontrol.dtos.ErrorType;
 import lombok.val;
-import org.docx4j.wml.P;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.util.Assert;
-
-import java.util.List;
 
 @SpringBootTest
 class ParserTests extends TestsBase {

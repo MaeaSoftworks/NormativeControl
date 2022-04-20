@@ -1,7 +1,7 @@
 package com.prmncr.normativecontrol.services
 
 import com.prmncr.normativecontrol.components.CorrectDocumentParams
-import com.prmncr.normativecontrol.components.SectorKeywords
+import com.prmncr.normativecontrol.components.HeadersKeywords
 import com.prmncr.normativecontrol.dtos.Error
 import com.prmncr.normativecontrol.dtos.ErrorType
 import com.prmncr.normativecontrol.dtos.Node
@@ -15,7 +15,7 @@ import org.docx4j.wml.*
 class DocumentParser @Throws(IllegalAccessException::class) constructor(
     mlPackage: WordprocessingMLPackage,
     private var params: CorrectDocumentParams,
-    private var keywords: SectorKeywords
+    private var keywords: HeadersKeywords
 ) {
     private var document: MainDocumentPart = mlPackage.mainDocumentPart
 
@@ -55,6 +55,7 @@ class DocumentParser @Throws(IllegalAccessException::class) constructor(
                 return NodeType.values()[keys]
             }
         }
+        errors.add(Error(-1, -1, ErrorType.INCORRECT_SECTORS))
         return NodeType.UNDEFINED
     }
 
@@ -152,16 +153,14 @@ class DocumentParser @Throws(IllegalAccessException::class) constructor(
 
     fun findHeaderAllErrors(paragraph: Int) {
         val p = document.content[paragraph] as P
-        if (p.pPr.pStyle.getVal() != "Heading1") {
-            errors.add(Error(paragraph, 0, ErrorType.BUILT_IN_HEADER_STYLE_IS_NOT_USED))
-        }
         val pPr = resolver.getEffectivePPr(p.pPr)
         if (pPr.jc == null || pPr.jc.`val` != JcEnumeration.CENTER) {
             errors.add(Error(paragraph, 0, ErrorType.INCORRECT_HEADER_ALIGNMENT))
         }
         val run = p.content[0] as R
+        val rPr = resolver.getEffectiveRPr(run.rPr, pPr)
         val text = TextUtils.getText(run)
-        if (text.uppercase() != text) {
+        if (text.uppercase() != text || rPr.caps == null || !rPr.caps.isVal) {
             errors.add(Error(paragraph, 0, ErrorType.HEADER_IS_NOT_UPPERCASE))
         }
         findGeneralAllErrors(paragraph, pPr)
