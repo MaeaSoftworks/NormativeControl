@@ -10,18 +10,11 @@ import java.util.List;
 
 @Component
 public class SectorKeywords {
-    private List<String> allKeywordsFlat;
+    @Getter
+    private final List<String> body = null;
+    private List<String> allKeywords;
 
-    private List<List<String>> allKeywords;
-
-    public List<String> getAllKeywordsFlat() {
-        return allKeywordsFlat;
-    }
-
-    public List<List<String>> getAllKeywords() {
-        return allKeywords;
-    }
-
+    private List<List<String>> keywordsBySector;
     @Value("#{'${document.sectors.keywords.annotation}'.split(',')}")
     @Getter
     private List<String> annotation;
@@ -31,9 +24,6 @@ public class SectorKeywords {
     @Value("#{'${document.sectors.keywords.introduction}'.split(',')}")
     @Getter
     private List<String> introduction;
-    @Value("#{'${document.sectors.keywords.body}'.split(',')}")
-    @Getter
-    private List<String> body;
     @Value("#{'${document.sectors.keywords.conclusion}'.split(',')}")
     @Getter
     private List<String> conclusion;
@@ -43,29 +33,38 @@ public class SectorKeywords {
     @Value("#{'${document.sectors.keywords.appendix}'.split(',')}")
     @Getter
     private List<String> appendix;
-
     private int maxLength = -1;
+
+    public List<String> getAllKeywords() {
+        return allKeywords;
+    }
+
+    public List<List<String>> getKeywordsBySector() {
+        return keywordsBySector;
+    }
 
     @PostConstruct
     public void init() {
-        allKeywordsFlat = new ArrayList<>();
-
-        allKeywordsFlat.addAll(annotation);
-        allKeywordsFlat.addAll(contents);
-        allKeywordsFlat.addAll(introduction);
-        allKeywordsFlat.addAll(body);
-        allKeywordsFlat.addAll(conclusion);
-        allKeywordsFlat.addAll(references);
-        allKeywordsFlat.addAll(appendix);
-
         allKeywords = new ArrayList<>();
-        allKeywords.add(annotation);
-        allKeywords.add(contents);
-        allKeywords.add(introduction);
-        allKeywords.add(body);
-        allKeywords.add(conclusion);
-        allKeywords.add(references);
-        allKeywords.add(appendix);
+
+        // front page skip
+        allKeywords.addAll(annotation);
+        allKeywords.addAll(contents);
+        allKeywords.addAll(introduction);
+        // body skip
+        allKeywords.addAll(conclusion);
+        allKeywords.addAll(references);
+        allKeywords.addAll(appendix);
+
+        keywordsBySector = new ArrayList<>();
+        keywordsBySector.add(new ArrayList<>()); // front page
+        keywordsBySector.add(annotation);
+        keywordsBySector.add(contents);
+        keywordsBySector.add(introduction);
+        keywordsBySector.add(new ArrayList<>()); // body
+        keywordsBySector.add(conclusion);
+        keywordsBySector.add(references);
+        keywordsBySector.add(appendix);
     }
 
     public int getMaxLength() {
@@ -88,5 +87,16 @@ public class SectorKeywords {
             }
         }
         return max;
+    }
+
+    public enum SectorOrder {
+        FIRST_PAGE,
+        ANNOTATION,
+        CONTENTS,
+        INTRODUCTION,
+        BODY,
+        CONCLUSION,
+        REFERENCES,
+        APPENDIX
     }
 }

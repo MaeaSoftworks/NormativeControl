@@ -4,6 +4,8 @@ import com.prmncr.normativecontrol.components.CorrectDocumentParams
 import com.prmncr.normativecontrol.components.SectorKeywords
 import com.prmncr.normativecontrol.dtos.Error
 import com.prmncr.normativecontrol.dtos.ErrorType
+import com.prmncr.normativecontrol.dtos.Node
+import com.prmncr.normativecontrol.dtos.NodeType
 import org.docx4j.TextUtils
 import org.docx4j.model.PropertyResolver
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage
@@ -11,43 +13,60 @@ import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
 import org.docx4j.wml.*
 
 class DocumentParser @Throws(IllegalAccessException::class) constructor(
-    private var document: WordprocessingMLPackage,
+    mlPackage: WordprocessingMLPackage,
     private var params: CorrectDocumentParams,
     private var keywords: SectorKeywords
 ) {
-    private val points = 20
-    private var mainDocumentPart: MainDocumentPart = document.mainDocumentPart
+    private var document: MainDocumentPart = mlPackage.mainDocumentPart
+
     @JvmField
-    val sectors: MutableList<MutableList<Any>> = ArrayList()
+    val nodes: MutableList<Node> = ArrayList()
+
     @JvmField
     val errors: MutableList<Error> = ArrayList()
-    private val resolver: PropertyResolver
+    private val resolver: PropertyResolver = PropertyResolver(mlPackage)
 
-    init {
-        for (i in 0..7) {
-            sectors.add(ArrayList())
-        }
-        resolver = PropertyResolver(document)
-    }
-
-    fun runStyleCheck(): List<Error?> {
-        findSectors(0, 0)
+    fun runStyleCheck(): List<Error> {
+        findSectors()
         checkPageSize()
         checkPageMargins()
+        detectNodes()
         return errors
     }
 
+    fun detectNodes() {
+        for (node in nodes) {
+            if (node[0] is P) {
+                if (node.header == null) {
+                    node.type = NodeType.FRONT_PAGE
+                    continue
+                }
+                node.type = detectNodeType(TextUtils.getText(node.header))
+            }
+        }
+    }
+
+    private fun detectNodeType(text: String): NodeType {
+        if (text.split(Regex("\\s+"))[0].matches(Regex("^(?:\\d\\.?){1,3}$"))) {
+            return NodeType.BODY
+        }
+        for (keys in 0 until keywords.keywordsBySector.size) {
+            if (keywords.keywordsBySector[keys].contains(text)) {
+                return NodeType.values()[keys]
+            }
+        }
+        return NodeType.UNDEFINED
+    }
+
     fun checkPageSize() {
-        val sector = mainDocumentPart.jaxbElement.body.sectPr
-        val pageSize = sector.pgSz
+        val pageSize = document.jaxbElement.body.sectPr.pgSz
         if (pageSize.w != params.pageWidth || pageSize.h != params.pageHeight) {
             errors.add(Error(-1, -1, ErrorType.INCORRECT_PAGE_SIZE))
         }
     }
 
     fun checkPageMargins() {
-        val sector = mainDocumentPart.jaxbElement.body.sectPr
-        val pageMargins = sector.pgMar
+        val pageMargins = document.jaxbElement.body.sectPr.pgMar
         if (pageMargins.top != params.pageMarginTop || pageMargins.right != params.pageMarginRight
             || pageMargins.bottom != params.pageMarginBottom || pageMargins.left != params.pageMarginLeft
         ) {
@@ -56,77 +75,37 @@ class DocumentParser @Throws(IllegalAccessException::class) constructor(
     }
 
     fun findSectors() {
-        findSectors(0, 0)
-    }
-
-    private fun findSectors(paragraphId: Int, sectorId: Int) {
-        val paragraphs = mainDocumentPart.content
-        var paragraph = paragraphId
+        val paragraphs = document.content
+        var paragraph = 0
+        var sectorId = 0
         while (paragraph < paragraphs.size) {
-            // are we collecting last sector? (he hasn't got next header)
-            if (keywords.allKeywords.size + 1 == sectorId) {
-                sectors[sectorId].add(paragraphs[paragraph])
-                continue
-            }
-            if (paragraphs[paragraph] is P && (paragraphs[paragraph] as P).content.size <= 2) {
-                val text = TextUtils.getText(paragraphs[paragraph])
-                // did we find some header?
-                if (isHeader(paragraph, text)) {
-                    // yes, some header is here
-                    val error = Error(paragraph, -1, ErrorType.INCORRECT_SECTORS)
-                    for (i in sectorId + 1..keywords.allKeywords.size) {
-                        // what sector is this header?
-                        if (keywords.allKeywords[i - 1].contains(text.uppercase())) {
-                            // we found next sector
-                            findHeaderAllErrors(paragraph)
-                            paragraph++
-                            findSectors(paragraph, i)
-                            return
-                        } else if (!errors.contains(error)) {
-                            // it is not next sector! error!
-                            errors.add(error)
-                        }
-                    }
-                } else {
-                    //it's not a header
-                    sectors[sectorId].add(paragraphs[paragraph])
-                }
+            if (paragraphs[paragraph] is P && isHeader(paragraph, 1)) {
+                sectorId++
+                nodes.add(Node())
+                nodes[sectorId].header = paragraphs[paragraph] as P
             } else {
-                sectors[sectorId].add(paragraphs[paragraph])
+                if (nodes.size <= sectorId) {
+                    nodes.add(Node())
+                }
+                nodes[sectorId].add(paragraphs[paragraph])
             }
             paragraph++
         }
+        if (nodes.size < 8) {
+            errors.add(Error(-1, -1, ErrorType.INCORRECT_SECTORS))
+        }
     }
 
-    private fun isHeader(paragraph: Int, text: String): Boolean {
-        val words = text.split("\\s+")
-        if (words.isEmpty() || words.size > keywords.maxLength) {
+    private fun isHeader(paragraph: Int, level: Int): Boolean {
+        val pPr = resolver.getEffectivePPr((document.content[paragraph] as P).pPr)
+        if (pPr == null || pPr.outlineLvl == null) {
             return false
         }
-
-        val paragraphs = mainDocumentPart.content
-        if (paragraph > 0) {
-            val previous = paragraphs[paragraph - 1]
-            if (previous is P) {
-                val runs = previous.content
-                if (runs.isNotEmpty()) {
-                    val lastRun = runs[runs.size - 1]
-                    if (lastRun is R) {
-                        if (lastRun.content[lastRun.content.size - 1] is Br) {
-                            return true
-                        }
-                    }
-                    if (lastRun !is Br) {
-                        return false
-                    }
-                }
-            }
-        }
-        return keywords.allKeywordsFlat.contains(text.uppercase())
+        return pPr.outlineLvl.`val`.toInt() == level - 1
     }
 
     fun findGeneralAllErrors(p: Int) {
-        findGeneralAllErrors(p, resolver.getEffectivePPr((mainDocumentPart.content[p] as P).pPr))
+        findGeneralAllErrors(p, resolver.getEffectivePPr((document.content[p] as P).pPr))
     }
 
     private fun findGeneralAllErrors(p: Int, pPr: PPr) {
@@ -163,7 +142,7 @@ class DocumentParser @Throws(IllegalAccessException::class) constructor(
             }
         }
 
-        val paragraph = mainDocumentPart.content[p] as P
+        val paragraph = document.content[p] as P
         findGeneralPErrors(pPr, p)
         for (run in 0 until paragraph.content.size) {
             val rPr = resolver.getEffectiveRPr((paragraph.content[run] as R).rPr, paragraph.pPr)
@@ -172,7 +151,7 @@ class DocumentParser @Throws(IllegalAccessException::class) constructor(
     }
 
     fun findHeaderAllErrors(paragraph: Int) {
-        val p = mainDocumentPart.content[paragraph] as P
+        val p = document.content[paragraph] as P
         if (p.pPr.pStyle.getVal() != "Heading1") {
             errors.add(Error(paragraph, 0, ErrorType.BUILT_IN_HEADER_STYLE_IS_NOT_USED))
         }
@@ -204,7 +183,7 @@ class DocumentParser @Throws(IllegalAccessException::class) constructor(
             }
         }
 
-        val p = mainDocumentPart.content[paragraph] as P
+        val p = document.content[paragraph] as P
         val pPr = resolver.getEffectivePPr(p.pPr)
 
         findRegularTextPErrors(pPr)

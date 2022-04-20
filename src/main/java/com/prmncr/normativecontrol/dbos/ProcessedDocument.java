@@ -7,8 +7,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.prmncr.normativecontrol.dtos.Error;
 import com.prmncr.normativecontrol.serializers.ByteArraySerializer;
-import lombok.Builder;
-import lombok.With;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -56,6 +54,7 @@ public class ProcessedDocument {
     }
 
     public List<Error> getDeserializedErrors() throws JsonProcessingException {
-        return new ObjectMapper().readValue(errors, new TypeReference<>() {});
+        return new ObjectMapper().readValue(errors, new TypeReference<>() {
+        });
     }
 }

@@ -15,7 +15,6 @@ import lombok.val;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
-import javax.persistence.Lob;
 import java.util.List;
 import java.util.UUID;
 
@@ -55,9 +54,9 @@ public class DocumentManager {
             return null;
         }
         return new Object() {
-            @JsonSerialize(using = ByteArraySerializer.class)
-            public byte[] file = fileObject.get().getFile();
             public final List<Error> errors = fileObject.get().getDeserializedErrors();
+            @JsonSerialize(using = ByteArraySerializer.class)
+            public final byte[] file = fileObject.get().getFile();
         };
     }
 

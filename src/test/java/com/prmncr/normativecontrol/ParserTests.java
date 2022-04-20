@@ -2,9 +2,12 @@ package com.prmncr.normativecontrol;
 
 import com.prmncr.normativecontrol.dtos.ErrorType;
 import lombok.val;
+import org.docx4j.wml.P;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.util.Assert;
+
+import java.util.List;
 
 @SpringBootTest
 class ParserTests extends TestsBase {
@@ -32,14 +35,15 @@ class ParserTests extends TestsBase {
     void correctSectorsFound() {
         val parser = createParser("correctSectors.docx");
         parser.findSectors();
-        Assert.notEmpty(parser.sectors.get(0), "0 not found!");
-        Assert.notEmpty(parser.sectors.get(1), "1 not found!");
-        Assert.notEmpty(parser.sectors.get(2), "2 not found!");
-        Assert.notEmpty(parser.sectors.get(3), "3 not found!");
-        Assert.notEmpty(parser.sectors.get(4), "4 not found!");
-        Assert.notEmpty(parser.sectors.get(5), "5 not found!");
-        Assert.notEmpty(parser.sectors.get(6), "6 not found!");
-        Assert.notEmpty(parser.sectors.get(7), "7 not found!");
+        parser.detectNodes();
+        Assert.notEmpty(parser.nodes.get(0).getContent(), "0 not found!");
+        Assert.notEmpty(parser.nodes.get(1).getContent(), "1 not found!");
+        Assert.notEmpty(parser.nodes.get(2).getContent(), "2 not found!");
+        Assert.notEmpty(parser.nodes.get(3).getContent(), "3 not found!");
+        Assert.notEmpty(parser.nodes.get(4).getContent(), "4 not found!");
+        Assert.notEmpty(parser.nodes.get(5).getContent(), "5 not found!");
+        Assert.notEmpty(parser.nodes.get(6).getContent(), "6 not found!");
+        Assert.notEmpty(parser.nodes.get(7).getContent(), "7 not found!");
         Assert.isTrue(parser.errors.size() == 0, "There shouldn't be any error!");
     }
 
@@ -47,14 +51,14 @@ class ParserTests extends TestsBase {
     void incorrectSectorsFound() {
         val parser = createParser("skippedSector.docx");
         parser.findSectors();
-        Assert.notEmpty(parser.sectors.get(0), "0 must be found!");
-        Assert.notEmpty(parser.sectors.get(1), "1 must be found!");
-        Assert.notEmpty(parser.sectors.get(2), "2 must be found!");
-        Assert.notEmpty(parser.sectors.get(3), "3 must be found!");
-        Assert.isTrue(parser.sectors.get(4).size() == 0, "4 must be NOT found!");
-        Assert.notEmpty(parser.sectors.get(5), "5 must be found!");
-        Assert.notEmpty(parser.sectors.get(6), "6 must be found!");
-        Assert.notEmpty(parser.sectors.get(7), "7 must be found!");
+        Assert.isTrue(parser.nodes.size() == 7, "2 sectors must be found!");
+        Assert.notEmpty(parser.nodes.get(0).getContent(), "0 must be found!");
+        Assert.notEmpty(parser.nodes.get(1).getContent(), "1 must be found!");
+        Assert.notEmpty(parser.nodes.get(2).getContent(), "2 must be found!");
+        Assert.notEmpty(parser.nodes.get(3).getContent(), "3 must be found!");
+        Assert.notEmpty(parser.nodes.get(4).getContent(), "4 must be found!");
+        Assert.notEmpty(parser.nodes.get(5).getContent(), "5 must be found!");
+        Assert.notEmpty(parser.nodes.get(6).getContent(), "6 must be found!");
         Assert.isTrue(parser.errors.size() == 1, "There should be error!");
     }
 
@@ -62,14 +66,9 @@ class ParserTests extends TestsBase {
     void allSectorsSkipped() {
         val parser = createParser("skippedAllSectors.docx");
         parser.findSectors();
-        Assert.notEmpty(parser.sectors.get(0), "0 must be found!");
-        Assert.isTrue(parser.sectors.get(1).size() == 0, "1 must be NOT found!");
-        Assert.isTrue(parser.sectors.get(2).size() == 0, "2 must be NOT found!");
-        Assert.isTrue(parser.sectors.get(3).size() == 0, "3 must be NOT found!");
-        Assert.isTrue(parser.sectors.get(4).size() == 0, "4 must be NOT found!");
-        Assert.isTrue(parser.sectors.get(5).size() == 0, "5 must be NOT found!");
-        Assert.isTrue(parser.sectors.get(6).size() == 0, "6 must be NOT found!");
-        Assert.notEmpty(parser.sectors.get(7), "6 must be found!");
+        Assert.isTrue(parser.nodes.size() == 2, "2 sectors must be found!");
+        Assert.notEmpty(parser.nodes.get(0).getContent(), "0 must be found!");
+        Assert.notEmpty(parser.nodes.get(1).getContent(), "1 must be found!");
         Assert.isTrue(parser.errors.size() == 1, "There should be error!");
     }
 
@@ -77,15 +76,15 @@ class ParserTests extends TestsBase {
     void headerDetectedWithoutLineBreak() {
         val parser = createParser("headerWithoutLineBreak.docx");
         parser.findSectors();
-        Assert.notEmpty(parser.sectors.get(0), "0 not found!");
-        Assert.notEmpty(parser.sectors.get(1), "1 not found!");
+        Assert.notEmpty(parser.nodes.get(0).getContent(), "0 not found!");
+        Assert.notEmpty(parser.nodes.get(1).getContent(), "1 not found!");
     }
 
     @Test
     void headerDetectedWithLineBreak() {
         val parser = createParser("headerWithLineBreak.docx");
         parser.findSectors();
-        Assert.notEmpty(parser.sectors.get(0), "0 not found!");
-        Assert.notEmpty(parser.sectors.get(1), "1 not found!");
+        Assert.notEmpty(parser.nodes.get(0).getContent(), "0 not found!");
+        Assert.notEmpty(parser.nodes.get(1).getContent(), "1 not found!");
     }
 }

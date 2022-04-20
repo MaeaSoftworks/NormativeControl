@@ -1,7 +1,6 @@
 package com.prmncr.normativecontrol.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.prmncr.normativecontrol.dbos.ProcessedDocument;
 import com.prmncr.normativecontrol.dtos.Result;
 import com.prmncr.normativecontrol.dtos.State;
 import com.prmncr.normativecontrol.services.DocumentManager;
@@ -25,7 +24,9 @@ public class DocumentProcessingController {
     @ResponseBody
     public ResponseEntity<Object> getState(@RequestParam(value = "id") String id) {
         val s = documentsManager.getState(id);
-        return s != null ? new ResponseEntity<>(new Object() {public final State state = s;}, HttpStatus.OK)
+        return s != null ? new ResponseEntity<>(new Object() {
+            public final State state = s;
+        }, HttpStatus.OK)
                 : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
@@ -33,7 +34,9 @@ public class DocumentProcessingController {
     @ResponseBody
     public ResponseEntity<Object> getResult(@RequestParam(value = "id") String id) {
         val r = documentsManager.getResult(id);
-        return r != null ? new ResponseEntity<>(new Object() {public final Result result = r;}, HttpStatus.OK)
+        return r != null ? new ResponseEntity<>(new Object() {
+            public final Result result = r;
+        }, HttpStatus.OK)
                 : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
@@ -58,7 +61,9 @@ public class DocumentProcessingController {
             return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
         }
         val documentId = documentsManager.addToQueue(bytes);
-        return new ResponseEntity<>(new Object() {public final String id = documentId;}, HttpStatus.ACCEPTED);
+        return new ResponseEntity<>(new Object() {
+            public final String id = documentId;
+        }, HttpStatus.ACCEPTED);
     }
 
     @GetMapping(value = "result/{id}")
