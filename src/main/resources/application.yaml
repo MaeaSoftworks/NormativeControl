@@ -17,13 +17,18 @@ document:
       appendix: ПРИЛОЖЕНИЕ,ПРИЛОЖЕНИЯ,
 spring:
   datasource:
-    password: meaasoftworks52(
-    username: meaasoftworks
+    password: maea-softworks52(
+    username: maea-softworks
     url: jdbc:h2:~/database/documents
   jpa:
     hibernate:
       ddl-auto: update
   messages:
     basename: i18n/messages
+  servlet:
+    multipart:
+      max-file-size: 15MB
+      max-request-size: 15MB
+      enabled: true
 server:
   port: '8080'

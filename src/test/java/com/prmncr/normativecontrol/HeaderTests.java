@@ -3,21 +3,25 @@ package com.prmncr.normativecontrol;
 import com.prmncr.normativecontrol.dtos.ErrorType;
 import lombok.val;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.util.Assert;
 
 @SpringBootTest
-class HeaderTests extends TestsBase {
+class HeaderTests {
+    @Autowired
+    TestBase base;
+
     @Test
     void headerIsCorrect() {
-        val parser = createParser("correctHeaderStyle.docx");
+        val parser = base.createParser("correctHeaderStyle.docx");
         parser.findHeaderAllErrors(0);
         Assert.isTrue(parser.errors.size() == 0, "There shouldn't be any error!");
     }
 
     @Test
     void headerIsIncorrect() {
-        val parser = createParser("wrongHeaderStyle.docx");
+        val parser = base.createParser("wrongHeaderStyle.docx");
         parser.findHeaderAllErrors(0);
         Assert.isTrue(parser.errors.size() == 5, "There should be errors!");
         Assert.state(parser.errors.get(0).errorType() == ErrorType.INCORRECT_HEADER_ALIGNMENT

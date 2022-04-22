@@ -2,13 +2,15 @@ package com.prmncr.normativecontrol.services;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.prmncr.normativecontrol.dbos.ProcessedDocument;
+import com.prmncr.normativecontrol.dbos.DocumentData;
+import com.prmncr.normativecontrol.dbos.DocumentFile;
 import com.prmncr.normativecontrol.dtos.Document;
 import com.prmncr.normativecontrol.dtos.Error;
 import com.prmncr.normativecontrol.dtos.Result;
 import com.prmncr.normativecontrol.dtos.State;
 import com.prmncr.normativecontrol.events.NewDocumentEvent;
-import com.prmncr.normativecontrol.repositories.DocumentRepository;
+import com.prmncr.normativecontrol.repositories.DocumentDataRepository;
+import com.prmncr.normativecontrol.repositories.DocumentFileRepository;
 import com.prmncr.normativecontrol.serializers.ByteArraySerializer;
 import lombok.AllArgsConstructor;
 import lombok.val;
@@ -22,8 +24,10 @@ import java.util.UUID;
 @AllArgsConstructor
 public class DocumentManager {
     private final DocumentQueue queue;
-    private final DocumentRepository repository;
+    private final DocumentDataRepository dataRepository;
+    private final DocumentFileRepository fileRepository;
     private final ApplicationEventPublisher publisher;
+
 
     public String addToQueue(byte[] file) {
         val document = new Document(UUID.randomUUID().toString(), file);
@@ -36,42 +40,21 @@ public class DocumentManager {
         val document = queue.getById(id);
         if (document != null) {
             return document.getState();
+        } else {
+            return dataRepository.existsById(id) ? State.READY : null;
         }
-        return null;
     }
 
-    public Result getResult(String id) {
-        val document = queue.getById(id);
-        if (document == null) {
-            return null;
-        }
-        return document.getResult();
+    public DocumentData getData(String id) {
+        return dataRepository.findById(id).orElse(null);
     }
 
-    public Object getFile(String id) throws JsonProcessingException {
-        val fileObject = repository.findById(id);
-        if (!fileObject.isPresent()) {
-            return null;
-        }
-        return new Object() {
-            public final List<Error> errors = fileObject.get().getDeserializedErrors();
-            @JsonSerialize(using = ByteArraySerializer.class)
-            public final byte[] file = fileObject.get().getFile();
-        };
-    }
-
-    public void saveResult(String id) throws JsonProcessingException {
-        val document = queue.getById(id);
-        if (document == null) {
-            throw new NullPointerException();
-        }
-        val doc = new ProcessedDocument(document.getId(), document.getFile(), document.getResult().getErrors());
-        repository.save(doc);
-        queue.remove(id);
+    public DocumentFile getFile(String id) {
+        return fileRepository.findById(id).orElse(null);
     }
 
     public void dropDatabase() {
-        repository.deleteAll();
+        dataRepository.deleteAll();
     }
 
     public void delete(String id) {

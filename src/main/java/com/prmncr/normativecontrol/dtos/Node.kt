@@ -3,7 +3,7 @@ package com.prmncr.normativecontrol.dtos
 import org.docx4j.wml.P
 
 class Node : Iterable<Any> {
-    lateinit var type: NodeType
+    var type: NodeType? = null
     var header: P? = null
     private val content: MutableList<Any> = ArrayList()
 

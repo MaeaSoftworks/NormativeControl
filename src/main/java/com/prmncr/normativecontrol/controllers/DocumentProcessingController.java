@@ -1,17 +1,24 @@
 package com.prmncr.normativecontrol.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.prmncr.normativecontrol.dtos.Result;
+import com.prmncr.normativecontrol.dtos.Error;
 import com.prmncr.normativecontrol.dtos.State;
+import com.prmncr.normativecontrol.exceptions.DocumentNotFoundException;
+import com.prmncr.normativecontrol.exceptions.RequiredArgsWereEmptyException;
+import com.prmncr.normativecontrol.exceptions.UnprocessableDocumentException;
 import com.prmncr.normativecontrol.services.DocumentManager;
 import lombok.AllArgsConstructor;
 import lombok.val;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 @CrossOrigin
 @RestController
@@ -21,88 +28,58 @@ public class DocumentProcessingController {
     private final DocumentManager documentsManager;
 
     @GetMapping("state")
-    @ResponseBody
-    public ResponseEntity<Object> getState(@RequestParam(value = "id") String id) {
-        val s = documentsManager.getState(id);
-        return s != null ? new ResponseEntity<>(new Object() {
-            public final State state = s;
-        }, HttpStatus.OK)
-                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    }
-
-    @GetMapping("result")
-    @ResponseBody
-    public ResponseEntity<Object> getResult(@RequestParam(value = "id") String id) {
-        val r = documentsManager.getResult(id);
-        return r != null ? new ResponseEntity<>(new Object() {
-            public final Result result = r;
-        }, HttpStatus.OK)
-                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    public Map<String, State> getState(@RequestParam(value = "id") String id) {
+        val state = documentsManager.getState(id);
+        if (state == null) {
+            throw new DocumentNotFoundException();
+        }
+        return Collections.singletonMap("state", state);
     }
 
     @PostMapping("upload")
-    @ResponseBody
-    public ResponseEntity<Object> uploadDocument(@RequestParam("file") MultipartFile file) {
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public Map<String, String> uploadDocument(@RequestParam("file") MultipartFile file) {
         if (file == null) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            throw new RequiredArgsWereEmptyException();
         }
         val filename = file.getOriginalFilename();
         if (filename == null || filename.equals("")) {
-            return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
+            throw new RequiredArgsWereEmptyException();
         }
         val extension = filename.split("\\.");
         if (!extension[1].equals("docx")) {
-            return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
+            throw new UnprocessableDocumentException();
         }
         byte[] bytes;
         try {
             bytes = file.getBytes();
         } catch (IOException e) {
-            return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
+            throw new UnprocessableDocumentException();
         }
-        val documentId = documentsManager.addToQueue(bytes);
-        return new ResponseEntity<>(new Object() {
-            public final String id = documentId;
-        }, HttpStatus.ACCEPTED);
+        return Collections.singletonMap("id", documentsManager.addToQueue(bytes));
     }
 
-    @GetMapping(value = "result/{id}")
-    @ResponseBody
-    public ResponseEntity<Object> loadResult(@PathVariable(value = "id") String id) {
-        Object file = null;
-        try {
-            file = documentsManager.getFile(id);
-        } catch (JsonProcessingException e) {
-            new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    @GetMapping("errors")
+    public Map<String, List<Error>> getErrors(@RequestParam(value = "id") String id) throws JsonProcessingException {
+        val data = documentsManager.getData(id);
+        if (data == null) {
+            throw new DocumentNotFoundException();
         }
-        return file != null ? new ResponseEntity<>(file, HttpStatus.OK)
-                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        return Collections.singletonMap("errors", data.getDeserializedErrors());
     }
 
-    @PatchMapping(value = "result")
-    @ResponseBody
-    public ResponseEntity<String> saveResult(@RequestParam(value = "id") String id) {
-        try {
-            documentsManager.saveResult(id);
-        } catch (NullPointerException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch (JsonProcessingException e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    @GetMapping("file")
+    public Resource getFile(@RequestParam(value = "id") String id) {
+        val file = documentsManager.getFile(id);
+        if (file == null) {
+            throw new DocumentNotFoundException();
         }
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    @DeleteMapping("result")
-    @ResponseBody
-    public ResponseEntity<String> deleteResult(@RequestParam(value = "id") String id) {
-        documentsManager.delete(id);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ByteArrayResource(file.getFile());
     }
 
     @GetMapping("drop-database")
-    @ResponseBody
-    public ResponseEntity<String> dropDatabase() {
+    @ResponseStatus(HttpStatus.OK)
+    public void dropDatabase() {
         documentsManager.dropDatabase();
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

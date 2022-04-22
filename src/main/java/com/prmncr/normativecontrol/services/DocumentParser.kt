@@ -12,19 +12,17 @@ import org.docx4j.openpackaging.packages.WordprocessingMLPackage
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
 import org.docx4j.wml.*
 
-class DocumentParser @Throws(IllegalAccessException::class) constructor(
+class DocumentParser(
     mlPackage: WordprocessingMLPackage,
     private var params: CorrectDocumentParams,
     private var keywords: HeadersKeywords
 ) {
-    private var document: MainDocumentPart = mlPackage.mainDocumentPart
-
+    private val document: MainDocumentPart = mlPackage.mainDocumentPart
+    private val resolver: PropertyResolver = PropertyResolver(mlPackage)
     @JvmField
     val nodes: MutableList<Node> = ArrayList()
-
     @JvmField
     val errors: MutableList<Error> = ArrayList()
-    private val resolver: PropertyResolver = PropertyResolver(mlPackage)
 
     fun runStyleCheck(): List<Error> {
         findSectors()
@@ -44,10 +42,13 @@ class DocumentParser @Throws(IllegalAccessException::class) constructor(
                 node.type = detectNodeType(TextUtils.getText(node.header))
             }
         }
+        if (nodes[0].type == null) {
+            nodes[0].type = NodeType.FRONT_PAGE
+        }
     }
 
     private fun detectNodeType(text: String): NodeType {
-        if (text.split(Regex("\\s+"))[0].matches(Regex("^(?:\\d\\.?){1,3}$"))) {
+        if (text.split(Regex("\\s+"))[0].matches(Regex("^(?:\\d{1,2}\\.?){1,3}$"))) {
             return NodeType.BODY
         }
         for (keys in 0 until keywords.keywordsBySector.size) {
@@ -82,7 +83,9 @@ class DocumentParser @Throws(IllegalAccessException::class) constructor(
         while (paragraph < paragraphs.size) {
             if (paragraphs[paragraph] is P && isHeader(paragraph, 1)) {
                 sectorId++
-                nodes.add(Node())
+                for (i in nodes.size..sectorId) {
+                    nodes.add(Node())
+                }
                 nodes[sectorId].header = paragraphs[paragraph] as P
             } else {
                 if (nodes.size <= sectorId) {
@@ -160,7 +163,7 @@ class DocumentParser @Throws(IllegalAccessException::class) constructor(
         val run = p.content[0] as R
         val rPr = resolver.getEffectiveRPr(run.rPr, pPr)
         val text = TextUtils.getText(run)
-        if (text.uppercase() != text || rPr.caps == null || !rPr.caps.isVal) {
+        if (!(text.uppercase() == text || (rPr.caps != null && rPr.caps.isVal))) {
             errors.add(Error(paragraph, 0, ErrorType.HEADER_IS_NOT_UPPERCASE))
         }
         findGeneralAllErrors(paragraph, pPr)
