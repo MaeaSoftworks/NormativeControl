@@ -1,23 +1,18 @@
 package com.prmncr.normativecontrol.services;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.prmncr.normativecontrol.dbos.DocumentData;
 import com.prmncr.normativecontrol.dbos.DocumentFile;
 import com.prmncr.normativecontrol.dtos.Document;
-import com.prmncr.normativecontrol.dtos.Error;
-import com.prmncr.normativecontrol.dtos.Result;
 import com.prmncr.normativecontrol.dtos.State;
 import com.prmncr.normativecontrol.events.NewDocumentEvent;
 import com.prmncr.normativecontrol.repositories.DocumentDataRepository;
 import com.prmncr.normativecontrol.repositories.DocumentFileRepository;
-import com.prmncr.normativecontrol.serializers.ByteArraySerializer;
 import lombok.AllArgsConstructor;
 import lombok.val;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.UUID;
 
 @Component
@@ -36,6 +31,7 @@ public class DocumentManager {
         return document.getId();
     }
 
+    @Transactional
     public State getState(String id) {
         val document = queue.getById(id);
         if (document != null) {
@@ -45,19 +41,20 @@ public class DocumentManager {
         }
     }
 
+    @Transactional
     public DocumentData getData(String id) {
         return dataRepository.findById(id).orElse(null);
     }
 
+    @Transactional
     public DocumentFile getFile(String id) {
         return fileRepository.findById(id).orElse(null);
     }
 
+    @Transactional
     public void dropDatabase() {
         dataRepository.deleteAll();
-    }
-
-    public void delete(String id) {
-        queue.remove(id);
+        
+        fileRepository.deleteAll();
     }
 }

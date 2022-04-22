@@ -23,6 +23,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+    open-in-view: off
   messages:
     basename: i18n/messages
   servlet:

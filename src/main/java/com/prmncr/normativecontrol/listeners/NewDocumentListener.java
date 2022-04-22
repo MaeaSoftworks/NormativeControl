@@ -16,6 +16,8 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 @Component
 @AllArgsConstructor
@@ -38,6 +40,7 @@ public class NewDocumentListener {
 
     @Async
     @EventListener
+    @Transactional
     public void saveDocument(SaveDocumentEvent event) throws JsonProcessingException {
         var document = storage.getById(event.getDocumentId());
         assert document != null;
