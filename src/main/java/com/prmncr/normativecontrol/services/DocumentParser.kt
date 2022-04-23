@@ -19,9 +19,7 @@ class DocumentParser(
 ) {
     private val document: MainDocumentPart = mlPackage.mainDocumentPart
     private val resolver: PropertyResolver = PropertyResolver(mlPackage)
-    @JvmField
     val nodes: MutableList<Node> = ArrayList()
-    @JvmField
     val errors: MutableList<Error> = ArrayList()
 
     fun runStyleCheck(): List<Error> {

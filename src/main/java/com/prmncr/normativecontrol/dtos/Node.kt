@@ -5,16 +5,12 @@ import org.docx4j.wml.P
 class Node : Iterable<Any> {
     var type: NodeType? = null
     var header: P? = null
-    private val content: MutableList<Any> = ArrayList()
+    val content: MutableList<Any> = ArrayList()
 
     constructor()
 
     constructor(type: NodeType) {
         this.type = type
-    }
-
-    fun getContent(): List<Any> {
-        return content
     }
 
     fun add(item: Any) {
