@@ -23,13 +23,12 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    open-in-view: off
   messages:
     basename: i18n/messages
   servlet:
     multipart:
-      max-file-size: 15MB
-      max-request-size: 15MB
+      max-file-size: 20MB
+      max-request-size: 20MB
       enabled: true
 server:
   port: '8080'

@@ -1,6 +1,6 @@
 package com.prmncr.normativecontrol.components;
 
-import com.prmncr.normativecontrol.services.DocumentParser;
+import com.prmncr.normativecontrol.dtos.DocumentParser;
 import lombok.AllArgsConstructor;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.springframework.stereotype.Component;

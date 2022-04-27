@@ -54,7 +54,7 @@ public class DocumentManager {
     @Transactional
     public void dropDatabase() {
         dataRepository.deleteAll();
-        
+
         fileRepository.deleteAll();
     }
 }

@@ -25,23 +25,23 @@ internal class HeaderTests {
         parser.findHeaderAllErrors(0)
         Assert.isTrue(parser.errors.size == 5, "There should be errors!")
         Assert.state(
-            parser.errors[0].errorType == ErrorType.INCORRECT_HEADER_ALIGNMENT && parser.errors[0].paragraph == 0 && parser.errors[0].run == 0,
+            parser.errors[0].errorType == ErrorType.INCORRECT_HEADER_ALIGNMENT && parser.errors[0].paragraphId == 0 && parser.errors[0].runId == 0,
             "Wrong error!"
         )
         Assert.state(
-            parser.errors[1].errorType == ErrorType.HEADER_IS_NOT_UPPERCASE && parser.errors[0].paragraph == 0 && parser.errors[0].run == 0,
+            parser.errors[1].errorType == ErrorType.HEADER_IS_NOT_UPPERCASE && parser.errors[0].paragraphId == 0 && parser.errors[0].runId == 0,
             "Wrong error!"
         )
         Assert.state(
-            parser.errors[2].errorType == ErrorType.INCORRECT_TEXT_FONT && parser.errors[0].paragraph == 0 && parser.errors[0].run == 0,
+            parser.errors[2].errorType == ErrorType.INCORRECT_TEXT_FONT && parser.errors[0].paragraphId == 0 && parser.errors[0].runId == 0,
             "Wrong error!"
         )
         Assert.state(
-            parser.errors[3].errorType == ErrorType.INCORRECT_TEXT_COLOR && parser.errors[0].paragraph == 0 && parser.errors[0].run == 0,
+            parser.errors[3].errorType == ErrorType.INCORRECT_TEXT_COLOR && parser.errors[0].paragraphId == 0 && parser.errors[0].runId == 0,
             "Wrong error!"
         )
         Assert.state(
-            parser.errors[4].errorType == ErrorType.INCORRECT_FONT_SIZE && parser.errors[0].paragraph == 0 && parser.errors[0].run == 0,
+            parser.errors[4].errorType == ErrorType.INCORRECT_FONT_SIZE && parser.errors[0].paragraphId == 0 && parser.errors[0].runId == 0,
             "Wrong error!"
         )
     }

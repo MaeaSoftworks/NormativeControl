@@ -7,10 +7,11 @@ import org.springframework.util.Assert;
 
 @SpringBootTest
 class ContextLoadsTest {
-	@Autowired
-	NormativeControlApplication application;
-	@Test
-	void contextLoads() {
-		Assert.notNull(application, "App not found!");
-	}
+    @Autowired
+    NormativeControlApplication application;
+
+    @Test
+    void contextLoads() {
+        Assert.notNull(application, "App not found!");
+    }
 }

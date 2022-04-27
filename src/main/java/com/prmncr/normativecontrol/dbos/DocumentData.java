@@ -8,6 +8,7 @@ import lombok.Getter;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 import java.util.List;
 
@@ -17,16 +18,25 @@ import java.util.List;
 public class DocumentData {
     @Id
     private String id;
+    @Lob
     private String errors;
 
-    public DocumentData(String id, List<Error> errors) throws JsonProcessingException {
+    public DocumentData(String id, List<Error> errors) {
         this.id = id;
-        this.errors = new ObjectMapper().writeValueAsString(errors);
+        var jsonErrors = "";
+        try {
+            jsonErrors = new ObjectMapper().writeValueAsString(errors);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        this.errors = jsonErrors;
     }
 
-    public DocumentData() {}
+    public DocumentData() {
+    }
 
     public List<Error> getDeserializedErrors() throws JsonProcessingException {
-        return new ObjectMapper().readValue(errors, new TypeReference<>() {});
+        return new ObjectMapper().readValue(errors, new TypeReference<>() {
+        });
     }
 }

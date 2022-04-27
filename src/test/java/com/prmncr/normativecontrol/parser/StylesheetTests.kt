@@ -18,7 +18,8 @@ internal class StylesheetTests {
         parser.checkPageSize()
         Assert.notEmpty(parser.errors, "Error not found!")
         Assert.state(
-            parser.errors[0].errorType == ErrorType.INCORRECT_PAGE_SIZE && parser.errors[0].paragraph == -1 && parser.errors[0].run == -1,
+            parser.errors[0].errorType == ErrorType.PAGE_WIDTH_IS_INCORRECT && parser.errors[0].paragraphId == -1 && parser.errors[0].runId == -1
+                    && parser.errors[1].errorType == ErrorType.PAGE_HEIGHT_IS_INCORRECT && parser.errors[1].paragraphId == -1 && parser.errors[1].runId == -1,
             "Wrong error!"
         )
     }
@@ -29,7 +30,10 @@ internal class StylesheetTests {
         parser.checkPageMargins()
         Assert.notEmpty(parser.errors, "Error not found!")
         Assert.state(
-            parser.errors[0].errorType == ErrorType.INCORRECT_PAGE_MARGINS && parser.errors[0].paragraph == -1 && parser.errors[0].run == -1,
+            parser.errors[0].errorType == ErrorType.PAGE_MARGIN_TOP_IS_INCORRECT && parser.errors[0].paragraphId == -1 && parser.errors[0].runId == -1
+            && parser.errors[1].errorType == ErrorType.PAGE_MARGIN_RIGHT_IS_INCORRECT && parser.errors[1].paragraphId == -1 && parser.errors[1].runId == -1
+            && parser.errors[2].errorType == ErrorType.PAGE_MARGIN_BOTTOM_IS_INCORRECT && parser.errors[2].paragraphId == -1 && parser.errors[2].runId == -1
+            && parser.errors[3].errorType == ErrorType.PAGE_MARGIN_LEFT_IS_INCORRECT && parser.errors[3].paragraphId == -1 && parser.errors[3].runId == -1,
             "Wrong error!"
         )
     }

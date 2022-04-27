@@ -6,11 +6,17 @@ class Node : Iterable<Any> {
     var type: NodeType? = null
     var header: P? = null
     val content: MutableList<Any> = ArrayList()
+    var startPos: Int = -1
 
     constructor()
 
-    constructor(type: NodeType) {
+    constructor(type: NodeType, startPos: Int) {
         this.type = type
+        this.startPos = startPos
+    }
+
+    constructor(startPos: Int) {
+        this.startPos = startPos
     }
 
     fun add(item: Any) {

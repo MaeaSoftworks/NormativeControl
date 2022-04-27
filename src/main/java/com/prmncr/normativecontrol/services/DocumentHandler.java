@@ -1,10 +1,7 @@
 package com.prmncr.normativecontrol.services;
 
 import com.prmncr.normativecontrol.components.DocumentParserBuilder;
-import com.prmncr.normativecontrol.dtos.Document;
-import com.prmncr.normativecontrol.dtos.FailureType;
-import com.prmncr.normativecontrol.dtos.Result;
-import com.prmncr.normativecontrol.dtos.State;
+import com.prmncr.normativecontrol.dtos.*;
 import lombok.AllArgsConstructor;
 import lombok.val;
 import org.docx4j.openpackaging.exceptions.Docx4JException;

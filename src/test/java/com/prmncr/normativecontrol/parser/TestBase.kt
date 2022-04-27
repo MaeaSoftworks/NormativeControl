@@ -1,7 +1,7 @@
 package com.prmncr.normativecontrol.parser
 
 import com.prmncr.normativecontrol.components.DocumentParserBuilder
-import com.prmncr.normativecontrol.services.DocumentParser
+import com.prmncr.normativecontrol.dtos.DocumentParser
 import org.docx4j.openpackaging.exceptions.Docx4JException
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage
 import org.springframework.beans.factory.annotation.Autowired

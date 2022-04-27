@@ -1,7 +1,5 @@
 package com.prmncr.normativecontrol.dbos;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.ser.std.ByteArraySerializer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

@@ -3,9 +3,6 @@ package com.prmncr.normativecontrol.controllers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.prmncr.normativecontrol.dtos.Error;
 import com.prmncr.normativecontrol.dtos.State;
-import com.prmncr.normativecontrol.exceptions.DocumentNotFoundException;
-import com.prmncr.normativecontrol.exceptions.RequiredArgsWereEmptyException;
-import com.prmncr.normativecontrol.exceptions.UnprocessableDocumentException;
 import com.prmncr.normativecontrol.services.DocumentManager;
 import lombok.AllArgsConstructor;
 import lombok.val;
@@ -14,6 +11,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -31,7 +29,7 @@ public class DocumentProcessingController {
     public Map<String, State> getState(@RequestParam(value = "id") String id) {
         val state = documentsManager.getState(id);
         if (state == null) {
-            throw new DocumentNotFoundException();
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found");
         }
         return Collections.singletonMap("state", state);
     }
@@ -40,21 +38,21 @@ public class DocumentProcessingController {
     @ResponseStatus(HttpStatus.ACCEPTED)
     public Map<String, String> uploadDocument(@RequestParam("file") MultipartFile file) {
         if (file == null) {
-            throw new RequiredArgsWereEmptyException();
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Required arguments were empty");
         }
         val filename = file.getOriginalFilename();
         if (filename == null || filename.equals("")) {
-            throw new RequiredArgsWereEmptyException();
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Required arguments were empty");
         }
         val extension = filename.split("\\.");
         if (!extension[1].equals("docx")) {
-            throw new UnprocessableDocumentException();
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Can not process this document");
         }
         byte[] bytes;
         try {
             bytes = file.getBytes();
         } catch (IOException e) {
-            throw new UnprocessableDocumentException();
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Can not process this document");
         }
         return Collections.singletonMap("id", documentsManager.addToQueue(bytes));
     }
@@ -63,7 +61,7 @@ public class DocumentProcessingController {
     public Map<String, List<Error>> getErrors(@RequestParam(value = "id") String id) throws JsonProcessingException {
         val data = documentsManager.getData(id);
         if (data == null) {
-            throw new DocumentNotFoundException();
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found");
         }
         return Collections.singletonMap("errors", data.getDeserializedErrors());
     }
@@ -72,7 +70,7 @@ public class DocumentProcessingController {
     public Resource getFile(@RequestParam(value = "id") String id) {
         val file = documentsManager.getFile(id);
         if (file == null) {
-            throw new DocumentNotFoundException();
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found");
         }
         return new ByteArrayResource(file.getFile());
     }
