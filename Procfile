@@ -1,1 +1,1 @@
-web: java -jar -Dport=$PORT -Dspring.profiles.active=heroku build/libs/NormativeControl-0.0.1-SNAPSHOT.jar
+web: java -jar -Dport=$PORT -Dspring.profiles.active=heroku build/libs/NormativeControl-1.0.jar
