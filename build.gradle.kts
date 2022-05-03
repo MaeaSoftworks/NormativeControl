@@ -23,14 +23,14 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-
+    implementation("org.hsqldb:hsqldb:2.6.1")
     implementation("org.slf4j:slf4j-api:1.7.36")
     implementation("org.docx4j:docx4j-JAXB-ReferenceImpl:8.3.4")
 
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     developmentOnly("org.springframework.boot:spring-boot-starter-actuator")
 
-    runtimeOnly("com.h2database:h2")
+
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }

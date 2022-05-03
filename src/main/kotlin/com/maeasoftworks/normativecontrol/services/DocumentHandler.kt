@@ -20,7 +20,7 @@ class DocumentHandler(private val factory: DocumentParserBuilder) {
             document.result = Result(FailureType.FILE_READING_ERROR)
             return
         }
-        val parser = factory.build(docx)
+        val parser = factory.build(docx, document.id)
         val errors = parser.runStyleCheck()
         document.result = Result(errors)
     }

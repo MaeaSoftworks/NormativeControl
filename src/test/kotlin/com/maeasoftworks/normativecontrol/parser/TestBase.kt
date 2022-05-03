@@ -16,7 +16,7 @@ class TestBase {
 
     fun createParser(directory: String, filename: String): DocumentParser {
         return try {
-            factory.build(WordprocessingMLPackage.load(FileInputStream("src/test/resources/$directory/$filename")))
+            factory.build(WordprocessingMLPackage.load(FileInputStream("src/test/resources/$directory/$filename")), null)
         } catch (e: IOException) {
             println(e.message)
             throw RuntimeException("Parser cannot be initialized!")

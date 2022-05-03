@@ -4,5 +4,6 @@ enum class State {
     QUEUE,
     PROCESSING,
     ERROR,
-    READY
+    READY,
+    UNDEFINED
 }

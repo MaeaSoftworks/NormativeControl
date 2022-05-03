@@ -1,6 +1,6 @@
 package com.maeasoftworks.normativecontrol.controllers
 
-import com.maeasoftworks.normativecontrol.dtos.Error
+import com.maeasoftworks.normativecontrol.daos.DocumentError
 import com.maeasoftworks.normativecontrol.dtos.State
 import com.maeasoftworks.normativecontrol.services.DocumentManager
 import org.springframework.core.io.ByteArrayResource
@@ -17,8 +17,7 @@ import java.io.IOException
 class DocumentProcessingController(private val documentsManager: DocumentManager) {
     @GetMapping("state")
     fun getState(@RequestParam(value = "id") id: String): Map<String, State> {
-        val state =
-            documentsManager.getState(id) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found")
+        val state = documentsManager.getState(id)
         return mapOf("state" to state)
     }
 
@@ -41,17 +40,15 @@ class DocumentProcessingController(private val documentsManager: DocumentManager
     }
 
     @GetMapping("errors")
-    fun getErrors(@RequestParam(value = "id") id: String): Map<String, List<Error>> {
-        val data =
-            documentsManager.getData(id) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found")
-        return mapOf("errors" to data.getDeserializedErrors())
+    fun getErrors(@RequestParam(value = "id") id: String): Map<String, List<DocumentError>> {
+        val data = documentsManager.getErrors(id)
+        return mapOf("errors" to data)
     }
 
     @GetMapping("file")
     fun getFile(@RequestParam(value = "id") id: String): Resource {
-        val file =
-            documentsManager.getFile(id) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found")
-        return ByteArrayResource(file.file)
+        val file = documentsManager.getFile(id)
+        return ByteArrayResource(file)
     }
 
     @GetMapping("drop-database")

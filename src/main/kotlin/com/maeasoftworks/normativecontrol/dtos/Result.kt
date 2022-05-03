@@ -1,17 +1,19 @@
 package com.maeasoftworks.normativecontrol.dtos
 
+import com.maeasoftworks.normativecontrol.daos.DocumentError
+
 class Result {
     val isFail: Boolean
     val failureType: FailureType
-    val errors: List<Error>?
+    val errors: List<DocumentError>
 
     constructor(failureType: FailureType) {
         isFail = true
         this.failureType = failureType
-        errors = null
+        errors = ArrayList()
     }
 
-    constructor(errors: List<Error>?) {
+    constructor(errors: List<DocumentError>) {
         isFail = false
         failureType = FailureType.NONE
         this.errors = errors

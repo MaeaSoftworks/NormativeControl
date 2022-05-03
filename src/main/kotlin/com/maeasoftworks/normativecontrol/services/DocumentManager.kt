@@ -1,12 +1,11 @@
 package com.maeasoftworks.normativecontrol.services
 
-import com.maeasoftworks.normativecontrol.daos.DocumentData
-import com.maeasoftworks.normativecontrol.daos.DocumentFile
+import com.maeasoftworks.normativecontrol.daos.DocumentError
 import com.maeasoftworks.normativecontrol.dtos.Document
 import com.maeasoftworks.normativecontrol.dtos.State
 import com.maeasoftworks.normativecontrol.events.NewDocumentEvent
-import com.maeasoftworks.normativecontrol.repositories.DocumentDataRepository
-import com.maeasoftworks.normativecontrol.repositories.DocumentFileRepository
+import com.maeasoftworks.normativecontrol.repositories.DocumentErrorRepository
+import com.maeasoftworks.normativecontrol.repositories.DocumentChunkRepository
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
@@ -15,8 +14,8 @@ import java.util.*
 @Component
 class DocumentManager(
     private val queue: DocumentQueue,
-    private val dataRepository: DocumentDataRepository,
-    private val fileRepository: DocumentFileRepository,
+    private val errorRepository: DocumentErrorRepository,
+    private val fileRepository: DocumentChunkRepository,
     private val publisher: ApplicationEventPublisher
 ) {
     fun addToQueue(file: ByteArray): String {
@@ -27,24 +26,32 @@ class DocumentManager(
     }
 
     @Transactional
-    fun getState(id: String): State? {
+    fun getState(id: String): State {
         val document = queue.getById(id)
-        return document?.state ?: if (dataRepository.existsById(id)) State.READY else null
+        if (document?.state == null) {
+            if (fileRepository.existsDocumentChunkByDocumentId(id)) {
+                return State.READY
+            } else {
+                return State.UNDEFINED
+            }
+
+        }
+        return State.UNDEFINED
     }
 
     @Transactional
-    fun getData(id: String): DocumentData? {
-        return dataRepository.findById(id).orElse(null)
+    fun getErrors(id: String): List<DocumentError> {
+        return errorRepository.findAllByDocumentId(id)
     }
 
     @Transactional
-    fun getFile(id: String): DocumentFile? {
-        return fileRepository.findById(id).orElse(null)
+    fun getFile(id: String): ByteArray {
+        return fileRepository.findAllByDocumentIdOrderByChunkId(id).flatMap { it.file.toList() }.toByteArray()
     }
 
     @Transactional
     fun dropDatabase() {
-        dataRepository.deleteAll()
+        errorRepository.deleteAll()
         fileRepository.deleteAll()
     }
 }

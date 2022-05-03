@@ -15,11 +15,7 @@ class DocumentQueue {
 
     @Nullable
     fun getById(id: String): Document? {
-        return try {
-            documentMap[id]
-        } catch (e: NullPointerException) {
-            null
-        }
+        return documentMap[id]
     }
 
     fun removeAt(id: String) {

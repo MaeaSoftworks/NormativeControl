@@ -9,7 +9,7 @@ class DocumentParserBuilder(
     private val params: CorrectDocumentParams,
     private val keywords: HeadersKeywords
 ) {
-    fun build(docx: WordprocessingMLPackage): DocumentParser {
-        return DocumentParser(docx, params, keywords)
+    fun build(docx: WordprocessingMLPackage, documentId: String?): DocumentParser {
+        return DocumentParser(docx, params, keywords, documentId)
     }
 }

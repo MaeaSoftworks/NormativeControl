@@ -2,6 +2,7 @@ package com.maeasoftworks.normativecontrol.dtos
 
 import com.maeasoftworks.normativecontrol.components.CorrectDocumentParams
 import com.maeasoftworks.normativecontrol.components.HeadersKeywords
+import com.maeasoftworks.normativecontrol.daos.DocumentError
 import com.prmncr.normativecontrol.dtos.Node
 import com.prmncr.normativecontrol.dtos.NodeType
 import org.docx4j.TextUtils
@@ -14,16 +15,17 @@ import javax.xml.bind.JAXBElement
 class DocumentParser(
     mlPackage: WordprocessingMLPackage,
     private var params: CorrectDocumentParams,
-    private var keywords: HeadersKeywords
+    private var keywords: HeadersKeywords,
+    private val documentId: String?
 ) {
     private val document: MainDocumentPart = mlPackage.mainDocumentPart
     private val resolver: PropertyResolver = PropertyResolver(mlPackage)
     val nodes: MutableList<Node> = ArrayList()
-    val errors: MutableList<Error> = ArrayList()
+    val errors: MutableList<DocumentError> = ArrayList()
     val tables: MutableList<Tbl> = ArrayList()
     val pictures: MutableList<Any> = ArrayList()
 
-    fun runStyleCheck(): List<Error> {
+    fun runStyleCheck(): List<DocumentError> {
         checkPageSize()
         checkPageMargins()
         findSectors()
@@ -36,26 +38,26 @@ class DocumentParser(
     fun checkPageSize() {
         val pageSize = document.contents.body.sectPr.pgSz
         if (pageSize.w != params.pageWidth) {
-            errors.add(Error(ErrorType.PAGE_WIDTH_IS_INCORRECT))
+            errors.add(DocumentError(ErrorType.PAGE_WIDTH_IS_INCORRECT, documentId))
         }
         if (pageSize.h != params.pageHeight) {
-            errors.add(Error(ErrorType.PAGE_HEIGHT_IS_INCORRECT))
+            errors.add(DocumentError(ErrorType.PAGE_HEIGHT_IS_INCORRECT, documentId))
         }
     }
 
     fun checkPageMargins() {
         val pageMargins = document.contents.body.sectPr.pgMar
         if (pageMargins.top != params.pageMarginTop) {
-            errors.add(Error(ErrorType.PAGE_MARGIN_TOP_IS_INCORRECT))
+            errors.add(DocumentError(ErrorType.PAGE_MARGIN_TOP_IS_INCORRECT, documentId))
         }
         if (pageMargins.right != params.pageMarginRight) {
-            errors.add(Error(ErrorType.PAGE_MARGIN_RIGHT_IS_INCORRECT))
+            errors.add(DocumentError(ErrorType.PAGE_MARGIN_RIGHT_IS_INCORRECT, documentId))
         }
         if (pageMargins.bottom != params.pageMarginBottom) {
-            errors.add(Error(ErrorType.PAGE_MARGIN_BOTTOM_IS_INCORRECT))
+            errors.add(DocumentError(ErrorType.PAGE_MARGIN_BOTTOM_IS_INCORRECT, documentId))
         }
         if (pageMargins.left != params.pageMarginLeft) {
-            errors.add(Error(ErrorType.PAGE_MARGIN_LEFT_IS_INCORRECT))
+            errors.add(DocumentError(ErrorType.PAGE_MARGIN_LEFT_IS_INCORRECT, documentId))
         }
     }
     //endregion
@@ -113,42 +115,42 @@ class DocumentParser(
                 return NodeType.values()[keys]
             }
         }
-        errors.add(Error(chapterId.toLong(), ErrorType.CHAPTER_INCORRECT))
+        errors.add(DocumentError(chapterId.toLong(), ErrorType.CHAPTER_INCORRECT, documentId))
         return NodeType.UNDEFINED
     }
 
     fun findIncorrectNodes() {
         try {
             if (nodes[0].type != NodeType.FRONT_PAGE) {
-                errors.add(Error(0.toLong(), ErrorType.CHAPTER_FRONT_PAGE_NOT_FOUND))
+                errors.add(DocumentError(0.toLong(), ErrorType.CHAPTER_FRONT_PAGE_NOT_FOUND, documentId))
             }
             if (nodes[1].type != NodeType.ANNOTATION) {
-                errors.add(Error(1.toLong(), ErrorType.CHAPTER_ANNOTATION_NOT_FOUND))
+                errors.add(DocumentError(1.toLong(), ErrorType.CHAPTER_ANNOTATION_NOT_FOUND, documentId))
             }
             if (nodes[2].type != NodeType.CONTENTS) {
-                errors.add(Error(2.toLong(), ErrorType.CHAPTER_CONTENTS_NOT_FOUNDS))
+                errors.add(DocumentError(2.toLong(), ErrorType.CHAPTER_CONTENTS_NOT_FOUNDS, documentId))
             }
             if (nodes[3].type != NodeType.INTRODUCTION) {
-                errors.add(Error(3.toLong(), ErrorType.CHAPTER_INTRODUCTION_NOT_FOUND))
+                errors.add(DocumentError(3.toLong(), ErrorType.CHAPTER_INTRODUCTION_NOT_FOUND, documentId))
             }
             if (nodes[4].type != NodeType.BODY) {
-                errors.add(Error(4.toLong(), ErrorType.CHAPTER_BODY_NOT_FOUND))
+                errors.add(DocumentError(4.toLong(), ErrorType.CHAPTER_BODY_NOT_FOUND, documentId))
             }
             var i = 4
             while (nodes[i].type == NodeType.BODY) {
                 i++
             }
             if (nodes[i].type != NodeType.CONCLUSION) {
-                errors.add(Error(i.toLong(), ErrorType.CHAPTER_CONCLUSION_NOT_FOUND))
+                errors.add(DocumentError(i.toLong(), ErrorType.CHAPTER_CONCLUSION_NOT_FOUND, documentId))
             }
             if (nodes[i + 1].type != NodeType.REFERENCES) {
-                errors.add(Error((i + 1).toLong(), ErrorType.CHAPTER_REFERENCES_NOT_FOUND))
+                errors.add(DocumentError((i + 1).toLong(), ErrorType.CHAPTER_REFERENCES_NOT_FOUND, documentId))
             }
             if (nodes[i + 2].type != NodeType.APPENDIX) {
-                errors.add(Error((i + 2).toLong(), ErrorType.CHAPTER_APPENDIX_NOT_FOUND))
+                errors.add(DocumentError((i + 2).toLong(), ErrorType.CHAPTER_APPENDIX_NOT_FOUND, documentId))
             }
         } catch (e: IndexOutOfBoundsException) {
-            errors.add(Error(ErrorType.CHAPTER_COUNT_MISMATCH))
+            errors.add(DocumentError(ErrorType.CHAPTER_COUNT_MISMATCH, documentId))
         }
     }
 
@@ -167,34 +169,34 @@ class DocumentParser(
     private fun findGeneralAllErrors(p: Int, pPr: PPr) {
         fun findGeneralPErrors(pPr: PPr, p: Int) {
             if (pPr.textAlignment != null && pPr.textAlignment.`val` != "left") {
-                errors.add(Error(p, -1, ErrorType.INCORRECT_TEXT_DIRECTION))
+                errors.add(DocumentError(p, -1, ErrorType.INCORRECT_TEXT_DIRECTION, documentId))
             }
             if (pPr.pBdr != null) {
-                errors.add(Error(p, -1, ErrorType.BORDER))
+                errors.add(DocumentError(p, -1, ErrorType.BORDER, documentId))
             }
             if (pPr.shd != null && pPr.shd.fill != null && pPr.shd.fill != "FFFFFF") {
-                errors.add(Error(p, -1, ErrorType.BACKGROUND_FILLED))
+                errors.add(DocumentError(p, -1, ErrorType.BACKGROUND_FILLED, documentId))
             }
         }
 
         fun findGeneralRErrors(rPr: RPr, p: Int, r: Int) {
             if (rPr.rFonts.ascii != "Times New Roman") {
-                errors.add(Error(p, r, ErrorType.INCORRECT_TEXT_FONT))
+                errors.add(DocumentError(p, r, ErrorType.INCORRECT_TEXT_FONT, documentId))
             }
             if (rPr.color != null && rPr.color.`val` != "FFFFFF" && rPr.color.`val` != "auto") {
-                errors.add(Error(p, r, ErrorType.INCORRECT_TEXT_COLOR))
+                errors.add(DocumentError(p, r, ErrorType.INCORRECT_TEXT_COLOR, documentId))
             }
             if (rPr.sz.`val`.toInt() / 2 != 14) {
-                errors.add(Error(p, r, ErrorType.INCORRECT_FONT_SIZE))
+                errors.add(DocumentError(p, r, ErrorType.INCORRECT_FONT_SIZE, documentId))
             }
             if (!(rPr.i == null || !rPr.i.isVal)) {
-                errors.add(Error(p, r, ErrorType.ITALIC_TEXT))
+                errors.add(DocumentError(p, r, ErrorType.ITALIC_TEXT, documentId))
             }
             if (!(rPr.strike == null || !rPr.strike.isVal)) {
-                errors.add(Error(p, r, ErrorType.STRIKETHROUGH))
+                errors.add(DocumentError(p, r, ErrorType.STRIKETHROUGH, documentId))
             }
             if (!(rPr.highlight == null || rPr.highlight.`val` == "white")) {
-                errors.add(Error(p, r, ErrorType.HIGHLIGHT))
+                errors.add(DocumentError(p, r, ErrorType.HIGHLIGHT, documentId))
             }
         }
 
@@ -210,13 +212,13 @@ class DocumentParser(
         val p = document.content[paragraph] as P
         val pPr = resolver.getEffectivePPr(p.pPr)
         if (pPr.jc == null || pPr.jc.`val` != JcEnumeration.CENTER) {
-            errors.add(Error(paragraph, 0, ErrorType.INCORRECT_HEADER_ALIGNMENT))
+            errors.add(DocumentError(paragraph, 0, ErrorType.INCORRECT_HEADER_ALIGNMENT, documentId))
         }
         val run = p.content[0] as R
         val rPr = resolver.getEffectiveRPr(run.rPr, pPr)
         val text = TextUtils.getText(run)
         if (!(text.uppercase() == text || (rPr.caps != null && rPr.caps.isVal))) {
-            errors.add(Error(paragraph, 0, ErrorType.HEADER_IS_NOT_UPPERCASE))
+            errors.add(DocumentError(paragraph, 0, ErrorType.HEADER_IS_NOT_UPPERCASE, documentId))
         }
         findGeneralAllErrors(paragraph, pPr)
     }
@@ -225,10 +227,10 @@ class DocumentParser(
         fun findRegularTextPErrors(pPr: PPr, isEmpty: Boolean) {
             if (pPr.jc == null || pPr.jc.`val` != JcEnumeration.BOTH) {
                 errors.add(
-                    Error(
+                    DocumentError(
                         paragraph, -1,
                         if (!isEmpty) ErrorType.INCORRECT_REGULAR_TEXT_ALIGNMENT
-                        else ErrorType.WHITESPACE_INCORRECT_ALIGNMENT
+                        else ErrorType.WHITESPACE_INCORRECT_ALIGNMENT, documentId
                     )
                 )
             }
@@ -237,17 +239,17 @@ class DocumentParser(
         fun findRegularTextRErrors(rPr: RPr, run: Int, isEmpty: Boolean) {
             if (rPr.b != null && !rPr.b.isVal) {
                 errors.add(
-                    Error(
+                    DocumentError(
                         paragraph, run,
-                        if (!isEmpty) ErrorType.REGULAR_TEXT_WAS_BOLD else ErrorType.WHITESPACE_BOLD
+                        if (!isEmpty) ErrorType.REGULAR_TEXT_WAS_BOLD else ErrorType.WHITESPACE_BOLD, documentId
                     )
                 )
             }
             if (rPr.u != null && rPr.u.`val`.value() != "none") {
                 errors.add(
-                    Error(
+                    DocumentError(
                         paragraph, run,
-                        if (!isEmpty) ErrorType.REGULAR_TEXT_WAS_UNDERLINED else ErrorType.WHITESPACE_UNDERLINED
+                        if (!isEmpty) ErrorType.REGULAR_TEXT_WAS_UNDERLINED else ErrorType.WHITESPACE_UNDERLINED, documentId
                     )
                 )
             }
@@ -271,7 +273,7 @@ class DocumentParser(
         val paragraphs = node.content
         for (paragraph in 1 until paragraphs.size) {
             if (paragraphs[paragraph] !is P) {
-                errors.add(Error(node.startPos + paragraph, ErrorType.ANNOTATION_MUST_NOT_CONTAINS_MEDIA))
+                errors.add(DocumentError(node.startPos + paragraph, ErrorType.ANNOTATION_MUST_NOT_CONTAINS_MEDIA, documentId))
             } else {
                 findRegularTextAllErrors(node.startPos + paragraph)
             }
