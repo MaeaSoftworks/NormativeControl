@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang=en th:lang="#{web.lang}" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta content="text/html; charset=UTF-8" http-equiv=content-type>
+    <meta charset=utf-8>
+    <link href="/favicon" rel=icon>
+    <meta content="width=device-width,initial-scale=1" name=viewport>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;400;700&display=swap" rel=stylesheet>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains Mono" rel=stylesheet>
+    <title>Normative Control API Docs</title>
+    <link type="text/css" rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<header>
+    <a href="/docs" class="logo">
+        <img class="logo-img" src="/logo.svg" alt="normative control">
+    </a>
+    <p class=header-text>normative<br>control API Docs</p>
+</header>
+<main>
+    <div class="methods-list">
+        <h2>API Methods</h2>
+        <th:block th:each="method : ${methods}">
+            <a th:class="'method-link' + (${current != null && isMethod && method.root + '/' + method.path == current.root+ '/' + current.path} ? ' link-active' : '')" th:href="'docs?section=' + ${method.root} + '/' + ${method.path}">
+                <p>
+                <span th:class="'method-type method-type-' + ${method.type}" th:utext="'[' + ${method.type} + ']'"></span>
+                <span class="method-name" th:utext="${method.root} + '/' + ${method.path}"></span>
+                </p>
+            </a>
+        </th:block>
+    </div>
+    <div class="objects">
+        <h2>API Objects</h2>
+        <th:block th:each="object : ${objects}">
+            <a th:class="'method-link object-link' + (${current != null && !isMethod && object.name == current.name} ? ' link-active' : '')" th:href="'docs?section=' + ${object.name}">
+                <p>
+                    <span class="method-name" th:utext="${object.name}"></span>
+                </p>
+            </a>
+        </th:block>
+    </div>
+    <div class="description-block">
+        <h2 th:if="${current != null && isMethod}">Method</h2>
+        <th:block th:if="${current != null && isMethod}">
+            <div class="content">
+                <p class="current-method-name">
+                    <span th:class="'method-type method-type-' + ${current.type}" th:utext="'[' + ${current.type} + ']'"></span>
+                    <span class="method-name" th:utext="${current.root} + '/' + ${current.path}"></span>
+                </p>
+                <h3>Description:</h3>
+                <div class="description" th:utext="${current.description}"></div>
+                <th:block th:if="${current.queryParams != null}">
+                    <h3>Query params:</h3>
+                    <ul>
+                        <th:block th:each="queryParam, state : ${current.queryParams}">
+                            <li class="argument">
+                                <p>
+                                    <span class="argument-name" th:utext="${queryParam.name}"></span>:&#160;
+                                    <code class="argument-type" th:utext="${queryParam.type}"></code>&#160;&#8212;&#160;
+                                    <span class="argument-description" th:utext="${queryParam.description}"></span>
+                                    <span class="text-span" th:if="${state.last}">.</span>
+                                    <span class="text-span" th:if="${!state.last}">;</span>
+                                </p>
+                            </li>
+                        </th:block>
+                    </ul>
+                </th:block>
+                <th:block th:if="${current.bodyParams != null}">
+                    <h3>Body params:</h3>
+                    <ul>
+                        <th:block th:each="bodyParam, state : ${current.bodyParams}">
+                            <li class="argument">
+                                <p>
+                                    <span class="argument-name" th:utext="${bodyParam.name}"></span>:&#160;
+                                    <code class="argument-type" th:utext="${bodyParam.type}"></code>&#160;&#8212;&#160;
+                                    <span class="argument-description" th:utext="${bodyParam.description}"></span>
+                                    <span class="text-span" th:if="${state.last}">.</span>
+                                    <span class="text-span" th:if="${!state.last}">;</span>
+                                </p>
+                            </li>
+                        </th:block>
+                    </ul>
+                </th:block>
+                <th:block th:if="${current.returns != null}">
+                    <h3>Returns:</h3>
+                    <ul>
+                        <th:block th:each="response, state : ${current.returns}">
+                            <li class="argument">
+                                <p>
+                                    <span class="response-code" th:utext="${response.getIntStatus()}" th:style="'color: ' + (${response.getIntStatus() >= 500} ? 'red' : (${response.getIntStatus() >= 400} ? 'orange' : (${response.getIntStatus() >= 300} ? 'yellow' : (${response.getIntStatus() >= 200} ? 'green' : 'gray'))))"></span>
+                                    <span th:if="${response.type != null}">+</span>
+                                    <code th:if="${response.type != null}" class="response-type" th:utext="${response.type}"></code>&#160;&#8212;&#160;
+                                    <span class="response-description" th:utext="${response.description}"></span><br th:if="${response.body != null}">
+                                    <code th:if="${response.body != null}" class="response-body" th:utext="${response.body}"></code>
+                                    <span class="text-span" th:if="${state.last && response.body == null}">.</span>
+                                    <span class="text-span" th:if="${!state.last}">;</span>
+                                </p>
+                            </li>
+                        </th:block>
+                    </ul>
+                </th:block>
+                <h3 th:if="${sandboxEnabled}">Sandbox:</h3>
+                <div class="sandbox" th:if="${sandboxEnabled}">
+                    <span class="url" th:utext="'URL: ' + ${address} + '/' + ${current.root} + '/' + ${current.path}"></span>
+                    <div class="query-params-sandbox">
+                        <h3>Query params:</h3>
+                        <div class="params">
+                            <th:block th:each="queryParam, state : ${current.queryParams}">
+                                <p th:utext="${queryParam.name}"></p>
+                                <input type="text">
+                            </th:block>
+                        </div>
+                    </div>
+                    <div class="body-params-sandbox">
+                        <h3>Body params:</h3>
+                        <div class="params">
+                            <th:block th:each="bodyParam, state : ${current.bodyParams}">
+                                <p class="input-header" th:utext="${bodyParam.name}"></p>
+                                <input th:type="${bodyParam.type} == 'MultipartFile' ? 'file' : 'text'">
+                            </th:block>
+                        </div>
+                    </div>
+                    <div class="sandbox-answer">
+                        <h3>Response:</h3>
+                        <code class="answer-body"></code>
+                    </div>
+                </div>
+
+            </div>
+        </th:block>
+        <h2 th:if="${current != null && !isMethod}">Object</h2>
+        <th:block th:if="${current != null && !isMethod}">
+            <div class="content">
+                <p class="current-method-name">
+                    <span class="method-name" th:utext="${current.name}"></span>
+                </p>
+                <h3>Description:</h3>
+                <div class="description" th:utext="${current.description}"></div>
+                <th:block th:if="${current.properties != null}">
+                    <h3>Properties:</h3>
+                    <ul>
+                        <th:block th:each="property, state : ${current.properties}">
+                            <li class="argument">
+                                <p>
+                                    <span class="argument-name" th:utext="${property.name}"></span>:&#160;
+                                    <code class="argument-type" th:utext="${property.type}"></code>&#160;&#8212;&#160;
+                                    <span class="argument-description" th:utext="${property.description}"></span>
+                                    <span class="text-span" th:if="${state.last}">.</span>
+                                    <span class="text-span" th:if="${!state.last}">;</span>
+                                </p>
+                            </li>
+                        </th:block>
+                    </ul>
+                </th:block>
+            </div>
+        </th:block>
+        <th:block th:if="${current == null}">
+            <span>Please, select method or object.</span>
+        </th:block>
+    </div>
+</main>
+</body>
+</html>
