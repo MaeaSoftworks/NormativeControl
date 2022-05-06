@@ -28,8 +28,8 @@ spring:
     basename: i18n/messages
   servlet:
     multipart:
-      max-file-size: 20MB
-      max-request-size: 20MB
+      max-file-size: 40MB
+      max-request-size: 40MB
       enabled: true
 server:
   port: '8080'

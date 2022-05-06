@@ -1,8 +1,9 @@
 package com.maeasoftworks.normativecontrol.controllers
 
 import com.maeasoftworks.normativecontrol.daos.DocumentError
-import com.maeasoftworks.normativecontrol.dtos.State
+import com.maeasoftworks.normativecontrol.dtos.enums.State
 import com.maeasoftworks.normativecontrol.services.DocumentManager
+import com.maeasoftworks.normativecontrol.services.DocumentQueue
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.core.io.Resource
 import org.springframework.http.HttpStatus
@@ -14,17 +15,25 @@ import java.io.IOException
 @CrossOrigin
 @RestController
 @RequestMapping("documents")
-class DocumentProcessingController(private val documentsManager: DocumentManager) {
+class DocumentProcessingController(private val documentManager: DocumentManager, private val queue: DocumentQueue) {
+
+    @PostMapping("queue")
+    fun addToQueue(@RequestParam("accessKey") accessKey: String): Map<String, String> {
+        return mapOf("documentId" to documentManager.addToQueue(accessKey))
+    }
+
     @GetMapping("state")
-    fun getState(@RequestParam(value = "id") id: String): Map<String, State> {
-        val state = documentsManager.getState(id)
-        return mapOf("state" to state)
+    fun getState(@RequestParam("documentId") documentId: String,
+                 @RequestParam("accessKey") accessKey: String): Map<String, State> {
+        return mapOf("state" to validate(documentId, accessKey) { documentManager.getState(documentId, accessKey) })
     }
 
     @PostMapping("upload")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    fun uploadDocument(@RequestParam("file") file: MultipartFile?): Map<String, String> {
-        if (file == null || file.originalFilename == null || file.originalFilename == "") {
+    fun uploadDocument(@RequestParam("documentId") documentId: String,
+                       @RequestParam("accessKey") accessKey: String,
+                       @RequestParam("file") file: MultipartFile) {
+        if (file.originalFilename == null || file.originalFilename == "") {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Required arguments were empty")
         }
         val extension = file.originalFilename!!.split(".")
@@ -36,24 +45,37 @@ class DocumentProcessingController(private val documentsManager: DocumentManager
         } catch (e: IOException) {
             throw ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Can not process this document")
         }
-        return mapOf("id" to documentsManager.addToQueue(bytes))
+        validate(documentId, accessKey) { documentManager.appendFile(documentId, accessKey, bytes) }
     }
 
     @GetMapping("errors")
-    fun getErrors(@RequestParam(value = "id") id: String): Map<String, List<DocumentError>> {
-        val data = documentsManager.getErrors(id)
+    fun getErrors(@RequestParam(value = "documentId") documentId: String,
+                  @RequestParam("accessKey") accessKey: String): Map<String, List<DocumentError>> {
+        val data = validate(documentId, accessKey) { documentManager.getErrors(documentId) }
         return mapOf("errors" to data)
     }
 
     @GetMapping("file")
-    fun getFile(@RequestParam(value = "id") id: String): Resource {
-        val file = documentsManager.getFile(id)
+    fun getFile(@RequestParam(value = "documentId") documentId: String,
+                @RequestParam("accessKey") accessKey: String): Resource {
+        val file = validate(documentId, accessKey) { documentManager.getFile(documentId) }
         return ByteArrayResource(file)
     }
 
     @GetMapping("drop-database")
     @ResponseStatus(HttpStatus.OK)
     fun dropDatabase() {
-        documentsManager.dropDatabase()
+        documentManager.dropDatabase()
+    }
+
+    private inline fun <T> validate(documentId: String, accessKey: String, body: () -> T) : T {
+        val parser = queue.getById(documentId)
+        if (parser?.document?.accessKey == null) {
+            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found.")
+        }
+        if (parser.document.accessKey != accessKey) {
+            throw ResponseStatusException(HttpStatus.FORBIDDEN, "Access key is invalid.")
+        }
+        return body()
     }
 }

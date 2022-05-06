@@ -1,9 +1,12 @@
 package com.maeasoftworks.normativecontrol.daos
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import com.maeasoftworks.normativecontrol.dtos.ErrorType
+import com.maeasoftworks.normativecontrol.dtos.enums.ErrorType
 import org.hibernate.annotations.GenericGenerator
-import javax.persistence.*
+import javax.persistence.Entity
+import javax.persistence.GeneratedValue
+import javax.persistence.Id
+import javax.persistence.Table
 
 @Entity
 @Table
@@ -22,10 +25,10 @@ class DocumentError(
     var id: String = ""
 
     // to page
-    constructor(errorType: ErrorType, documentId: String?) : this(documentId, -1, -1, -1, errorType)
+    constructor(documentId: String?, errorType: ErrorType) : this(documentId, -1, -1, -1, errorType)
 
     // unknown chapter
-    constructor(paragraph: Int, run: Int, errorType: ErrorType, documentId: String?) : this(
+    constructor(documentId: String?, paragraph: Int, run: Int, errorType: ErrorType) : this(
         documentId,
         -1,
         paragraph,
@@ -34,7 +37,7 @@ class DocumentError(
     )
 
     // to all chapter
-    constructor(chapter: Long, errorType: ErrorType, documentId: String?) : this(
+    constructor(documentId: String?, chapter: Long, errorType: ErrorType) : this(
         documentId,
         chapter.toInt(),
         -1,
@@ -43,7 +46,7 @@ class DocumentError(
     )
 
     // to all paragraphId
-    constructor(paragraph: Int, errorType: ErrorType, documentId: String?) : this(
+    constructor(documentId: String?, paragraph: Int, errorType: ErrorType) : this(
         documentId,
         -1,
         paragraph,

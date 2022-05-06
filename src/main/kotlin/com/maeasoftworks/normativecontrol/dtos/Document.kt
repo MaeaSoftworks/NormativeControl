@@ -1,8 +1,12 @@
 package com.maeasoftworks.normativecontrol.dtos
 
-data class Document(
+import com.maeasoftworks.normativecontrol.dtos.enums.FailureType
+import com.maeasoftworks.normativecontrol.dtos.enums.State
+
+class Document(
     val id: String,
-    var file: ByteArray,
+    val accessKey: String,
+    var file: ByteArray = ByteArray(0),
     var state: State = State.QUEUE,
-    var result: Result? = null
+    var failureType: FailureType = FailureType.NONE
 )

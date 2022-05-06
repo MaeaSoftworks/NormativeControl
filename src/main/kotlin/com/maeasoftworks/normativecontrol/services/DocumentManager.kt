@@ -1,42 +1,63 @@
 package com.maeasoftworks.normativecontrol.services
 
+import com.maeasoftworks.normativecontrol.components.DocumentParserFactory
 import com.maeasoftworks.normativecontrol.daos.DocumentError
+import com.maeasoftworks.normativecontrol.daos.DocumentFile
 import com.maeasoftworks.normativecontrol.dtos.Document
-import com.maeasoftworks.normativecontrol.dtos.State
-import com.maeasoftworks.normativecontrol.events.NewDocumentEvent
+import com.maeasoftworks.normativecontrol.dtos.DocumentParser
+import com.maeasoftworks.normativecontrol.dtos.enums.FailureType
+import com.maeasoftworks.normativecontrol.dtos.enums.State
 import com.maeasoftworks.normativecontrol.repositories.DocumentErrorRepository
-import com.maeasoftworks.normativecontrol.repositories.DocumentChunkRepository
-import org.springframework.context.ApplicationEventPublisher
-import org.springframework.stereotype.Component
+import com.maeasoftworks.normativecontrol.repositories.DocumentFileRepository
+import org.springframework.context.event.EventListener
+import org.springframework.scheduling.annotation.Async
+import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.*
 
-@Component
+@Service
 class DocumentManager(
     private val queue: DocumentQueue,
     private val errorRepository: DocumentErrorRepository,
-    private val fileRepository: DocumentChunkRepository,
-    private val publisher: ApplicationEventPublisher
+    private val fileRepository: DocumentFileRepository,
+    private val factory: DocumentParserFactory
 ) {
-    fun addToQueue(file: ByteArray): String {
-        val document = Document(UUID.randomUUID().toString(), file)
-        queue.put(document)
-        publisher.publishEvent(NewDocumentEvent(this, document.id))
-        return document.id
+    fun addToQueue(accessKey: String): String {
+        val id = UUID.randomUUID().toString().filterNot { it == '-' }
+        queue.put(factory.create(Document(id, accessKey)))
+        return id
+    }
+
+    fun appendFile(documentId: String, accessKey: String, bytes: ByteArray) {
+        val parser = queue.getById(documentId)
+        if (parser?.document?.accessKey == accessKey) {
+            parser.document.file = bytes
+            queue.runById(documentId)
+        } else {
+            TODO("throw error")
+        }
+    }
+
+    @EventListener
+    @Async
+    fun saveToDatabase(parser: DocumentParser) {
+        if (parser.document.failureType == FailureType.NONE) {
+            fileRepository.save(DocumentFile(parser.document.id, parser.document.file))
+            errorRepository.saveAll(parser.errors)
+        }
     }
 
     @Transactional
-    fun getState(id: String): State {
-        val document = queue.getById(id)
-        if (document?.state == null) {
-            if (fileRepository.existsDocumentChunkByDocumentId(id)) {
-                return State.READY
-            } else {
-                return State.UNDEFINED
-            }
-
+    fun getState(documentId: String, accessKey: String): State {
+        val parser = queue.getById(documentId)
+        return if (parser?.document?.state == null) {
+            if (fileRepository.existsDocumentFileByDocumentId(documentId)) State.SAVED else State.UNDEFINED
+        } else if (queue.isUploadAvailable(documentId)) {
+            State.READY_TO_UPLOAD
         }
-        return State.UNDEFINED
+        else {
+            parser.document.state
+        }
     }
 
     @Transactional
@@ -46,7 +67,7 @@ class DocumentManager(
 
     @Transactional
     fun getFile(id: String): ByteArray {
-        return fileRepository.findAllByDocumentIdOrderByChunkId(id).flatMap { it.file.toList() }.toByteArray()
+        return fileRepository.findAllByDocumentId(id).flatMap { it.bytes.toList() }.toByteArray()
     }
 
     @Transactional

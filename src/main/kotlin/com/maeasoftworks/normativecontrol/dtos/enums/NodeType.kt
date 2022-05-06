@@ -1,4 +1,4 @@
-package com.prmncr.normativecontrol.dtos
+package com.maeasoftworks.normativecontrol.dtos.enums
 
 enum class NodeType {
     FRONT_PAGE,

@@ -1,5 +1,6 @@
 package com.prmncr.normativecontrol.dtos
 
+import com.maeasoftworks.normativecontrol.dtos.enums.NodeType
 import org.docx4j.wml.P
 
 class Node : Iterable<Any> {

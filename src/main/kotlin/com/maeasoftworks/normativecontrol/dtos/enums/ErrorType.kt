@@ -1,4 +1,4 @@
-package com.maeasoftworks.normativecontrol.dtos
+package com.maeasoftworks.normativecontrol.dtos.enums
 
 enum class ErrorType {
     // page size
