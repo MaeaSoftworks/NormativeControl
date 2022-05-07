@@ -1,4 +1,4 @@
-package com.maeasoftworks.normativecontrol.dtos.docs
+package com.maeasoftworks.normativecontrol.documentation
 
 import kotlin.reflect.KClass
 

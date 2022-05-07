@@ -1,8 +1,8 @@
 package com.maeasoftworks.normativecontrol.daos
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import com.maeasoftworks.normativecontrol.dtos.docs.Documentation
-import com.maeasoftworks.normativecontrol.dtos.docs.PropertyDocumentation
+import com.maeasoftworks.normativecontrol.documentation.Documentation
+import com.maeasoftworks.normativecontrol.documentation.PropertyDocumentation
 import com.maeasoftworks.normativecontrol.dtos.enums.ErrorType
 import org.hibernate.annotations.GenericGenerator
 import javax.persistence.Entity
@@ -16,6 +16,7 @@ import javax.persistence.Table
 class DocumentError(
     @JsonIgnore
     val documentId: String?,
+    @Suppress("unused")
     @PropertyDocumentation("pointer to chapter in document")
     val chapterId: Int,
     @PropertyDocumentation("pointer to paragraph in document")

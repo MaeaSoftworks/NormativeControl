@@ -1,7 +1,7 @@
 package com.maeasoftworks.normativecontrol.controllers
 
 import com.maeasoftworks.normativecontrol.daos.DocumentError
-import com.maeasoftworks.normativecontrol.dtos.docs.*
+import com.maeasoftworks.normativecontrol.documentation.*
 import org.apache.commons.lang3.reflect.MethodUtils
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Controller
@@ -177,7 +177,7 @@ class DocumentationController {
         model.addAttribute("objects", objects)
         model.addAttribute("address", address)
         model.addAttribute("sandboxEnabled", false)
-        if (section != null && '/' in section) {
+        if (section != null && '/' in section && methods.any { it.root + "/" + it.path == section }) {
             model.addAttribute("isMethod", true)
             model.addAttribute("current", methods.first { it.root + "/" + it.path == section })
         } else if (section in objects.map { it.name }) {

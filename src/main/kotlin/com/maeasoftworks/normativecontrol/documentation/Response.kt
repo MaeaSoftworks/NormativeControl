@@ -1,4 +1,4 @@
-package com.maeasoftworks.normativecontrol.dtos.docs
+package com.maeasoftworks.normativecontrol.documentation
 
 import org.springframework.http.HttpStatus
 
@@ -7,8 +7,4 @@ class Response(
     var type: String = "",
     var description: String = "",
     var body: String = ""
-) {
-    fun getIntStatus(): Int {
-        return httpStatus.value()
-    }
-}
+)

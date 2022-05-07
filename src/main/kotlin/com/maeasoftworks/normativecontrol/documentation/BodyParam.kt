@@ -1,0 +1,3 @@
+package com.maeasoftworks.normativecontrol.documentation
+
+annotation class BodyParam

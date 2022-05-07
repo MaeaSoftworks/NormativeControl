@@ -1,4 +1,4 @@
-package com.maeasoftworks.normativecontrol.dtos.docs
+package com.maeasoftworks.normativecontrol.documentation
 
 class ObjectInfo(
     var name: String = "",

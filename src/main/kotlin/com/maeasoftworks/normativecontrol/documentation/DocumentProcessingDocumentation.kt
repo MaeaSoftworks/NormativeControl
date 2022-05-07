@@ -1,10 +1,6 @@
-package com.maeasoftworks.normativecontrol.controllers
+package com.maeasoftworks.normativecontrol.documentation
 
 import com.maeasoftworks.normativecontrol.daos.DocumentError
-import com.maeasoftworks.normativecontrol.dtos.docs.BodyParam
-import com.maeasoftworks.normativecontrol.dtos.docs.Documentation
-import com.maeasoftworks.normativecontrol.dtos.docs.PossibleResponse
-import com.maeasoftworks.normativecontrol.dtos.docs.PossibleResponseWithEnum
 import com.maeasoftworks.normativecontrol.dtos.enums.State
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.http.HttpStatus

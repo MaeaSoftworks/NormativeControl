@@ -15,8 +15,11 @@ class TestBase {
     protected lateinit var factory: DocumentParserFactory
 
     fun createParser(directory: String, filename: String): DocumentParser {
-        return try {
-            factory.create(Document("test", "test", FileInputStream("src/test/resources/$directory/$filename").readAllBytes()))
+        try {
+            val parser = factory.create(Document("test", "test",
+                FileInputStream("src/test/resources/$directory/$filename").readAllBytes()))
+            parser.init()
+            return parser
         } catch (e: IOException) {
             println(e.message)
             throw RuntimeException("Parser cannot be initialized!")
