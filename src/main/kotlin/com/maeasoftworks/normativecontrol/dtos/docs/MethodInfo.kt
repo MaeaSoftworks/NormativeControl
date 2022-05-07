@@ -1,9 +1,11 @@
 package com.maeasoftworks.normativecontrol.dtos.docs
 
-class MethodInfo (val root: String,
-                  val path: String,
-                  val type: MethodType,
-                  val description: String,
-                  val queryParams: List<Argument>?,
-                  val bodyParams: List<Argument>?,
-                  val returns: List<Response>)
+class MethodInfo(
+    var root: String = "",
+    var path: String = "",
+    var type: String = "",
+    var description: String = "",
+    var queryParams: List<Parameter>? = null,
+    var bodyParams: List<Parameter>? = null,
+    var responses: List<Response>? = null
+)

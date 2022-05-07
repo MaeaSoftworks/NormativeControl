@@ -54,8 +54,7 @@ class DocumentManager(
             if (fileRepository.existsDocumentFileByDocumentId(documentId)) State.SAVED else State.UNDEFINED
         } else if (queue.isUploadAvailable(documentId)) {
             State.READY_TO_UPLOAD
-        }
-        else {
+        } else {
             parser.document.state
         }
     }

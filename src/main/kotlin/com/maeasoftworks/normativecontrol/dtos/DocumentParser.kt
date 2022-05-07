@@ -5,9 +5,9 @@ import com.maeasoftworks.normativecontrol.components.HeadersKeywords
 import com.maeasoftworks.normativecontrol.daos.DocumentError
 import com.maeasoftworks.normativecontrol.dtos.enums.ErrorType
 import com.maeasoftworks.normativecontrol.dtos.enums.FailureType
+import com.maeasoftworks.normativecontrol.dtos.enums.NodeType
 import com.maeasoftworks.normativecontrol.dtos.enums.State
 import com.prmncr.normativecontrol.dtos.Node
-import com.maeasoftworks.normativecontrol.dtos.enums.NodeType
 import org.docx4j.TextUtils
 import org.docx4j.model.PropertyResolver
 import org.docx4j.openpackaging.exceptions.Docx4JException

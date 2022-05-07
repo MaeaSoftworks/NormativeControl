@@ -11,8 +11,8 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    line-height: 200%;
 }
-
 
 body {
     margin: 0;
@@ -28,7 +28,7 @@ body {
 }
 
 ul li {
-    list-style: circle;
+    list-style: disc;
     margin-left: 15px;
     margin-top: 5px;
     margin-bottom: 5px;
@@ -92,10 +92,15 @@ main {
 }
 
 .methods-list, .objects {
-    margin: 30px;
-    border-radius: 10px;
     display: flex;
     flex-direction: column;
+}
+
+.methods-list, .objects, .description-block {
+    border-radius: 10px;
+    background-color: #323232;
+    padding: 10px;
+    margin: 30px;
 }
 
 .method-link {
@@ -166,14 +171,13 @@ code {
     font-size: inherit;
     border-radius: 5px;
     padding: 5px;
-    background-color: #363636;
-    margin: 5px;
-    line-height: 200%;
+    background-color: #404040;
 }
 
 .current-method-name {
     text-align: center;
     margin: 10px;
+    font-size: 18px;
 }
 
 .content {
@@ -182,7 +186,7 @@ code {
     font-size: 14px;
 }
 
-.argument {
+.parameter, .response {
     padding: 5px;
 }
 
@@ -239,4 +243,12 @@ code {
 .object-link p span {
     text-align: center;
     grid-column: span 2;
+}
+
+.var {
+    color: #7777ff;
+}
+
+.doc-link {
+    text-decoration: underline;
 }

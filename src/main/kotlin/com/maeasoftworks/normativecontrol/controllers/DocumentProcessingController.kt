@@ -5,7 +5,6 @@ import com.maeasoftworks.normativecontrol.dtos.enums.State
 import com.maeasoftworks.normativecontrol.services.DocumentManager
 import com.maeasoftworks.normativecontrol.services.DocumentQueue
 import org.springframework.core.io.ByteArrayResource
-import org.springframework.core.io.Resource
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
@@ -15,24 +14,31 @@ import java.io.IOException
 @CrossOrigin
 @RestController
 @RequestMapping("documents")
-class DocumentProcessingController(private val documentManager: DocumentManager, private val queue: DocumentQueue) {
+class DocumentProcessingController(
+    private val documentManager: DocumentManager,
+    private val queue: DocumentQueue
+) : DocumentProcessingDocumentation {
 
     @PostMapping("queue")
-    fun addToQueue(@RequestParam("accessKey") accessKey: String): Map<String, String> {
+    override fun addToQueue(@RequestParam("accessKey") accessKey: String): Map<String, String> {
         return mapOf("documentId" to documentManager.addToQueue(accessKey))
     }
 
     @GetMapping("state")
-    fun getState(@RequestParam("documentId") documentId: String,
-                 @RequestParam("accessKey") accessKey: String): Map<String, State> {
+    override fun getState(
+        @RequestParam("documentId") documentId: String,
+        @RequestParam("accessKey") accessKey: String
+    ): Map<String, State> {
         return mapOf("state" to validate(documentId, accessKey) { documentManager.getState(documentId, accessKey) })
     }
 
     @PostMapping("upload")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    fun uploadDocument(@RequestParam("documentId") documentId: String,
-                       @RequestParam("accessKey") accessKey: String,
-                       @RequestParam("file") file: MultipartFile) {
+    override fun uploadDocument(
+        @RequestParam("documentId") documentId: String,
+        @RequestParam("accessKey") accessKey: String,
+        @RequestParam("file") file: MultipartFile
+    ) {
         if (file.originalFilename == null || file.originalFilename == "") {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Required arguments were empty")
         }
@@ -49,26 +55,30 @@ class DocumentProcessingController(private val documentManager: DocumentManager,
     }
 
     @GetMapping("errors")
-    fun getErrors(@RequestParam(value = "documentId") documentId: String,
-                  @RequestParam("accessKey") accessKey: String): Map<String, List<DocumentError>> {
+    override fun getErrors(
+        @RequestParam(value = "documentId") documentId: String,
+        @RequestParam("accessKey") accessKey: String
+    ): Map<String, List<DocumentError>> {
         val data = validate(documentId, accessKey) { documentManager.getErrors(documentId) }
         return mapOf("errors" to data)
     }
 
     @GetMapping("file")
-    fun getFile(@RequestParam(value = "documentId") documentId: String,
-                @RequestParam("accessKey") accessKey: String): Resource {
+    override fun getFile(
+        @RequestParam(value = "documentId") documentId: String,
+        @RequestParam("accessKey") accessKey: String
+    ): ByteArrayResource {
         val file = validate(documentId, accessKey) { documentManager.getFile(documentId) }
         return ByteArrayResource(file)
     }
 
     @GetMapping("drop-database")
     @ResponseStatus(HttpStatus.OK)
-    fun dropDatabase() {
+    override fun dropDatabase() {
         documentManager.dropDatabase()
     }
 
-    private inline fun <T> validate(documentId: String, accessKey: String, body: () -> T) : T {
+    private inline fun <T> validate(documentId: String, accessKey: String, body: () -> T): T {
         val parser = queue.getById(documentId)
         if (parser?.document?.accessKey == null) {
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found.")

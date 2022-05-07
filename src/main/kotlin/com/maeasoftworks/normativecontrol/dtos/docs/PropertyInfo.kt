@@ -1,4 +1,8 @@
 package com.maeasoftworks.normativecontrol.dtos.docs
 
-class PropertyInfo(val name: String, val type: String, val description: String) {
-}
+class PropertyInfo(
+    var name: String = "",
+    var type: String = "",
+    var description: String = "",
+    var body: String = ""
+)

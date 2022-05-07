@@ -43,23 +43,23 @@
     </div>
     <div class="description-block">
         <h2 th:if="${current != null && isMethod}">Method</h2>
+        <p class="current-method-name" th:if="${current != null && isMethod}">
+            <span th:class="'method-type method-type-' + ${current.type}" th:utext="'[' + ${current.type} + ']'"></span>
+            <span class="method-name" th:utext="${current.root} + '/' + ${current.path}"></span>
+        </p>
         <th:block th:if="${current != null && isMethod}">
             <div class="content">
-                <p class="current-method-name">
-                    <span th:class="'method-type method-type-' + ${current.type}" th:utext="'[' + ${current.type} + ']'"></span>
-                    <span class="method-name" th:utext="${current.root} + '/' + ${current.path}"></span>
-                </p>
                 <h3>Description:</h3>
                 <div class="description" th:utext="${current.description}"></div>
-                <th:block th:if="${current.queryParams != null}">
+                <th:block th:if="${current.queryParams.size() > 0}">
                     <h3>Query params:</h3>
                     <ul>
                         <th:block th:each="queryParam, state : ${current.queryParams}">
-                            <li class="argument">
+                            <li class="parameter">
                                 <p>
-                                    <span class="argument-name" th:utext="${queryParam.name}"></span>:&#160;
-                                    <code class="argument-type" th:utext="${queryParam.type}"></code>&#160;&#8212;&#160;
-                                    <span class="argument-description" th:utext="${queryParam.description}"></span>
+                                    <span class="parameter-name" th:utext="${queryParam.name}"></span>:&#160;
+                                    <code class="parameter-type" th:utext="${queryParam.type}"></code>&#160;&#8212;&#160;
+                                    <span class="parameter-description" th:utext="${queryParam.description}"></span>
                                     <span class="text-span" th:if="${state.last}">.</span>
                                     <span class="text-span" th:if="${!state.last}">;</span>
                                 </p>
@@ -67,11 +67,11 @@
                         </th:block>
                     </ul>
                 </th:block>
-                <th:block th:if="${current.bodyParams != null}">
+                <th:block th:if="${current.bodyParams.size() > 0}">
                     <h3>Body params:</h3>
                     <ul>
                         <th:block th:each="bodyParam, state : ${current.bodyParams}">
-                            <li class="argument">
+                            <li class="parameter">
                                 <p>
                                     <span class="argument-name" th:utext="${bodyParam.name}"></span>:&#160;
                                     <code class="argument-type" th:utext="${bodyParam.type}"></code>&#160;&#8212;&#160;
@@ -83,19 +83,19 @@
                         </th:block>
                     </ul>
                 </th:block>
-                <th:block th:if="${current.returns != null}">
-                    <h3>Returns:</h3>
+                <th:block th:if="${current.responses != null}">
+                    <h3>Responses:</h3>
                     <ul>
-                        <th:block th:each="response, state : ${current.returns}">
-                            <li class="argument">
+                        <th:block th:each="response, state : ${current.responses}">
+                            <li class="response">
                                 <p>
                                     <span class="response-code" th:utext="${response.getIntStatus()}" th:style="'color: ' + (${response.getIntStatus() >= 500} ? 'red' : (${response.getIntStatus() >= 400} ? 'orange' : (${response.getIntStatus() >= 300} ? 'yellow' : (${response.getIntStatus() >= 200} ? 'green' : 'gray'))))"></span>
-                                    <span th:if="${response.type != null}">+</span>
-                                    <code th:if="${response.type != null}" class="response-type" th:utext="${response.type}"></code>&#160;&#8212;&#160;
-                                    <span class="response-description" th:utext="${response.description}"></span><br th:if="${response.body != null}">
-                                    <code th:if="${response.body != null}" class="response-body" th:utext="${response.body}"></code>
-                                    <span class="text-span" th:if="${state.last && response.body == null}">.</span>
-                                    <span class="text-span" th:if="${!state.last}">;</span>
+                                    <span th:if="${response.type != 'Unit'}">+</span>
+                                    <code th:if="${response.type != 'Unit'}" class="response-type" th:utext="${response.type + (response.type == 'String' ? ' [JSON]' : '')}"></code>&#160;&#8212;&#160;
+                                    <span class="response-description" th:utext="${response.description}"></span><br th:if="${response.body != ''}">
+                                    <span th:if="${response.body != ''}" class="response-body" th:utext="'JSON format: ' + ${response.body}"></span>
+                                    <span class="text-span" th:if="${state.last && response.body == ''}">.</span>
+                                    <span class="text-span" th:if="${!state.last && response.body == ''}">;</span>
                                 </p>
                             </li>
                         </th:block>
@@ -142,13 +142,14 @@
                     <h3>Properties:</h3>
                     <ul>
                         <th:block th:each="property, state : ${current.properties}">
-                            <li class="argument">
+                            <li class="parameter">
                                 <p>
                                     <span class="argument-name" th:utext="${property.name}"></span>:&#160;
                                     <code class="argument-type" th:utext="${property.type}"></code>&#160;&#8212;&#160;
                                     <span class="argument-description" th:utext="${property.description}"></span>
-                                    <span class="text-span" th:if="${state.last}">.</span>
-                                    <span class="text-span" th:if="${!state.last}">;</span>
+                                    <span class="argument-description" th:utext="${property.body}"></span>
+                                    <span class="text-span" th:if="${state.last && property.body == ''}">.</span>
+                                    <span class="text-span" th:if="${!state.last && property.body == ''}">;</span>
                                 </p>
                             </li>
                         </th:block>

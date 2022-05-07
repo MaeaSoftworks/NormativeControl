@@ -3,9 +3,11 @@ package com.maeasoftworks.normativecontrol.dtos
 import com.maeasoftworks.normativecontrol.dtos.enums.State
 import org.springframework.context.ApplicationEventPublisher
 
-class DocumentParserRunnable (private var parser: DocumentParser,
-                              private val count: IntArray,
-                              private val publisher: ApplicationEventPublisher) : Runnable {
+class DocumentParserRunnable(
+    private var parser: DocumentParser,
+    private val count: IntArray,
+    private val publisher: ApplicationEventPublisher
+) : Runnable {
     override fun run() {
         parser.init()
         parser.runStyleCheck()
