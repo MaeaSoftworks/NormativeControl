@@ -16,8 +16,12 @@ class TestBase {
 
     fun createParser(directory: String, filename: String): DocumentParser {
         try {
-            val parser = factory.create(Document("test", "test",
-                FileInputStream("src/test/resources/$directory/$filename").readAllBytes()))
+            val parser = factory.create(
+                Document(
+                    "test", "test",
+                    FileInputStream("src/test/resources/$directory/$filename").readAllBytes()
+                )
+            )
             parser.init()
             return parser
         } catch (e: IOException) {

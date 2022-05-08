@@ -8,11 +8,11 @@ import org.springframework.boot.test.context.SpringBootTest
 class PictureTests {
     @Autowired
     lateinit var base: TestBase
-    private val directory: String = "pictures"
+    private val directory: String = "picture"
 
     @Test
     fun `picture found properly`() {
         val parser = base.createParser(directory, "pictureFinder.docx")
-        parser.findSectors()
+        parser.findNodes()
     }
 }

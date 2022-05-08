@@ -1,6 +1,6 @@
 package com.maeasoftworks.normativecontrol.dtos.enums
 
-enum class NodeType {
+enum class ChapterType {
     FRONT_PAGE,
     ANNOTATION,
     CONTENTS,

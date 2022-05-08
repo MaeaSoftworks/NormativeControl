@@ -6,6 +6,6 @@ import org.springframework.boot.test.context.SpringBootTest
 @SpringBootTest
 class NormativeControlApplicationTests {
     @Test
-    fun contextLoads() {
+    fun `context loads properly`() {
     }
 }

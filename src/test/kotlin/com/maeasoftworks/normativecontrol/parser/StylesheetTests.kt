@@ -13,9 +13,9 @@ internal class StylesheetTests {
     private val directory: String = "stylesheet"
 
     @Test
-    fun incorrectSizeTest() {
+    fun `incorrect page size validated properly`() {
         val parser = base.createParser(directory, "incorrectWidth.docx")
-        parser.checkPageSize()
+        parser.verifyPageSize()
         Assert.notEmpty(parser.errors, "Error not found!")
         Assert.state(
             parser.errors[0].errorType == ErrorType.PAGE_WIDTH_IS_INCORRECT && parser.errors[0].paragraphId == -1 && parser.errors[0].runId == -1
@@ -25,9 +25,9 @@ internal class StylesheetTests {
     }
 
     @Test
-    fun incorrectMarginTest() {
+    fun `incorrect page margin validated properly`() {
         val parser = base.createParser(directory, "incorrectMargin.docx")
-        parser.checkPageMargins()
+        parser.verifyPageMargins()
         Assert.notEmpty(parser.errors, "Error not found!")
         Assert.state(
             parser.errors[0].errorType == ErrorType.PAGE_MARGIN_TOP_IS_INCORRECT && parser.errors[0].paragraphId == -1 && parser.errors[0].runId == -1
@@ -39,14 +39,14 @@ internal class StylesheetTests {
     }
 
     @Test
-    fun headerIsCorrect() {
+    fun `correct header style validated properly`() {
         val parser = base.createParser(directory, "overwrittenDefaultStyle.docx")
         parser.findHeaderAllErrors(0)
         Assert.isTrue(parser.errors.size == 0, "There shouldn't be any error!")
     }
 
     @Test
-    fun foundAllErrors() {
+    fun `incorrect header style validated properly`() {
         val parser = base.createParser(directory, "veryWrongText.docx")
         parser.findGeneralAllErrors(0)
         Assert.isTrue(parser.errors.size > 0, "There should be errors!")

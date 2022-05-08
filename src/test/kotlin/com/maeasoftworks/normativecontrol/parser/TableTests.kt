@@ -8,11 +8,11 @@ import org.springframework.boot.test.context.SpringBootTest
 class TableTests {
     @Autowired
     lateinit var base: TestBase
-    private val directory: String = "tables"
+    private val directory: String = "table"
 
     @Test
     fun `table found properly`() {
         val parser = base.createParser(directory, "tableFinder.docx")
-        parser.findSectors()
+        parser.findNodes()
     }
 }

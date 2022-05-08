@@ -89,7 +89,7 @@
                         <th:block th:each="response, state : ${current.responses}">
                             <li class="response">
                                 <p>
-                                    <span class="response-code" th:utext="${response.getIntStatus()}" th:style="'color: ' + (${response.getIntStatus() >= 500} ? 'red' : (${response.getIntStatus() >= 400} ? 'orange' : (${response.getIntStatus() >= 300} ? 'yellow' : (${response.getIntStatus() >= 200} ? 'green' : 'gray'))))"></span>
+                                    <span class="response-code" th:utext="${response.httpStatus.value()}" th:style="'color: ' + (${response.httpStatus.value() >= 500} ? 'red' : (${response.httpStatus.value() >= 400} ? 'orange' : (${response.httpStatus.value() >= 300} ? 'yellow' : (${response.httpStatus.value() >= 200} ? 'green' : 'gray'))))"></span>
                                     <span th:if="${response.type != 'Unit'}">+</span>
                                     <code th:if="${response.type != 'Unit'}" class="response-type" th:utext="${response.type + (response.type == 'String' ? ' [JSON]' : '')}"></code>&#160;&#8212;&#160;
                                     <span class="response-description" th:utext="${response.description}"></span><br th:if="${response.body != ''}">

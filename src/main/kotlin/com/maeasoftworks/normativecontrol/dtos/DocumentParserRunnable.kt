@@ -10,7 +10,7 @@ class DocumentParserRunnable(
 ) : Runnable {
     override fun run() {
         parser.init()
-        parser.runStyleCheck()
+        parser.runVerification()
         synchronized(count) {
             count[0]--
         }

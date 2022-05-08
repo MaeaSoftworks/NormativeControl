@@ -36,15 +36,12 @@ class DocumentationController {
     }
 
     fun enumToString(clazz: KClass<*>): String {
-        return "<ul>" +
-                ((clazz.members
-                    .first { it.name == "values" }
-                    .call()) as Array<*>)
-                    .joinToString("") { "<li>\"${it.toString()}\"</li>" } +
-                "</ul>"
+        val enum = ((clazz.members.first { it.name == "values" }.call()) as Array<*>).map { it.toString() }.toMutableList()
+        enum.sort()
+        return "<ul>" + enum.joinToString("") { "<li>\"$it\"</li>" } + "</ul>"
     }
 
-    private final fun createControllerDocs(clazz: KClass<*>): ArrayList<MethodInfo> {
+    private final fun createControllerDocs(clazz: KClass<*>): List<MethodInfo> {
         val functions = MethodUtils.getMethodsListWithAnnotation(clazz.java, Documentation::class.java)
         val infos = ArrayList<MethodInfo>()
         val root = (clazz.annotations.first { it is RequestMapping } as RequestMapping).value[0]
@@ -138,10 +135,11 @@ class DocumentationController {
                 }
                 responses.add(response)
             }
+            responses.sortBy { it.httpStatus.value() }
             info.responses = responses
             infos.add(info)
         }
-        return infos
+        return infos.sortedWith(compareBy({it.type}, {it.root}, {it.path}))
     }
 
     private final fun createObjectDocs(clazz: KClass<*>): ObjectInfo {

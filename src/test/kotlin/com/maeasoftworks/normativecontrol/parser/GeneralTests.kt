@@ -3,21 +3,20 @@ package com.maeasoftworks.normativecontrol.parser
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.util.Assert
 
 @SpringBootTest
-class CompletedTests {
+class GeneralTests {
     @Autowired
     lateinit var base: TestBase
-    private val directory: String = "full examples"
+    private val directory: String = "general"
 
     @Test
-    fun annotationIsCorrect() {
+    fun `annotation validated properly`() {
         val parser = base.createParser(directory, "full test 1.docx")
-        parser.findSectors()
+        parser.findNodes()
         parser.detectNodes()
-        parser.findIncorrectNodes()
-        parser.checkAnnotation()
+        parser.verifyNodes()
+        parser.verifyAnnotation()
         //Assert.isTrue(parser.errors.size == 0, "There shouldn't be any error!")
     }
 }
