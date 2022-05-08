@@ -13,10 +13,13 @@ class GeneralTests {
     @Test
     fun `annotation validated properly`() {
         val parser = base.createParser(directory, "full test 1.docx")
-        parser.findNodes()
-        parser.detectNodes()
-        parser.verifyNodes()
+        parser.findChapters()
+        parser.detectChapters()
+        parser.verifyChapters()
         parser.verifyAnnotation()
+        for (error in parser.errors) {
+            println("${error.paragraphId} ${error.runId} ${error.errorType}")
+        }
         //Assert.isTrue(parser.errors.size == 0, "There shouldn't be any error!")
     }
 }

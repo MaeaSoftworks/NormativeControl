@@ -36,7 +36,8 @@ class DocumentationController {
     }
 
     fun enumToString(clazz: KClass<*>): String {
-        val enum = ((clazz.members.first { it.name == "values" }.call()) as Array<*>).map { it.toString() }.toMutableList()
+        val enum =
+            ((clazz.members.first { it.name == "values" }.call()) as Array<*>).map { it.toString() }.toMutableList()
         enum.sort()
         return "<ul>" + enum.joinToString("") { "<li>\"$it\"</li>" } + "</ul>"
     }
@@ -139,7 +140,7 @@ class DocumentationController {
             info.responses = responses
             infos.add(info)
         }
-        return infos.sortedWith(compareBy({it.type}, {it.root}, {it.path}))
+        return infos.sortedWith(compareBy({ it.type }, { it.root }, { it.path }))
     }
 
     private final fun createObjectDocs(clazz: KClass<*>): ObjectInfo {

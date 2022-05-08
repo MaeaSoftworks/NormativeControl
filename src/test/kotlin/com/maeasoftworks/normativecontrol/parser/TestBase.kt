@@ -14,12 +14,13 @@ class TestBase {
     @Autowired
     protected lateinit var factory: DocumentParserFactory
 
-    fun createParser(directory: String, filename: String): DocumentParser {
+    fun createParser(directory: String, filename: String, useFullPath: Boolean = false): DocumentParser {
         try {
             val parser = factory.create(
                 Document(
-                    "test", "test",
-                    FileInputStream("src/test/resources/$directory/$filename").readAllBytes()
+                    "test",
+                    "test",
+                    FileInputStream(if (useFullPath) "src/test/resources/$filename" else "src/test/resources/$directory/$filename").readAllBytes()
                 )
             )
             parser.init()

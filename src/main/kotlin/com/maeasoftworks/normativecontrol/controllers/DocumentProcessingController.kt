@@ -26,17 +26,19 @@ class DocumentProcessingController(
     }
 
     @GetMapping("state")
-    override fun getState(@RequestParam("documentId") documentId: String,
-                          @RequestParam("accessKey") accessKey: String
+    override fun getState(
+        @RequestParam("documentId") documentId: String,
+        @RequestParam("accessKey") accessKey: String
     ): Map<String, State> {
         return mapOf("state" to validate(documentId, accessKey) { documentManager.getState(documentId, accessKey) })
     }
 
     @PostMapping("upload")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    override fun uploadDocument(@RequestParam("documentId") documentId: String,
-                                @RequestParam("accessKey") accessKey: String,
-                                @RequestParam("file") file: MultipartFile
+    override fun uploadDocument(
+        @RequestParam("documentId") documentId: String,
+        @RequestParam("accessKey") accessKey: String,
+        @RequestParam("file") file: MultipartFile
     ) {
         if (file.originalFilename == null || file.originalFilename == "") {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Required arguments were empty")
@@ -54,16 +56,18 @@ class DocumentProcessingController(
     }
 
     @GetMapping("errors")
-    override fun getErrors(@RequestParam(value = "documentId") documentId: String,
-                           @RequestParam("accessKey") accessKey: String
+    override fun getErrors(
+        @RequestParam(value = "documentId") documentId: String,
+        @RequestParam("accessKey") accessKey: String
     ): Map<String, List<DocumentError>> {
         val data = validate(documentId, accessKey) { documentManager.getErrors(documentId) }
         return mapOf("errors" to data)
     }
 
     @GetMapping("file")
-    override fun getFile(@RequestParam(value = "documentId") documentId: String,
-                         @RequestParam("accessKey") accessKey: String
+    override fun getFile(
+        @RequestParam(value = "documentId") documentId: String,
+        @RequestParam("accessKey") accessKey: String
     ): ByteArrayResource {
         val file = validate(documentId, accessKey) { documentManager.getFile(documentId) }
         return ByteArrayResource(file)

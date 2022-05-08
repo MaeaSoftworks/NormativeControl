@@ -13,6 +13,6 @@ class TableTests {
     @Test
     fun `table found properly`() {
         val parser = base.createParser(directory, "tableFinder.docx")
-        parser.findNodes()
+        parser.findChapters()
     }
 }

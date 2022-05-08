@@ -16,9 +16,9 @@ class ChapterTests {
     @Test
     fun `all chapters detected`() {
         val parser = base.createParser(directory, "correctSectors.docx")
-        parser.findNodes()
-        parser.detectNodes()
-        parser.verifyNodes()
+        parser.findChapters()
+        parser.detectChapters()
+        parser.verifyChapters()
         Assert.isTrue(parser.chapters.size == 9, "Expected: 9 nodes\nFound: ${parser.chapters.size}")
         Assert.isTrue(
             parser.chapters[0].type == ChapterType.FRONT_PAGE,
@@ -62,9 +62,9 @@ class ChapterTests {
     @Test
     fun `missing chapter reported`() {
         val parser = base.createParser(directory, "skippedSector.docx")
-        parser.findNodes()
-        parser.detectNodes()
-        parser.verifyNodes()
+        parser.findChapters()
+        parser.detectChapters()
+        parser.verifyChapters()
         Assert.isTrue(parser.chapters.size == 7, "2 nodes must be found!")
         Assert.isTrue(parser.chapters[0].type == ChapterType.FRONT_PAGE, "FRONT_PAGE must be found!")
         Assert.isTrue(parser.chapters[1].type == ChapterType.ANNOTATION, "ANNOTATION must be found!")
@@ -83,9 +83,9 @@ class ChapterTests {
     @Test
     fun `all missing chapters reported`() {
         val parser = base.createParser(directory, "skippedAllSectors.docx")
-        parser.findNodes()
-        parser.detectNodes()
-        parser.verifyNodes()
+        parser.findChapters()
+        parser.detectChapters()
+        parser.verifyChapters()
         Assert.isTrue(parser.chapters.size == 2, "2 nodes must be found!")
         Assert.isTrue(parser.chapters[0].type == ChapterType.FRONT_PAGE, "FRONT_PAGE must be found!")
         Assert.isTrue(parser.chapters[1].type == ChapterType.APPENDIX, "APPENDIX must be found!")
@@ -114,5 +114,15 @@ class ChapterTests {
             parser.errors[5].errorType == ErrorType.CHAPTER_REFERENCES_NOT_FOUND,
             "There should be CHAPTER_REFERENCES_NOT_FOUND!"
         )
+    }
+
+    @Test
+    fun `full document chapters detected properly`() {
+        val parser = base.createParser(directory, "general/full test 1.docx", true)
+        parser.findChapters()
+        parser.detectChapters()
+        parser.verifyChapters()
+        Assert.isTrue(parser.chapters.size == 12, "12 nodes must be found!")
+        Assert.isTrue(parser.errors.size == 0, "Expected: 0 errors\nFound: ${parser.errors.size}")
     }
 }

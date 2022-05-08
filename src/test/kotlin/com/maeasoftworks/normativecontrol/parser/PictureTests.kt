@@ -13,6 +13,6 @@ class PictureTests {
     @Test
     fun `picture found properly`() {
         val parser = base.createParser(directory, "pictureFinder.docx")
-        parser.findNodes()
+        parser.findChapters()
     }
 }

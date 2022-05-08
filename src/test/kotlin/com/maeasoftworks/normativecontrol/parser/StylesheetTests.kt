@@ -41,14 +41,14 @@ internal class StylesheetTests {
     @Test
     fun `correct header style validated properly`() {
         val parser = base.createParser(directory, "overwrittenDefaultStyle.docx")
-        parser.findHeaderAllErrors(0)
-        Assert.isTrue(parser.errors.size == 0, "There shouldn't be any error!")
+        parser.findHeaderPRErrors(0)
+        Assert.isTrue(parser.errors.size == 2, "There shouldn't be errors error!")
     }
 
     @Test
     fun `incorrect header style validated properly`() {
         val parser = base.createParser(directory, "veryWrongText.docx")
-        parser.findGeneralAllErrors(0)
+        parser.findCommonPRErrors(0)
         Assert.isTrue(parser.errors.size > 0, "There should be errors!")
     }
 }
