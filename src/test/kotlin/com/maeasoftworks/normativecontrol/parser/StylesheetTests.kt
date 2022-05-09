@@ -44,10 +44,8 @@ internal class StylesheetTests {
     @Test
     fun `correct header style validated properly`() {
         val parser = base.createParser(directory, "overwrittenDefaultStyle.docx")
-        val mock: ChapterParser = object : ChapterParser(parser, Chapter(0)) {
-            override fun parse() {}
-        }
-        mock.findHeaderPRErrors(0)
+        parser.parsers += SimpleParser(parser, Chapter(0, parser.mainDocumentPart.content))
+        parser.parsers[0]!!.parse()
         Assert.isTrue(parser.errors.size == 0, "There shouldn't be error!")
     }
 

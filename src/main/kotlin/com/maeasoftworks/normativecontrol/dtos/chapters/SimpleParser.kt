@@ -3,43 +3,93 @@ package com.maeasoftworks.normativecontrol.dtos.chapters
 import com.maeasoftworks.normativecontrol.daos.DocumentError
 import com.maeasoftworks.normativecontrol.dtos.Chapter
 import com.maeasoftworks.normativecontrol.dtos.DocumentParser
+import com.maeasoftworks.normativecontrol.dtos.chapters.rules.*
+import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
 import org.docx4j.wml.P
 import org.docx4j.wml.PPr
 import org.docx4j.wml.RPr
 
 class SimpleParser(parser: DocumentParser, chapter: Chapter) : ChapterParser(parser, chapter) {
     companion object {
-        private val pFunctions = arrayOf<(documentId: String,
-                                          p: Int,
-                                          isEmpty: Boolean,
-                                          pPr: PPr) -> DocumentError?>(
-            BasePRules::commonPBackgroundCheck,
-            BasePRules::commonPBorderCheck,
-            BasePRules::commonPTextAlignCheck,
-            BasePRules::commonPTextAlignCheck
+        private val pCommonFunctions = arrayOf<(
+            documentId: String,
+            p: Int,
+            isEmpty: Boolean,
+            pPr: PPr,
+            mainDocumentPart: MainDocumentPart
+        ) -> DocumentError?>(
+            BaseCommonPRules::commonPBackgroundCheck,
+            BaseCommonPRules::commonPBorderCheck,
+            BaseCommonPRules::commonPTextAlignCheck,
+            BaseCommonPRules::commonPTextAlignCheck
         )
 
-        private val rFunctions = arrayOf<(documentId: String,
-                                          rPr: RPr,
-                                          p: Int,
-                                          r: Int,
-                                          isEmpty: Boolean) -> DocumentError?>(
-            BaseRRules::commonRFontCheck,
-            BaseRRules::commonRColorCheck,
-            BaseRRules::commonRItalicCheck,
-            BaseRRules::commonRStrikeCheck,
-            BaseRRules::commonRHighlightCheck
+        private val rCommonFunctions = arrayOf<(
+            documentId: String,
+            rPr: RPr,
+            p: Int,
+            r: Int,
+            isEmpty: Boolean,
+            mainDocumentPart: MainDocumentPart
+        ) -> DocumentError?>(
+            BaseCommonRRules::commonRFontCheck,
+            BaseCommonRRules::commonRFontSizeCheck,
+            BaseCommonRRules::commonRItalicCheck,
+            BaseCommonRRules::commonRStrikeCheck,
+            BaseCommonRRules::commonRHighlightCheck,
+            BaseCommonRRules::commonRColorCheck
         )
+
+        private val headerRFunctions =
+            arrayOf<(documentId: String, rPr: RPr, p: Int, r: Int, isEmpty: Boolean, mainDocumentPart: MainDocumentPart) -> DocumentError?>(
+                BaseHeaderRRules::headerRBoldCheck,
+                BaseHeaderRRules::headerRUppercaseCheck
+            )
+
+        private val headerPFunctions =
+            arrayOf<(documentId: String, p: Int, isEmpty: Boolean, pPr: PPr, mainDocumentPart: MainDocumentPart) -> DocumentError?>(
+                BaseHeaderPRules::headerPJustifyCheck,
+                BaseHeaderPRules::headerPLineSpacingCheck,
+                BaseHeaderPRules::headerEmptyLineAfterHeaderExist,
+                BaseHeaderPRules::headerPNotEndsWithDotCheck
+            )
+
+        private val regularPAfterListCheckFunctions =
+            arrayOf<(documentId: String, p: Int, isEmpty: Boolean, pPr: PPr, mainDocumentPart: MainDocumentPart) -> DocumentError?>(
+                BaseRegularPRules::regularPLeftIndentCheck,
+                BaseRegularPRules::regularPRightIndentCheck,
+                BaseRegularPRules::regularPFirstLineIndentCheck
+            )
+
+        private val regularPBeforeListCheckFunctions =
+            arrayOf<(documentId: String, p: Int, isEmpty: Boolean, pPr: PPr, mainDocumentPart: MainDocumentPart) -> DocumentError?>(
+                BaseRegularPRules::regularPJustifyCheck,
+                BaseRegularPRules::regularPLineSpacingCheck
+            )
+
+        private val regularRFunctions =
+            arrayOf<(documentId: String, rPr: RPr, p: Int, r: Int, isEmpty: Boolean, mainDocumentPart: MainDocumentPart) -> DocumentError?>(
+                BaseRegularRRules::regularRBoldCheck,
+                BaseRegularRRules::regularRCapsCheck,
+                BaseRegularRRules::regularRUnderlineCheck,
+                BaseRegularRRules::regularRSpacingCheck
+            )
     }
 
     override fun parse() {
         val paragraphs = chapter.content
-        findHeaderPRErrors(chapter.startPos)
-        findCommonPRErrors(chapter.startPos, resolver.getEffectivePPr((chapter[0] as P).pPr), pFunctions, rFunctions)
+        val headerPPr = resolver.getEffectivePPr((chapter[0] as P).pPr)
+        findBasePRErrors(chapter.startPos, headerPPr, mainDocumentPart, headerPFunctions, headerRFunctions)
+        findBasePRErrors(chapter.startPos, headerPPr, mainDocumentPart, pCommonFunctions, rCommonFunctions)
         for (paragraph in 1 until paragraphs.size) {
             val pPr = resolver.getEffectivePPr((chapter[paragraph] as P).pPr)
-            findRegularPRErrors(chapter.startPos + paragraph)
-            findCommonPRErrors(paragraph, pPr, pFunctions, rFunctions)
+            findBasePRErrors(chapter.startPos + paragraph, pPr, mainDocumentPart, pCommonFunctions, rCommonFunctions)
+            findBasePRErrors(chapter.startPos + paragraph, pPr, mainDocumentPart, regularPBeforeListCheckFunctions, regularRFunctions)
+            if (pPr.numPr != null) {
+                validateList(chapter.startPos + paragraph)
+            } else {
+                findBasePRErrors(chapter.startPos + paragraph, pPr,mainDocumentPart, regularPAfterListCheckFunctions, arrayOf())
+            }
         }
     }
 }
