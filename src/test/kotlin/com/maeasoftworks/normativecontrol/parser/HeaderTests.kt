@@ -1,5 +1,7 @@
 package com.maeasoftworks.normativecontrol.parser
 
+import com.maeasoftworks.normativecontrol.dtos.Chapter
+import com.maeasoftworks.normativecontrol.dtos.chapters.ChapterParser
 import com.maeasoftworks.normativecontrol.dtos.enums.ErrorType
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -15,17 +17,23 @@ internal class HeaderTests {
     @Test
     fun `header with correct style validated properly`() {
         val parser = base.createParser(directory, "correctHeaderStyle.docx")
-        parser.findHeaderPRErrors(0)
+        val mock: ChapterParser = object : ChapterParser(parser, Chapter(0)) {
+            override fun parse() {}
+        }
+        mock.findHeaderPRErrors(0)
         Assert.isTrue(parser.errors.size == 0, "There shouldn't be any error!")
     }
 
     @Test
     fun `header with incorrect style validated properly`() {
         val parser = base.createParser(directory, "wrongHeaderStyle.docx")
-        parser.findHeaderPRErrors(0)
+        val mock: ChapterParser = object : ChapterParser(parser, Chapter(0)) {
+            override fun parse() {}
+        }
+        mock.findHeaderPRErrors(0)
         Assert.isTrue(parser.errors.size == 7, "There should be 6 errors!")
-        Assert.state(parser.errors[0].errorType == ErrorType.CHAPTER_EMPTY, "Wrong error!")
-        Assert.state(parser.errors[1].errorType == ErrorType.TEXT_HEADER_ALIGNMENT, "Wrong error!")
+        Assert.state(parser.errors[0].errorType == ErrorType.TEXT_HEADER_ALIGNMENT, "Wrong error!")
+        Assert.state(parser.errors[1].errorType == ErrorType.TEXT_HEADER_LINE_SPACING, "Wrong error!")
         Assert.state(parser.errors[2].errorType == ErrorType.TEXT_HEADER_NOT_UPPERCASE, "Wrong error!")
         Assert.state(parser.errors[3].errorType == ErrorType.TEXT_HEADER_NOT_BOLD, "Wrong error!")
         Assert.state(parser.errors[4].errorType == ErrorType.TEXT_COMMON_FONT, "Wrong error!")

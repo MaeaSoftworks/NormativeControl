@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
-
 @Service
 class DocumentQueue(private val publisher: ApplicationEventPublisher) {
     private val documentMap: HashMap<String, DocumentParser> = HashMap()
@@ -37,7 +36,7 @@ class DocumentQueue(private val publisher: ApplicationEventPublisher) {
         return documentMap[id]
     }
 
-    fun removeAt(id: String) {
+    fun remove(id: String) {
         documentMap.remove(id)
     }
 }

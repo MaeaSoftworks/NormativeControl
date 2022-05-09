@@ -9,4 +9,10 @@ import javax.persistence.Table
 
 @Table
 @Entity
-class DocumentFile(@Id @JsonIgnore val documentId: String, @Lob val bytes: ByteArray)
+class DocumentFile(
+    @Id
+    @JsonIgnore
+    val documentId: String,
+    val accessKey: String,
+    @Lob
+    val bytes: ByteArray)

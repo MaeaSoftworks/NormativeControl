@@ -68,9 +68,9 @@ class DocumentProcessingController(
     override fun getFile(
         @RequestParam(value = "documentId") documentId: String,
         @RequestParam("accessKey") accessKey: String
-    ): ByteArrayResource {
+    ): ByteArrayResource? {
         val file = validate(documentId, accessKey) { documentManager.getFile(documentId) }
-        return ByteArrayResource(file)
+        return if (file == null) null else ByteArrayResource(file)
     }
 
     @GetMapping("drop-database")
@@ -80,11 +80,9 @@ class DocumentProcessingController(
     }
 
     private inline fun <T> validate(documentId: String, accessKey: String, body: () -> T): T {
-        val parser = queue.getById(documentId)
-        if (parser?.document?.accessKey == null) {
-            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found.")
-        }
-        if (parser.document.accessKey != accessKey) {
+        val key = documentManager.getAccessKey(documentId)
+            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found.")
+        if (key != accessKey) {
             throw ResponseStatusException(HttpStatus.FORBIDDEN, "Access key is invalid.")
         }
         return body()

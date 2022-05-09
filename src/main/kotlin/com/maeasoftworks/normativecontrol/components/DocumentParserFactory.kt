@@ -10,6 +10,6 @@ class DocumentParserFactory(
     private val keywords: HeadersKeywords
 ) {
     fun create(document: Document): DocumentParser {
-        return DocumentParser(document, params, keywords)
+        return DocumentParser(document, keywords)
     }
 }

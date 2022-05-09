@@ -35,6 +35,7 @@ enum class ErrorType {
 //==========================================================================================================================================================================================//
 //                          /*|*/             common                /*|*/          header            /*|*/           regular text            /*|*/              whitespace                  //
 //==========================/*|*/===================================/*|*/============================/*|*/===================================/*|*/==========================================//
+/*|*/ /*alignment*/         /*|*/                                   /*|*/ TEXT_HEADER_EMPTY    ,     /*|*/                                   /*|*/                                       /*|*/
 /*|*/ /*alignment*/         /*|*/                                   /*|*/ TEXT_HEADER_ALIGNMENT,     /*|*/ TEXT_REGULAR_INCORRECT_ALIGNMENT, /*|*/ TEXT_WHITESPACE_ALIGNMENT,            /*|*/
 /*|*/ /*uppercase*/         /*|*/                                   /*|*/ TEXT_HEADER_NOT_UPPERCASE, /*|*/ TEXT_REGULAR_UPPERCASE,           /*|*/ TEXT_WHITESPACE_UPPERCASE,            /*|*/
 /*|*/ /*bold*/              /*|*/                                   /*|*/ TEXT_HEADER_NOT_BOLD,      /*|*/ TEXT_REGULAR_WAS_BOLD,            /*|*/ TEXT_WHITESPACE_BOLD,                 /*|*/
@@ -48,11 +49,12 @@ enum class ErrorType {
 /*|*/ /*text direction*/    /*|*/ TEXT_COMMON_INCORRECT_DIRECTION,  /*|*/                            /*|*/                                   /*|*/ TEXT_WHITESPACE_INCORRECT_DIRECTION,  /*|*/
 /*|*/ /*border*/            /*|*/ TEXT_COMMON_BORDER,               /*|*/                            /*|*/                                   /*|*/ TEXT_WHITESPACE_BORDER,               /*|*/
 /*|*/ /*background fill*/   /*|*/ TEXT_COMMON_BACKGROUND_FILL,      /*|*/                            /*|*/                                   /*|*/ TEXT_WHITESPACE_BACKGROUND_FILL,      /*|*/
-/*|*/ /*line spacing*/      /*|*/ TEXT_COMMON_LINE_SPACING,         /*|*/                            /*|*/                                   /*|*/ TEXT_WHITESPACE_LINE_SPACING,         /*|*/
+/*|*/ /*line spacing*/      /*|*/                                   /*|*/ TEXT_HEADER_LINE_SPACING,  /*|*/  TEXT_REGULAR_LINE_SPACING,       /*|*/ TEXT_WHITESPACE_LINE_SPACING,         /*|*/
 /*|*/ /*first line indent*/ /*|*/ TEXT_COMMON_INDENT_FIRST_LINES,   /*|*/                            /*|*/                                   /*|*/ TEXT_WHITESPACE_INDENT_FIRST_LINES,   /*|*/
 /*|*/ /*line indent left*/  /*|*/ TEXT_COMMON_INDENT_LEFT,          /*|*/                            /*|*/                                   /*|*/ TEXT_WHITESPACE_INDENT_LEFT,          /*|*/
 /*|*/ /*line indent right*/ /*|*/ TEXT_COMMON_INDENT_RIGHT,         /*|*/                            /*|*/                                   /*|*/ TEXT_WHITESPACE_INDENT_RIGHT,         /*|*/
 /*|*/ /*run spacing*/       /*|*/ TEXT_COMMON_RUN_SPACING,          /*|*/                            /*|*/                                   /*|*/ TEXT_WHITESPACE_RUN_SPACING,          /*|*/
+/*|*/ /*run spacing*/       /*|*/                                   /*|*/ TEXT_HEADER_REDUNDANT_DOT, /*|*/                                   /*|*/                                       /*|*/
 //==========================================================================================================================================================================================//
 
     // annotation
