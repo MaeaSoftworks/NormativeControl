@@ -1,6 +1,6 @@
 package com.maeasoftworks.normativecontrol.repositories
 
-import com.maeasoftworks.normativecontrol.daos.DocumentError
+import com.maeasoftworks.normativecontrol.entities.DocumentError
 import org.springframework.data.repository.CrudRepository
 
 interface DocumentErrorRepository : CrudRepository<DocumentError, String> {

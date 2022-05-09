@@ -1,7 +1,11 @@
 package com.maeasoftworks.normativecontrol.documentation
 
-import com.maeasoftworks.normativecontrol.daos.DocumentError
-import com.maeasoftworks.normativecontrol.dtos.enums.State
+import com.maeasoftworks.normativecontrol.documentation.annotations.BodyParam
+import com.maeasoftworks.normativecontrol.documentation.annotations.Documentation
+import com.maeasoftworks.normativecontrol.documentation.annotations.PossibleResponse
+import com.maeasoftworks.normativecontrol.documentation.annotations.PossibleResponseWithEnum
+import com.maeasoftworks.normativecontrol.entities.DocumentError
+import com.maeasoftworks.normativecontrol.parser.enums.State
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*

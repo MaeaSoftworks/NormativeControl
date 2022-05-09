@@ -1,13 +1,13 @@
 package com.maeasoftworks.normativecontrol.services
 
-import com.maeasoftworks.normativecontrol.components.DocumentParserFactory
-import com.maeasoftworks.normativecontrol.daos.DocumentError
-import com.maeasoftworks.normativecontrol.daos.DocumentFile
-import com.maeasoftworks.normativecontrol.daos.DocumentKey
-import com.maeasoftworks.normativecontrol.dtos.Document
-import com.maeasoftworks.normativecontrol.dtos.DocumentParser
-import com.maeasoftworks.normativecontrol.dtos.enums.FailureType
-import com.maeasoftworks.normativecontrol.dtos.enums.State
+import com.maeasoftworks.normativecontrol.entities.DocumentError
+import com.maeasoftworks.normativecontrol.entities.DocumentFile
+import com.maeasoftworks.normativecontrol.entities.DocumentKey
+import com.maeasoftworks.normativecontrol.parser.Document
+import com.maeasoftworks.normativecontrol.parser.DocumentParser
+import com.maeasoftworks.normativecontrol.parser.DocumentParserFactory
+import com.maeasoftworks.normativecontrol.parser.enums.FailureType
+import com.maeasoftworks.normativecontrol.parser.enums.State
 import com.maeasoftworks.normativecontrol.repositories.DocumentErrorRepository
 import com.maeasoftworks.normativecontrol.repositories.DocumentFileRepository
 import com.maeasoftworks.normativecontrol.repositories.DocumentRepository

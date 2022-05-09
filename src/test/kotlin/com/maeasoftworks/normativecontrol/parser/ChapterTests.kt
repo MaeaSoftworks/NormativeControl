@@ -1,7 +1,7 @@
 package com.maeasoftworks.normativecontrol.parser
 
-import com.maeasoftworks.normativecontrol.dtos.enums.ChapterType
-import com.maeasoftworks.normativecontrol.dtos.enums.ErrorType
+import com.maeasoftworks.normativecontrol.parser.enums.ChapterType
+import com.maeasoftworks.normativecontrol.parser.enums.ErrorType
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest

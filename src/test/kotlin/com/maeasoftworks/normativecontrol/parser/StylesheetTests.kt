@@ -1,9 +1,8 @@
 package com.maeasoftworks.normativecontrol.parser
 
-import com.maeasoftworks.normativecontrol.dtos.Chapter
-import com.maeasoftworks.normativecontrol.dtos.chapters.ChapterParser
-import com.maeasoftworks.normativecontrol.dtos.chapters.SimpleParser
-import com.maeasoftworks.normativecontrol.dtos.enums.ErrorType
+import com.maeasoftworks.normativecontrol.parser.chapters.Chapter
+import com.maeasoftworks.normativecontrol.parser.chapters.parsers.SimpleParser
+import com.maeasoftworks.normativecontrol.parser.enums.ErrorType
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -21,8 +20,8 @@ internal class StylesheetTests {
         parser.verifyPageSize()
         Assert.notEmpty(parser.errors, "Error not found!")
         Assert.state(
-            parser.errors[0].errorType == ErrorType.PAGE_WIDTH_IS_INCORRECT && parser.errors[0].paragraphId == -1 && parser.errors[0].runId == -1
-                    && parser.errors[1].errorType == ErrorType.PAGE_HEIGHT_IS_INCORRECT && parser.errors[1].paragraphId == -1 && parser.errors[1].runId == -1,
+            parser.errors[0].errorType == ErrorType.PAGE_WIDTH_IS_INCORRECT
+                    && parser.errors[1].errorType == ErrorType.PAGE_HEIGHT_IS_INCORRECT,
             "Wrong error!"
         )
     }
@@ -33,10 +32,10 @@ internal class StylesheetTests {
         parser.verifyPageMargins()
         Assert.notEmpty(parser.errors, "Error not found!")
         Assert.state(
-            parser.errors[0].errorType == ErrorType.PAGE_MARGIN_TOP_IS_INCORRECT && parser.errors[0].paragraphId == -1 && parser.errors[0].runId == -1
-                    && parser.errors[1].errorType == ErrorType.PAGE_MARGIN_RIGHT_IS_INCORRECT && parser.errors[1].paragraphId == -1 && parser.errors[1].runId == -1
-                    && parser.errors[2].errorType == ErrorType.PAGE_MARGIN_BOTTOM_IS_INCORRECT && parser.errors[2].paragraphId == -1 && parser.errors[2].runId == -1
-                    && parser.errors[3].errorType == ErrorType.PAGE_MARGIN_LEFT_IS_INCORRECT && parser.errors[3].paragraphId == -1 && parser.errors[3].runId == -1,
+            parser.errors[0].errorType == ErrorType.PAGE_MARGIN_TOP_IS_INCORRECT
+                    && parser.errors[1].errorType == ErrorType.PAGE_MARGIN_RIGHT_IS_INCORRECT
+                    && parser.errors[2].errorType == ErrorType.PAGE_MARGIN_BOTTOM_IS_INCORRECT
+                    && parser.errors[3].errorType == ErrorType.PAGE_MARGIN_LEFT_IS_INCORRECT,
             "Wrong error!"
         )
     }
@@ -45,7 +44,7 @@ internal class StylesheetTests {
     fun `correct header style validated properly`() {
         val parser = base.createParser(directory, "overwrittenDefaultStyle.docx")
         parser.parsers += SimpleParser(parser, Chapter(0, parser.mainDocumentPart.content))
-        parser.parsers[0]!!.parse()
+        parser.parsers[0].parse()
         Assert.isTrue(parser.errors.size == 0, "There shouldn't be error!")
     }
 
@@ -53,7 +52,7 @@ internal class StylesheetTests {
     fun `incorrect header style validated properly`() {
         val parser = base.createParser(directory, "veryWrongText.docx")
         parser.parsers += SimpleParser(parser, Chapter(0, parser.mainDocumentPart.content))
-        parser.parsers[0]!!.parse()
+        parser.parsers[0].parse()
         Assert.isTrue(parser.errors.size > 0, "There should be errors!")
     }
 }

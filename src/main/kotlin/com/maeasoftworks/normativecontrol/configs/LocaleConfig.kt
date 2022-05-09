@@ -9,7 +9,6 @@ import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor
 import java.util.*
 
-
 @Configuration
 class LocaleConfig : WebMvcConfigurer {
     @Bean

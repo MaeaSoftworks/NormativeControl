@@ -1,7 +1,7 @@
 package com.maeasoftworks.normativecontrol.parser
 
-import com.maeasoftworks.normativecontrol.dtos.Chapter
-import com.maeasoftworks.normativecontrol.dtos.chapters.ChapterParser
+import com.maeasoftworks.normativecontrol.parser.chapters.Chapter
+import com.maeasoftworks.normativecontrol.parser.chapters.parsers.ChapterParser
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest

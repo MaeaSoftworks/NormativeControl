@@ -128,12 +128,15 @@ main {
 .method-type-GET {
     color: green;
 }
+
 .method-type-POST {
     color: orange;
 }
+
 .method-type-PATCH {
     color: #7777ff;
 }
+
 .method-type-PUT {
     color: yellow;
 }

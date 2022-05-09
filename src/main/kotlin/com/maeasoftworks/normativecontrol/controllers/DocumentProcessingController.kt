@@ -1,8 +1,8 @@
 package com.maeasoftworks.normativecontrol.controllers
 
-import com.maeasoftworks.normativecontrol.daos.DocumentError
 import com.maeasoftworks.normativecontrol.documentation.DocumentProcessingDocumentation
-import com.maeasoftworks.normativecontrol.dtos.enums.State
+import com.maeasoftworks.normativecontrol.entities.DocumentError
+import com.maeasoftworks.normativecontrol.parser.enums.State
 import com.maeasoftworks.normativecontrol.services.DocumentManager
 import com.maeasoftworks.normativecontrol.services.DocumentQueue
 import org.springframework.core.io.ByteArrayResource

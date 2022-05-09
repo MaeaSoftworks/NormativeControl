@@ -5,17 +5,17 @@
     <meta charset=utf-8>
     <link href="/favicon" rel=icon>
     <meta content="width=device-width,initial-scale=1" name=viewport>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;400;700&display=swap" rel=stylesheet>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains Mono" rel=stylesheet>
     <title>Normative Control API Docs</title>
-    <link type="text/css" rel="stylesheet" href="/styles.css">
+    <link href="/styles.css" rel="stylesheet" type="text/css">
 </head>
 <body>
 <header>
-    <a href="/docs" class="logo">
-        <img class="logo-img" src="/logo.svg" alt="normative control">
+    <a class="logo" href="/docs">
+        <img alt="normative control" class="logo-img" src="/logo.svg">
     </a>
     <p class=header-text>normative<br>control API Docs</p>
 </header>
@@ -23,10 +23,12 @@
     <div class="methods-list">
         <h2>API Methods</h2>
         <th:block th:each="method : ${methods}">
-            <a th:class="'method-link' + (${current != null && isMethod && method.root + '/' + method.path == current.root+ '/' + current.path} ? ' link-active' : '')" th:href="'docs?section=' + ${method.root} + '/' + ${method.path}">
+            <a th:class="'method-link' + (${current != null && isMethod && method.root + '/' + method.path == current.root+ '/' + current.path} ? ' link-active' : '')"
+               th:href="'docs?section=' + ${method.root} + '/' + ${method.path}">
                 <p>
-                <span th:class="'method-type method-type-' + ${method.type}" th:utext="'[' + ${method.type} + ']'"></span>
-                <span class="method-name" th:utext="${method.root} + '/' + ${method.path}"></span>
+                    <span th:class="'method-type method-type-' + ${method.type}"
+                          th:utext="'[' + ${method.type} + ']'"></span>
+                    <span class="method-name" th:utext="${method.root} + '/' + ${method.path}"></span>
                 </p>
             </a>
         </th:block>
@@ -34,7 +36,8 @@
     <div class="objects">
         <h2>API Objects</h2>
         <th:block th:each="object : ${objects}">
-            <a th:class="'method-link object-link' + (${current != null && !isMethod && object.name == current.name} ? ' link-active' : '')" th:href="'docs?section=' + ${object.name}">
+            <a th:class="'method-link object-link' + (${current != null && !isMethod && object.name == current.name} ? ' link-active' : '')"
+               th:href="'docs?section=' + ${object.name}">
                 <p>
                     <span class="method-name" th:utext="${object.name}"></span>
                 </p>
@@ -89,11 +92,16 @@
                         <th:block th:each="response, state : ${current.responses}">
                             <li class="response">
                                 <p>
-                                    <span class="response-code" th:utext="${response.httpStatus.value()}" th:style="'color: ' + (${response.httpStatus.value() >= 500} ? 'red' : (${response.httpStatus.value() >= 400} ? 'orange' : (${response.httpStatus.value() >= 300} ? 'yellow' : (${response.httpStatus.value() >= 200} ? 'green' : 'gray'))))"></span>
+                                    <span class="response-code"
+                                          th:style="'color: ' + (${response.httpStatus.value() >= 500} ? 'red' : (${response.httpStatus.value() >= 400} ? 'orange' : (${response.httpStatus.value() >= 300} ? 'yellow' : (${response.httpStatus.value() >= 200} ? 'green' : 'gray'))))"
+                                          th:utext="${response.httpStatus.value()}"></span>
                                     <span th:if="${response.type != 'Unit'}">+</span>
-                                    <code th:if="${response.type != 'Unit'}" class="response-type" th:utext="${response.type + (response.type == 'String' ? ' [JSON]' : '')}"></code>&#160;&#8212;&#160;
-                                    <span class="response-description" th:utext="${response.description}"></span><br th:if="${response.body != ''}">
-                                    <span th:if="${response.body != ''}" class="response-body" th:utext="'JSON format: ' + ${response.body}"></span>
+                                    <code class="response-type" th:if="${response.type != 'Unit'}"
+                                          th:utext="${response.type + (response.type == 'String' ? ' [JSON]' : '')}"></code>&#160;&#8212;&#160;
+                                    <span class="response-description" th:utext="${response.description}"></span><br
+                                        th:if="${response.body != ''}">
+                                    <span class="response-body" th:if="${response.body != ''}"
+                                          th:utext="'JSON format: ' + ${response.body}"></span>
                                     <span class="text-span" th:if="${state.last && response.body == ''}">.</span>
                                     <span class="text-span" th:if="${!state.last && response.body == ''}">;</span>
                                 </p>
@@ -103,7 +111,8 @@
                 </th:block>
                 <h3 th:if="${sandboxEnabled}">Sandbox:</h3>
                 <div class="sandbox" th:if="${sandboxEnabled}">
-                    <span class="url" th:utext="'URL: ' + ${address} + '/' + ${current.root} + '/' + ${current.path}"></span>
+                    <span class="url"
+                          th:utext="'URL: ' + ${address} + '/' + ${current.root} + '/' + ${current.path}"></span>
                     <div class="query-params-sandbox">
                         <h3>Query params:</h3>
                         <div class="params">

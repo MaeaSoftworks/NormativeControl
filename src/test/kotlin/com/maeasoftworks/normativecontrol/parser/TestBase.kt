@@ -1,8 +1,5 @@
 package com.maeasoftworks.normativecontrol.parser
 
-import com.maeasoftworks.normativecontrol.components.DocumentParserFactory
-import com.maeasoftworks.normativecontrol.dtos.Document
-import com.maeasoftworks.normativecontrol.dtos.DocumentParser
 import org.docx4j.openpackaging.exceptions.Docx4JException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component

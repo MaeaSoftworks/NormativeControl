@@ -1,8 +1,8 @@
 package com.maeasoftworks.normativecontrol.services
 
-import com.maeasoftworks.normativecontrol.dtos.DocumentParser
-import com.maeasoftworks.normativecontrol.dtos.DocumentParserRunnable
-import com.maeasoftworks.normativecontrol.dtos.enums.State
+import com.maeasoftworks.normativecontrol.parser.DocumentParser
+import com.maeasoftworks.normativecontrol.parser.DocumentParserRunnable
+import com.maeasoftworks.normativecontrol.parser.enums.State
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import java.util.concurrent.ExecutorService

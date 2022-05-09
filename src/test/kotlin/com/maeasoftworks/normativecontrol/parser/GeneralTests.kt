@@ -18,7 +18,7 @@ class GeneralTests {
         parser.detectChapters()
         parser.verifyChapters()
         parser.createParsers()
-        parser.parsers[1]?.parse()
+        parser.parsers[1].parse()
         for (error in parser.errors) {
             println("${error.paragraphId} ${error.runId} ${error.errorType}")
         }
@@ -32,7 +32,7 @@ class GeneralTests {
         parser.detectChapters()
         parser.verifyChapters()
         parser.createParsers()
-        parser.parsers[3]?.parse()
+        parser.parsers[3].parse()
         for (error in parser.errors) {
             println("${error.paragraphId} ${error.runId} ${error.errorType}")
         }
