@@ -31,7 +31,7 @@ internal class HeaderTests {
             override fun parse() {}
         }
         mock.findHeaderPRErrors(0)
-        Assert.isTrue(parser.errors.size == 7, "There should be 6 errors!")
+        Assert.isTrue(parser.errors.size == 7, "There should be 7 errors!")
         Assert.state(parser.errors[0].errorType == ErrorType.TEXT_HEADER_ALIGNMENT, "Wrong error!")
         Assert.state(parser.errors[1].errorType == ErrorType.TEXT_HEADER_LINE_SPACING, "Wrong error!")
         Assert.state(parser.errors[2].errorType == ErrorType.TEXT_HEADER_NOT_UPPERCASE, "Wrong error!")

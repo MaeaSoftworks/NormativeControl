@@ -20,14 +20,14 @@ open class DocumentParser(
     open val document: Document,
     open val keywords: HeadersKeywords,
 ) {
-    open lateinit var mlPackage: WordprocessingMLPackage
-    open lateinit var mainDocumentPart: MainDocumentPart
-    open lateinit var resolver: PropertyResolver
-    open var chapters: MutableList<Chapter> = ArrayList()
-    open var parsers: MutableList<ChapterParser?> = ArrayList()
-    open var errors: MutableList<DocumentError> = ArrayList()
-    open var tables: MutableList<Tbl> = ArrayList()
-    open var pictures: MutableList<Any> = ArrayList()
+    lateinit var mlPackage: WordprocessingMLPackage
+    lateinit var mainDocumentPart: MainDocumentPart
+    lateinit var resolver: PropertyResolver
+    var chapters: MutableList<Chapter> = ArrayList()
+    var parsers: MutableList<ChapterParser?> = ArrayList()
+    var errors: MutableList<DocumentError> = ArrayList()
+    var tables: MutableList<Tbl> = ArrayList()
+    var pictures: MutableList<Any> = ArrayList()
 
     fun init() {
         try {

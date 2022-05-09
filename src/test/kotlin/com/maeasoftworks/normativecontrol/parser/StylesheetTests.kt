@@ -2,6 +2,7 @@ package com.maeasoftworks.normativecontrol.parser
 
 import com.maeasoftworks.normativecontrol.dtos.Chapter
 import com.maeasoftworks.normativecontrol.dtos.chapters.ChapterParser
+import com.maeasoftworks.normativecontrol.dtos.chapters.SimpleParser
 import com.maeasoftworks.normativecontrol.dtos.enums.ErrorType
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -53,10 +54,8 @@ internal class StylesheetTests {
     @Test
     fun `incorrect header style validated properly`() {
         val parser = base.createParser(directory, "veryWrongText.docx")
-        val mock: ChapterParser = object : ChapterParser(parser, Chapter(0)) {
-            override fun parse() {}
-        }
-        mock.findCommonPRErrors(0)
+        parser.parsers += SimpleParser(parser, Chapter(0, parser.mainDocumentPart.content))
+        parser.parsers[0]!!.parse()
         Assert.isTrue(parser.errors.size > 0, "There should be errors!")
     }
 }
