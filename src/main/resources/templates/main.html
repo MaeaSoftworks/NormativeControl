@@ -3,7 +3,7 @@
 <head>
     <meta content="text/html; charset=UTF-8" http-equiv=content-type>
     <meta charset=utf-8>
-    <link href="/favicon" rel=icon>
+    <link href="/favicon.svg" rel=icon>
     <meta content="width=device-width,initial-scale=1" name=viewport>
     <link href="https://fonts.googleapis.com" rel="preconnect">
     <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
@@ -22,36 +22,45 @@
 <main>
     <div class="methods-list">
         <h2>API Methods</h2>
-        <th:block th:each="method : ${methods}">
-            <a th:class="'method-link' + (${current != null && isMethod && method.root + '/' + method.path == current.root+ '/' + current.path} ? ' link-active' : '')"
-               th:href="'docs?section=' + ${method.root} + '/' + ${method.path}">
-                <p>
-                    <span th:class="'method-type method-type-' + ${method.type}"
-                          th:utext="'[' + ${method.type} + ']'"></span>
-                    <span class="method-name" th:utext="${method.root} + '/' + ${method.path}"></span>
-                </p>
-            </a>
-        </th:block>
+        <div class="scrollable">
+            <th:block th:each="method : ${methods}">
+                <a th:class="'method-link' + (${current != null && isMethod && method.root + '/' + method.path == current.root+ '/' + current.path} ? ' link-active' : '')"
+                   th:href="'docs?section=' + ${method.root} + '/' + ${method.path}">
+                    <p>
+                        <span th:class="'method-type method-type-' + ${method.type}"
+                              th:utext="'[' + ${method.type} + ']'"></span>
+                        <span class="method-name" th:utext="${method.root} + '/' + ${method.path}"></span>
+                    </p>
+                </a>
+            </th:block>
+        </div>
     </div>
     <div class="objects">
         <h2>API Objects</h2>
-        <th:block th:each="object : ${objects}">
-            <a th:class="'method-link object-link' + (${current != null && !isMethod && object.name == current.name} ? ' link-active' : '')"
-               th:href="'docs?section=' + ${object.name}">
-                <p>
-                    <span class="method-name" th:utext="${object.name}"></span>
-                </p>
-            </a>
-        </th:block>
+        <div class="scrollable">
+            <th:block th:each="object : ${objects}">
+                <a th:class="'method-link object-link' + (${current != null && !isMethod && object.name == current.name} ? ' link-active' : '')"
+                   th:href="'docs?section=' + ${object.name}">
+                    <p>
+                        <span class="method-name" th:utext="${object.name}"></span>
+                    </p>
+                </a>
+            </th:block>
+        </div>
     </div>
     <div class="description-block">
         <h2 th:if="${current != null && isMethod}">Method</h2>
-        <p class="current-method-name" th:if="${current != null && isMethod}">
+        <p class="current-section-name" th:if="${current != null && isMethod}">
             <span th:class="'method-type method-type-' + ${current.type}" th:utext="'[' + ${current.type} + ']'"></span>
             <span class="method-name" th:utext="${current.root} + '/' + ${current.path}"></span>
         </p>
+        <h2 th:if="${current != null && !isMethod}">Object</h2>
+        <p class="current-section-name" th:if="${current != null && !isMethod}">
+            <span class="section-name" th:utext="${current.name}"></span>
+        </p>
+
         <th:block th:if="${current != null && isMethod}">
-            <div class="content">
+            <div class="content scrollable">
                 <h3>Description:</h3>
                 <div class="description" th:utext="${current.description}"></div>
                 <th:block th:if="${current.queryParams.size() > 0}">
@@ -139,12 +148,8 @@
 
             </div>
         </th:block>
-        <h2 th:if="${current != null && !isMethod}">Object</h2>
         <th:block th:if="${current != null && !isMethod}">
-            <div class="content">
-                <p class="current-method-name">
-                    <span class="method-name" th:utext="${current.name}"></span>
-                </p>
+            <div class="content scrollable">
                 <h3>Description:</h3>
                 <div class="description" th:utext="${current.description}"></div>
                 <th:block th:if="${current.properties != null}">

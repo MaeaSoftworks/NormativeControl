@@ -24,7 +24,7 @@ body {
     background-color: #292929;
     width: 100vw;
     height: 100vh;
-    position: relative
+    position: relative;
 }
 
 ul li {
@@ -92,8 +92,8 @@ main {
 }
 
 .methods-list, .objects {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-rows: auto auto;
 }
 
 .methods-list, .objects, .description-block {
@@ -149,8 +149,9 @@ main {
 .description-block {
     grid-row: span 2;
     grid-column: 2;
-    overflow-y: auto;
-    overflow-x: hidden;
+    overflow: hidden;
+    display: grid;
+    grid-template-rows: auto auto auto;
 }
 
 h2 {
@@ -159,6 +160,7 @@ h2 {
     font-weight: bold;
     text-align: center;
     margin: 10px;
+    height: 30px;
 }
 
 h3 {
@@ -177,7 +179,7 @@ code {
     background-color: #404040;
 }
 
-.current-method-name {
+.current-section-name {
     text-align: center;
     margin: 10px;
     font-size: 18px;
@@ -261,4 +263,12 @@ code {
     justify-content: center;
     align-items: center;
     height: 100%;
+}
+
+.scrollable {
+    overflow-block: auto;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
 }
