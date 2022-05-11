@@ -2,4 +2,5 @@ server:
   port: ${PORT}
 
 controllers:
-  documentation: true
+  docs: true
+  api: true

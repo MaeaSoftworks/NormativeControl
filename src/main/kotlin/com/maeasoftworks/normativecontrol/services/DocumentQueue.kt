@@ -3,12 +3,14 @@ package com.maeasoftworks.normativecontrol.services
 import com.maeasoftworks.normativecontrol.parser.DocumentParser
 import com.maeasoftworks.normativecontrol.parser.DocumentParserRunnable
 import com.maeasoftworks.normativecontrol.parser.enums.State
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 @Service
+@ConditionalOnBean(DocumentManager::class)
 class DocumentQueue(private val publisher: ApplicationEventPublisher) {
     private val documentMap: HashMap<String, DocumentParser> = HashMap()
     private val executor: ExecutorService = Executors.newFixedThreadPool(100)

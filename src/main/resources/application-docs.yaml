@@ -1,0 +1,13 @@
+controllers:
+  docs: true
+  api: false
+
+spring:
+  datasource:
+    password:
+    username:
+    url:
+    driver-class-name:
+  jpa:
+    hibernate:
+      ddl-auto:

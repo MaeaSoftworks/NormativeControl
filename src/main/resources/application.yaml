@@ -1,14 +1,6 @@
-document:
-  keywords:
-    annotation: РЕФЕРАТ,
-    contents: СОДЕРЖАНИЕ,ОГЛАВЛЕНИЕ
-    introduction: ВВЕДЕНИЕ,
-    conclusion: ЗАКЛЮЧЕНИЕ,
-    references: БИБЛИОГРАФИЧЕСКИЙ СПИСОК,СПИСОК ИСПОЛЬЗОВАННОЙ ЛИТЕРАТУРЫ,СПИСОК ЛИТЕРАТУРЫ,СПИСОК ИСТОЧНИКОВ
-    appendix: ПРИЛОЖЕНИЕ,ПРИЛОЖЕНИЯ,
-
 controllers:
-  documentation: false
+  docs: true
+  api: true
 
 spring:
   datasource:
@@ -23,8 +15,8 @@ spring:
     basename: i18n/messages
   servlet:
     multipart:
-      max-file-size: 40MB
-      max-request-size: 40MB
+      max-file-size: 20MB
+      max-request-size: 20MB
       enabled: true
 
 server:

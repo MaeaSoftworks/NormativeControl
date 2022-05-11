@@ -19,7 +19,7 @@ import kotlin.reflect.jvm.kotlinFunction
 @Controller
 @CrossOrigin
 @RequestMapping("docs")
-@ConditionalOnExpression("\${controllers.documentation}")
+@ConditionalOnExpression("\${controllers.docs}")
 class DocumentationController {
     private lateinit var address: String
 

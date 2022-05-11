@@ -1,5 +1,6 @@
 package com.maeasoftworks.normativecontrol.services
 
+import com.maeasoftworks.normativecontrol.controllers.DocumentProcessingController
 import com.maeasoftworks.normativecontrol.entities.DocumentError
 import com.maeasoftworks.normativecontrol.entities.DocumentFile
 import com.maeasoftworks.normativecontrol.entities.DocumentKey
@@ -11,6 +12,7 @@ import com.maeasoftworks.normativecontrol.parser.enums.State
 import com.maeasoftworks.normativecontrol.repositories.DocumentErrorRepository
 import com.maeasoftworks.normativecontrol.repositories.DocumentFileRepository
 import com.maeasoftworks.normativecontrol.repositories.DocumentRepository
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.context.event.EventListener
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
@@ -18,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional
 import java.util.*
 
 @Service
+@ConditionalOnBean(DocumentProcessingController::class)
 class DocumentManager(
     private val queue: DocumentQueue,
     private val errorRepository: DocumentErrorRepository,

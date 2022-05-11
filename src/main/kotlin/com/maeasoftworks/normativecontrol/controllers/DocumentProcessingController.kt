@@ -4,7 +4,7 @@ import com.maeasoftworks.normativecontrol.documentation.DocumentProcessingDocume
 import com.maeasoftworks.normativecontrol.entities.DocumentError
 import com.maeasoftworks.normativecontrol.parser.enums.State
 import com.maeasoftworks.normativecontrol.services.DocumentManager
-import com.maeasoftworks.normativecontrol.services.DocumentQueue
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
@@ -15,11 +15,8 @@ import java.io.IOException
 @CrossOrigin
 @RestController
 @RequestMapping("documents")
-class DocumentProcessingController(
-    private val documentManager: DocumentManager,
-    private val queue: DocumentQueue
-) : DocumentProcessingDocumentation {
-
+@ConditionalOnExpression("\${controllers.api}")
+class DocumentProcessingController(private val documentManager: DocumentManager) : DocumentProcessingDocumentation {
     @PostMapping("queue")
     override fun addToQueue(@RequestParam("accessKey") accessKey: String): Map<String, String> {
         return mapOf("documentId" to documentManager.addToQueue(accessKey))
@@ -29,9 +26,7 @@ class DocumentProcessingController(
     override fun getState(
         @RequestParam("documentId") documentId: String,
         @RequestParam("accessKey") accessKey: String
-    ): Map<String, State> {
-        return mapOf("state" to validate(documentId, accessKey) { documentManager.getState(documentId, accessKey) })
-    }
+    ): Map<String, State> = mapOf("state" to validate(documentId, accessKey) { documentManager.getState(documentId, accessKey) })
 
     @PostMapping("upload")
     @ResponseStatus(HttpStatus.ACCEPTED)
@@ -59,25 +54,21 @@ class DocumentProcessingController(
     override fun getErrors(
         @RequestParam(value = "documentId") documentId: String,
         @RequestParam("accessKey") accessKey: String
-    ): Map<String, List<DocumentError>> {
-        val data = validate(documentId, accessKey) { documentManager.getErrors(documentId) }
-        return mapOf("errors" to data)
-    }
+    ): Map<String, List<DocumentError>> =
+        mapOf("errors" to validate(documentId, accessKey) { documentManager.getErrors(documentId) })
 
     @GetMapping("file")
     override fun getFile(
         @RequestParam(value = "documentId") documentId: String,
         @RequestParam("accessKey") accessKey: String
-    ): ByteArrayResource? {
-        val file = validate(documentId, accessKey) { documentManager.getFile(documentId) }
-        return if (file == null) null else ByteArrayResource(file)
-    }
+    ): ByteArrayResource? = validate(
+        documentId,
+        accessKey
+    ) { documentManager.getFile(documentId) }.let { if (it == null) null else ByteArrayResource(it) }
 
     @GetMapping("drop-database")
     @ResponseStatus(HttpStatus.OK)
-    override fun dropDatabase() {
-        documentManager.dropDatabase()
-    }
+    override fun dropDatabase() = documentManager.dropDatabase()
 
     private inline fun <T> validate(documentId: String, accessKey: String, body: () -> T): T {
         val key = documentManager.getAccessKey(documentId)
