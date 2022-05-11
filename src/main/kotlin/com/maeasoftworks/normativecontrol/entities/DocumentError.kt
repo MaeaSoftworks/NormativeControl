@@ -24,7 +24,7 @@ class DocumentError(
     @PropertyDocumentation("pointer to run in paragraph with <code>paragraphId</code>")
     val runId: Int,
     @PropertyDocumentation("error type. Can be:", ErrorType::class)
-    val errorType: ErrorType?
+    val errorType: ErrorType
 ) {
     @Id
     @GeneratedValue(generator = "uuid")

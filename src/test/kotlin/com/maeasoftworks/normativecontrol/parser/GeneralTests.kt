@@ -1,19 +1,13 @@
 package com.maeasoftworks.normativecontrol.parser
 
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.util.Assert
 
-@SpringBootTest
-class GeneralTests {
-    @Autowired
-    lateinit var base: TestBase
-    private val directory: String = "general"
+class GeneralTests : ParserTestFactory(GeneralTests::class) {
 
     @Test
     fun `annotation validated properly`() {
-        val parser = base.createParser(directory, "full test 1.docx")
+        val parser = createParser("full test 1.docx")
         parser.findChapters()
         parser.detectChapters()
         parser.verifyChapters()
@@ -27,7 +21,7 @@ class GeneralTests {
 
     @Test
     fun `introduction validated properly`() {
-        val parser = base.createParser(directory, "full test 1.docx")
+        val parser = createParser("full test 1.docx")
         parser.findChapters()
         parser.detectChapters()
         parser.verifyChapters()

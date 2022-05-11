@@ -1,20 +1,15 @@
 document:
-  page:
-    margin:
-      bottom: 1134
-      left: 1701
-      right: 850
-      top: 1134
-    width: 11906
-    height: 16838
-  sectors:
-    keywords:
-      annotation: РЕФЕРАТ,
-      contents: СОДЕРЖАНИЕ,ОГЛАВЛЕНИЕ
-      introduction: ВВЕДЕНИЕ,
-      conclusion: ЗАКЛЮЧЕНИЕ,
-      references: БИБЛИОГРАФИЧЕСКИЙ СПИСОК,СПИСОК ИСПОЛЬЗОВАННОЙ ЛИТЕРАТУРЫ,СПИСОК ЛИТЕРАТУРЫ,СПИСОК ИСТОЧНИКОВ
-      appendix: ПРИЛОЖЕНИЕ,ПРИЛОЖЕНИЯ,
+  keywords:
+    annotation: РЕФЕРАТ,
+    contents: СОДЕРЖАНИЕ,ОГЛАВЛЕНИЕ
+    introduction: ВВЕДЕНИЕ,
+    conclusion: ЗАКЛЮЧЕНИЕ,
+    references: БИБЛИОГРАФИЧЕСКИЙ СПИСОК,СПИСОК ИСПОЛЬЗОВАННОЙ ЛИТЕРАТУРЫ,СПИСОК ЛИТЕРАТУРЫ,СПИСОК ИСТОЧНИКОВ
+    appendix: ПРИЛОЖЕНИЕ,ПРИЛОЖЕНИЯ,
+
+controllers:
+  documentation: false
+
 spring:
   datasource:
     password: maeasoftworks52(
@@ -31,5 +26,6 @@ spring:
       max-file-size: 40MB
       max-request-size: 40MB
       enabled: true
+
 server:
   port: 8080

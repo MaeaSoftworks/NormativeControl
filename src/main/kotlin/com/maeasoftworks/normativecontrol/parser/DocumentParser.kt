@@ -20,7 +20,6 @@ import java.io.ByteArrayInputStream
 
 open class DocumentParser(
     open val document: Document,
-    open val keywords: HeadersKeywords,
 ) {
     lateinit var mlPackage: WordprocessingMLPackage
     lateinit var mainDocumentPart: MainDocumentPart
@@ -39,7 +38,6 @@ open class DocumentParser(
         } catch (e: Docx4JException) {
             document.state = State.ERROR
             document.failureType = FailureType.FILE_READING_ERROR
-            return
         }
     }
 
@@ -125,7 +123,7 @@ open class DocumentParser(
                 chapters[chapter].type = detectNodeType(text, chapter)
             }
         }
-        if (chapters[0].type == null) {
+        if (!chapters[0].isChapterDetected) {
             chapters[0].type = ChapterType.FRONT_PAGE
         }
         for (empty in emptyChapters) {
@@ -137,14 +135,14 @@ open class DocumentParser(
         if (text.split(Regex("\\s+"))[0].matches(Regex("^(?:\\d{1,2}\\.?){1,3}$"))) {
             return ChapterType.BODY
         }
-        for (keys in 0 until keywords.keywordsBySector.size) {
-            for (key in keywords.keywordsBySector[keys]) {
+        for (keys in 0 until HeadersKeywords.keywordsBySector.size) {
+            for (key in HeadersKeywords.keywordsBySector[keys]) {
                 if (text.uppercase().contains(key)) {
                     return ChapterType.values()[keys]
                 }
             }
         }
-        for (keyword in keywords.appendix) {
+        for (keyword in HeadersKeywords.appendix) {
             if (text.uppercase().startsWith(keyword)) {
                 return ChapterType.APPENDIX
             }

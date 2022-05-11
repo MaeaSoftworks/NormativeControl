@@ -1,2 +1,5 @@
 server:
   port: ${PORT}
+
+controllers:
+  documentation: true

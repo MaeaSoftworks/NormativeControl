@@ -5,6 +5,7 @@ import com.maeasoftworks.normativecontrol.documentation.objects.*
 import com.maeasoftworks.normativecontrol.entities.DocumentError
 import org.apache.commons.lang3.reflect.MethodUtils
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.*
@@ -18,6 +19,7 @@ import kotlin.reflect.jvm.kotlinFunction
 @Controller
 @CrossOrigin
 @RequestMapping("docs")
+@ConditionalOnExpression("\${controllers.documentation}")
 class DocumentationController {
     private lateinit var address: String
 

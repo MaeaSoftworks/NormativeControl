@@ -9,19 +9,11 @@ import com.maeasoftworks.normativecontrol.parser.chapters.rules.BaseHeaderRRules
 import com.maeasoftworks.normativecontrol.parser.enums.ErrorType
 import org.docx4j.wml.P
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.util.Assert
 
-@SpringBootTest
-internal class HeaderTests {
-    @Autowired
-    lateinit var base: TestBase
-    private val directory: String = "header"
-
+internal class HeaderTests : ParserTestFactory(HeaderTests::class) {
     @Test
     fun `header with correct style validated properly`() {
-        val parserBase = base.createParser(directory, "correctHeaderStyle.docx")
+        val parserBase = createParser("correct header style.docx")
         parserBase.parsers += object : ChapterParser(parserBase, Chapter(0, parserBase.mainDocumentPart.content)) {
             override fun parse() {
                 val headerPPr = resolver.getEffectivePPr((chapter[0] as P).pPr)
@@ -58,12 +50,12 @@ internal class HeaderTests {
             }
         }
         parserBase.parsers[0].parse()
-        Assert.isTrue(parserBase.errors.size == 0, "There shouldn't be any error!")
+        errorAssert(parserBase.errors)
     }
 
     @Test
     fun `header with incorrect style validated properly`() {
-        val parserBase = base.createParser(directory, "wrongHeaderStyle.docx")
+        val parserBase = createParser("wrong header style.docx")
         parserBase.parsers += object : ChapterParser(parserBase, Chapter(0, parserBase.mainDocumentPart.content)) {
             override fun parse() {
                 val headerPPr = resolver.getEffectivePPr((chapter[0] as P).pPr)
@@ -100,13 +92,15 @@ internal class HeaderTests {
             }
         }
         parserBase.parsers[0].parse()
-        Assert.isTrue(parserBase.errors.size == 7, "There should be 7 errors!")
-        Assert.state(parserBase.errors[0].errorType == ErrorType.TEXT_HEADER_ALIGNMENT, "Wrong error!")
-        Assert.state(parserBase.errors[1].errorType == ErrorType.TEXT_HEADER_LINE_SPACING, "Wrong error!")
-        Assert.state(parserBase.errors[2].errorType == ErrorType.TEXT_HEADER_NOT_BOLD, "Wrong error!")
-        Assert.state(parserBase.errors[3].errorType == ErrorType.TEXT_HEADER_NOT_UPPERCASE, "Wrong error!")
-        Assert.state(parserBase.errors[4].errorType == ErrorType.TEXT_COMMON_FONT, "Wrong error!")
-        Assert.state(parserBase.errors[5].errorType == ErrorType.TEXT_COMMON_INCORRECT_FONT_SIZE, "Wrong error!")
-        Assert.state(parserBase.errors[6].errorType == ErrorType.TEXT_COMMON_TEXT_COLOR, "Wrong error!")
+        errorAssert(
+            parserBase.errors,
+            ErrorType.TEXT_HEADER_ALIGNMENT,
+            ErrorType.TEXT_HEADER_LINE_SPACING,
+            ErrorType.TEXT_HEADER_NOT_BOLD,
+            ErrorType.TEXT_HEADER_NOT_UPPERCASE,
+            ErrorType.TEXT_COMMON_FONT,
+            ErrorType.TEXT_COMMON_INCORRECT_FONT_SIZE,
+            ErrorType.TEXT_COMMON_TEXT_COLOR
+        )
     }
 }

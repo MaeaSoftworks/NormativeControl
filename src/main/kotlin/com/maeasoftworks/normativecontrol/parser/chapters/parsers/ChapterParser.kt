@@ -4,7 +4,6 @@ import com.maeasoftworks.normativecontrol.entities.DocumentError
 import com.maeasoftworks.normativecontrol.parser.Document
 import com.maeasoftworks.normativecontrol.parser.DocumentParser
 import com.maeasoftworks.normativecontrol.parser.chapters.Chapter
-import com.maeasoftworks.normativecontrol.parser.chapters.HeadersKeywords
 import org.docx4j.TextUtils
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
 import org.docx4j.wml.P
@@ -14,10 +13,9 @@ import org.docx4j.wml.RPr
 
 abstract class ChapterParser(
     override val document: Document,
-    override val keywords: HeadersKeywords,
     protected val chapter: Chapter
-) : DocumentParser(document, keywords) {
-    constructor(parser: DocumentParser, chapter: Chapter) : this(parser.document, parser.keywords, chapter) {
+) : DocumentParser(document) {
+    constructor(parser: DocumentParser, chapter: Chapter) : this(parser.document, chapter) {
         mlPackage = parser.mlPackage
         mainDocumentPart = parser.mainDocumentPart
         resolver = parser.resolver

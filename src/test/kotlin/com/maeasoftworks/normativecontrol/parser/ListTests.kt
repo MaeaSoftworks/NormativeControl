@@ -3,19 +3,13 @@ package com.maeasoftworks.normativecontrol.parser
 import com.maeasoftworks.normativecontrol.parser.chapters.Chapter
 import com.maeasoftworks.normativecontrol.parser.chapters.parsers.ChapterParser
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.util.Assert
 
-@SpringBootTest
-class ListTests {
-    @Autowired
-    lateinit var base: TestBase
-    private val directory: String = "list"
+class ListTests : ParserTestFactory(ListTests::class) {
 
     @Test
     fun `list borders found properly`() {
-        val parser = base.createParser(directory, "list size.docx")
+        val parser = createParser("list size.docx")
         val mock: ChapterParser = object : ChapterParser(parser, Chapter(0)) {
             override fun parse() {}
         }

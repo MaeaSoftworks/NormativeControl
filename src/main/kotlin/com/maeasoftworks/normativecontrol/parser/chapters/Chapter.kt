@@ -4,9 +4,11 @@ import com.maeasoftworks.normativecontrol.parser.enums.ChapterType
 import org.docx4j.wml.P
 
 class Chapter(var startPos: Int) : Iterable<Any> {
-    var type: ChapterType? = null
+    lateinit var type: ChapterType
     var header: P? = null
     val content: MutableList<Any> = ArrayList()
+    val isChapterDetected: Boolean
+        get() = ::type.isInitialized
 
     constructor(startPos: Int, content: MutableList<Any>) : this(startPos) {
         this.content.addAll(content)
@@ -16,11 +18,7 @@ class Chapter(var startPos: Int) : Iterable<Any> {
         content.add(item)
     }
 
-    override fun iterator(): Iterator<Any> {
-        return content.iterator()
-    }
+    override fun iterator(): Iterator<Any> = content.iterator()
 
-    operator fun get(i: Int): Any {
-        return content[i]
-    }
+    operator fun get(i: Int): Any = content[i]
 }

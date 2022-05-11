@@ -14,7 +14,6 @@ import org.springframework.web.multipart.MultipartFile
 @RequestMapping("documents")
 interface DocumentProcessingDocumentation {
 
-
     @PostMapping("queue")
     @Documentation("Prepares slot in queue.")
 
