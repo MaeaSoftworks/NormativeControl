@@ -61,6 +61,6 @@ enum class ErrorType {
     ANNOTATION_MUST_NOT_CONTAINS_MEDIA,
 
     // header only settings
-    HEADER_EMPTY_LINE_AFTER_HEADER_REQUIRED
+    TEXT_HEADER_EMPTY_LINE_AFTER_HEADER_REQUIRED
 }
 //@formatter:on

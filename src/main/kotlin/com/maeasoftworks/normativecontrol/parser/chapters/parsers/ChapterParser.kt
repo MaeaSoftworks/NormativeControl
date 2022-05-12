@@ -32,16 +32,10 @@ abstract class ChapterParser(
         p: Int,
         isEmpty: Boolean,
         mainDocumentPart: MainDocumentPart,
-        pFunctions: Array<(
-            documentId: String,
-            p: Int,
-            isEmpty: Boolean,
-            pPr: PPr,
-            mainDocumentPart: MainDocumentPart
-        ) -> DocumentError?>
+        pFunctionWrappers: Iterable<PFunctionWrapper>
     ) {
-        for (func in pFunctions) {
-            val error = func(document.id, p, isEmpty, pPr, mainDocumentPart)
+        for (wrapper in pFunctionWrappers) {
+            val error = wrapper.function(document.id, p, isEmpty, pPr, mainDocumentPart)
             if (error != null) {
                 errors += error
             }
@@ -54,17 +48,10 @@ abstract class ChapterParser(
         r: Int,
         isEmpty: Boolean,
         mainDocumentPart: MainDocumentPart,
-        functions: Array<(
-            documentId: String,
-            rPr: RPr,
-            p: Int,
-            r: Int,
-            isEmpty: Boolean,
-            mainDocumentPart: MainDocumentPart
-        ) -> DocumentError?>
+        rFunctionWrappers: Iterable<RFunctionWrapper>
     ) {
-        for (func in functions) {
-            val error = func(document.id, rPr, p, r, isEmpty, mainDocumentPart)
+        for (wrapper in rFunctionWrappers) {
+            val error = wrapper.function(document.id, rPr, p, r, isEmpty, mainDocumentPart)
             if (error != null) {
                 errors += error
             }
@@ -75,59 +62,23 @@ abstract class ChapterParser(
         p: Int,
         pPr: PPr,
         mainDocumentPart: MainDocumentPart,
-        pFunctions: Array<(
-            documentId: String,
-            p: Int,
-            isEmpty: Boolean,
-            pPr: PPr,
-            mainDocumentPart: MainDocumentPart
-        ) -> DocumentError?>,
-        rFunctions: Array<(
-            documentId: String,
-            rPr: RPr,
-            p: Int,
-            r: Int,
-            isEmpty: Boolean,
-            mainDocumentPart: MainDocumentPart
-        ) -> DocumentError?>,
-        commonPErrorFinderLauncher: (
-            pPr: PPr,
-            p: Int,
-            isEmpty: Boolean,
-            mainDocumentPart: MainDocumentPart,
-            Array<(
-                documentId: String,
-                p: Int,
-                isEmpty: Boolean,
-                pPr: PPr,
-                mainDocumentPart: MainDocumentPart
-            ) -> DocumentError?>
-        ) -> Unit = this::launchBasePErrorFinder,
-        commonRErrorFinderLauncher: (
-            rPr: RPr,
-            p: Int,
-            r: Int,
-            isEmpty: Boolean,
-            mainDocumentPart: MainDocumentPart,
-            Array<(
-                documentId: String,
-                rPr: RPr,
-                p: Int,
-                r: Int,
-                isEmpty: Boolean,
-                mainDocumentPart: MainDocumentPart
-            ) -> DocumentError?>
-        ) -> Unit = this::launchBaseRErrorFinder
+        pFunctionWrappers: Iterable<PFunctionWrapper>,
+        rFunctionWrappers: Iterable<RFunctionWrapper>,
+        commonPErrorFinderLauncher: (PPr, Int, Boolean, MainDocumentPart, Iterable<PFunctionWrapper>) -> Unit = this::launchBasePErrorFinder,
+        commonRErrorFinderLauncher: (RPr, Int, Int, Boolean, MainDocumentPart, Iterable<RFunctionWrapper>) -> Unit = this::launchBaseRErrorFinder,
+        //customRTypeHandler: (Int, Int, MainDocumentPart) -> Unit
     ) {
         val paragraph = mainDocumentPart.content[p] as P
         val text = TextUtils.getText(p)
         val isEmpty = text?.isEmpty() ?: false
-        commonPErrorFinderLauncher(pPr, p, isEmpty, mainDocumentPart, pFunctions)
-        for (run in 0 until paragraph.content.size) {
-            if (paragraph.content[run] is R) {
-                val rPr = resolver.getEffectiveRPr((paragraph.content[run] as R).rPr, paragraph.pPr)
-                commonRErrorFinderLauncher(rPr, p, run, isEmpty, mainDocumentPart, rFunctions)
-            }
+        commonPErrorFinderLauncher(pPr, p, isEmpty, mainDocumentPart, pFunctionWrappers)
+        for (r in 0 until paragraph.content.size) {
+            if (paragraph.content[r] is R) {
+                val rPr = resolver.getEffectiveRPr((paragraph.content[r] as R).rPr, paragraph.pPr)
+                commonRErrorFinderLauncher(rPr, p, r, isEmpty, mainDocumentPart, rFunctionWrappers)
+            } /*else {
+                customRTypeHandler(p, r, mainDocumentPart)
+            }*/
         }
     }
 
@@ -141,5 +92,13 @@ abstract class ChapterParser(
             list += mainDocumentPart.content[end] as P
             end++
         }
+    }
+
+    companion object {
+        fun createRRulesCollection(vararg rules: (String, RPr, Int, Int, Boolean, MainDocumentPart) -> DocumentError?): Iterable<RFunctionWrapper> =
+            rules.map { RFunctionWrapper(it) }
+
+        fun createPRulesCollection(vararg rules: (String, Int, Boolean, PPr, MainDocumentPart) -> DocumentError?): Iterable<PFunctionWrapper> =
+            rules.map { PFunctionWrapper(it) }
     }
 }

@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test
 import org.springframework.util.Assert
 
 class GeneralTests : ParserTestFactory(GeneralTests::class) {
-
     @Test
     fun `annotation validated properly`() {
         val parser = createParser("full test 1.docx")

@@ -26,7 +26,8 @@ class DocumentProcessingController(private val documentManager: DocumentManager)
     override fun getState(
         @RequestParam("documentId") documentId: String,
         @RequestParam("accessKey") accessKey: String
-    ): Map<String, State> = mapOf("state" to validate(documentId, accessKey) { documentManager.getState(documentId, accessKey) })
+    ): Map<String, State> =
+        mapOf("state" to validate(documentId, accessKey) { documentManager.getState(documentId, accessKey) })
 
     @PostMapping("upload")
     @ResponseStatus(HttpStatus.ACCEPTED)
@@ -59,12 +60,16 @@ class DocumentProcessingController(private val documentManager: DocumentManager)
 
     @GetMapping("file")
     override fun getFile(
-        @RequestParam(value = "documentId") documentId: String,
-        @RequestParam("accessKey") accessKey: String
-    ): ByteArrayResource? = validate(
-        documentId,
-        accessKey
-    ) { documentManager.getFile(documentId) }.let { if (it == null) null else ByteArrayResource(it) }
+        @RequestParam(value = "data") data: String
+    ): ByteArrayResource? {
+        val dataArray = data.split('_')
+        val documentId = dataArray[0]
+        val accessKey = dataArray[1]
+        return validate(
+            documentId,
+            accessKey
+        ) { documentManager.getFile(documentId) }.let { if (it == null) null else ByteArrayResource(it) }
+    }
 
     @GetMapping("drop-database")
     @ResponseStatus(HttpStatus.OK)

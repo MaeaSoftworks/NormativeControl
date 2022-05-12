@@ -1,8 +1,11 @@
 # Normative Control
+
 ![Normative Control logo](src/main/resources/static/logo.svg)
+
 ## REST API application for UrFU Normative Control service
 
 ### Links
+
 [REST API documentation](https://normative-control-api.herokuapp.com/docs)
 
 [Web](https://normative-control.herokuapp.com/)

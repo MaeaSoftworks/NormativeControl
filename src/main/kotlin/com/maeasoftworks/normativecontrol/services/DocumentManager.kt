@@ -68,14 +68,10 @@ class DocumentManager(
     }
 
     @Transactional
-    fun getErrors(id: String): List<DocumentError> {
-        return errorRepository.findAllByDocumentId(id)
-    }
+    fun getErrors(id: String) = errorRepository.findAllByDocumentId(id)
 
     @Transactional
-    fun getFile(id: String): ByteArray? {
-        return fileRepository.findByDocumentId(id)?.bytes?.toList()?.toByteArray()
-    }
+    fun getFile(id: String)= fileRepository.findByDocumentId(id)?.bytes?.toList()?.toByteArray()
 
     @Transactional
     fun dropDatabase() {

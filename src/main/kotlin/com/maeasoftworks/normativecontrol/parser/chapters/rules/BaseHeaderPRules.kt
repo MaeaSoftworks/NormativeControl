@@ -68,7 +68,7 @@ object BaseHeaderPRules {
             DocumentError(
                 documentId,
                 p + 1,
-                HEADER_EMPTY_LINE_AFTER_HEADER_REQUIRED
+                TEXT_HEADER_EMPTY_LINE_AFTER_HEADER_REQUIRED
             )
         } else null
     }

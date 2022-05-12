@@ -6,7 +6,8 @@ object HeadersKeywords {
     val contents = listOf("СОДЕРЖАНИЕ", "ОГЛАВЛЕНИЕ")
     val introduction = listOf("ВВЕДЕНИЕ")
     val conclusion = listOf("ЗАКЛЮЧЕНИЕ")
-    val references = listOf("БИБЛИОГРАФИЧЕСКИЙ СПИСОК", "СПИСОК ИСПОЛЬЗОВАННОЙ ЛИТЕРАТУРЫ", "СПИСОК ЛИТЕРАТУРЫ", "СПИСОК ИСТОЧНИКОВ")
+    val references =
+        listOf("БИБЛИОГРАФИЧЕСКИЙ СПИСОК", "СПИСОК ИСПОЛЬЗОВАННОЙ ЛИТЕРАТУРЫ", "СПИСОК ЛИТЕРАТУРЫ", "СПИСОК ИСТОЧНИКОВ")
     val appendix = listOf("ПРИЛОЖЕНИЕ", "ПРИЛОЖЕНИЯ")
 
     init {

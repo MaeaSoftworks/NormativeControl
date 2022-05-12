@@ -4,7 +4,6 @@ import com.maeasoftworks.normativecontrol.parser.chapters.Chapter
 import com.maeasoftworks.normativecontrol.parser.chapters.parsers.SimpleParser
 import com.maeasoftworks.normativecontrol.parser.enums.ErrorType
 import org.junit.jupiter.api.Test
-import org.springframework.util.Assert
 
 class StyleTests : ParserTestFactory(StyleTests::class) {
     @Test
@@ -18,7 +17,8 @@ class StyleTests : ParserTestFactory(StyleTests::class) {
     fun `incorrect page margin validated properly`() {
         val parser = createParser("incorrect margin.docx")
         parser.verifyPageMargins()
-        errorAssert(parser.errors,
+        errorAssert(
+            parser.errors,
             ErrorType.PAGE_MARGIN_TOP_IS_INCORRECT,
             ErrorType.PAGE_MARGIN_RIGHT_IS_INCORRECT,
             ErrorType.PAGE_MARGIN_BOTTOM_IS_INCORRECT,

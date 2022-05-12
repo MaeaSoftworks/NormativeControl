@@ -5,7 +5,7 @@ import com.maeasoftworks.normativecontrol.parser.enums.ErrorType
 import org.docx4j.openpackaging.exceptions.Docx4JException
 import java.io.FileInputStream
 import java.io.IOException
-import kotlin.reflect.*
+import kotlin.reflect.KClass
 
 open class ParserTestFactory(testClass: KClass<*>) {
     private val directory: String

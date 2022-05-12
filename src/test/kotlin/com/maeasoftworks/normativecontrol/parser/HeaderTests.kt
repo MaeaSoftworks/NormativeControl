@@ -19,26 +19,26 @@ internal class HeaderTests : ParserTestFactory(HeaderTests::class) {
                 val headerPPr = resolver.getEffectivePPr((chapter[0] as P).pPr)
                 findBasePRErrors(
                     chapter.startPos, headerPPr, mainDocumentPart,
-                    arrayOf(
+                    createPRulesCollection(
                         BaseHeaderPRules::headerPJustifyCheck,
                         BaseHeaderPRules::headerPLineSpacingCheck,
                         BaseHeaderPRules::headerEmptyLineAfterHeaderExist,
                         BaseHeaderPRules::headerPNotEndsWithDotCheck
                     ),
-                    arrayOf(
+                    createRRulesCollection(
                         BaseHeaderRRules::headerRBoldCheck,
                         BaseHeaderRRules::headerRUppercaseCheck
                     )
                 )
                 findBasePRErrors(
                     chapter.startPos, headerPPr, mainDocumentPart,
-                    arrayOf(
+                    createPRulesCollection(
                         BaseCommonPRules::commonPBackgroundCheck,
                         BaseCommonPRules::commonPBorderCheck,
                         BaseCommonPRules::commonPTextAlignCheck,
                         BaseCommonPRules::commonPTextAlignCheck
                     ),
-                    arrayOf(
+                    createRRulesCollection(
                         BaseCommonRRules::commonRFontCheck,
                         BaseCommonRRules::commonRFontSizeCheck,
                         BaseCommonRRules::commonRItalicCheck,
@@ -61,26 +61,26 @@ internal class HeaderTests : ParserTestFactory(HeaderTests::class) {
                 val headerPPr = resolver.getEffectivePPr((chapter[0] as P).pPr)
                 findBasePRErrors(
                     chapter.startPos, headerPPr, mainDocumentPart,
-                    arrayOf(
+                    createPRulesCollection(
                         BaseHeaderPRules::headerPJustifyCheck,
                         BaseHeaderPRules::headerPLineSpacingCheck,
                         BaseHeaderPRules::headerEmptyLineAfterHeaderExist,
                         BaseHeaderPRules::headerPNotEndsWithDotCheck
                     ),
-                    arrayOf(
+                    createRRulesCollection(
                         BaseHeaderRRules::headerRBoldCheck,
                         BaseHeaderRRules::headerRUppercaseCheck
                     )
                 )
                 findBasePRErrors(
                     chapter.startPos, headerPPr, mainDocumentPart,
-                    arrayOf(
+                    createPRulesCollection(
                         BaseCommonPRules::commonPBackgroundCheck,
                         BaseCommonPRules::commonPBorderCheck,
                         BaseCommonPRules::commonPTextAlignCheck,
                         BaseCommonPRules::commonPTextAlignCheck
                     ),
-                    arrayOf(
+                    createRRulesCollection(
                         BaseCommonRRules::commonRFontCheck,
                         BaseCommonRRules::commonRFontSizeCheck,
                         BaseCommonRRules::commonRItalicCheck,
