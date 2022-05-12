@@ -9,9 +9,9 @@ object BaseRegularRRules {
 
     fun regularRBoldCheck(
         documentId: String,
-        rPr: RPr,
         p: Int,
         r: Int,
+        rPr: RPr,
         isEmpty: Boolean,
         mainDocumentPart: MainDocumentPart
     ): DocumentError? {
@@ -27,9 +27,9 @@ object BaseRegularRRules {
 
     fun regularRCapsCheck(
         documentId: String,
-        rPr: RPr,
         p: Int,
         r: Int,
+        rPr: RPr,
         isEmpty: Boolean,
         mainDocumentPart: MainDocumentPart
     ): DocumentError? {
@@ -45,9 +45,9 @@ object BaseRegularRRules {
 
     fun regularRUnderlineCheck(
         documentId: String,
-        rPr: RPr,
         p: Int,
         r: Int,
+        rPr: RPr,
         isEmpty: Boolean,
         mainDocumentPart: MainDocumentPart
     ): DocumentError? {
@@ -63,9 +63,9 @@ object BaseRegularRRules {
 
     fun regularRSpacingCheck(
         documentId: String,
-        rPr: RPr,
         p: Int,
         r: Int,
+        rPr: RPr,
         isEmpty: Boolean,
         mainDocumentPart: MainDocumentPart
     ): DocumentError? {

@@ -9,8 +9,8 @@ object BaseCommonPRules {
     fun commonPTextAlignCheck(
         documentId: String,
         p: Int,
-        isEmpty: Boolean,
         pPr: PPr,
+        isEmpty: Boolean,
         mainDocumentPart: MainDocumentPart
     ): DocumentError? {
         return if (pPr.textAlignment != null && pPr.textAlignment.`val` != "left") {
@@ -26,8 +26,8 @@ object BaseCommonPRules {
     fun commonPBorderCheck(
         documentId: String,
         p: Int,
-        isEmpty: Boolean,
         pPr: PPr,
+        isEmpty: Boolean,
         mainDocumentPart: MainDocumentPart
     ): DocumentError? {
         return if (pPr.pBdr != null) {
@@ -38,8 +38,8 @@ object BaseCommonPRules {
     fun commonPBackgroundCheck(
         documentId: String,
         p: Int,
-        isEmpty: Boolean,
         pPr: PPr,
+        isEmpty: Boolean,
         mainDocumentPart: MainDocumentPart
     ): DocumentError? {
         return if (pPr.shd != null && pPr.shd.fill != null && pPr.shd.fill != "FFFFFF") {

@@ -8,9 +8,9 @@ import org.docx4j.wml.RPr
 object BaseCommonRRules {
     fun commonRFontCheck(
         documentId: String,
-        rPr: RPr,
         p: Int,
         r: Int,
+        rPr: RPr,
         isEmpty: Boolean,
         mainDocumentPart: MainDocumentPart
     ): DocumentError? {
@@ -21,9 +21,9 @@ object BaseCommonRRules {
 
     fun commonRFontSizeCheck(
         documentId: String,
-        rPr: RPr,
         p: Int,
         r: Int,
+        rPr: RPr,
         isEmpty: Boolean,
         mainDocumentPart: MainDocumentPart
     ): DocumentError? {
@@ -39,9 +39,9 @@ object BaseCommonRRules {
 
     fun commonRItalicCheck(
         documentId: String,
-        rPr: RPr,
         p: Int,
         r: Int,
+        rPr: RPr,
         isEmpty: Boolean,
         mainDocumentPart: MainDocumentPart
     ): DocumentError? {
@@ -57,9 +57,9 @@ object BaseCommonRRules {
 
     fun commonRStrikeCheck(
         documentId: String,
-        rPr: RPr,
         p: Int,
         r: Int,
+        rPr: RPr,
         isEmpty: Boolean,
         mainDocumentPart: MainDocumentPart
     ): DocumentError? {
@@ -75,9 +75,9 @@ object BaseCommonRRules {
 
     fun commonRHighlightCheck(
         documentId: String,
-        rPr: RPr,
         p: Int,
         r: Int,
+        rPr: RPr,
         isEmpty: Boolean,
         mainDocumentPart: MainDocumentPart
     ): DocumentError? {
@@ -93,13 +93,13 @@ object BaseCommonRRules {
 
     fun commonRColorCheck(
         documentId: String,
-        rPr: RPr,
         p: Int,
         r: Int,
+        rPr: RPr,
         isEmpty: Boolean,
         mainDocumentPart: MainDocumentPart
     ): DocumentError? {
-        return if (rPr.color != null && rPr.color.`val` != "FFFFFF" && rPr.color.`val` != "auto") {
+        return if (rPr.color != null && rPr.color.`val` != "000000" && rPr.color.`val` != "auto") {
             DocumentError(
                 documentId,
                 p,

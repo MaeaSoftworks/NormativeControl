@@ -1,106 +1,34 @@
 package com.maeasoftworks.normativecontrol.parser
 
 import com.maeasoftworks.normativecontrol.parser.chapters.Chapter
-import com.maeasoftworks.normativecontrol.parser.chapters.parsers.ChapterParser
-import com.maeasoftworks.normativecontrol.parser.chapters.rules.BaseCommonPRules
-import com.maeasoftworks.normativecontrol.parser.chapters.rules.BaseCommonRRules
-import com.maeasoftworks.normativecontrol.parser.chapters.rules.BaseHeaderPRules
-import com.maeasoftworks.normativecontrol.parser.chapters.rules.BaseHeaderRRules
-import com.maeasoftworks.normativecontrol.parser.enums.ErrorType
-import org.docx4j.wml.P
+import com.maeasoftworks.normativecontrol.parser.chapters.parsers.SimpleParser
+import com.maeasoftworks.normativecontrol.parser.enums.ErrorType.*
 import org.junit.jupiter.api.Test
 
-internal class HeaderTests : ParserTestFactory(HeaderTests::class) {
+class HeaderTests : ParserTestFactory(HeaderTests::class) {
     @Test
     fun `header with correct style validated properly`() {
         val parserBase = createParser("correct header style.docx")
-        parserBase.parsers += object : ChapterParser(parserBase, Chapter(0, parserBase.mainDocumentPart.content)) {
-            override fun parse() {
-                val headerPPr = resolver.getEffectivePPr((chapter[0] as P).pPr)
-                findBasePRErrors(
-                    chapter.startPos, headerPPr, mainDocumentPart,
-                    createPRulesCollection(
-                        BaseHeaderPRules::headerPJustifyCheck,
-                        BaseHeaderPRules::headerPLineSpacingCheck,
-                        BaseHeaderPRules::headerEmptyLineAfterHeaderExist,
-                        BaseHeaderPRules::headerPNotEndsWithDotCheck
-                    ),
-                    createRRulesCollection(
-                        BaseHeaderRRules::headerRBoldCheck,
-                        BaseHeaderRRules::headerRUppercaseCheck
-                    )
-                )
-                findBasePRErrors(
-                    chapter.startPos, headerPPr, mainDocumentPart,
-                    createPRulesCollection(
-                        BaseCommonPRules::commonPBackgroundCheck,
-                        BaseCommonPRules::commonPBorderCheck,
-                        BaseCommonPRules::commonPTextAlignCheck,
-                        BaseCommonPRules::commonPTextAlignCheck
-                    ),
-                    createRRulesCollection(
-                        BaseCommonRRules::commonRFontCheck,
-                        BaseCommonRRules::commonRFontSizeCheck,
-                        BaseCommonRRules::commonRItalicCheck,
-                        BaseCommonRRules::commonRStrikeCheck,
-                        BaseCommonRRules::commonRHighlightCheck,
-                        BaseCommonRRules::commonRColorCheck
-                    )
-                )
-            }
-        }
+        parserBase.parsers += SimpleParser(parserBase, Chapter(0, parserBase.mainDocumentPart.content))
         parserBase.parsers[0].parse()
-        errorAssert(parserBase.errors)
+        errorAssert(parserBase.errors, WORD_SPELL_ERROR)
     }
 
     @Test
     fun `header with incorrect style validated properly`() {
         val parserBase = createParser("wrong header style.docx")
-        parserBase.parsers += object : ChapterParser(parserBase, Chapter(0, parserBase.mainDocumentPart.content)) {
-            override fun parse() {
-                val headerPPr = resolver.getEffectivePPr((chapter[0] as P).pPr)
-                findBasePRErrors(
-                    chapter.startPos, headerPPr, mainDocumentPart,
-                    createPRulesCollection(
-                        BaseHeaderPRules::headerPJustifyCheck,
-                        BaseHeaderPRules::headerPLineSpacingCheck,
-                        BaseHeaderPRules::headerEmptyLineAfterHeaderExist,
-                        BaseHeaderPRules::headerPNotEndsWithDotCheck
-                    ),
-                    createRRulesCollection(
-                        BaseHeaderRRules::headerRBoldCheck,
-                        BaseHeaderRRules::headerRUppercaseCheck
-                    )
-                )
-                findBasePRErrors(
-                    chapter.startPos, headerPPr, mainDocumentPart,
-                    createPRulesCollection(
-                        BaseCommonPRules::commonPBackgroundCheck,
-                        BaseCommonPRules::commonPBorderCheck,
-                        BaseCommonPRules::commonPTextAlignCheck,
-                        BaseCommonPRules::commonPTextAlignCheck
-                    ),
-                    createRRulesCollection(
-                        BaseCommonRRules::commonRFontCheck,
-                        BaseCommonRRules::commonRFontSizeCheck,
-                        BaseCommonRRules::commonRItalicCheck,
-                        BaseCommonRRules::commonRStrikeCheck,
-                        BaseCommonRRules::commonRHighlightCheck,
-                        BaseCommonRRules::commonRColorCheck
-                    )
-                )
-            }
-        }
+        parserBase.parsers += SimpleParser(parserBase, Chapter(0, parserBase.mainDocumentPart.content))
         parserBase.parsers[0].parse()
         errorAssert(
             parserBase.errors,
-            ErrorType.TEXT_HEADER_ALIGNMENT,
-            ErrorType.TEXT_HEADER_LINE_SPACING,
-            ErrorType.TEXT_HEADER_NOT_BOLD,
-            ErrorType.TEXT_HEADER_NOT_UPPERCASE,
-            ErrorType.TEXT_COMMON_FONT,
-            ErrorType.TEXT_COMMON_INCORRECT_FONT_SIZE,
-            ErrorType.TEXT_COMMON_TEXT_COLOR
+            TEXT_HEADER_ALIGNMENT,
+            TEXT_HEADER_LINE_SPACING,
+            TEXT_HEADER_NOT_BOLD,
+            TEXT_HEADER_NOT_UPPERCASE,
+            TEXT_COMMON_FONT,
+            TEXT_COMMON_INCORRECT_FONT_SIZE,
+            TEXT_COMMON_TEXT_COLOR,
+            WORD_SPELL_ERROR
         )
     }
 }

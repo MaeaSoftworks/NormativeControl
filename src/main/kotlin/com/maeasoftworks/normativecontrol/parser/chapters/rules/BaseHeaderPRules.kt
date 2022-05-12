@@ -12,8 +12,8 @@ object BaseHeaderPRules {
     fun headerPJustifyCheck(
         documentId: String,
         p: Int,
-        isEmpty: Boolean,
         pPr: PPr,
+        isEmpty: Boolean,
         mainDocumentPart: MainDocumentPart
     ): DocumentError? {
         return if (pPr.jc == null || pPr.jc.`val` != JcEnumeration.CENTER) {
@@ -29,8 +29,8 @@ object BaseHeaderPRules {
     fun headerPLineSpacingCheck(
         documentId: String,
         p: Int,
-        isEmpty: Boolean,
         pPr: PPr,
+        isEmpty: Boolean,
         mainDocumentPart: MainDocumentPart
     ): DocumentError? {
         return if (pPr.spacing != null && pPr.spacing.line != null && pPr.spacing.line.intValueExact() != 240) {
@@ -41,8 +41,8 @@ object BaseHeaderPRules {
     fun headerPNotEndsWithDotCheck(
         documentId: String,
         p: Int,
-        isEmpty: Boolean,
         pPr: PPr,
+        isEmpty: Boolean,
         mainDocumentPart: MainDocumentPart
     ): DocumentError? {
         val text = TextUtils.getText(mainDocumentPart.content[p] as P)
@@ -54,8 +54,8 @@ object BaseHeaderPRules {
     fun headerEmptyLineAfterHeaderExist(
         documentId: String,
         p: Int,
-        isEmpty: Boolean,
         pPr: PPr,
+        isEmpty: Boolean,
         mainDocumentPart: MainDocumentPart
     ): DocumentError? {
         return if (mainDocumentPart.content.size <= p + 1) {

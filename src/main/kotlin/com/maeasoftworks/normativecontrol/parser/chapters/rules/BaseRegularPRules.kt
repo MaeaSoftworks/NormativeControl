@@ -12,8 +12,8 @@ object BaseRegularPRules {
     fun regularPJustifyCheck(
         documentId: String,
         p: Int,
-        isEmpty: Boolean,
         pPr: PPr,
+        isEmpty: Boolean,
         mainDocumentPart: MainDocumentPart
     ): DocumentError? {
         return if (pPr.jc == null || pPr.jc.`val` != JcEnumeration.BOTH) {
@@ -29,8 +29,8 @@ object BaseRegularPRules {
     fun regularPLineSpacingCheck(
         documentId: String,
         p: Int,
-        isEmpty: Boolean,
         pPr: PPr,
+        isEmpty: Boolean,
         mainDocumentPart: MainDocumentPart
     ): DocumentError? {
         return if (pPr.spacing != null && pPr.spacing.line != null) {
@@ -48,8 +48,8 @@ object BaseRegularPRules {
     fun regularPFirstLineIndentCheck(
         documentId: String,
         p: Int,
-        isEmpty: Boolean,
         pPr: PPr,
+        isEmpty: Boolean,
         mainDocumentPart: MainDocumentPart
     ): DocumentError? {
         return if (pPr.ind != null && abs(floor(pPr.ind.firstLine.intValueExact() / 1440 * 2.54) - 1.25) <= 0.01) {
@@ -65,8 +65,8 @@ object BaseRegularPRules {
     fun regularPLeftIndentCheck(
         documentId: String,
         p: Int,
-        isEmpty: Boolean,
         pPr: PPr,
+        isEmpty: Boolean,
         mainDocumentPart: MainDocumentPart
     ): DocumentError? {
         return if (pPr.ind != null && pPr.ind.left != null) {
@@ -82,8 +82,8 @@ object BaseRegularPRules {
     fun regularPRightIndentCheck(
         documentId: String,
         p: Int,
-        isEmpty: Boolean,
         pPr: PPr,
+        isEmpty: Boolean,
         mainDocumentPart: MainDocumentPart
     ): DocumentError? {
         return if (pPr.ind != null && pPr.ind.right != null) {

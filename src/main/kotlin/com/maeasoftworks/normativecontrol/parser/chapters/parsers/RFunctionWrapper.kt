@@ -6,4 +6,4 @@ import org.docx4j.wml.RPr
 
 //documentId: String, rPr: RPr, p: Int, r: Int, isEmpty: Boolean, mainDocumentPart: MainDocumentPart
 //(String, RPr, Int, Int, Boolean, MainDocumentPart) -> DocumentError?
-class RFunctionWrapper(val function: (String, RPr, Int, Int, Boolean, MainDocumentPart) -> DocumentError?)
+class RFunctionWrapper(val function: (String, Int, Int, RPr, Boolean, MainDocumentPart) -> DocumentError?)

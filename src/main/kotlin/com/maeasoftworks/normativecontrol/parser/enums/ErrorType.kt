@@ -17,6 +17,10 @@ enum class ErrorType {
     CHAPTER_UNDEFINED_CHAPTER,
     CHAPTER_EMPTY,
 
+    // word errors
+    WORD_GRAMMATICAL_ERROR,
+    WORD_SPELL_ERROR,
+
 //============================================================================================================//
 //                      /*|*/         not found               /*|*/                mismatch                   //
 //======================/*|*/=================================/*|*/===========================================//
@@ -61,6 +65,7 @@ enum class ErrorType {
     ANNOTATION_MUST_NOT_CONTAINS_MEDIA,
 
     // header only settings
-    TEXT_HEADER_EMPTY_LINE_AFTER_HEADER_REQUIRED
+    TEXT_HEADER_EMPTY_LINE_AFTER_HEADER_REQUIRED,
+    TEXT_HYPERLINKS_NOT_ALLOWED_HERE
 }
 //@formatter:on

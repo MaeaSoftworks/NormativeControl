@@ -5,15 +5,16 @@ import com.maeasoftworks.normativecontrol.parser.enums.ErrorType.*
 import org.docx4j.TextUtils
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
 import org.docx4j.wml.P
+import org.docx4j.wml.PPr
 import org.docx4j.wml.R
 import org.docx4j.wml.RPr
 
 object BaseHeaderRRules {
     fun headerRUppercaseCheck(
         documentId: String,
-        rPr: RPr,
         p: Int,
         r: Int,
+        rPr: RPr,
         isEmpty: Boolean,
         mainDocumentPart: MainDocumentPart
     ): DocumentError? {
@@ -30,9 +31,9 @@ object BaseHeaderRRules {
 
     fun headerRBoldCheck(
         documentId: String,
-        rPr: RPr,
         p: Int,
         r: Int,
+        rPr: RPr,
         isEmpty: Boolean,
         mainDocumentPart: MainDocumentPart
     ): DocumentError? {
