@@ -58,6 +58,7 @@ open class DocumentParser(
         findChapters()
         detectChapters()
         verifyChapters()
+        verifyBody()
     }
 
     fun verifyPageSize() {
@@ -103,6 +104,9 @@ open class DocumentParser(
             }
             chapters[sectorId].add(paragraphs[paragraph])
             paragraph++
+        }
+        if (chapters[0].header == null && chapters[0].content.size == 0) {
+            chapters.removeAt(0)
         }
     }
 
@@ -237,6 +241,15 @@ open class DocumentParser(
             CHAPTER_APPENDIX_NOT_FOUND,
             CHAPTER_APPENDIX_POSITION_MISMATCH
         )
+    }
+
+    fun verifyBody() {
+        var i = 0
+        chapters.filter { it.type == ChapterType.BODY }.forEach {
+            if (!TextUtils.getText(it.header).startsWith((++i).toString())) {
+                errors += DocumentError(document.id, chapters.indexOf(it).toLong(), CHAPTER_BODY_DISORDER)
+            }
+        }
     }
 
     private fun isHeader(paragraph: Int, level: Int): Boolean {

@@ -1,4 +1,4 @@
-package com.maeasoftworks.normativecontrol.parser.chapters.rules
+package com.maeasoftworks.normativecontrol.parser.chapters.rules.base
 
 import com.maeasoftworks.normativecontrol.entities.DocumentError
 import com.maeasoftworks.normativecontrol.parser.enums.ErrorType

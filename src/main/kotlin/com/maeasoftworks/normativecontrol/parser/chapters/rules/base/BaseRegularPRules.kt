@@ -1,7 +1,8 @@
-package com.maeasoftworks.normativecontrol.parser.chapters.rules
+package com.maeasoftworks.normativecontrol.parser.chapters.rules.base
 
 import com.maeasoftworks.normativecontrol.entities.DocumentError
 import com.maeasoftworks.normativecontrol.parser.enums.ErrorType
+import org.docx4j.TextUtils
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
 import org.docx4j.wml.JcEnumeration
 import org.docx4j.wml.PPr
@@ -52,7 +53,7 @@ object BaseRegularPRules {
         isEmpty: Boolean,
         mainDocumentPart: MainDocumentPart
     ): DocumentError? {
-        return if (pPr.ind != null && abs(floor(pPr.ind.firstLine.intValueExact() / 1440 * 2.54) - 1.25) <= 0.01) {
+        return if (pPr.ind != null && pPr.ind.firstLine != null && abs(floor(pPr.ind.firstLine.intValueExact() / 1440 * 2.54) - 1.25) <= 0.01) {
             DocumentError(
                 documentId,
                 p,

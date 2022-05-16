@@ -89,5 +89,41 @@ class ChapterTests : ParserTestFactory(ChapterTests::class) {
         errorAssert(parser.errors)
     }
 
+    @Test
+    fun `body headers order detects`() {
+        val parserBase = createParser("header order detected.docx")
+        parserBase.setupChapters()
+        chapterAssert(parserBase.chapters, BODY, BODY, BODY, BODY)
+        errorAssert(
+            parserBase.errors,
+            CHAPTER_FRONT_PAGE_NOT_FOUND,
+            CHAPTER_ANNOTATION_NOT_FOUND,
+            CHAPTER_CONTENTS_NOT_FOUND,
+            CHAPTER_INTRODUCTION_NOT_FOUND,
+            CHAPTER_CONCLUSION_NOT_FOUND,
+            CHAPTER_REFERENCES_NOT_FOUND,
+            CHAPTER_APPENDIX_NOT_FOUND
+        )
+    }
 
+    @Test
+    fun `body headers disorder detects`() {
+        val parserBase = createParser("header disorder detected.docx")
+        parserBase.setupChapters()
+        chapterAssert(parserBase.chapters, BODY, BODY, BODY, BODY)
+        errorAssert(
+            parserBase.errors,
+            CHAPTER_FRONT_PAGE_NOT_FOUND,
+            CHAPTER_ANNOTATION_NOT_FOUND,
+            CHAPTER_CONTENTS_NOT_FOUND,
+            CHAPTER_INTRODUCTION_NOT_FOUND,
+            CHAPTER_CONCLUSION_NOT_FOUND,
+            CHAPTER_REFERENCES_NOT_FOUND,
+            CHAPTER_APPENDIX_NOT_FOUND,
+            CHAPTER_BODY_DISORDER,
+            CHAPTER_BODY_DISORDER,
+            CHAPTER_BODY_DISORDER,
+            CHAPTER_BODY_DISORDER
+        )
+    }
 }

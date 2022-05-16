@@ -3,6 +3,9 @@ package com.maeasoftworks.normativecontrol.parser
 import com.maeasoftworks.normativecontrol.entities.DocumentError
 import com.maeasoftworks.normativecontrol.parser.enums.ErrorType
 import org.docx4j.openpackaging.exceptions.Docx4JException
+import ch.qos.logback.classic.Logger
+import ch.qos.logback.classic.Level
+import org.slf4j.LoggerFactory
 import java.io.FileInputStream
 import java.io.IOException
 import kotlin.reflect.KClass
@@ -11,6 +14,7 @@ open class ParserTestFactory(testClass: KClass<*>) {
     private val directory: String
 
     init {
+        (LoggerFactory.getLogger("org.docx4j") as Logger).level = Level.ERROR
         directory = testClass.simpleName!!.removeSuffix("Tests").lowercase()
     }
 

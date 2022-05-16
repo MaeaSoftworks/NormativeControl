@@ -3,7 +3,7 @@ package com.maeasoftworks.normativecontrol.parser.chapters.parsers
 import com.maeasoftworks.normativecontrol.entities.DocumentError
 import com.maeasoftworks.normativecontrol.parser.DocumentParser
 import com.maeasoftworks.normativecontrol.parser.chapters.Chapter
-import com.maeasoftworks.normativecontrol.parser.chapters.rules.*
+import com.maeasoftworks.normativecontrol.parser.chapters.rules.base.*
 import com.maeasoftworks.normativecontrol.parser.enums.ErrorType
 import org.docx4j.TextUtils
 import org.docx4j.wml.*

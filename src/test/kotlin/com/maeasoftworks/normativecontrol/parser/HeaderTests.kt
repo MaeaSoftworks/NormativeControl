@@ -1,6 +1,7 @@
 package com.maeasoftworks.normativecontrol.parser
 
 import com.maeasoftworks.normativecontrol.parser.chapters.Chapter
+import com.maeasoftworks.normativecontrol.parser.chapters.parsers.BodyParser
 import com.maeasoftworks.normativecontrol.parser.chapters.parsers.SimpleParser
 import com.maeasoftworks.normativecontrol.parser.enums.ErrorType.*
 import org.junit.jupiter.api.Test
@@ -29,6 +30,28 @@ class HeaderTests : ParserTestFactory(HeaderTests::class) {
             TEXT_COMMON_INCORRECT_FONT_SIZE,
             TEXT_COMMON_TEXT_COLOR,
             WORD_SPELL_ERROR
+        )
+    }
+
+    @Test
+    fun `body header style validated properly`() {
+        val parserBase = createParser("wrong body header style.docx")
+        parserBase.parsers += BodyParser(parserBase, Chapter(0, parserBase.mainDocumentPart.content.take(3).toMutableList()))
+        parserBase.parsers[0].parse()
+        errorAssert(
+            parserBase.errors
+        )
+    }
+
+    @Test
+    fun `body invalid header style validated properly`() {
+        val parserBase = createParser("wrong body header style.docx")
+        parserBase.parsers += BodyParser(parserBase, Chapter(3, parserBase.mainDocumentPart.content.drop(3).toMutableList()))
+        parserBase.parsers[0].parse()
+        errorAssert(
+            parserBase.errors,
+            TEXT_HEADER_BODY_ALIGNMENT,
+            TEXT_HEADER_BODY_UPPERCASE
         )
     }
 }
