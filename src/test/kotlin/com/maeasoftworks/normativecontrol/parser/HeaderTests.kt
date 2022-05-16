@@ -36,7 +36,10 @@ class HeaderTests : ParserTestFactory(HeaderTests::class) {
     @Test
     fun `body header style validated properly`() {
         val parserBase = createParser("wrong body header style.docx")
-        parserBase.parsers += BodyParser(parserBase, Chapter(0, parserBase.mainDocumentPart.content.take(3).toMutableList()))
+        parserBase.parsers += BodyParser(
+            parserBase,
+            Chapter(0, parserBase.mainDocumentPart.content.take(3).toMutableList())
+        )
         parserBase.parsers[0].parse()
         errorAssert(
             parserBase.errors
@@ -46,7 +49,10 @@ class HeaderTests : ParserTestFactory(HeaderTests::class) {
     @Test
     fun `body invalid header style validated properly`() {
         val parserBase = createParser("wrong body header style.docx")
-        parserBase.parsers += BodyParser(parserBase, Chapter(3, parserBase.mainDocumentPart.content.drop(3).toMutableList()))
+        parserBase.parsers += BodyParser(
+            parserBase,
+            Chapter(3, parserBase.mainDocumentPart.content.drop(3).toMutableList())
+        )
         parserBase.parsers[0].parse()
         errorAssert(
             parserBase.errors,

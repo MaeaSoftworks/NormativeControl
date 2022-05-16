@@ -4,7 +4,10 @@ import com.maeasoftworks.normativecontrol.entities.DocumentError
 import com.maeasoftworks.normativecontrol.parser.enums.ErrorType
 import org.docx4j.TextUtils
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
-import org.docx4j.wml.*
+import org.docx4j.wml.JcEnumeration
+import org.docx4j.wml.P
+import org.docx4j.wml.PPr
+import org.docx4j.wml.R
 
 object BodyHeaderPRules {
 
@@ -34,14 +37,14 @@ object BodyHeaderPRules {
     ): DocumentError? {
         val paragraph = mainDocumentPart.content[p] as P
         val text = TextUtils.getText(paragraph)
-        return if (text.uppercase() == text || (paragraph.content.all {x ->
+        return if (!isEmpty && (text.uppercase() == text || (paragraph.content.all { x ->
                 if (x is R) {
                     val rPr = mainDocumentPart.propertyResolver.getEffectiveRPr(x.rPr, pPr)
                     rPr.caps != null && rPr.caps.isVal
                 } else {
                     true
                 }
-        })) {
+            }))) {
             DocumentError(
                 documentId,
                 p,

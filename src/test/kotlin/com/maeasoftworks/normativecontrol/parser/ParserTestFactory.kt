@@ -1,10 +1,10 @@
 package com.maeasoftworks.normativecontrol.parser
 
+import ch.qos.logback.classic.Level
+import ch.qos.logback.classic.Logger
 import com.maeasoftworks.normativecontrol.entities.DocumentError
 import com.maeasoftworks.normativecontrol.parser.enums.ErrorType
 import org.docx4j.openpackaging.exceptions.Docx4JException
-import ch.qos.logback.classic.Logger
-import ch.qos.logback.classic.Level
 import org.slf4j.LoggerFactory
 import java.io.FileInputStream
 import java.io.IOException

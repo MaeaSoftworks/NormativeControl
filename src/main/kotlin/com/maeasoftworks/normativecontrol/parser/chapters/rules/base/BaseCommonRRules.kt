@@ -1,6 +1,7 @@
 package com.maeasoftworks.normativecontrol.parser.chapters.rules.base
 
 import com.maeasoftworks.normativecontrol.entities.DocumentError
+import com.maeasoftworks.normativecontrol.parser.enums.ErrorType
 import com.maeasoftworks.normativecontrol.parser.enums.ErrorType.*
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
 import org.docx4j.wml.RPr
@@ -105,6 +106,23 @@ object BaseCommonRRules {
                 p,
                 r,
                 if (isEmpty) TEXT_WHITESPACE_TEXT_COLOR else TEXT_COMMON_TEXT_COLOR
+            )
+        } else null
+    }
+
+    fun regularRSpacingCheck(
+        documentId: String,
+        p: Int,
+        r: Int,
+        rPr: RPr,
+        isEmpty: Boolean,
+        mainDocumentPart: MainDocumentPart
+    ): DocumentError? {
+        return if (rPr.spacing != null && rPr.spacing.`val` != null && rPr.spacing.`val`.intValueExact() != 0) {
+            DocumentError(
+                documentId,
+                p,
+                r, if (isEmpty) TEXT_WHITESPACE_RUN_SPACING else TEXT_COMMON_RUN_SPACING
             )
         } else null
     }

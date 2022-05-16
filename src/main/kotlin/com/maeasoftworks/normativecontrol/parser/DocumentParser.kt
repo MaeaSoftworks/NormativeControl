@@ -252,7 +252,7 @@ open class DocumentParser(
         }
     }
 
-    private fun isHeader(paragraph: Int, level: Int): Boolean {
+    protected fun isHeader(paragraph: Int, level: Int): Boolean {
         val pPr = resolver.getEffectivePPr((mainDocumentPart.content[paragraph] as P).pPr)
         if (pPr == null || pPr.outlineLvl == null) {
             return false

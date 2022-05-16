@@ -3,7 +3,7 @@ package com.maeasoftworks.normativecontrol.parser.chapters
 import com.maeasoftworks.normativecontrol.parser.enums.ChapterType
 import org.docx4j.wml.P
 
-class Chapter(var startPos: Int) : Iterable<Any> {
+open class Chapter(var startPos: Int) : Iterable<Any> {
     lateinit var type: ChapterType
     var header: P? = null
     val content: MutableList<Any> = ArrayList()

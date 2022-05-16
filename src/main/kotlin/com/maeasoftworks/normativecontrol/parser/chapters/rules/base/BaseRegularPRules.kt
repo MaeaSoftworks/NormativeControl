@@ -2,7 +2,6 @@ package com.maeasoftworks.normativecontrol.parser.chapters.rules.base
 
 import com.maeasoftworks.normativecontrol.entities.DocumentError
 import com.maeasoftworks.normativecontrol.parser.enums.ErrorType
-import org.docx4j.TextUtils
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
 import org.docx4j.wml.JcEnumeration
 import org.docx4j.wml.PPr
@@ -70,7 +69,7 @@ object BaseRegularPRules {
         isEmpty: Boolean,
         mainDocumentPart: MainDocumentPart
     ): DocumentError? {
-        return if (pPr.ind != null && pPr.ind.left != null) {
+        return if (pPr.ind != null && pPr.ind.left != null && pPr.ind.left.intValueExact() != 0) {
             DocumentError(
                 documentId,
                 p,

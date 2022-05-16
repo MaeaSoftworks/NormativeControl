@@ -31,4 +31,16 @@ class GeneralTests : ParserTestFactory(GeneralTests::class) {
         }
         Assert.isTrue(parser.errors.size != 0, "There should be errors!")
     }
+
+    @Test
+    fun `body validated properly`() {
+        val parser = createParser("full test 1.docx")
+        parser.setupChapters()
+        parser.createParsers()
+        parser.parsers[7].parse()
+        for (error in parser.errors) {
+            println("${error.paragraphId} ${error.runId} ${error.errorType}")
+        }
+        Assert.isTrue(parser.errors.size != 0, "There should be errors!")
+    }
 }

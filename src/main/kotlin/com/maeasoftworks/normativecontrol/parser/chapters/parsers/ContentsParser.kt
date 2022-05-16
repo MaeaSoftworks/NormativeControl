@@ -13,7 +13,14 @@ class ContentsParser(parser: DocumentParser, chapter: Chapter) : ChapterParser(p
 
     override fun findPErrors(p: Int, pPr: PPr, isEmpty: Boolean, pFunctionWrappers: Iterable<PFunctionWrapper>) {}
 
-    override fun findRErrors(p: Int, r: Int, rPr: RPr, isEmpty: Boolean, rFunctionWrappers: Iterable<RFunctionWrapper>) {}
+    override fun findRErrors(
+        p: Int,
+        r: Int,
+        rPr: RPr,
+        isEmpty: Boolean,
+        rFunctionWrappers: Iterable<RFunctionWrapper>
+    ) {
+    }
 
     override fun handleNotRContent(p: Int, r: Int) {}
 }

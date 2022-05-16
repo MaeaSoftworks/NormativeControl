@@ -1,7 +1,6 @@
 package com.maeasoftworks.normativecontrol.services
 
 import com.maeasoftworks.normativecontrol.controllers.DocumentProcessingController
-import com.maeasoftworks.normativecontrol.entities.DocumentError
 import com.maeasoftworks.normativecontrol.entities.DocumentFile
 import com.maeasoftworks.normativecontrol.entities.DocumentKey
 import com.maeasoftworks.normativecontrol.parser.Document
@@ -71,7 +70,7 @@ class DocumentManager(
     fun getErrors(id: String) = errorRepository.findAllByDocumentId(id)
 
     @Transactional
-    fun getFile(id: String)= fileRepository.findByDocumentId(id)?.bytes?.toList()?.toByteArray()
+    fun getFile(id: String) = fileRepository.findByDocumentId(id)?.bytes?.toList()?.toByteArray()
 
     @Transactional
     fun dropDatabase() {

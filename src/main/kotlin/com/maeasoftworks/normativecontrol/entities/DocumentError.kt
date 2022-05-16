@@ -24,7 +24,9 @@ class DocumentError(
     @PropertyDocumentation("pointer to run in paragraph with <code>paragraphId</code>")
     val runId: Int,
     @PropertyDocumentation("error type. Can be:", ErrorType::class)
-    val errorType: ErrorType
+    val errorType: ErrorType,
+    @PropertyDocumentation("describes expected and found values. Format: <code>\"\${\$FOUND}/\${\$EXPECTED}\"</code>")
+    val description: String = ""
 ) {
     @Id
     @GeneratedValue(generator = "uuid")
@@ -33,32 +35,42 @@ class DocumentError(
     var id: String = ""
 
     // to page
-    constructor(documentId: String?, errorType: ErrorType) : this(documentId, -1, -1, -1, errorType)
+    constructor(documentId: String?, errorType: ErrorType, description: String = "") : this(
+        documentId,
+        -1,
+        -1,
+        -1,
+        errorType,
+        description
+    )
 
     // unknown chapter
-    constructor(documentId: String?, paragraph: Int, run: Int, errorType: ErrorType) : this(
+    constructor(documentId: String?, paragraph: Int, run: Int, errorType: ErrorType, description: String = "") : this(
         documentId,
         -1,
         paragraph,
         run,
-        errorType
+        errorType,
+        description
     )
 
     // to all chapter
-    constructor(documentId: String?, chapter: Long, errorType: ErrorType) : this(
+    constructor(documentId: String?, chapter: Long, errorType: ErrorType, description: String = "") : this(
         documentId,
         chapter.toInt(),
         -1,
         -1,
-        errorType
+        errorType,
+        description
     )
 
     // to all paragraphId
-    constructor(documentId: String?, paragraph: Int, errorType: ErrorType) : this(
+    constructor(documentId: String?, paragraph: Int, errorType: ErrorType, description: String = "") : this(
         documentId,
         -1,
         paragraph,
         -1,
-        errorType
+        errorType,
+        description
     )
 }

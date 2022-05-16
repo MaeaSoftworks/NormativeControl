@@ -37,7 +37,7 @@ class SimpleParser(parser: DocumentParser, chapter: Chapter) : ChapterParser(par
             for (r in 0 until paragraph.content.size) {
                 if (paragraph.content[r] is R) {
                     val rPr = resolver.getEffectiveRPr((paragraph.content[r] as R).rPr, paragraph.pPr)
-                    findRErrors(p, r, rPr, isEmpty, rCommonFunctions + regularRFunctions)
+                    findRErrors(p, r, rPr, isEmptyP, rCommonFunctions + regularRFunctions)
                 } else {
                     handleNotRContent(p, r)
                 }
@@ -59,7 +59,8 @@ class SimpleParser(parser: DocumentParser, chapter: Chapter) : ChapterParser(par
         r: Int,
         rPr: RPr,
         isEmpty: Boolean,
-        rFunctionWrappers: Iterable<RFunctionWrapper> ) {
+        rFunctionWrappers: Iterable<RFunctionWrapper>
+    ) {
         for (wrapper in rFunctionWrappers) {
             val error = wrapper.function(document.id, p, r, rPr, isEmpty, mainDocumentPart)
             if (error != null) {
@@ -87,21 +88,22 @@ class SimpleParser(parser: DocumentParser, chapter: Chapter) : ChapterParser(par
     companion object {
         private val pCommonFunctions =
             createPRulesCollection(
-            BaseCommonPRules::commonPBackgroundCheck,
-            BaseCommonPRules::commonPBorderCheck,
-            BaseCommonPRules::commonPTextAlignCheck,
-            BaseCommonPRules::commonPTextAlignCheck
-        )
+                BaseCommonPRules::commonPBackgroundCheck,
+                BaseCommonPRules::commonPBorderCheck,
+                BaseCommonPRules::commonPTextAlignCheck,
+                BaseCommonPRules::commonPTextAlignCheck
+            )
 
         private val rCommonFunctions =
             createRRulesCollection(
-            BaseCommonRRules::commonRFontCheck,
-            BaseCommonRRules::commonRFontSizeCheck,
-            BaseCommonRRules::commonRItalicCheck,
-            BaseCommonRRules::commonRStrikeCheck,
-            BaseCommonRRules::commonRHighlightCheck,
-            BaseCommonRRules::commonRColorCheck
-        )
+                BaseCommonRRules::commonRFontCheck,
+                BaseCommonRRules::commonRFontSizeCheck,
+                BaseCommonRRules::commonRItalicCheck,
+                BaseCommonRRules::commonRStrikeCheck,
+                BaseCommonRRules::commonRHighlightCheck,
+                BaseCommonRRules::commonRColorCheck,
+                BaseCommonRRules::regularRSpacingCheck
+            )
 
         private val headerRFunctions =
             createRRulesCollection(
@@ -134,8 +136,7 @@ class SimpleParser(parser: DocumentParser, chapter: Chapter) : ChapterParser(par
             createRRulesCollection(
                 BaseRegularRRules::regularRBoldCheck,
                 BaseRegularRRules::regularRCapsCheck,
-                BaseRegularRRules::regularRUnderlineCheck,
-                BaseRegularRRules::regularRSpacingCheck
+                BaseRegularRRules::regularRUnderlineCheck
             )
     }
 }

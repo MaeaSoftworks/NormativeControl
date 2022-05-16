@@ -60,21 +60,4 @@ object BaseRegularRRules {
             )
         } else null
     }
-
-    fun regularRSpacingCheck(
-        documentId: String,
-        p: Int,
-        r: Int,
-        rPr: RPr,
-        isEmpty: Boolean,
-        mainDocumentPart: MainDocumentPart
-    ): DocumentError? {
-        return if (rPr.spacing != null && rPr.spacing.`val` != null) {
-            DocumentError(
-                documentId,
-                p,
-                r, if (isEmpty) ErrorType.TEXT_WHITESPACE_RUN_SPACING else ErrorType.TEXT_COMMON_RUN_SPACING
-            )
-        } else null
-    }
 }
