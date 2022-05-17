@@ -48,7 +48,7 @@ open class DocumentParser(
         createParsers()
 
         for (parser in parsers) {
-            parser.parse()
+            parser.parse(parser)
         }
 
         return errors
@@ -105,7 +105,7 @@ open class DocumentParser(
             chapters[sectorId].add(paragraphs[paragraph])
             paragraph++
         }
-        if (chapters[0].header == null && chapters[0].content.size == 0) {
+        if (!chapters[0].hasHeader && chapters[0].content.size == 0) {
             chapters.removeAt(0)
         }
     }
@@ -114,7 +114,7 @@ open class DocumentParser(
         val emptyChapters = ArrayList<Int>()
         for (chapter in 0 until chapters.size) {
             if (chapters[chapter][0] is P) {
-                if (chapters[chapter].header == null) {
+                if (!chapters[chapter].hasHeader) {
                     chapters[chapter].type = ChapterType.FRONT_PAGE
                     continue
                 }

@@ -2,18 +2,23 @@ package com.maeasoftworks.normativecontrol.parser.chapters.parsers
 
 import com.maeasoftworks.normativecontrol.parser.DocumentParser
 import com.maeasoftworks.normativecontrol.parser.chapters.Chapter
+import org.docx4j.wml.P
 import org.docx4j.wml.PPr
 import org.docx4j.wml.RPr
 
 class FrontPageParser(parser: DocumentParser, chapter: Chapter) : ChapterParser(parser, chapter) {
 
-    override fun parse() {
+    override fun parseHeader() {}
 
-    }
+    override fun parseP(p: Int, pPr: PPr, isEmpty: Boolean) {}
 
-    override fun findPErrors(p: Int, pPr: PPr, isEmpty: Boolean, pFunctionWrappers: Iterable<PFunctionWrapper>) {}
+    override fun parseR(p: Int, r: Int, paragraph: P) {}
 
-    override fun findRErrors(
+    override fun handleHyperlink(p: Int, r: Int) {}
+
+    override fun applyPFunctions(p: Int, pPr: PPr, isEmpty: Boolean, pFunctionWrappers: Iterable<PFunctionWrapper>) {}
+
+    override fun applyRFunctions(
         p: Int,
         r: Int,
         rPr: RPr,
@@ -22,5 +27,5 @@ class FrontPageParser(parser: DocumentParser, chapter: Chapter) : ChapterParser(
     ) {
     }
 
-    override fun handleNotRContent(p: Int, r: Int) {}
+    override fun handlePContent(p: Int, r: Int, parser: ChapterParser) {}
 }

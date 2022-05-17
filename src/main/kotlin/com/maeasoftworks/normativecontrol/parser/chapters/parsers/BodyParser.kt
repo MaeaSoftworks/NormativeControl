@@ -3,97 +3,29 @@ package com.maeasoftworks.normativecontrol.parser.chapters.parsers
 import com.maeasoftworks.normativecontrol.entities.DocumentError
 import com.maeasoftworks.normativecontrol.parser.DocumentParser
 import com.maeasoftworks.normativecontrol.parser.chapters.Chapter
-import com.maeasoftworks.normativecontrol.parser.chapters.rules.base.*
-import com.maeasoftworks.normativecontrol.parser.chapters.rules.body.BodyHeaderPRules
+import com.maeasoftworks.normativecontrol.parser.chapters.Rules
 import com.maeasoftworks.normativecontrol.parser.enums.ErrorType
 import org.docx4j.TextUtils
 import org.docx4j.wml.*
-import javax.xml.bind.JAXBElement
 
 class BodyParser(parser: DocumentParser, chapter: Chapter) : ChapterParser(parser, chapter) {
     private val subchapters = Subchapter(
         chapter.startPos + 1,
         null,
-        null,
-        Regex("^(?:\\d\\.?){1,3}").find(TextUtils.getText(chapter.header))?.value?.removeSuffix(".")!!.toInt(), 1
+        Regex("^(?:\\d\\.?){1,3}").let {
+            val text = TextUtils.getText(chapter.header)
+            return@let if (text != null) {
+                it.find(text)?.value?.removeSuffix(".")?.toInt()
+            } else {
+                null
+            }
+        },
+        1
     )
-
-    /* P
-    * JAXBElement <CTMarkup
-    * RunIns JAXBElement <CTMarkup
-    * JAXBElement <CTRel
-    * JAXBElement <CTMoveBookmark
-    * JAXBElement <CTMarkup
-    * JAXBElement <RunTrackChange
-    * JAXBElement <CTTrackChange
-    * JAXBElement <CTTrackChange
-    * JAXBElement <CTSimpleField
-    * JAXBElement <RangePermissionStart
-    * JAXBElement <RunTrackChange
-    * JAXBElement <CTMoveToRangeEnd
-    * JAXBElement <CTTrackChange
-    * ProofErr
-    * CommentRangeEnd
-    * JAXBElement <CTMoveBookmark
-    * R
-    * RunDel
-    * JAXBElement <CTMarkupRange
-    * JAXBElement <CTSmartTagRun
-    * JAXBElement <CTOMathPara
-    * JAXBElement <CTPerm
-    * CommentRangeStart
-    * JAXBElement <CTMoveFromRangeEnd
-    * JAXBElement <CTOMath
-    * JAXBElement <CTCustomXmlRun
-    * JAXBElement <CTTrackChange
-    * JAXBElement <CTMarkup
-    * JAXBElement <SdtRun
-    * JAXBElement <P.Hyperlink
-    * JAXBElement <CTBookmark
-    * JAXBElement <P.Bdo
-    * JAXBElement <P.Dir
-    */
-
-
-    /* R
-    *  JAXBElement -> R.Ptab
-    *  JAXBElement -> R.YearLong
-    *  JAXBElement -> R.DayShort
-    *  JAXBElement -> R.NoBreakHyphen
-    *  JAXBElement -> R.EndnoteRef
-    *  JAXBElement -> R.PgNum
-    *  JAXBElement -> R.SoftHyphen
-    *  JAXBElement -> Pict
-    *  JAXBElement -> R.Tab
-    *  JAXBElement -> Drawing
-    *  Br
-    *  JAXBElement -> R.Separator
-    *  JAXBElement -> R.LastRenderedPageBreak
-    *  JAXBElement -> Text
-    *  JAXBElement -> CTObject
-    *  JAXBElement -> CTFtnEdnRef
-    *  JAXBElement -> Text
-    *  JAXBElement -> CTFtnEdnRef
-    *  JAXBElement -> R.MonthShort
-    *  JAXBElement -> R.MonthLong
-    *  JAXBElement -> R.ContinuationSeparator
-    *  JAXBElement -> CTRuby
-    *  JAXBElement -> R.AnnotationRef
-    *  JAXBElement -> R.Cr
-    *  JAXBElement -> R.YearShort
-    *  JAXBElement -> FldChar
-    *  JAXBElement -> R.Sym
-    *  JAXBElement -> R.CommentReference
-    *  JAXBElement -> Text
-    *  JAXBElement -> R.FootnoteRef
-    *  DelText
-    *  JAXBElement -> R.DayLong
-    *  AlternateContent
-    */
 
     private fun createSubchaptersModel(pPos: Int, level: Int, currentChapter: Subchapter): Int {
         var pos = pPos
-        while (pos <= chapter.startPos + chapter.content.size) {
+        while (pos <= chapter.startPos + chapter.content.size - 1) {
             if (pos == -1) {
                 return -1
             }
@@ -101,7 +33,6 @@ class BodyParser(parser: DocumentParser, chapter: Chapter) : ChapterParser(parse
                 val newChapter = Subchapter(
                     pos,
                     mainDocumentPart.content[pos] as P,
-                    currentChapter,
                     Regex("^(?:\\d\\.?){1,3}")
                         .find(TextUtils.getText(mainDocumentPart.content[pos]))!!.value
                         .removeSuffix(".")
@@ -124,9 +55,10 @@ class BodyParser(parser: DocumentParser, chapter: Chapter) : ChapterParser(parse
         return 0
     }
 
-    override fun parse() {
+    override fun parse(parser: ChapterParser) {
         createSubchaptersModel(chapter.startPos + 1, 2, subchapters)
         validateSubchapters(subchapters.num.toString(), subchapters)
+        parseHeader()
         parseSubchapter(subchapters)
     }
 
@@ -134,13 +66,13 @@ class BodyParser(parser: DocumentParser, chapter: Chapter) : ChapterParser(parse
         if (subchapter.subheader != null) {
             val subheaderPPr = resolver.getEffectivePPr(subchapter.subheader.pPr)
             val isEmpty = TextUtils.getText(subchapter.subheader).isEmpty()
-            findPErrors(subchapter.startPos, subheaderPPr, isEmpty, headerPFunctions + commonPFunctions)
+            applyPFunctions(subchapter.startPos, subheaderPPr, isEmpty, headerPFunctions + commonPFunctions)
             for (r in 0 until subchapter.subheader.content.size) {
                 if (subchapter.subheader.content[r] is R) {
                     val rPr = resolver.getEffectiveRPr((subchapter.subheader.content[r] as R).rPr, subchapter.subheader.pPr)
-                    findRErrors(subchapter.startPos, r, rPr, isEmpty, headerRFunctions + commonRFunctions)
+                    applyRFunctions(subchapter.startPos, r, rPr, isEmpty, headerRFunctions + commonRFunctions)
                 } else {
-                    handleNotRContent(subchapter.startPos, r)
+                    handlePContent(subchapter.startPos, r, this)
                 }
             }
         }
@@ -148,26 +80,46 @@ class BodyParser(parser: DocumentParser, chapter: Chapter) : ChapterParser(parse
             val pPr = resolver.getEffectivePPr((mainDocumentPart.content[p] as P).pPr)
             val paragraph = mainDocumentPart.content[p] as P
             val isEmptyP = TextUtils.getText(paragraph).isEmpty()
-            findPErrors(p, pPr, isEmptyP, commonPFunctions + regularPBeforeListCheckFunctions)
+            applyPFunctions(p, pPr, isEmptyP, commonPFunctions + regularPBeforeListCheckFunctions)
             if (pPr.numPr != null) {
                 validateList(p)
                 continue
             }
-            findPErrors(p, pPr, isEmptyP, regularPAfterListCheckFunctions)
+            applyPFunctions(p, pPr, isEmptyP, regularPAfterListCheckFunctions)
             for (r in 0 until paragraph.content.size) {
                 if (paragraph.content[r] is R) {
                     val rPr = resolver.getEffectiveRPr((paragraph.content[r] as R).rPr, paragraph.pPr)
-                    findRErrors(p, r, rPr, isEmptyP, commonRFunctions + regularRFunctions)
+                    applyRFunctions(p, r, rPr, isEmptyP, commonRFunctions + regularRFunctions)
                 } else {
-                    handleNotRContent(p, r)
+                    handlePContent(p, r, this)
                 }
             }
         }
         for (sub in subchapter.subchapters) {
-            if (subchapter.subchapters.size > 2) {
-                parseSubchapter(sub)
+            parseSubchapter(sub)
+        }
+    }
+
+    override fun parseHeader() {
+        val headerPPr = resolver.getEffectivePPr(chapter.header.pPr)
+        val isEmpty = TextUtils.getText(chapter.header).isEmpty()
+        applyPFunctions(chapter.startPos, headerPPr, isEmpty, headerPFunctions + commonPFunctions)
+        for (r in 0 until chapter.header.content.size) {
+            if (chapter.header.content[r] is R) {
+                val rPr = resolver.getEffectiveRPr((chapter.header.content[r] as R).rPr, chapter.header.pPr)
+                applyRFunctions(chapter.startPos, r, rPr, isEmpty, headerRFunctions + commonRFunctions)
+            } else {
+                handlePContent(chapter.startPos, r, this)
             }
         }
+    }
+
+    override fun parseP(p: Int, pPr: PPr, isEmpty: Boolean) {}
+    override fun parseR(p: Int, r: Int, paragraph: P) {}
+
+
+    override fun handleHyperlink(p: Int, r: Int) {
+        errors += DocumentError(document.id, p, r, ErrorType.TEXT_HYPERLINKS_NOT_ALLOWED_HERE)
     }
 
     private fun validateSubchapters(expectedNum: String, subchapter: Subchapter) {
@@ -193,7 +145,7 @@ class BodyParser(parser: DocumentParser, chapter: Chapter) : ChapterParser(parse
         }
     }
 
-    override fun findPErrors(p: Int, pPr: PPr, isEmpty: Boolean, pFunctionWrappers: Iterable<PFunctionWrapper>) {
+    override fun applyPFunctions(p: Int, pPr: PPr, isEmpty: Boolean, pFunctionWrappers: Iterable<PFunctionWrapper>) {
         for (wrapper in pFunctionWrappers) {
             val error = wrapper.function(document.id, p, pPr, isEmpty, mainDocumentPart)
             if (error != null) {
@@ -202,7 +154,7 @@ class BodyParser(parser: DocumentParser, chapter: Chapter) : ChapterParser(parse
         }
     }
 
-    override fun findRErrors(
+    override fun applyRFunctions(
         p: Int,
         r: Int,
         rPr: RPr,
@@ -217,79 +169,63 @@ class BodyParser(parser: DocumentParser, chapter: Chapter) : ChapterParser(parse
         }
     }
 
-    override fun handleNotRContent(p: Int, r: Int) {
-        val something = (mainDocumentPart.content[p] as P).content[r]
-        if (something is ProofErr) {
-            if (something.type == "gramStart") {
-                errors += DocumentError(document.id, p, r + 1, ErrorType.WORD_GRAMMATICAL_ERROR)
-            } else if (something.type == "spellStart") {
-                errors += DocumentError(document.id, p, r + 1, ErrorType.WORD_SPELL_ERROR)
-            }
-        }
-        if (something is JAXBElement<*>) {
-            if (something.value is P.Hyperlink) {
-                errors += DocumentError(document.id, p, r, ErrorType.TEXT_HYPERLINKS_NOT_ALLOWED_HERE)
-            }
-        }
-    }
-
     companion object {
         private val commonPFunctions =
             createPRulesCollection(
-                BaseCommonPRules::commonPBackgroundCheck,
-                BaseCommonPRules::commonPBorderCheck,
-                BaseCommonPRules::commonPTextAlignCheck,
-                BaseCommonPRules::commonPTextAlignCheck
+                Rules.Default.Common.P::textAlignIsBoth,
+                Rules.Default.Common.P::hasNotBackground,
+                Rules.Default.Common.P::notBordered,
+                Rules.Default.Common.P::textAlignIsBoth
             )
 
         private val commonRFunctions =
             createRRulesCollection(
-                BaseCommonRRules::commonRFontCheck,
-                BaseCommonRRules::commonRFontSizeCheck,
-                BaseCommonRRules::commonRItalicCheck,
-                BaseCommonRRules::commonRStrikeCheck,
-                BaseCommonRRules::commonRHighlightCheck,
-                BaseCommonRRules::commonRColorCheck,
-                BaseCommonRRules::regularRSpacingCheck
+                Rules.Default.Common.R::isTimesNewRoman,
+                Rules.Default.Common.R::fontSizeIs14,
+                Rules.Default.Common.R::notItalic,
+                Rules.Default.Common.R::notCrossedOut,
+                Rules.Default.Common.R::notHighlighted,
+                Rules.Default.Common.R::isBlack,
+                Rules.Default.Common.R::letterSpacingIs0
             )
 
         private val headerRFunctions =
             createRRulesCollection(
-                BaseHeaderRRules::headerRBoldCheck
+                Rules.Default.Header.R::isBold
             )
 
         private val headerPFunctions =
             createPRulesCollection(
-                BodyHeaderPRules::headerPJustifyCheck,
-                BodyHeaderPRules::headerPUppercaseCheck,
-                BaseHeaderPRules::headerPLineSpacingCheck,
-                BaseHeaderPRules::headerEmptyLineAfterHeaderExist,
-                BaseHeaderPRules::headerPNotEndsWithDotCheck,
-                BaseRegularPRules::regularPFirstLineIndentCheck,
+                Rules.Body.Header.P::justifyIsLeft,
+                Rules.Body.Header.P::isNotUppercase,
+                Rules.Default.Header.P::lineSpacingIsOneAndHalf,
+                Rules.Default.Header.P::emptyLineAfterHeaderExists,
+                Rules.Default.Header.P::hasNotDotInEnd,
+                Rules.Default.RegularText.P::firstLineIndentIs1dot25,
             )
 
         private val regularPAfterListCheckFunctions =
             createPRulesCollection(
-                BaseRegularPRules::regularPLeftIndentCheck,
-                BaseRegularPRules::regularPRightIndentCheck,
-                BaseRegularPRules::regularPFirstLineIndentCheck
+                Rules.Default.RegularText.P::leftIndentIs0,
+                Rules.Default.RegularText.P::rightIndentIs0,
+                Rules.Default.RegularText.P::firstLineIndentIs1dot25
             )
 
         private val regularPBeforeListCheckFunctions =
             createPRulesCollection(
-                BaseRegularPRules::regularPJustifyCheck,
-                BaseRegularPRules::regularPLineSpacingCheck
+                Rules.Default.RegularText.P::justifyIsBoth,
+                Rules.Default.RegularText.P::lineSpacingIsOneAndHalf
             )
 
         private val regularRFunctions =
             createRRulesCollection(
-                BaseRegularRRules::regularRBoldCheck,
-                BaseRegularRRules::regularRCapsCheck,
-                BaseRegularRRules::regularRUnderlineCheck
+                Rules.Default.RegularText.R::isNotBold,
+                Rules.Default.RegularText.R::isNotCaps,
+                Rules.Default.RegularText.R::isUnderline
             )
     }
 
-    class Subchapter(val startPos: Int, val subheader: P?, val root: Subchapter?, val num: Int, val level: Int) {
+    class Subchapter(val startPos: Int, val subheader: P?, val num: Int?, val level: Int) {
         val subchapters: MutableList<Subchapter> = ArrayList()
         val content: MutableList<Any> = ArrayList()
     }

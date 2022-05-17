@@ -25,7 +25,7 @@ class GeneralTests : ParserTestFactory(GeneralTests::class) {
         parser.detectChapters()
         parser.verifyChapters()
         parser.createParsers()
-        parser.parsers[3].parse()
+        parser.parsers[3].parse(parser.parsers[3])
         for (error in parser.errors) {
             println("${error.paragraphId} ${error.runId} ${error.errorType}")
         }
@@ -37,6 +37,9 @@ class GeneralTests : ParserTestFactory(GeneralTests::class) {
         val parser = createParser("full test 1.docx")
         parser.setupChapters()
         parser.createParsers()
+        parser.parsers[4].parse()
+        parser.parsers[5].parse()
+        parser.parsers[6].parse()
         parser.parsers[7].parse()
         for (error in parser.errors) {
             println("${error.paragraphId} ${error.runId} ${error.errorType}")

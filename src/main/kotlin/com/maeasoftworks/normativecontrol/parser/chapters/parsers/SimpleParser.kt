@@ -3,49 +3,52 @@ package com.maeasoftworks.normativecontrol.parser.chapters.parsers
 import com.maeasoftworks.normativecontrol.entities.DocumentError
 import com.maeasoftworks.normativecontrol.parser.DocumentParser
 import com.maeasoftworks.normativecontrol.parser.chapters.Chapter
-import com.maeasoftworks.normativecontrol.parser.chapters.rules.base.*
+import com.maeasoftworks.normativecontrol.parser.chapters.Rules
 import com.maeasoftworks.normativecontrol.parser.enums.ErrorType
 import org.docx4j.TextUtils
 import org.docx4j.wml.*
-import javax.xml.bind.JAXBElement
 
 class SimpleParser(parser: DocumentParser, chapter: Chapter) : ChapterParser(parser, chapter) {
-    override fun parse() {
+
+    override fun parseHeader() {
         val headerPPr = resolver.getEffectivePPr((chapter[0] as P).pPr)
         val header = mainDocumentPart.content[chapter.startPos] as P
         val isEmpty = TextUtils.getText(header).isEmpty()
-        findPErrors(chapter.startPos, headerPPr, isEmpty, headerPFunctions + pCommonFunctions)
+        applyPFunctions(chapter.startPos, headerPPr, isEmpty, headerPFunctions + pCommonFunctions)
         for (r in 0 until header.content.size) {
             if (header.content[r] is R) {
                 val rPr = resolver.getEffectiveRPr((header.content[r] as R).rPr, header.pPr)
-                findRErrors(chapter.startPos, r, rPr, isEmpty, headerRFunctions + rCommonFunctions)
+                applyRFunctions(chapter.startPos, r, rPr, isEmpty, headerRFunctions + rCommonFunctions)
             } else {
-                handleNotRContent(chapter.startPos, r)
-            }
-        }
-        for (p in chapter.startPos + 1 until chapter.startPos + chapter.content.size) {
-            val pPr = resolver.getEffectivePPr((mainDocumentPart.content[p] as P).pPr)
-            val paragraph = mainDocumentPart.content[p] as P
-            val isEmptyP = TextUtils.getText(paragraph).isEmpty()
-            findPErrors(p, pPr, isEmptyP, pCommonFunctions + regularPBeforeListCheckFunctions)
-            if (pPr.numPr != null) {
-                validateList(p)
-                continue
-            }
-            findPErrors(p, pPr, isEmptyP, regularPAfterListCheckFunctions)
-
-            for (r in 0 until paragraph.content.size) {
-                if (paragraph.content[r] is R) {
-                    val rPr = resolver.getEffectiveRPr((paragraph.content[r] as R).rPr, paragraph.pPr)
-                    findRErrors(p, r, rPr, isEmptyP, rCommonFunctions + regularRFunctions)
-                } else {
-                    handleNotRContent(p, r)
-                }
+                handlePContent(chapter.startPos, r, this)
             }
         }
     }
+    override fun parseP(p: Int, pPr: PPr, isEmpty: Boolean) {
+        val paragraph = mainDocumentPart.content[p] as P
+        val isEmptyP = TextUtils.getText(paragraph).isEmpty()
+        applyPFunctions(p, pPr, isEmptyP, pCommonFunctions + regularPBeforeListCheckFunctions)
+        if (pPr.numPr != null) {
+            validateList(p)
+            return
+        }
+        applyPFunctions(p, pPr, isEmptyP, regularPAfterListCheckFunctions)
 
-    override fun findPErrors(p: Int, pPr: PPr, isEmpty: Boolean, pFunctionWrappers: Iterable<PFunctionWrapper>) {
+    }
+    override fun parseR(p: Int, r: Int, paragraph: P) {
+        if (paragraph.content[r] is R) {
+            val rPr = resolver.getEffectiveRPr((paragraph.content[r] as R).rPr, paragraph.pPr)
+            applyRFunctions(p, r, rPr, TextUtils.getText(paragraph.content[r]).isEmpty(), rCommonFunctions + regularRFunctions)
+        } else {
+            handlePContent(p, r, this)
+        }
+    }
+
+    override fun handleHyperlink(p: Int, r: Int) {
+        errors += DocumentError(document.id, p, r, ErrorType.TEXT_HYPERLINKS_NOT_ALLOWED_HERE)
+    }
+
+    override fun applyPFunctions(p: Int, pPr: PPr, isEmpty: Boolean, pFunctionWrappers: Iterable<PFunctionWrapper>) {
         for (wrapper in pFunctionWrappers) {
             val error = wrapper.function(document.id, p, pPr, isEmpty, mainDocumentPart)
             if (error != null) {
@@ -54,7 +57,7 @@ class SimpleParser(parser: DocumentParser, chapter: Chapter) : ChapterParser(par
         }
     }
 
-    override fun findRErrors(
+    override fun applyRFunctions(
         p: Int,
         r: Int,
         rPr: RPr,
@@ -69,74 +72,57 @@ class SimpleParser(parser: DocumentParser, chapter: Chapter) : ChapterParser(par
         }
     }
 
-    override fun handleNotRContent(p: Int, r: Int) {
-        val something = (mainDocumentPart.content[p] as P).content[r]
-        if (something is ProofErr) {
-            if (something.type == "gramStart") {
-                errors += DocumentError(document.id, p, r + 1, ErrorType.WORD_GRAMMATICAL_ERROR)
-            } else if (something.type == "spellStart") {
-                errors += DocumentError(document.id, p, r + 1, ErrorType.WORD_SPELL_ERROR)
-            }
-        }
-        if (something is JAXBElement<*>) {
-            if (something.value is P.Hyperlink) {
-                errors += DocumentError(document.id, p, r, ErrorType.TEXT_HYPERLINKS_NOT_ALLOWED_HERE)
-            }
-        }
-    }
-
     companion object {
         private val pCommonFunctions =
             createPRulesCollection(
-                BaseCommonPRules::commonPBackgroundCheck,
-                BaseCommonPRules::commonPBorderCheck,
-                BaseCommonPRules::commonPTextAlignCheck,
-                BaseCommonPRules::commonPTextAlignCheck
+                Rules.Default.Common.P::hasNotBackground,
+                Rules.Default.Common.P::notBordered,
+                Rules.Default.Common.P::textAlignIsBoth
             )
 
         private val rCommonFunctions =
             createRRulesCollection(
-                BaseCommonRRules::commonRFontCheck,
-                BaseCommonRRules::commonRFontSizeCheck,
-                BaseCommonRRules::commonRItalicCheck,
-                BaseCommonRRules::commonRStrikeCheck,
-                BaseCommonRRules::commonRHighlightCheck,
-                BaseCommonRRules::commonRColorCheck,
-                BaseCommonRRules::regularRSpacingCheck
+                Rules.Default.Common.R::isTimesNewRoman,
+                Rules.Default.Common.R::fontSizeIs14,
+                Rules.Default.Common.R::notItalic,
+                Rules.Default.Common.R::notCrossedOut,
+                Rules.Default.Common.R::notHighlighted,
+                Rules.Default.Common.R::isBlack,
+                Rules.Default.Common.R::letterSpacingIs0
             )
 
         private val headerRFunctions =
             createRRulesCollection(
-                BaseHeaderRRules::headerRBoldCheck,
-                BaseHeaderRRules::headerRUppercaseCheck
+                Rules.Default.Header.R::isBold,
+                Rules.Default.Header.R::isUppercase
             )
 
         private val headerPFunctions =
             createPRulesCollection(
-                BaseHeaderPRules::headerPJustifyCheck,
-                BaseHeaderPRules::headerPLineSpacingCheck,
-                BaseHeaderPRules::headerEmptyLineAfterHeaderExist,
-                BaseHeaderPRules::headerPNotEndsWithDotCheck
+                Rules.Default.Header.P::justifyIsCenter,
+                Rules.Default.Header.P::lineSpacingIsOneAndHalf,
+                Rules.Default.Header.P::emptyLineAfterHeaderExists,
+                Rules.Default.Header.P::hasNotDotInEnd
             )
 
         private val regularPAfterListCheckFunctions =
             createPRulesCollection(
-                BaseRegularPRules::regularPLeftIndentCheck,
-                BaseRegularPRules::regularPRightIndentCheck,
-                BaseRegularPRules::regularPFirstLineIndentCheck
+                Rules.Default.RegularText.P::leftIndentIs0,
+                Rules.Default.RegularText.P::rightIndentIs0,
+                Rules.Default.RegularText.P::firstLineIndentIs1dot25
             )
 
         private val regularPBeforeListCheckFunctions =
             createPRulesCollection(
-                BaseRegularPRules::regularPJustifyCheck,
-                BaseRegularPRules::regularPLineSpacingCheck
+                Rules.Default.RegularText.P::justifyIsBoth,
+                Rules.Default.RegularText.P::lineSpacingIsOneAndHalf
             )
 
         private val regularRFunctions =
             createRRulesCollection(
-                BaseRegularRRules::regularRBoldCheck,
-                BaseRegularRRules::regularRCapsCheck,
-                BaseRegularRRules::regularRUnderlineCheck
+                Rules.Default.RegularText.R::isNotBold,
+                Rules.Default.RegularText.R::isNotCaps,
+                Rules.Default.RegularText.R::isUnderline
             )
     }
 }

@@ -3,7 +3,9 @@ package com.maeasoftworks.normativecontrol.parser
 import com.maeasoftworks.normativecontrol.parser.chapters.Chapter
 import com.maeasoftworks.normativecontrol.parser.chapters.parsers.BodyParser
 import com.maeasoftworks.normativecontrol.parser.chapters.parsers.SimpleParser
+import com.maeasoftworks.normativecontrol.parser.enums.ChapterType
 import com.maeasoftworks.normativecontrol.parser.enums.ErrorType.*
+import org.docx4j.wml.P
 import org.junit.jupiter.api.Test
 
 class HeaderTests : ParserTestFactory(HeaderTests::class) {
@@ -38,7 +40,10 @@ class HeaderTests : ParserTestFactory(HeaderTests::class) {
         val parserBase = createParser("wrong body header style.docx")
         parserBase.parsers += BodyParser(
             parserBase,
-            Chapter(0, parserBase.mainDocumentPart.content.take(3).toMutableList())
+            Chapter(0, parserBase.mainDocumentPart.content.take(3).toMutableList()).also {
+                it.header = parserBase.mainDocumentPart.content[0] as P
+                it.type = ChapterType.BODY
+            }
         )
         parserBase.parsers[0].parse()
         errorAssert(
@@ -51,7 +56,10 @@ class HeaderTests : ParserTestFactory(HeaderTests::class) {
         val parserBase = createParser("wrong body header style.docx")
         parserBase.parsers += BodyParser(
             parserBase,
-            Chapter(3, parserBase.mainDocumentPart.content.drop(3).toMutableList())
+            Chapter(3, parserBase.mainDocumentPart.content.drop(3).toMutableList()).also {
+                it.header = parserBase.mainDocumentPart.content[3] as P
+                it.type = ChapterType.BODY
+            }
         )
         parserBase.parsers[0].parse()
         errorAssert(
