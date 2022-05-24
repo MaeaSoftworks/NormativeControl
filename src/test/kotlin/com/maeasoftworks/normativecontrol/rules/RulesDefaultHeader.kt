@@ -1,11 +1,11 @@
 package com.maeasoftworks.normativecontrol.rules
 
-import com.maeasoftworks.normativecontrol.parser.chapters.Rules
-import com.maeasoftworks.normativecontrol.parser.chapters.parsers.PFunctionWrapper
+import com.maeasoftworks.normativecontrol.parser.Rules
+import com.maeasoftworks.normativecontrol.parser.PFunctionWrapper
 import com.maeasoftworks.normativecontrol.parser.enums.ErrorType
 import org.junit.jupiter.api.Test
 
-class RulesDefaultHeader: RulesTestBase() {
+class RulesDefaultHeader : RulesTestBase() {
     init {
         parser = createParser("rules/default/header")
     }
@@ -23,6 +23,7 @@ class RulesDefaultHeader: RulesTestBase() {
             it == null
         }
     }
+
     @Test
     fun `line spacing is one failed`() {
         base(2, PFunctionWrapper(Rules.Default.Header.P::lineSpacingIsOne)) {

@@ -1,8 +1,8 @@
 package com.maeasoftworks.normativecontrol.parser
 
-import com.maeasoftworks.normativecontrol.parser.chapters.model.Chapter
-import com.maeasoftworks.normativecontrol.parser.chapters.parsers.SimpleParser
+import com.maeasoftworks.normativecontrol.parser.model.Chapter
 import com.maeasoftworks.normativecontrol.parser.enums.ErrorType
+import com.maeasoftworks.normativecontrol.parser.parsers.SimpleParser
 import org.junit.jupiter.api.Test
 
 class StyleTests : ParserTestFactory(StyleTests::class) {

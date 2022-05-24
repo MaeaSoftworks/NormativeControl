@@ -42,8 +42,7 @@ class DocumentProcessingController(private val documentManager: DocumentManager)
         if (file.originalFilename == null || file.originalFilename == "") {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Required arguments were empty")
         }
-        val extension = file.originalFilename!!.split(".")
-        if (extension[1] != "docx") {
+        if (file.originalFilename!!.split(".")[1] != "docx") {
             throw ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Cannot process this document")
         }
         val bytes: ByteArray = try {

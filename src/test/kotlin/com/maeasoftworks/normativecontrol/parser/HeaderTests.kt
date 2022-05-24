@@ -1,10 +1,10 @@
 package com.maeasoftworks.normativecontrol.parser
 
-import com.maeasoftworks.normativecontrol.parser.chapters.model.Chapter
-import com.maeasoftworks.normativecontrol.parser.chapters.parsers.BodyParser
-import com.maeasoftworks.normativecontrol.parser.chapters.parsers.SimpleParser
+import com.maeasoftworks.normativecontrol.parser.model.Chapter
 import com.maeasoftworks.normativecontrol.parser.enums.ChapterType
 import com.maeasoftworks.normativecontrol.parser.enums.ErrorType.*
+import com.maeasoftworks.normativecontrol.parser.parsers.BodyParser
+import com.maeasoftworks.normativecontrol.parser.parsers.SimpleParser
 import org.docx4j.wml.P
 import org.junit.jupiter.api.Test
 

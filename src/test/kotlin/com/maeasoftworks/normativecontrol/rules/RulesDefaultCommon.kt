@@ -1,8 +1,8 @@
 package com.maeasoftworks.normativecontrol.rules
 
-import com.maeasoftworks.normativecontrol.parser.chapters.Rules
-import com.maeasoftworks.normativecontrol.parser.chapters.parsers.PFunctionWrapper
-import com.maeasoftworks.normativecontrol.parser.chapters.parsers.RFunctionWrapper
+import com.maeasoftworks.normativecontrol.parser.Rules
+import com.maeasoftworks.normativecontrol.parser.PFunctionWrapper
+import com.maeasoftworks.normativecontrol.parser.RFunctionWrapper
 import com.maeasoftworks.normativecontrol.parser.enums.ErrorType.*
 import org.junit.jupiter.api.Test
 

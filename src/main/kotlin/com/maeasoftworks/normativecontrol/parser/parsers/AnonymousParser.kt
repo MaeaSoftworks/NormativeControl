@@ -1,0 +1,17 @@
+package com.maeasoftworks.normativecontrol.parser.parsers
+
+import com.maeasoftworks.normativecontrol.parser.model.Chapter
+import org.docx4j.wml.P
+import org.docx4j.wml.PPr
+
+open class AnonymousParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter, root) {
+    constructor(root: DocumentParser) : this(Chapter(0), root)
+
+    override fun parseHeader() {}
+
+    override fun parseP(p: Int, pPr: PPr, isEmpty: Boolean) {}
+
+    override fun parseR(p: Int, r: Int, paragraph: P) {}
+
+    override fun handleHyperlink(p: Int, r: Int) {}
+}

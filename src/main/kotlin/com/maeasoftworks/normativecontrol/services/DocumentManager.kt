@@ -3,9 +3,9 @@ package com.maeasoftworks.normativecontrol.services
 import com.maeasoftworks.normativecontrol.controllers.DocumentProcessingController
 import com.maeasoftworks.normativecontrol.entities.DocumentFile
 import com.maeasoftworks.normativecontrol.entities.DocumentKey
-import com.maeasoftworks.normativecontrol.parser.Document
-import com.maeasoftworks.normativecontrol.parser.DocumentParser
-import com.maeasoftworks.normativecontrol.parser.DocumentParserFactory
+import com.maeasoftworks.normativecontrol.parser.model.Document
+import com.maeasoftworks.normativecontrol.parser.parsers.DocumentParser
+import com.maeasoftworks.normativecontrol.parser.parsers.DocumentParserFactory
 import com.maeasoftworks.normativecontrol.parser.enums.FailureType
 import com.maeasoftworks.normativecontrol.parser.enums.State
 import com.maeasoftworks.normativecontrol.repositories.DocumentErrorRepository
