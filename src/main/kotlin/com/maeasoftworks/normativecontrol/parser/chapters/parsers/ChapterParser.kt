@@ -3,11 +3,15 @@ package com.maeasoftworks.normativecontrol.parser.chapters.parsers
 import com.maeasoftworks.normativecontrol.entities.DocumentError
 import com.maeasoftworks.normativecontrol.parser.Document
 import com.maeasoftworks.normativecontrol.parser.DocumentParser
-import com.maeasoftworks.normativecontrol.parser.chapters.Chapter
-import com.maeasoftworks.normativecontrol.parser.enums.ErrorType
+import com.maeasoftworks.normativecontrol.parser.chapters.model.Chapter
+import com.maeasoftworks.normativecontrol.parser.chapters.model.Picture
+import com.maeasoftworks.normativecontrol.parser.enums.ErrorType.*
+import com.maeasoftworks.normativecontrol.utils.smartAdd
 import org.docx4j.TextUtils
+import org.docx4j.dml.wordprocessingDrawing.Anchor
 import org.docx4j.math.CTOMath
 import org.docx4j.math.CTOMathPara
+import org.docx4j.mce.AlternateContent
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
 import org.docx4j.wml.*
 import javax.xml.bind.JAXBElement
@@ -26,13 +30,7 @@ abstract class ChapterParser(document: Document, protected val chapter: Chapter)
     open fun parse(parser: ChapterParser = this) {
         parser.parseHeader()
         for (p in chapter.startPos + 1 until chapter.startPos + chapter.content.size) {
-            val pPr = resolver.getEffectivePPr((mainDocumentPart.content[p] as P).pPr)
-            val paragraph = mainDocumentPart.content[p] as P
-            val isEmptyP = TextUtils.getText(paragraph).isEmpty()
-            parser.parseP(p, pPr, isEmptyP)
-            for (r in 0 until paragraph.content.size) {
-                parser.parseR(p, r, paragraph)
-            }
+            handleContent(p, parser)
         }
     }
 
@@ -42,57 +40,160 @@ abstract class ChapterParser(document: Document, protected val chapter: Chapter)
 
     abstract fun parseR(p: Int, r: Int, paragraph: P)
 
-    abstract fun applyPFunctions(p: Int, pPr: PPr, isEmpty: Boolean, pFunctionWrappers: Iterable<PFunctionWrapper>)
+    open fun applyPFunctions(p: Int, pPr: PPr, isEmpty: Boolean, pFunctionWrappers: Iterable<PFunctionWrapper>) {
+        for (wrapper in pFunctionWrappers) {
+            errors.smartAdd(wrapper.function(document.id, p, pPr, isEmpty, mainDocumentPart))
+        }
+    }
 
-    abstract fun applyRFunctions(p: Int, r: Int, rPr: RPr, isEmpty: Boolean, rFunctionWrappers: Iterable<RFunctionWrapper>)
+    open fun applyRFunctions(
+        p: Int,
+        r: Int,
+        rPr: RPr,
+        isEmpty: Boolean,
+        rFunctionWrappers: Iterable<RFunctionWrapper>
+    ) {
+        for (wrapper in rFunctionWrappers) {
+            errors.smartAdd(wrapper.function(document.id, p, r, rPr, isEmpty, mainDocumentPart))
+        }
+    }
+
+    open fun handleContent(p: Int, parser: ChapterParser) {
+        when (val something = mainDocumentPart.content[p]) {
+            is P -> {
+                val pPr = resolver.getEffectivePPr(something.pPr)
+                val paragraph = mainDocumentPart.content[p] as P
+                val isEmptyP = TextUtils.getText(paragraph).isBlank()
+                parser.parseP(p, pPr, isEmptyP)
+                for (r in 0 until paragraph.content.size) {
+                    parser.parseR(p, r, paragraph)
+                }
+            }
+        }
+    }
 
     open fun handlePContent(p: Int, r: Int, parser: ChapterParser) {
         when (val something = (mainDocumentPart.content[p] as P).content[r]) {
             is JAXBElement<*> -> when (something.value) {
                 is P.Hyperlink -> parser.handleHyperlink(p, r)
-                is CTRel -> errors += DocumentError(document.id, p, r, ErrorType.TODO_ERROR)
+                is CTRel -> errors += DocumentError(document.id, p, r, TODO_ERROR)
                 is CTMarkup -> when (something.value) {
                     is CTMarkupRange -> when (something.value) {
                         is CTBookmark -> when (something.value) {
-                            is CTMoveBookmark -> errors += DocumentError(document.id, p, r, ErrorType.TODO_ERROR)
+                            is CTMoveBookmark -> errors += DocumentError(document.id, p, r, TODO_ERROR)
                         }
                     }
-                    is CTMoveToRangeEnd -> errors += DocumentError(document.id, p, r, ErrorType.TODO_ERROR)
+                    is CTMoveToRangeEnd -> errors += DocumentError(document.id, p, r, TODO_ERROR)
                     is CTTrackChange -> when (something.value) {
-                        is RunTrackChange -> errors += DocumentError(document.id, p, r, ErrorType.TODO_ERROR)
+                        is RunTrackChange -> errors += DocumentError(document.id, p, r, TODO_ERROR)
                     }
-                    is CTMoveFromRangeEnd -> errors += DocumentError(document.id, p, r, ErrorType.TODO_ERROR)
+                    is CTMoveFromRangeEnd -> errors += DocumentError(document.id, p, r, TODO_ERROR)
                 }
                 is ContentAccessor -> when (something.value) {
-                    is CTSimpleField -> errors += DocumentError(document.id, p, r, ErrorType.TODO_ERROR)
-                    is CTSmartTagRun -> errors += DocumentError(document.id, p, r, ErrorType.TODO_ERROR)
-                    is CTCustomXmlRun -> errors += DocumentError(document.id, p, r, ErrorType.TODO_ERROR)
+                    is CTSimpleField -> errors += DocumentError(document.id, p, r, TODO_ERROR)
+                    is CTSmartTagRun -> errors += DocumentError(document.id, p, r, TODO_ERROR)
+                    is CTCustomXmlRun -> errors += DocumentError(document.id, p, r, TODO_ERROR)
                 }
                 is CTPerm -> when (something.value) {
-                    is RangePermissionStart -> errors += DocumentError(document.id, p, r, ErrorType.TODO_ERROR)
+                    is RangePermissionStart -> errors += DocumentError(document.id, p, r, TODO_ERROR)
                 }
-                is CTOMathPara -> errors += DocumentError(document.id, p, r, ErrorType.TODO_ERROR)
-                is CTOMath -> errors += DocumentError(document.id, p, r, ErrorType.TODO_ERROR)
-                is SdtRun -> errors += DocumentError(document.id, p, r, ErrorType.TODO_ERROR)
-                is P.Bdo -> errors += DocumentError(document.id, p, r, ErrorType.TODO_ERROR)
-                is P.Dir -> errors += DocumentError(document.id, p, r, ErrorType.TODO_ERROR)
+                is CTOMathPara -> errors += DocumentError(document.id, p, r, TODO_ERROR)
+                is CTOMath -> errors += DocumentError(document.id, p, r, TODO_ERROR)
+                is SdtRun -> errors += DocumentError(document.id, p, r, TODO_ERROR)
+                is P.Bdo -> errors += DocumentError(document.id, p, r, TODO_ERROR)
+                is P.Dir -> errors += DocumentError(document.id, p, r, TODO_ERROR)
             }
             is ProofErr -> {
                 if (something.type == "gramStart") {
-                    errors += DocumentError(document.id, p, r + 1, ErrorType.WORD_GRAMMATICAL_ERROR)
+                    errors += DocumentError(document.id, p, r + 1, WORD_GRAMMATICAL_ERROR)
                 } else if (something.type == "spellStart") {
-                    errors += DocumentError(document.id, p, r + 1, ErrorType.WORD_SPELL_ERROR)
+                    errors += DocumentError(document.id, p, r + 1, WORD_SPELL_ERROR)
                 }
             }
-            is Br -> errors += DocumentError(document.id, p, r, ErrorType.TODO_ERROR)
-            is RunIns -> errors += DocumentError(document.id, p, r, ErrorType.TODO_ERROR)
-            is RunDel -> errors += DocumentError(document.id, p, r, ErrorType.TODO_ERROR)
-            is CommentRangeStart -> errors += DocumentError(document.id, p, r, ErrorType.TODO_ERROR)
-            is CommentRangeEnd -> errors += DocumentError(document.id, p, r, ErrorType.TODO_ERROR)
+            is Br -> errors += DocumentError(document.id, p, r, TODO_ERROR)
+            is RunIns -> errors += DocumentError(document.id, p, r, TODO_ERROR)
+            is RunDel -> errors += DocumentError(document.id, p, r, TODO_ERROR)
+            is CommentRangeStart -> errors += DocumentError(document.id, p, r, TODO_ERROR)
+            is CommentRangeEnd -> errors += DocumentError(document.id, p, r, TODO_ERROR)
+        }
+    }
+
+    open fun handleRContent(p: Int, r: Int, c: Int, parser: ChapterParser, pictureContainer: MutableList<Picture>) {
+        when (val something = ((mainDocumentPart.content[p] as P).content[r] as R).content[c]) {
+            is JAXBElement<*> -> when (something.value) {
+                is Drawing -> parser.handleDrawing(p, r, c, pictureContainer)
+                is Text -> Unit
+                is R.Ptab,
+                is R.YearLong,
+                is R.DayShort,
+                is R.NoBreakHyphen,
+                is R.EndnoteRef,
+                is R.PgNum,
+                is R.SoftHyphen,
+                is Pict,
+                is R.Tab,
+                is R.Separator,
+                is R.LastRenderedPageBreak,
+                is CTObject,
+                is CTFtnEdnRef,
+                is R.MonthShort,
+                is R.MonthLong,
+                is R.ContinuationSeparator,
+                is CTRuby,
+                is R.AnnotationRef,
+                is R.Cr,
+                is R.YearShort,
+                is FldChar,
+                is R.Sym,
+                is R.CommentReference,
+                is R.FootnoteRef,
+                is R.DayLong -> errors += DocumentError(document.id, p, r, TODO_ERROR, something.declaredType.simpleName)
+            }
+            is Br -> errors += DocumentError(document.id, p, r, TODO_ERROR)
+            is DelText -> errors += DocumentError(document.id, p, r, TODO_ERROR)
+            is AlternateContent -> {
+                // todo: is it only first object?
+                if (something.choice.first().any.first() is Drawing) {
+                    parser.handleDrawing(p, r, c, parser.pictures)
+                } else {
+                    errors += DocumentError(document.id, p, r, TODO_ERROR)
+                }
+            }
         }
     }
 
     abstract fun handleHyperlink(p: Int, r: Int)
+
+    open fun handleDrawing(p: Int, r: Int, c: Int, container: MutableList<Picture>) {
+        val drawing: Drawing = try {
+            (((mainDocumentPart.content[p] as P).content[r] as R).content[c] as JAXBElement<*>).value as Drawing
+        } catch (e: java.lang.ClassCastException) {
+            (((mainDocumentPart.content[p] as P).content[r] as R).content[c] as AlternateContent).choice.first().any.first() as Drawing
+        }
+
+        val picture = Picture(p, r, c, drawing)
+        if ((drawing.anchorOrInline as ArrayListWml<*>)[0] is Anchor) {
+            errors += DocumentError(document.id, p, r, PICTURE_IS_NOT_INLINED)
+        } else {
+            container.add(picture)
+            picture.title = TextUtils.getText(mainDocumentPart.content[p + 1] as P).let {
+                if (it.uppercase().startsWith("РИСУНОК ")) {
+                    it
+                } else {
+                    errors += DocumentError(document.id, p, r, PICTURE_TITLE_REQUIRED_LINE_BREAK_BETWEEN_PICTURE_AND_TITLE)
+                    null
+                }
+            }
+            if (TextUtils.getText(mainDocumentPart.content[p - 1] as P).isNotBlank()) {
+                errors += DocumentError(document.id, p, r, PICTURE_REQUIRED_BLANK_LINE_BEFORE_PICTURE)
+            }
+            if (!isHeader(p + 2)) {
+                if (TextUtils.getText(mainDocumentPart.content[p + 2] as P).isNotBlank()) {
+                    errors += DocumentError(document.id, p, r, PICTURE_REQUIRED_BLANK_LINE_AFTER_PICTURE_TITLE)
+                }
+            }
+        }
+    }
 
     fun validateList(startParagraph: Int) {
         var end = startParagraph

@@ -1,6 +1,6 @@
 package com.maeasoftworks.normativecontrol.parser
 
-import com.maeasoftworks.normativecontrol.parser.chapters.Chapter
+import com.maeasoftworks.normativecontrol.parser.chapters.model.Chapter
 import com.maeasoftworks.normativecontrol.parser.chapters.parsers.ChapterParser
 import com.maeasoftworks.normativecontrol.parser.chapters.parsers.PFunctionWrapper
 import com.maeasoftworks.normativecontrol.parser.chapters.parsers.RFunctionWrapper

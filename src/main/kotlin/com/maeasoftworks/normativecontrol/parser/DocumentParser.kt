@@ -1,8 +1,9 @@
 package com.maeasoftworks.normativecontrol.parser
 
 import com.maeasoftworks.normativecontrol.entities.DocumentError
-import com.maeasoftworks.normativecontrol.parser.chapters.Chapter
+import com.maeasoftworks.normativecontrol.parser.chapters.model.Chapter
 import com.maeasoftworks.normativecontrol.parser.chapters.HeadersKeywords
+import com.maeasoftworks.normativecontrol.parser.chapters.model.Picture
 import com.maeasoftworks.normativecontrol.parser.chapters.parsers.*
 import com.maeasoftworks.normativecontrol.parser.enums.ChapterType
 import com.maeasoftworks.normativecontrol.parser.enums.ErrorType
@@ -28,7 +29,7 @@ open class DocumentParser(
     var parsers: MutableList<ChapterParser> = ArrayList()
     var errors: MutableList<DocumentError> = ArrayList()
     var tables: MutableList<Tbl> = ArrayList()
-    var pictures: MutableList<Any> = ArrayList()
+    open var pictures: MutableList<Picture> = ArrayList()
 
     fun init() {
         try {
@@ -46,11 +47,10 @@ open class DocumentParser(
         verifyPageMargins()
         setupChapters()
         createParsers()
-
         for (parser in parsers) {
             parser.parse(parser)
         }
-
+        checkPicturesOrder(this, 0, false, pictures)
         return errors
     }
 
@@ -243,23 +243,6 @@ open class DocumentParser(
         )
     }
 
-    fun verifyBody() {
-        var i = 0
-        chapters.filter { it.type == ChapterType.BODY }.forEach {
-            if (!TextUtils.getText(it.header).startsWith((++i).toString())) {
-                errors += DocumentError(document.id, chapters.indexOf(it).toLong(), CHAPTER_BODY_DISORDER)
-            }
-        }
-    }
-
-    protected fun isHeader(paragraph: Int, level: Int): Boolean {
-        val pPr = resolver.getEffectivePPr((mainDocumentPart.content[paragraph] as P).pPr)
-        if (pPr == null || pPr.outlineLvl == null) {
-            return false
-        }
-        return pPr.outlineLvl.`val`.toInt() == level - 1
-    }
-
     fun createParsers() {
         for (chapter in chapters) {
             when (chapter.type) {
@@ -273,6 +256,53 @@ open class DocumentParser(
                 ChapterType.APPENDIX -> parsers.add(AppendixParser(this, chapter))
                 else -> {}
             }
+        }
+    }
+
+    fun verifyBody() {
+        var i = 0
+        chapters.filter { it.type == ChapterType.BODY }.forEach {
+            if (!TextUtils.getText(it.header).startsWith((++i).toString())) {
+                errors += DocumentError(document.id, chapters.indexOf(it).toLong(), CHAPTER_BODY_DISORDER)
+            }
+        }
+    }
+
+    protected fun isHeader(paragraph: Int, level: Int? = null): Boolean {
+        val pPr = resolver.getEffectivePPr((mainDocumentPart.content[paragraph] as P).pPr)
+        if (pPr == null || pPr.outlineLvl == null) {
+            return false
+        }
+        return if (level != null) {
+            pPr.outlineLvl.`val`.toInt() == level - 1
+        } else {
+            pPr.outlineLvl.`val` != null
+        }
+    }
+
+    open fun pictureTitleMatcher(title: String): MatchResult? {
+        return Regex("РИСУНОК (\\d+)").find(title.uppercase())
+    }
+
+    fun checkPicturesOrder(parser: DocumentParser, level: Int, useInnerIndexer: Boolean, container: MutableList<Picture>) {
+        if (useInnerIndexer) {
+            var index = 1
+            for (picture in container) {
+                if (picture.title == null) {
+                    continue
+                }
+                val match = parser.pictureTitleMatcher(picture.title!!)
+                if (match != null) {
+                    if (match.groups[1 + level]!!.value.toInt() != index) {
+                        errors += DocumentError(document.id, picture.p, picture.r, PICTURE_TITLE_NUMBER_DISORDER)
+                    }
+                } else {
+                    errors += DocumentError(document.id, picture.p, picture.r, PICTURE_TITLE_WRONG_FORMAT)
+                }
+                index++
+            }
+        } else {
+            pictures.addAll(container)
         }
     }
 }

@@ -12,23 +12,6 @@ object Rules {
     object Default {
         object Common {
             object P {
-                fun textAlignIsBoth(
-                    documentId: String,
-                    p: Int,
-                    pPr: PPr,
-                    isEmpty: Boolean,
-                    mainDocumentPart: MainDocumentPart
-                ): DocumentError? {
-                    return if (pPr.textAlignment != null && pPr.textAlignment.`val` != "left") {
-                        DocumentError(
-                            documentId,
-                            p,
-                            -1,
-                            if (isEmpty) ErrorType.TEXT_WHITESPACE_INCORRECT_DIRECTION else ErrorType.TEXT_COMMON_INCORRECT_DIRECTION
-                        )
-                    } else null
-                }
-
                 fun notBordered(
                     documentId: String,
                     p: Int,
@@ -201,7 +184,7 @@ object Rules {
                     } else null
                 }
 
-                fun lineSpacingIsOneAndHalf(
+                fun lineSpacingIsOne(
                     documentId: String,
                     p: Int,
                     pPr: PPr,

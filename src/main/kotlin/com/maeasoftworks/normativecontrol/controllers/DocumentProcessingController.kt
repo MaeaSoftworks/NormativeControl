@@ -36,6 +36,9 @@ class DocumentProcessingController(private val documentManager: DocumentManager)
         @RequestParam("accessKey") accessKey: String,
         @RequestParam("file") file: MultipartFile
     ) {
+        if (documentManager.uploaded(accessKey, documentId)) {
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "File already uploaded")
+        }
         if (file.originalFilename == null || file.originalFilename == "") {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Required arguments were empty")
         }

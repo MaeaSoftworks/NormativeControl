@@ -86,7 +86,7 @@ interface DocumentProcessingDocumentation {
         HttpStatus.OK,
         String::class,
         "array of Error objects",
-        "<br><code>{ \"errors\": [<span class='var'>\$ERRORS</span>] }</code><br>where <span class='var'>\$ERRORS</span> is <a class='doc-link' href='/docs?section?Error'>Error</a> array."
+        "<br><code>{ \"errors\": [<span class='var'>\$ERRORS</span>] }</code><br>where <span class='var'>\$ERRORS</span> is <a class='doc-link' href='/docs?section=DocumentError'>DocumentError</a> array."
     )
     @PossibleResponse(HttpStatus.NOT_FOUND, description = "document not found")
     @PossibleResponse(HttpStatus.FORBIDDEN, description = "access key is invalid")

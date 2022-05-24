@@ -2,15 +2,20 @@ package com.maeasoftworks.normativecontrol.parser.chapters.parsers
 
 import com.maeasoftworks.normativecontrol.entities.DocumentError
 import com.maeasoftworks.normativecontrol.parser.DocumentParser
-import com.maeasoftworks.normativecontrol.parser.chapters.Chapter
+import com.maeasoftworks.normativecontrol.parser.chapters.model.Chapter
 import com.maeasoftworks.normativecontrol.parser.chapters.Rules
+import com.maeasoftworks.normativecontrol.parser.chapters.model.Picture
 import com.maeasoftworks.normativecontrol.parser.enums.ErrorType
 import org.docx4j.TextUtils
 import org.docx4j.wml.*
 
 class BodyParser(parser: DocumentParser, chapter: Chapter) : ChapterParser(parser, chapter) {
+    private var isPicturesOrderedInSubchapters: Boolean? = false
+    private lateinit var innerPictures: MutableList<Picture>
+
     private val subchapters = Subchapter(
         chapter.startPos + 1,
+        null,
         null,
         Regex("^(?:\\d\\.?){1,3}").let {
             val text = TextUtils.getText(chapter.header)
@@ -33,6 +38,7 @@ class BodyParser(parser: DocumentParser, chapter: Chapter) : ChapterParser(parse
                 val newChapter = Subchapter(
                     pos,
                     mainDocumentPart.content[pos] as P,
+                    currentChapter,
                     Regex("^(?:\\d\\.?){1,3}")
                         .find(TextUtils.getText(mainDocumentPart.content[pos]))!!.value
                         .removeSuffix(".")
@@ -52,7 +58,7 @@ class BodyParser(parser: DocumentParser, chapter: Chapter) : ChapterParser(parse
                 pos++
             }
         }
-        return 0
+        return -1
     }
 
     override fun parse(parser: ChapterParser) {
@@ -60,6 +66,13 @@ class BodyParser(parser: DocumentParser, chapter: Chapter) : ChapterParser(parse
         validateSubchapters(subchapters.num.toString(), subchapters)
         parseHeader()
         parseSubchapter(subchapters)
+        flatPictures()
+        checkPicturesOrder(this, if (isPicturesOrderedInSubchapters!!) 1 else 0, isPicturesOrderedInSubchapters!!, innerPictures)
+    }
+
+    private fun flatPictures() {
+        subchapters.flatPictures()
+        innerPictures = subchapters.pictures
     }
 
     private fun parseSubchapter(subchapter: Subchapter) {
@@ -79,17 +92,20 @@ class BodyParser(parser: DocumentParser, chapter: Chapter) : ChapterParser(parse
         for (p in subchapter.startPos + 1 until subchapter.startPos + subchapter.content.size) {
             val pPr = resolver.getEffectivePPr((mainDocumentPart.content[p] as P).pPr)
             val paragraph = mainDocumentPart.content[p] as P
-            val isEmptyP = TextUtils.getText(paragraph).isEmpty()
+            val isEmptyP = TextUtils.getText(paragraph).isBlank()
             applyPFunctions(p, pPr, isEmptyP, commonPFunctions + regularPBeforeListCheckFunctions)
             if (pPr.numPr != null) {
                 validateList(p)
-                continue
+            } else {
+                applyPFunctions(p, pPr, isEmptyP, regularPAfterListCheckFunctions)
             }
-            applyPFunctions(p, pPr, isEmptyP, regularPAfterListCheckFunctions)
             for (r in 0 until paragraph.content.size) {
                 if (paragraph.content[r] is R) {
                     val rPr = resolver.getEffectiveRPr((paragraph.content[r] as R).rPr, paragraph.pPr)
                     applyRFunctions(p, r, rPr, isEmptyP, commonRFunctions + regularRFunctions)
+                    for (c in 0 until (paragraph.content[r] as R).content.size) {
+                        handleRContent(p, r, c, this, subchapter.pictures)
+                    }
                 } else {
                     handlePContent(p, r, this)
                 }
@@ -102,7 +118,7 @@ class BodyParser(parser: DocumentParser, chapter: Chapter) : ChapterParser(parse
 
     override fun parseHeader() {
         val headerPPr = resolver.getEffectivePPr(chapter.header.pPr)
-        val isEmpty = TextUtils.getText(chapter.header).isEmpty()
+        val isEmpty = TextUtils.getText(chapter.header).isBlank()
         applyPFunctions(chapter.startPos, headerPPr, isEmpty, headerPFunctions + commonPFunctions)
         for (r in 0 until chapter.header.content.size) {
             if (chapter.header.content[r] is R) {
@@ -115,8 +131,8 @@ class BodyParser(parser: DocumentParser, chapter: Chapter) : ChapterParser(parse
     }
 
     override fun parseP(p: Int, pPr: PPr, isEmpty: Boolean) {}
-    override fun parseR(p: Int, r: Int, paragraph: P) {}
 
+    override fun parseR(p: Int, r: Int, paragraph: P) {}
 
     override fun handleHyperlink(p: Int, r: Int) {
         errors += DocumentError(document.id, p, r, ErrorType.TEXT_HYPERLINKS_NOT_ALLOWED_HERE)
@@ -145,37 +161,21 @@ class BodyParser(parser: DocumentParser, chapter: Chapter) : ChapterParser(parse
         }
     }
 
-    override fun applyPFunctions(p: Int, pPr: PPr, isEmpty: Boolean, pFunctionWrappers: Iterable<PFunctionWrapper>) {
-        for (wrapper in pFunctionWrappers) {
-            val error = wrapper.function(document.id, p, pPr, isEmpty, mainDocumentPart)
-            if (error != null) {
-                errors += error
-            }
-        }
-    }
-
-    override fun applyRFunctions(
-        p: Int,
-        r: Int,
-        rPr: RPr,
-        isEmpty: Boolean,
-        rFunctionWrappers: Iterable<RFunctionWrapper>
-    ) {
-        for (wrapper in rFunctionWrappers) {
-            val error = wrapper.function(document.id, p, r, rPr, isEmpty, mainDocumentPart)
-            if (error != null) {
-                errors += error
-            }
-        }
+    override fun pictureTitleMatcher(title: String): MatchResult? {
+        return if (Regex("РИСУНОК (\\d+)").matches(title.uppercase())) {
+            isPicturesOrderedInSubchapters = false
+            Regex("РИСУНОК (\\d+)").find(title.uppercase())
+        } else if (Regex("РИСУНОК (\\d)\\.(\\d+)").matches(title.uppercase())) {
+            isPicturesOrderedInSubchapters = true
+            Regex("РИСУНОК (\\d)\\.(\\d+)").find(title.uppercase())
+        } else null
     }
 
     companion object {
         private val commonPFunctions =
             createPRulesCollection(
-                Rules.Default.Common.P::textAlignIsBoth,
                 Rules.Default.Common.P::hasNotBackground,
-                Rules.Default.Common.P::notBordered,
-                Rules.Default.Common.P::textAlignIsBoth
+                Rules.Default.Common.P::notBordered
             )
 
         private val commonRFunctions =
@@ -198,7 +198,7 @@ class BodyParser(parser: DocumentParser, chapter: Chapter) : ChapterParser(parse
             createPRulesCollection(
                 Rules.Body.Header.P::justifyIsLeft,
                 Rules.Body.Header.P::isNotUppercase,
-                Rules.Default.Header.P::lineSpacingIsOneAndHalf,
+                Rules.Default.Header.P::lineSpacingIsOne,
                 Rules.Default.Header.P::emptyLineAfterHeaderExists,
                 Rules.Default.Header.P::hasNotDotInEnd,
                 Rules.Default.RegularText.P::firstLineIndentIs1dot25,
@@ -225,8 +225,16 @@ class BodyParser(parser: DocumentParser, chapter: Chapter) : ChapterParser(parse
             )
     }
 
-    class Subchapter(val startPos: Int, val subheader: P?, val num: Int?, val level: Int) {
+    inner class Subchapter(val startPos: Int, val subheader: P?, private val root: Subchapter?, val num: Int?, val level: Int) {
+        fun flatPictures() {
+            for (subchapter in subchapters) {
+                subchapter.flatPictures()
+            }
+            root?.pictures?.addAll(pictures)
+        }
+
         val subchapters: MutableList<Subchapter> = ArrayList()
         val content: MutableList<Any> = ArrayList()
+        var pictures: MutableList<Picture> = ArrayList()
     }
 }

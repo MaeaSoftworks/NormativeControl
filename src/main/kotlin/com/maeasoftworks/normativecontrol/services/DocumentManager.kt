@@ -85,4 +85,11 @@ class DocumentManager(
             DocumentKey("", null)
         ).accessKey
     }
+
+    fun uploaded(accessKey: String, documentId: String): Boolean {
+        return queue.getById(documentId)
+            .let { it != null && it.document.accessKey == accessKey && !it.document.file.contentEquals(ByteArray(0)) } || documentRepository.findById(
+            documentId
+        ).let { it.isPresent && it.get().accessKey == accessKey }
+    }
 }

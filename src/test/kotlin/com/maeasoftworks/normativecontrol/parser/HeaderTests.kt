@@ -1,6 +1,6 @@
 package com.maeasoftworks.normativecontrol.parser
 
-import com.maeasoftworks.normativecontrol.parser.chapters.Chapter
+import com.maeasoftworks.normativecontrol.parser.chapters.model.Chapter
 import com.maeasoftworks.normativecontrol.parser.chapters.parsers.BodyParser
 import com.maeasoftworks.normativecontrol.parser.chapters.parsers.SimpleParser
 import com.maeasoftworks.normativecontrol.parser.enums.ChapterType

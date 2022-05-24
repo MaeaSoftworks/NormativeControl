@@ -25,7 +25,7 @@ class DocumentError(
     val runId: Int,
     @PropertyDocumentation("error type. Can be:", ErrorType::class)
     val errorType: ErrorType,
-    @PropertyDocumentation("describes expected and found values. Format: <code>\"\${\$FOUND}/\${\$EXPECTED}\"</code>")
+    @PropertyDocumentation("describes expected and found values. Format: <code>\"\${\$FOUND}/\${\$EXPECTED}\"</code>.<br>Also can contains some debug information")
     val description: String = ""
 ) {
     @Id

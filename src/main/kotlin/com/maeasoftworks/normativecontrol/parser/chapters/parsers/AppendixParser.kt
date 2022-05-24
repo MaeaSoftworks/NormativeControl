@@ -1,7 +1,7 @@
 package com.maeasoftworks.normativecontrol.parser.chapters.parsers
 
 import com.maeasoftworks.normativecontrol.parser.DocumentParser
-import com.maeasoftworks.normativecontrol.parser.chapters.Chapter
+import com.maeasoftworks.normativecontrol.parser.chapters.model.Chapter
 import org.docx4j.wml.P
 import org.docx4j.wml.PPr
 import org.docx4j.wml.RPr

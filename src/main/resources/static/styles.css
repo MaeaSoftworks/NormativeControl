@@ -151,7 +151,7 @@ main {
     grid-column: 2;
     overflow: hidden;
     display: grid;
-    grid-template-rows: auto auto auto;
+    grid-template-rows: 50px 50px auto;
 }
 
 h2 {
@@ -263,6 +263,7 @@ code {
     justify-content: center;
     align-items: center;
     height: 100%;
+    grid-row: span 3;
 }
 
 .scrollable {

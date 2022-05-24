@@ -40,7 +40,7 @@ enum class ErrorType {
 //=======================================================================================================================================================================================================================================================//
 //                          /*|*/             common                /*|*/          header                                        /*|*/           regular text            /*|*/              whitespace                                                   //
 //==========================/*|*/===================================/*|*/========================================================/*|*/===================================/*|*/===========================================================================//
-/*|*/ /*alignment*/         /*|*/                                   /*|*/ TEXT_HEADER_EMPTY,                                     /*|*/                                   /*|*/                                                                        /*|*/
+/*|*/ /*empty*/             /*|*/                                   /*|*/ TEXT_HEADER_EMPTY,                                     /*|*/                                   /*|*/                                                                        /*|*/
 /*|*/ /*alignment*/         /*|*/                                   /*|*/ TEXT_HEADER_ALIGNMENT, TEXT_HEADER_BODY_ALIGNMENT,     /*|*/ TEXT_REGULAR_INCORRECT_ALIGNMENT, /*|*/ TEXT_WHITESPACE_ALIGNMENT, TEXT_WHITESPACE_AFTER_HEADER_ALIGNMENT,     /*|*/
 /*|*/ /*uppercase*/         /*|*/                                   /*|*/ TEXT_HEADER_NOT_UPPERCASE, TEXT_HEADER_BODY_UPPERCASE, /*|*/ TEXT_REGULAR_UPPERCASE,           /*|*/ TEXT_WHITESPACE_UPPERCASE, TEXT_WHITESPACE_AFTER_HEADER_UPPERCASE,     /*|*/
 /*|*/ /*bold*/              /*|*/                                   /*|*/ TEXT_HEADER_NOT_BOLD,                                  /*|*/ TEXT_REGULAR_WAS_BOLD,            /*|*/ TEXT_WHITESPACE_BOLD, TEXT_WHITESPACE_AFTER_HEADER_BOLD,               /*|*/
@@ -51,7 +51,6 @@ enum class ErrorType {
 /*|*/ /*italic*/            /*|*/ TEXT_COMMON_ITALIC_TEXT,          /*|*/                                                        /*|*/                                   /*|*/ TEXT_WHITESPACE_ITALIC,                                                /*|*/
 /*|*/ /*strikethrough*/     /*|*/ TEXT_COMMON_STRIKETHROUGH,        /*|*/                                                        /*|*/                                   /*|*/ TEXT_WHITESPACE_STRIKETHROUGH,                                         /*|*/
 /*|*/ /*highlight*/         /*|*/ TEXT_COMMON_HIGHLIGHT,            /*|*/                                                        /*|*/                                   /*|*/ TEXT_WHITESPACE_HIGHLIGHT,                                             /*|*/
-/*|*/ /*text direction*/    /*|*/ TEXT_COMMON_INCORRECT_DIRECTION,  /*|*/                                                        /*|*/                                   /*|*/ TEXT_WHITESPACE_INCORRECT_DIRECTION,                                   /*|*/
 /*|*/ /*border*/            /*|*/ TEXT_COMMON_BORDER,               /*|*/                                                        /*|*/                                   /*|*/ TEXT_WHITESPACE_BORDER,                                                /*|*/
 /*|*/ /*background fill*/   /*|*/ TEXT_COMMON_BACKGROUND_FILL,      /*|*/                                                        /*|*/                                   /*|*/ TEXT_WHITESPACE_BACKGROUND_FILL,                                       /*|*/
 /*|*/ /*line spacing*/      /*|*/                                   /*|*/ TEXT_HEADER_LINE_SPACING,                              /*|*/  TEXT_REGULAR_LINE_SPACING,       /*|*/ TEXT_WHITESPACE_LINE_SPACING,                                          /*|*/
@@ -71,6 +70,14 @@ enum class ErrorType {
 
     // header only settings
     TEXT_HEADER_EMPTY_LINE_AFTER_HEADER_REQUIRED,
-    TEXT_HYPERLINKS_NOT_ALLOWED_HERE
+    TEXT_HYPERLINKS_NOT_ALLOWED_HERE,
+
+    // pictures
+    PICTURE_IS_NOT_INLINED,
+    PICTURE_REQUIRED_BLANK_LINE_BEFORE_PICTURE,
+    PICTURE_REQUIRED_BLANK_LINE_AFTER_PICTURE_TITLE,
+    PICTURE_TITLE_NUMBER_DISORDER,
+    PICTURE_TITLE_WRONG_FORMAT,
+    PICTURE_TITLE_REQUIRED_LINE_BREAK_BETWEEN_PICTURE_AND_TITLE,
 }
 //@formatter:on

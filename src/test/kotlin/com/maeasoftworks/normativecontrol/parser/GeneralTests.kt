@@ -13,7 +13,7 @@ class GeneralTests : ParserTestFactory(GeneralTests::class) {
         parser.createParsers()
         parser.parsers[1].parse()
         for (error in parser.errors) {
-            println("${error.paragraphId} ${error.runId} ${error.errorType}")
+            println("${error.paragraphId} ${error.runId} ${error.errorType} ${error.description}")
         }
         Assert.isTrue(parser.errors.size == 0, "There shouldn't be any error!")
     }
@@ -27,7 +27,7 @@ class GeneralTests : ParserTestFactory(GeneralTests::class) {
         parser.createParsers()
         parser.parsers[3].parse(parser.parsers[3])
         for (error in parser.errors) {
-            println("${error.paragraphId} ${error.runId} ${error.errorType}")
+            println("${error.paragraphId} ${error.runId} ${error.errorType} ${error.description}")
         }
         Assert.isTrue(parser.errors.size != 0, "There should be errors!")
     }
@@ -41,8 +41,8 @@ class GeneralTests : ParserTestFactory(GeneralTests::class) {
         parser.parsers[5].parse()
         parser.parsers[6].parse()
         parser.parsers[7].parse()
-        for (error in parser.errors) {
-            println("${error.paragraphId} ${error.runId} ${error.errorType}")
+        for (error in parser.errors.filter { !it.errorType.name.contains("WHITESPACE") }) {
+            println("${error.paragraphId} ${error.runId} ${error.errorType} ${error.description}")
         }
         Assert.isTrue(parser.errors.size != 0, "There should be errors!")
     }
