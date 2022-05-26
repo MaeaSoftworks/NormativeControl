@@ -3,10 +3,10 @@ package com.maeasoftworks.normativecontrol.rules
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
 import com.maeasoftworks.normativecontrol.entities.DocumentError
-import com.maeasoftworks.normativecontrol.parser.model.Document
-import com.maeasoftworks.normativecontrol.parser.parsers.DocumentParser
 import com.maeasoftworks.normativecontrol.parser.PFunctionWrapper
 import com.maeasoftworks.normativecontrol.parser.RFunctionWrapper
+import com.maeasoftworks.normativecontrol.parser.model.Document
+import com.maeasoftworks.normativecontrol.parser.parsers.DocumentParser
 import org.docx4j.TextUtils
 import org.docx4j.openpackaging.exceptions.Docx4JException
 import org.docx4j.wml.P

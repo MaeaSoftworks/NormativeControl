@@ -1,8 +1,8 @@
 package com.maeasoftworks.normativecontrol.services
 
+import com.maeasoftworks.normativecontrol.parser.enums.State
 import com.maeasoftworks.normativecontrol.parser.parsers.DocumentParser
 import com.maeasoftworks.normativecontrol.parser.parsers.DocumentParserRunnable
-import com.maeasoftworks.normativecontrol.parser.enums.State
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service

@@ -1,7 +1,7 @@
 package com.maeasoftworks.normativecontrol.parser
 
-import com.maeasoftworks.normativecontrol.parser.model.Chapter
 import com.maeasoftworks.normativecontrol.parser.enums.ErrorType
+import com.maeasoftworks.normativecontrol.parser.model.Chapter
 import com.maeasoftworks.normativecontrol.parser.parsers.SimpleParser
 import org.junit.jupiter.api.Test
 
@@ -29,22 +29,22 @@ class StyleTests : ParserTestFactory(StyleTests::class) {
     @Test
     fun `incorrect header style validated properly`() {
         val parser = createParser("very broken text.docx")
-        parser.parsers += SimpleParser(parser, Chapter(0, parser.mainDocumentPart.content))
+        parser.parsers += SimpleParser(Chapter(0, parser.mainDocumentPart.content), parser)
         parser.parsers[0].parse()
         errorAssert(
             parser.errors,
-            ErrorType.TEXT_HEADER_ALIGNMENT,
-            ErrorType.TEXT_HEADER_LINE_SPACING,
-            ErrorType.CHAPTER_EMPTY,
-            ErrorType.TEXT_COMMON_BACKGROUND_FILL,
-            ErrorType.TEXT_COMMON_BORDER,
             ErrorType.TEXT_HEADER_NOT_UPPERCASE,
             ErrorType.TEXT_COMMON_FONT,
             ErrorType.TEXT_COMMON_INCORRECT_FONT_SIZE,
             ErrorType.TEXT_COMMON_ITALIC_TEXT,
             ErrorType.TEXT_COMMON_STRIKETHROUGH,
             ErrorType.TEXT_COMMON_HIGHLIGHT,
-            ErrorType.TEXT_COMMON_TEXT_COLOR
+            ErrorType.TEXT_COMMON_TEXT_COLOR,
+            ErrorType.TEXT_HEADER_ALIGNMENT,
+            ErrorType.TEXT_HEADER_LINE_SPACING,
+            ErrorType.CHAPTER_EMPTY,
+            ErrorType.TEXT_COMMON_BACKGROUND_FILL,
+            ErrorType.TEXT_COMMON_BORDER
         )
     }
 }

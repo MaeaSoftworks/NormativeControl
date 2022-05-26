@@ -231,13 +231,23 @@ object Rules {
                     isEmpty: Boolean,
                     mainDocumentPart: MainDocumentPart
                 ): DocumentError? {
-                    return if (mainDocumentPart.content.size <= p + 1) {
-                        DocumentError(
+                    if (mainDocumentPart.content.size <= p + 1) {
+                        return DocumentError(
                             documentId,
                             p + 1,
                             ErrorType.CHAPTER_EMPTY
                         )
-                    } else if (TextUtils.getText(mainDocumentPart.content[p + 1] as org.docx4j.wml.P).isNotEmpty()) {
+                    }
+                    val isNotEmpty = try {
+                        TextUtils.getText(mainDocumentPart.content[p + 1] as org.docx4j.wml.P).isNotEmpty()
+                    } catch (e: ClassCastException) {
+                        return DocumentError(
+                            documentId,
+                            p + 1,
+                            ErrorType.TEXT_HEADER_EMPTY_LINE_AFTER_HEADER_REQUIRED
+                        )
+                    }
+                    return if (isNotEmpty) {
                         DocumentError(
                             documentId,
                             p + 1,
@@ -333,7 +343,7 @@ object Rules {
                     isEmpty: Boolean,
                     mainDocumentPart: MainDocumentPart
                 ): DocumentError? {
-                    return if (pPr.ind != null && pPr.ind.firstLine != null && abs(floor(pPr.ind.firstLine.intValueExact() / 1440 * 2.54) - 1.25) <= 0.01) {
+                    return if (pPr.numPr != null && pPr.ind != null && pPr.ind.firstLine != null && abs(floor(pPr.ind.firstLine.intValueExact() / 1440 * 2.54) - 1.25) <= 0.01) {
                         DocumentError(
                             documentId,
                             p,
@@ -350,7 +360,7 @@ object Rules {
                     isEmpty: Boolean,
                     mainDocumentPart: MainDocumentPart
                 ): DocumentError? {
-                    return if (pPr.ind != null && pPr.ind.left != null && pPr.ind.left.intValueExact() != 0) {
+                    return if (pPr.numPr != null && pPr.ind != null && pPr.ind.left != null && pPr.ind.left.intValueExact() != 0) {
                         DocumentError(
                             documentId,
                             p,
@@ -367,7 +377,7 @@ object Rules {
                     isEmpty: Boolean,
                     mainDocumentPart: MainDocumentPart
                 ): DocumentError? {
-                    return if (pPr.ind != null && pPr.ind.right != null) {
+                    return if (pPr.numPr != null && pPr.ind != null && pPr.ind.right != null && pPr.ind.right.intValueExact() != 0) {
                         DocumentError(
                             documentId,
                             p,
@@ -453,6 +463,7 @@ object Rules {
                         )
                     } else null
                 }
+
                 fun hasNotDotInEnd(
                     documentId: String,
                     p: Int,

@@ -2,67 +2,21 @@ package com.maeasoftworks.normativecontrol.parser.parsers
 
 import com.maeasoftworks.normativecontrol.entities.DocumentError
 import com.maeasoftworks.normativecontrol.parser.Rules
+import com.maeasoftworks.normativecontrol.parser.apply
+import com.maeasoftworks.normativecontrol.parser.enums.ErrorType
 import com.maeasoftworks.normativecontrol.parser.model.Chapter
 import com.maeasoftworks.normativecontrol.parser.model.Picture
-import com.maeasoftworks.normativecontrol.parser.enums.ErrorType
 import org.docx4j.TextUtils
 import org.docx4j.wml.P
-import org.docx4j.wml.PPr
 import org.docx4j.wml.R
 
 class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter, root) {
     private var isPicturesOrderedInSubchapters: Boolean? = false
     private lateinit var innerPictures: MutableList<Picture>
 
-    private val subchapters = Subchapter(
-        chapter.startPos + 1,
-        null,
-        null,
-        Regex("^(?:\\d\\.?){1,3}").let {
-            val text = TextUtils.getText(chapter.header)
-            return@let if (text != null) {
-                it.find(text)?.value?.removeSuffix(".")?.toInt()
-            } else {
-                null
-            }
-        },
-        1
-    )
+    private val subchapters = Subchapter()
 
-    private fun createSubchaptersModel(pPos: Int, level: Int, currentChapter: Subchapter): Int {
-        var pos = pPos
-        while (pos <= chapter.startPos + chapter.content.size - 1) {
-            if (pos == -1) {
-                return -1
-            }
-            if (isHeader(pos, level)) {
-                val newChapter = Subchapter(
-                    pos,
-                    mainDocumentPart.content[pos] as P,
-                    currentChapter,
-                    Regex("^(?:\\d\\.?){1,3}")
-                        .find(TextUtils.getText(mainDocumentPart.content[pos]))!!.value
-                        .removeSuffix(".")
-                        .split('.')[level - 1]
-                        .toInt(),
-                    level
-                )
-                newChapter.content.add(mainDocumentPart.content[pos])
-                currentChapter.subchapters.add(newChapter)
-                pos = createSubchaptersModel(pos + 1, level + 1, newChapter)
-            } else if (isHeader(pos, level - 1)) {
-                return pos
-            } else if (isHeader(pos, level - 2)) {
-                return -1
-            } else {
-                currentChapter.content.add(mainDocumentPart.content[pos])
-                pos++
-            }
-        }
-        return -1
-    }
-
-    override fun parse(context: ChapterParser) {
+    override fun parse() {
         createSubchaptersModel(chapter.startPos + 1, 2, subchapters)
         validateSubchapters(subchapters.num.toString(), subchapters)
         parseHeader()
@@ -76,6 +30,39 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
         )
     }
 
+    private fun createSubchaptersModel(pPos: Int, level: Int, currentChapter: Subchapter): Int {
+        var pos = pPos
+        while (pos <= chapter.startPos + chapter.content.size - 1) {
+            if (pos == -1) {
+                return -1
+            }
+            if (root.isHeader(pos, level)) {
+                val newChapter = Subchapter(
+                    pos,
+                    root.mainDocumentPart.content[pos] as P,
+                    currentChapter,
+                    Regex("^(?:\\d\\.?){1,3}")
+                        .find(TextUtils.getText(root.mainDocumentPart.content[pos]))!!.value
+                        .removeSuffix(".")
+                        .split('.')[level - 1]
+                        .toInt(),
+                    level
+                )
+                newChapter.content.add(root.mainDocumentPart.content[pos])
+                currentChapter.subchapters.add(newChapter)
+                pos = createSubchaptersModel(pos + 1, level + 1, newChapter)
+            } else if (root.isHeader(pos, level - 1)) {
+                return pos
+            } else if (root.isHeader(pos, level - 2)) {
+                return -1
+            } else {
+                currentChapter.content.add(root.mainDocumentPart.content[pos])
+                pos++
+            }
+        }
+        return -1
+    }
+
     private fun flatPictures() {
         subchapters.flatPictures()
         innerPictures = subchapters.pictures
@@ -83,37 +70,36 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
 
     private fun parseSubchapter(subchapter: Subchapter) {
         if (subchapter.subheader != null) {
-            val subheaderPPr = resolver.getEffectivePPr(subchapter.subheader.pPr)
+            val subheaderPPr = root.resolver.getEffectivePPr(subchapter.subheader.pPr)
             val isEmpty = TextUtils.getText(subchapter.subheader).isEmpty()
-            applyPFunctions(subchapter.startPos, subheaderPPr, isEmpty, headerPFunctions + commonPFunctions)
+            (headerPFunctions + commonPFunctions).apply(root, subchapter.startPos, subheaderPPr, isEmpty)
             for (r in 0 until subchapter.subheader.content.size) {
                 if (subchapter.subheader.content[r] is R) {
-                    val rPr =
-                        resolver.getEffectiveRPr((subchapter.subheader.content[r] as R).rPr, subchapter.subheader.pPr)
-                    applyRFunctions(subchapter.startPos, r, rPr, isEmpty, headerRFunctions + commonRFunctions)
+                    val rPr = root.resolver.getEffectiveRPr(
+                        (subchapter.subheader.content[r] as R).rPr,
+                        subchapter.subheader.pPr
+                    )
+                    (headerRFunctions + commonRFunctions).apply(root, subchapter.startPos, r, rPr, isEmpty)
                 } else {
                     handlePContent(subchapter.startPos, r, this)
                 }
             }
         }
-        for (p in subchapter.startPos + 1 until subchapter.startPos + subchapter.content.size) {
+        var p = subchapter.startPos + 1
+        while (p < subchapter.startPos + subchapter.content.size) {
             if (pictureTitleExpected) {
                 pictureTitleExpected = false
+                p++
                 continue
             }
-            val pPr = resolver.getEffectivePPr((mainDocumentPart.content[p] as P).pPr)
-            val paragraph = mainDocumentPart.content[p] as P
+            val pPr = root.resolver.getEffectivePPr((root.mainDocumentPart.content[p] as P).pPr)
+            val paragraph = root.mainDocumentPart.content[p] as P
             val isEmptyP = TextUtils.getText(paragraph).isBlank()
-            applyPFunctions(p, pPr, isEmptyP, commonPFunctions + regularPBeforeListCheckFunctions)
-            if (pPr.numPr != null) {
-                validateList(p)
-            } else {
-                applyPFunctions(p, pPr, isEmptyP, regularPAfterListCheckFunctions)
-            }
+            (commonPFunctions + regularPBeforeListCheckFunctions).apply(root, p, pPr, isEmptyP)
             for (r in 0 until paragraph.content.size) {
                 if (paragraph.content[r] is R) {
-                    val rPr = resolver.getEffectiveRPr((paragraph.content[r] as R).rPr, paragraph.pPr)
-                    applyRFunctions(p, r, rPr, isEmptyP, commonRFunctions + regularRFunctions)
+                    val rPr = root.resolver.getEffectiveRPr((paragraph.content[r] as R).rPr, paragraph.pPr)
+                    (commonRFunctions + regularRFunctions).apply(root, p, r, rPr, isEmptyP)
                     for (c in 0 until (paragraph.content[r] as R).content.size) {
                         handleRContent(p, r, c, this, subchapter.pictures)
                     }
@@ -121,39 +107,43 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
                     handlePContent(p, r, this)
                 }
             }
+            if (pPr.numPr != null) {
+                p = validateList(p)
+            } else {
+                regularPAfterListCheckFunctions.apply(root, p, pPr, isEmptyP)
+            }
+            p++
         }
         for (sub in subchapter.subchapters) {
             parseSubchapter(sub)
         }
     }
 
-    override fun parseHeader() {
-        val headerPPr = resolver.getEffectivePPr(chapter.header.pPr)
+    private fun parseHeader() {
+        val headerPPr = root.resolver.getEffectivePPr(chapter.header.pPr)
         val isEmpty = TextUtils.getText(chapter.header).isBlank()
-        applyPFunctions(chapter.startPos, headerPPr, isEmpty, headerPFunctions + commonPFunctions)
+        (headerPFunctions + commonPFunctions).apply(root, chapter.startPos, headerPPr, isEmpty)
         for (r in 0 until chapter.header.content.size) {
             if (chapter.header.content[r] is R) {
-                val rPr = resolver.getEffectiveRPr((chapter.header.content[r] as R).rPr, chapter.header.pPr)
-                applyRFunctions(chapter.startPos, r, rPr, isEmpty, headerRFunctions + commonRFunctions)
+                val rPr = root.resolver.getEffectiveRPr((chapter.header.content[r] as R).rPr, chapter.header.pPr)
+                (headerRFunctions + commonRFunctions).apply(root, chapter.startPos, r, rPr, isEmpty)
             } else {
                 handlePContent(chapter.startPos, r, this)
             }
         }
     }
 
-    override fun parseP(p: Int, pPr: PPr, isEmpty: Boolean) {}
-
-    override fun parseR(p: Int, r: Int, paragraph: P) {}
-
     override fun handleHyperlink(p: Int, r: Int) {
-        errors += DocumentError(document.id, p, r, ErrorType.TEXT_HYPERLINKS_NOT_ALLOWED_HERE)
+        root.errors += DocumentError(root.document.id, p, r, ErrorType.TEXT_HYPERLINKS_NOT_ALLOWED_HERE)
     }
+
+    override fun handleTable(p: Int) {}
 
     private fun validateSubchapters(expectedNum: String, subchapter: Subchapter) {
         for (sub in 0 until subchapter.subchapters.size) {
             if ("${expectedNum}.${subchapter.subchapters[sub].num}" != "${expectedNum}.${sub + 1}") {
-                errors += DocumentError(
-                    document.id,
+                root.errors += DocumentError(
+                    root.document.id,
                     this.chapter.startPos,
                     ErrorType.TEXT_BODY_SUBHEADER_NUMBER_ORDER_MISMATCH,
                     "${expectedNum}.${subchapter.subchapters[sub].num}/${expectedNum}.${sub + 1}"
@@ -161,8 +151,8 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
                 return
             }
             if (subchapter.level > 3) {
-                errors += DocumentError(
-                    document.id,
+                root.errors += DocumentError(
+                    root.document.id,
                     this.chapter.startPos,
                     ErrorType.TEXT_BODY_SUBHEADER_LEVEL_WAS_MORE_THAN_3
                 )
@@ -184,13 +174,13 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
 
     companion object {
         private val commonPFunctions =
-            createPRulesCollection(
+            createPRules(
                 Rules.Default.Common.P::hasNotBackground,
                 Rules.Default.Common.P::notBordered
             )
 
         private val commonRFunctions =
-            createRRulesCollection(
+            createRRules(
                 Rules.Default.Common.R::isTimesNewRoman,
                 Rules.Default.Common.R::fontSizeIs14,
                 Rules.Default.Common.R::notItalic,
@@ -201,12 +191,12 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
             )
 
         private val headerRFunctions =
-            createRRulesCollection(
+            createRRules(
                 Rules.Default.Header.R::isBold
             )
 
         private val headerPFunctions =
-            createPRulesCollection(
+            createPRules(
                 Rules.Body.Header.P::justifyIsLeft,
                 Rules.Body.Header.P::isNotUppercase,
                 Rules.Default.Header.P::lineSpacingIsOne,
@@ -216,20 +206,20 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
             )
 
         private val regularPAfterListCheckFunctions =
-            createPRulesCollection(
+            createPRules(
                 Rules.Default.RegularText.P::leftIndentIs0,
                 Rules.Default.RegularText.P::rightIndentIs0,
                 Rules.Default.RegularText.P::firstLineIndentIs1dot25
             )
 
         private val regularPBeforeListCheckFunctions =
-            createPRulesCollection(
+            createPRules(
                 Rules.Default.RegularText.P::justifyIsBoth,
                 Rules.Default.RegularText.P::lineSpacingIsOneAndHalf
             )
 
         private val regularRFunctions =
-            createRRulesCollection(
+            createRRules(
                 Rules.Default.RegularText.R::isNotBold,
                 Rules.Default.RegularText.R::isNotCaps,
                 Rules.Default.RegularText.R::isUnderline
@@ -243,6 +233,20 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
         val num: Int?,
         val level: Int
     ) {
+        /*
+        * Generates Subchapter with predefined args. Use carefully!
+        * */
+        constructor() : this(
+            chapter.startPos + 1,
+            null,
+            null,
+            Regex("^(?:\\d\\.?){1,3}").let {
+                TextUtils.getText(chapter.header)
+                    .let { x -> if (x != null) it.find(x)?.value?.removeSuffix(".")?.toInt() else null }
+            },
+            1
+        )
+
         fun flatPictures() {
             for (subchapter in subchapters) {
                 subchapter.flatPictures()

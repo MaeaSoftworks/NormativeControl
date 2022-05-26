@@ -1,32 +1,36 @@
 package com.maeasoftworks.normativecontrol.parser.parsers
 
 import com.maeasoftworks.normativecontrol.entities.DocumentError
-import com.maeasoftworks.normativecontrol.parser.model.Document
 import com.maeasoftworks.normativecontrol.parser.HeadersKeywords
-import com.maeasoftworks.normativecontrol.parser.model.Chapter
-import com.maeasoftworks.normativecontrol.parser.model.Picture
 import com.maeasoftworks.normativecontrol.parser.enums.ChapterType
 import com.maeasoftworks.normativecontrol.parser.enums.ErrorType
 import com.maeasoftworks.normativecontrol.parser.enums.ErrorType.*
 import com.maeasoftworks.normativecontrol.parser.enums.FailureType
 import com.maeasoftworks.normativecontrol.parser.enums.State
+import com.maeasoftworks.normativecontrol.parser.model.Chapter
+import com.maeasoftworks.normativecontrol.parser.model.Document
+import com.maeasoftworks.normativecontrol.parser.model.Picture
+import com.maeasoftworks.normativecontrol.parser.model.Table
 import org.docx4j.TextUtils
 import org.docx4j.model.PropertyResolver
 import org.docx4j.openpackaging.exceptions.Docx4JException
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage
+import org.docx4j.openpackaging.parts.PartName
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
+import org.docx4j.openpackaging.parts.WordprocessingML.NumberingDefinitionsPart
 import org.docx4j.wml.P
-import org.docx4j.wml.Tbl
 import java.io.ByteArrayInputStream
 
-open class DocumentParser(val document: Document) {
-    private lateinit var mlPackage: WordprocessingMLPackage
+class DocumentParser(val document: Document) {
+    lateinit var mlPackage: WordprocessingMLPackage
     lateinit var mainDocumentPart: MainDocumentPart
     lateinit var resolver: PropertyResolver
+    var numbering: NumberingDefinitionsPart? = null
+
     var chapters: MutableList<Chapter> = ArrayList()
     var parsers: MutableList<ChapterParser> = ArrayList()
     var errors: MutableList<DocumentError> = ArrayList()
-    var tables: MutableList<Tbl> = ArrayList()
+    var tables: MutableList<Table> = ArrayList()
     val pictures: MutableList<Picture> = ArrayList()
 
     fun init() {
@@ -34,6 +38,7 @@ open class DocumentParser(val document: Document) {
             mlPackage = WordprocessingMLPackage.load(ByteArrayInputStream(document.file))
             mainDocumentPart = mlPackage.mainDocumentPart
             resolver = PropertyResolver(mlPackage)
+            numbering = mlPackage.parts.get(PartName("/word/numbering.xml")) as NumberingDefinitionsPart?
         } catch (e: Docx4JException) {
             document.state = State.ERROR
             document.failureType = FailureType.FILE_READING_ERROR
@@ -46,7 +51,7 @@ open class DocumentParser(val document: Document) {
         setupChapters()
         createParsers()
         for (parser in parsers) {
-            parser.parse(parser)
+            parser.parse()
         }
         checkPicturesOrder(AnonymousParser(this), 0, true, pictures)
         return errors
@@ -257,7 +262,7 @@ open class DocumentParser(val document: Document) {
         }
     }
 
-    fun verifyBody() {
+    private fun verifyBody() {
         var i = 0
         chapters.filter { it.type == ChapterType.BODY }.forEach {
             if (!TextUtils.getText(it.header).startsWith((++i).toString())) {
@@ -266,7 +271,7 @@ open class DocumentParser(val document: Document) {
         }
     }
 
-    protected fun isHeader(paragraph: Int, level: Int? = null): Boolean {
+    fun isHeader(paragraph: Int, level: Int? = null): Boolean {
         val pPr = resolver.getEffectivePPr((mainDocumentPart.content[paragraph] as P).pPr)
         if (pPr == null || pPr.outlineLvl == null) {
             return false
@@ -276,10 +281,6 @@ open class DocumentParser(val document: Document) {
         } else {
             pPr.outlineLvl.`val` != null
         }
-    }
-
-    open fun pictureTitleMatcher(title: String): MatchResult? {
-        return Regex("РИСУНОК (\\d+)").find(title.uppercase())
     }
 
     fun checkPicturesOrder(
@@ -308,10 +309,5 @@ open class DocumentParser(val document: Document) {
         } else {
             context.root.pictures.addAll(container)
         }
-    }
-
-    fun validatePictureTitleStyle(pictureP: Int) {
-        val mock = TitleParser(Chapter(pictureP + 1, listOf(mainDocumentPart.content[pictureP + 1]).toMutableList()), this@DocumentParser)
-        mock.parse()
     }
 }

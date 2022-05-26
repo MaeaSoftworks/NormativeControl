@@ -3,10 +3,11 @@ package com.maeasoftworks.normativecontrol.parser.parsers
 import com.maeasoftworks.normativecontrol.entities.DocumentError
 import com.maeasoftworks.normativecontrol.parser.PFunctionWrapper
 import com.maeasoftworks.normativecontrol.parser.RFunctionWrapper
+import com.maeasoftworks.normativecontrol.parser.Rules
+import com.maeasoftworks.normativecontrol.parser.apply
+import com.maeasoftworks.normativecontrol.parser.enums.ErrorType.*
 import com.maeasoftworks.normativecontrol.parser.model.Chapter
 import com.maeasoftworks.normativecontrol.parser.model.Picture
-import com.maeasoftworks.normativecontrol.parser.enums.ErrorType.*
-import com.maeasoftworks.normativecontrol.utils.smartAdd
 import org.docx4j.TextUtils
 import org.docx4j.dml.wordprocessingDrawing.Anchor
 import org.docx4j.math.CTOMath
@@ -16,106 +17,165 @@ import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
 import org.docx4j.wml.*
 import javax.xml.bind.JAXBElement
 
-abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentParser) : DocumentParser(root.document) {
+abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentParser) {
     var pictureTitleExpected: Boolean = false
+    val orderedListMarkers = "абвгежиклмнпрстуфхцшщэюя".toList()
 
-    open fun parse(context: ChapterParser = this) {
-        context.parseHeader()
-        for (p in chapter.startPos + 1 until chapter.startPos + chapter.content.size) {
-            handleContent(p, context)
-        }
+    abstract fun parse()
+
+    open fun handleHyperlink(p: Int, r: Int) {
+        root.errors += DocumentError(root.document.id, p, DOCUMENT_UNEXPECTED_CONTENT)
     }
 
-    abstract fun parseHeader()
-
-    abstract fun parseP(p: Int, pPr: PPr, isEmpty: Boolean)
-
-    abstract fun parseR(p: Int, r: Int, paragraph: P)
-
-    open fun applyPFunctions(p: Int, pPr: PPr, isEmpty: Boolean, pFunctionWrappers: Iterable<PFunctionWrapper>) {
-        for (wrapper in pFunctionWrappers) {
-            errors.smartAdd(wrapper.function(document.id, p, pPr, isEmpty, mainDocumentPart))
-        }
+    open fun handleTable(p: Int) {
+        root.errors += DocumentError(root.document.id, p, DOCUMENT_UNEXPECTED_CONTENT)
     }
 
-    open fun applyRFunctions(
-        p: Int,
-        r: Int,
-        rPr: RPr,
-        isEmpty: Boolean,
-        rFunctionWrappers: Iterable<RFunctionWrapper>
+    open fun handleContents(p: Int) {
+        root.errors += DocumentError(root.document.id, p, DOCUMENT_UNEXPECTED_CONTENT)
+    }
+
+    fun parse(
+        context: ChapterParser,
+        headerPFunctions: Iterable<PFunctionWrapper>?,
+        headerRFunctions: Iterable<RFunctionWrapper>?,
+        pFunctions: Iterable<PFunctionWrapper>,
+        rFunctions: Iterable<RFunctionWrapper>
     ) {
-        for (wrapper in rFunctionWrappers) {
-            errors.smartAdd(wrapper.function(document.id, p, r, rPr, isEmpty, mainDocumentPart))
+        if (headerPFunctions != null && headerRFunctions != null) {
+            pLauncher(
+                this,
+                chapter.startPos,
+                root.mainDocumentPart.content[chapter.startPos] as P,
+                headerPFunctions,
+                headerRFunctions
+            )
+        }
+        var p: Int? = chapter.startPos + 1
+        while (p!! < chapter.startPos + chapter.content.size) {
+            handleContent(p, context, pFunctions, rFunctions).let { p = it ?: (p!! + 1) }
         }
     }
 
-    open fun handleContent(p: Int, context: ChapterParser) {
-        when (val something = mainDocumentPart.content[p]) {
+    fun handleContent(
+        p: Int,
+        context: ChapterParser,
+        pFunctions: Iterable<PFunctionWrapper>,
+        rFunctions: Iterable<RFunctionWrapper>
+    ): Int? {
+        when (val something = root.mainDocumentPart.content[p]) {
             is P -> {
-                val pPr = resolver.getEffectivePPr(something.pPr)
-                val paragraph = mainDocumentPart.content[p] as P
-                val isEmptyP = TextUtils.getText(paragraph).isBlank()
-                context.parseP(p, pPr, isEmptyP)
-                for (r in 0 until paragraph.content.size) {
-                    context.parseR(p, r, paragraph)
-                }
+                return pLauncher(context, p, something, pFunctions, rFunctions)
             }
+            is SdtBlock -> {
+                context.handleContents(p)
+            }
+            is Tbl -> {
+                context.handleTable(p)
+            }
+            else -> root.errors += DocumentError(
+                root.document.id,
+                p,
+                DOCUMENT_UNEXPECTED_CONTENT,
+                something::class.simpleName!!
+            )
         }
+        return null
+    }
+
+    fun pLauncher(
+        context: ChapterParser,
+        p: Int,
+        paragraph: P,
+        pFunctions: Iterable<PFunctionWrapper>,
+        rFunctions: Iterable<RFunctionWrapper>
+    ): Int? {
+        val pPr = root.resolver.getEffectivePPr(paragraph.pPr)
+        val isEmpty = TextUtils.getText(paragraph).isBlank()
+        for (r in 0 until paragraph.content.size) {
+            context.parseR(p, r, paragraph, rFunctions)
+        }
+        return context.parseP(p, pPr, isEmpty, pFunctions)
+    }
+
+    open fun parseP(p: Int, pPr: PPr, isEmpty: Boolean, pFunctions: Iterable<PFunctionWrapper>): Int? {
+        pFunctions.apply(root, p, pPr, isEmpty)
+        if (pPr.numPr != null) {
+            return validateList(p)
+        }
+        return null
+    }
+
+    open fun parseR(p: Int, r: Int, paragraph: P, rFunctions: Iterable<RFunctionWrapper>) {
+        if (paragraph.content[r] is R) {
+            rFunctions.apply(
+                root,
+                p,
+                r,
+                root.resolver.getEffectiveRPr((paragraph.content[r] as R).rPr, paragraph.pPr),
+                TextUtils.getText(paragraph.content[r]).isBlank()
+            )
+        } else {
+            handlePContent(p, r, this)
+        }
+    }
+
+    private fun unexpectedP(p: Int, something: Any) {
+        root.errors += DocumentError(root.document.id, p, PARAGRAPH_UNEXPECTED_CONTENT, something::class.simpleName!!)
     }
 
     open fun handlePContent(p: Int, r: Int, context: ChapterParser) {
-        when (val something = (mainDocumentPart.content[p] as P).content[r]) {
+        when (val something = (root.mainDocumentPart.content[p] as P).content[r]) {
             is JAXBElement<*> -> when (something.value) {
                 is P.Hyperlink -> context.handleHyperlink(p, r)
-                is CTRel -> errors += DocumentError(document.id, p, r, TODO_ERROR)
+                is CTRel -> unexpectedP(p, something)
                 is CTMarkup -> when (something.value) {
                     is CTMarkupRange -> when (something.value) {
                         is CTBookmark -> when (something.value) {
-                            is CTMoveBookmark -> errors += DocumentError(document.id, p, r, TODO_ERROR)
+                            is CTMoveBookmark -> unexpectedP(p, something)
                         }
                     }
-                    is CTMoveToRangeEnd -> errors += DocumentError(document.id, p, r, TODO_ERROR)
+                    is CTMoveToRangeEnd -> unexpectedP(p, something)
                     is CTTrackChange -> when (something.value) {
-                        is RunTrackChange -> errors += DocumentError(document.id, p, r, TODO_ERROR)
+                        is RunTrackChange -> unexpectedP(p, something)
                     }
-                    is CTMoveFromRangeEnd -> errors += DocumentError(document.id, p, r, TODO_ERROR)
+                    is CTMoveFromRangeEnd -> unexpectedP(p, something)
                 }
                 is ContentAccessor -> when (something.value) {
-                    is CTSimpleField -> errors += DocumentError(document.id, p, r, TODO_ERROR)
-                    is CTSmartTagRun -> errors += DocumentError(document.id, p, r, TODO_ERROR)
-                    is CTCustomXmlRun -> errors += DocumentError(document.id, p, r, TODO_ERROR)
+                    is CTSimpleField,
+                    is CTSmartTagRun,
+                    is CTCustomXmlRun -> unexpectedP(p, something)
                 }
                 is CTPerm -> when (something.value) {
-                    is RangePermissionStart -> errors += DocumentError(document.id, p, r, TODO_ERROR)
+                    is RangePermissionStart -> unexpectedP(p, something)
                 }
-                is CTOMathPara -> errors += DocumentError(document.id, p, r, TODO_ERROR)
-                is CTOMath -> errors += DocumentError(document.id, p, r, TODO_ERROR)
-                is SdtRun -> errors += DocumentError(document.id, p, r, TODO_ERROR)
-                is P.Bdo -> errors += DocumentError(document.id, p, r, TODO_ERROR)
-                is P.Dir -> errors += DocumentError(document.id, p, r, TODO_ERROR)
+                is CTOMathPara,
+                is CTOMath,
+                is SdtRun,
+                is P.Bdo,
+                is P.Dir -> unexpectedP(p, something)
             }
             is ProofErr -> {
                 if (something.type == "gramStart") {
-                    errors += DocumentError(document.id, p, r + 1, WORD_GRAMMATICAL_ERROR)
+                    root.errors += DocumentError(root.document.id, p, r + 1, WORD_GRAMMATICAL_ERROR)
                 } else if (something.type == "spellStart") {
-                    errors += DocumentError(document.id, p, r + 1, WORD_SPELL_ERROR)
+                    root.errors += DocumentError(root.document.id, p, r + 1, WORD_SPELL_ERROR)
                 }
             }
-            is Br -> errors += DocumentError(document.id, p, r, TODO_ERROR)
-            is RunIns -> errors += DocumentError(document.id, p, r, TODO_ERROR)
-            is RunDel -> errors += DocumentError(document.id, p, r, TODO_ERROR)
-            is CommentRangeStart -> errors += DocumentError(document.id, p, r, TODO_ERROR)
-            is CommentRangeEnd -> errors += DocumentError(document.id, p, r, TODO_ERROR)
+            is Br,
+            is RunIns,
+            is RunDel,
+            is CommentRangeStart,
+            is CommentRangeEnd -> unexpectedP(p, something)
         }
     }
 
-    open fun handleRContent(p: Int, r: Int, c: Int, context: ChapterParser, container: MutableList<Picture>) {
-        when (val something = ((mainDocumentPart.content[p] as P).content[r] as R).content[c]) {
+    open fun handleRContent(p: Int, r: Int, c: Int, context: ChapterParser, pictureContainer: MutableList<Picture>) {
+        when (val something = ((root.mainDocumentPart.content[p] as P).content[r] as R).content[c]) {
             is JAXBElement<*> -> when (something.value) {
                 is Drawing -> {
                     pictureTitleExpected = true
-                    context.handleDrawing(p, r, c, container)
+                    context.handleDrawing(p, r, c, pictureContainer)
                 }
                 is Text -> Unit
                 is R.Ptab,
@@ -142,48 +202,46 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
                 is R.Sym,
                 is R.CommentReference,
                 is R.FootnoteRef,
-                is R.DayLong -> errors += DocumentError(
-                    document.id,
+                is R.DayLong -> root.errors += DocumentError(
+                    root.document.id,
                     p,
                     r,
-                    TODO_ERROR,
+                    RUN_UNEXPECTED_CONTENT,
                     something.declaredType.simpleName
                 )
             }
-            is Br -> errors += DocumentError(document.id, p, r, TODO_ERROR)
-            is DelText -> errors += DocumentError(document.id, p, r, TODO_ERROR)
+            is Br -> root.errors += DocumentError(root.document.id, p, r, TODO_ERROR)
+            is DelText -> root.errors += DocumentError(root.document.id, p, r, TODO_ERROR)
             is AlternateContent -> {
                 // todo: is it only first object?
                 if (something.choice.first().any.first() is Drawing) {
                     pictureTitleExpected = true
                     context.handleDrawing(p, r, c, root.pictures)
                 } else {
-                    errors += DocumentError(document.id, p, r, TODO_ERROR)
+                    root.errors += DocumentError(root.document.id, p, r, TODO_ERROR)
                 }
             }
         }
     }
 
-    abstract fun handleHyperlink(p: Int, r: Int)
-
     open fun handleDrawing(p: Int, r: Int, c: Int, container: MutableList<Picture>) {
         val drawing: Drawing = try {
-            (((mainDocumentPart.content[p] as P).content[r] as R).content[c] as JAXBElement<*>).value as Drawing
+            (((root.mainDocumentPart.content[p] as P).content[r] as R).content[c] as JAXBElement<*>).value as Drawing
         } catch (e: java.lang.ClassCastException) {
-            (((mainDocumentPart.content[p] as P).content[r] as R).content[c] as AlternateContent).choice.first().any.first() as Drawing
+            (((root.mainDocumentPart.content[p] as P).content[r] as R).content[c] as AlternateContent).choice.first().any.first() as Drawing
         }
 
         val picture = Picture(p, r, c, drawing)
         if ((drawing.anchorOrInline as ArrayListWml<*>)[0] is Anchor) {
-            errors += DocumentError(document.id, p, r, PICTURE_IS_NOT_INLINED)
+            root.errors += DocumentError(root.document.id, p, r, PICTURE_IS_NOT_INLINED)
         } else {
             container.add(picture)
-            picture.title = TextUtils.getText(mainDocumentPart.content[p + 1] as P).let {
+            picture.title = TextUtils.getText(root.mainDocumentPart.content[p + 1] as P).let {
                 if (it.uppercase().startsWith("РИСУНОК ")) {
                     it
                 } else {
-                    errors += DocumentError(
-                        document.id,
+                    root.errors += DocumentError(
+                        root.document.id,
                         p,
                         r,
                         PICTURE_TITLE_REQUIRED_LINE_BREAK_BETWEEN_PICTURE_AND_TITLE
@@ -191,42 +249,101 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
                     null
                 }
             }
-            if (TextUtils.getText(mainDocumentPart.content[p - 1] as P).isNotBlank()) {
-                errors += DocumentError(document.id, p, r, PICTURE_REQUIRED_BLANK_LINE_BEFORE_PICTURE)
+            if (TextUtils.getText(root.mainDocumentPart.content[p - 1] as P).isNotBlank()) {
+                root.errors += DocumentError(root.document.id, p, r, PICTURE_REQUIRED_BLANK_LINE_BEFORE_PICTURE)
             }
-            if (!isHeader(p + 2)) {
-                if (TextUtils.getText(mainDocumentPart.content[p + 2] as P).isNotBlank()) {
-                    errors += DocumentError(document.id, p, r, PICTURE_REQUIRED_BLANK_LINE_AFTER_PICTURE_TITLE)
+            if (!root.isHeader(p + 2)) {
+                if (TextUtils.getText(root.mainDocumentPart.content[p + 2] as P).isNotBlank()) {
+                    root.errors += DocumentError(
+                        root.document.id,
+                        p,
+                        r,
+                        PICTURE_REQUIRED_BLANK_LINE_AFTER_PICTURE_TITLE
+                    )
                 }
             }
         }
     }
 
-    fun validateList(startParagraph: Int) {
+    open fun pictureTitleMatcher(title: String): MatchResult? {
+        return Regex("РИСУНОК (\\d+)").find(title.uppercase())
+    }
+
+    fun validatePictureTitleStyle(pictureP: Int) {
+        TitleParser(
+            Chapter(pictureP + 1, listOf(root.mainDocumentPart.content[pictureP + 1]).toMutableList()),
+            root
+        ).parse()
+    }
+
+    fun validateList(startParagraph: Int): Int {
         var end = startParagraph
         val list = ArrayList<P>()
-        while (mainDocumentPart.content.size > end
-            && mainDocumentPart.content[end] is P
-            && (mainDocumentPart.content[end] as P).pPr.numPr != null
+        while (root.mainDocumentPart.content.size > end
+            && root.mainDocumentPart.content[end] is P
+            && (root.mainDocumentPart.content[end] as P).pPr.numPr != null
         ) {
-            list += mainDocumentPart.content[end] as P
+            list += root.mainDocumentPart.content[end] as P
             end++
         }
+        val startPPr = root.resolver.getEffectivePPr((root.mainDocumentPart.content[startParagraph] as P).pPr)
+        val numberingFormat =
+            root.numbering!!.instanceListDefinitions[startPPr.numPr.numId.`val`.toString()]!!.abstractListDefinition
+        if (startPPr.numPr.ilvl.`val`.toInt() == 0) {
+
+        }
+        for (p in startParagraph until startParagraph + list.size) {
+
+        }
+        return end - 1
     }
 
     companion object {
-        fun createRRulesCollection(vararg rules: (String, Int, Int, RPr, Boolean, MainDocumentPart) -> DocumentError?): List<RFunctionWrapper> =
+        fun createRRules(vararg rules: (String, Int, Int, RPr, Boolean, MainDocumentPart) -> DocumentError?): Iterable<RFunctionWrapper> =
             rules.map { RFunctionWrapper(it) }
 
-        fun createPRulesCollection(vararg rules: (String, Int, PPr, Boolean, MainDocumentPart) -> DocumentError?): List<PFunctionWrapper> =
+        fun createPRules(vararg rules: (String, Int, PPr, Boolean, MainDocumentPart) -> DocumentError?): Iterable<PFunctionWrapper> =
             rules.map { PFunctionWrapper(it) }
-    }
 
-    init {
-        mainDocumentPart = root.mainDocumentPart
-        resolver = root.resolver
-        parsers = root.parsers
-        errors = root.errors
-        tables = root.tables
+        val pCommonFunctions = createPRules(
+            Rules.Default.Common.P::hasNotBackground,
+            Rules.Default.Common.P::notBordered
+        )
+
+        val rCommonFunctions = createRRules(
+            Rules.Default.Common.R::isTimesNewRoman,
+            Rules.Default.Common.R::fontSizeIs14,
+            Rules.Default.Common.R::notItalic,
+            Rules.Default.Common.R::notCrossedOut,
+            Rules.Default.Common.R::notHighlighted,
+            Rules.Default.Common.R::isBlack,
+            Rules.Default.Common.R::letterSpacingIs0
+        )
+
+        val headerRFunctions = createRRules(
+            Rules.Default.Header.R::isBold,
+            Rules.Default.Header.R::isUppercase
+        )
+
+        val headerPFunctions = createPRules(
+            Rules.Default.Header.P::justifyIsCenter,
+            Rules.Default.Header.P::lineSpacingIsOne,
+            Rules.Default.Header.P::emptyLineAfterHeaderExists,
+            Rules.Default.Header.P::hasNotDotInEnd
+        )
+
+        val regularPFunctions = createPRules(
+            Rules.Default.RegularText.P::leftIndentIs0,
+            Rules.Default.RegularText.P::rightIndentIs0,
+            Rules.Default.RegularText.P::firstLineIndentIs1dot25,
+            Rules.Default.RegularText.P::justifyIsBoth,
+            Rules.Default.RegularText.P::lineSpacingIsOneAndHalf
+        )
+
+        val regularRFunctions = createRRules(
+            Rules.Default.RegularText.R::isNotBold,
+            Rules.Default.RegularText.R::isNotCaps,
+            Rules.Default.RegularText.R::isUnderline
+        )
     }
 }

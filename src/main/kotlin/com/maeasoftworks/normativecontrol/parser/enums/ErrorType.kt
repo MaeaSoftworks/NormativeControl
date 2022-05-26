@@ -61,8 +61,9 @@ enum class ErrorType {
 /*|*/ /*run spacing*/       /*|*/                                   /*|*/ TEXT_HEADER_REDUNDANT_DOT,                             /*|*/                                   /*|*/                                                                        /*|*/
 //=======================================================================================================================================================================================================================================================//
 
-    // annotation
-    ANNOTATION_MUST_NOT_CONTAINS_MEDIA,
+    DOCUMENT_UNEXPECTED_CONTENT,
+    PARAGRAPH_UNEXPECTED_CONTENT,
+    RUN_UNEXPECTED_CONTENT,
 
     // body
     TEXT_BODY_SUBHEADER_NUMBER_ORDER_MISMATCH,
