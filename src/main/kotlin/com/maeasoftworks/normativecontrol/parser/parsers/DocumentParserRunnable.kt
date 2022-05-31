@@ -3,10 +3,11 @@ package com.maeasoftworks.normativecontrol.parser.parsers
 import com.maeasoftworks.normativecontrol.parser.enums.State
 import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationEventPublisher
+import java.util.concurrent.atomic.AtomicInteger
 
 class DocumentParserRunnable(
     private var parser: DocumentParser,
-    private val count: IntArray,
+    private val count: AtomicInteger,
     private val publisher: ApplicationEventPublisher
 ) : Runnable {
     private val log = LoggerFactory.getLogger(this::class.java)
@@ -17,9 +18,7 @@ class DocumentParserRunnable(
         parser.runVerification()
         val end = System.currentTimeMillis()
         log.info("[{}] time taken: {} ms", parser.document.id, end - start)
-        synchronized(count) {
-            count[0]--
-        }
+        count.decrementAndGet()
         parser.document.state = State.READY
         publisher.publishEvent(parser)
     }

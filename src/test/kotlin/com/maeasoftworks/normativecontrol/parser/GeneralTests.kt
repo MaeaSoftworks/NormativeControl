@@ -20,7 +20,6 @@ class GeneralTests : ParserTestFactory(GeneralTests::class) {
     }
 
     @Test
-    @Disabled
     fun `introduction validated properly`() {
         val parser = createParser("full test 1.docx")
         parser.findChapters()
@@ -62,7 +61,6 @@ class GeneralTests : ParserTestFactory(GeneralTests::class) {
     }
 
     @Test
-    @Disabled
     fun `full document validated properly`() {
         val parser = createParser("full test 1.docx")
         parser.setupChapters()

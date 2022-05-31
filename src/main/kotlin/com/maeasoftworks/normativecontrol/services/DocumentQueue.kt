@@ -8,13 +8,14 @@ import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import java.util.concurrent.atomic.AtomicInteger
 
 @Service
 @ConditionalOnBean(DocumentManager::class)
 class DocumentQueue(private val publisher: ApplicationEventPublisher) {
     private val documentMap: HashMap<String, DocumentParser> = HashMap()
     private val executor: ExecutorService = Executors.newFixedThreadPool(100)
-    private var count: IntArray = intArrayOf(0)
+    var count: AtomicInteger = AtomicInteger(0)
 
     fun put(parser: DocumentParser) {
         documentMap[parser.document.id] = parser
@@ -24,14 +25,14 @@ class DocumentQueue(private val publisher: ApplicationEventPublisher) {
     fun runById(documentId: String) {
         val parser = documentMap[documentId]
         if (parser != null) {
-            count[0]++
+            count.incrementAndGet()
             parser.document.state = State.PROCESSING
             executor.execute(DocumentParserRunnable(parser, count, publisher))
         }
     }
 
     fun isUploadAvailable(documentId: String): Boolean {
-        return documentMap[documentId]?.document?.state == State.READY_TO_UPLOAD && count[0] < 100
+        return documentMap[documentId]?.document?.state == State.READY_TO_UPLOAD && count.get() < 100
     }
 
     fun getById(id: String): DocumentParser? {

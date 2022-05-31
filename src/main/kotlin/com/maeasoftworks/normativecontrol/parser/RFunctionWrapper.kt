@@ -6,10 +6,12 @@ import com.maeasoftworks.normativecontrol.utils.smartAdd
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
 import org.docx4j.wml.RPr
 
-class RFunctionWrapper(val function: (String, Int, Int, RPr, Boolean, MainDocumentPart) -> DocumentError?)
+class RFunctionWrapper(val function: (String, Int, Int, RPr, Boolean, MainDocumentPart) -> DocumentError?) {
+    companion object {
+        fun iterable(vararg rules: (String, Int, Int, RPr, Boolean, MainDocumentPart) -> DocumentError?): Iterable<RFunctionWrapper> = rules.map { RFunctionWrapper(it) }
+    }
+}
 
 fun Iterable<RFunctionWrapper>.apply(root: DocumentParser, p: Int, r: Int, rPr: RPr, isEmpty: Boolean) {
-    for (wrapper in this) {
-        root.errors.smartAdd(wrapper.function(root.document.id, p, r, rPr, isEmpty, root.mainDocumentPart))
-    }
+    this.forEach { root.errors.smartAdd(it.function(root.document.id, p, r, rPr, isEmpty, root.mainDocumentPart)) }
 }

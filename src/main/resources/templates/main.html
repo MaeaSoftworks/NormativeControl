@@ -24,7 +24,7 @@
         <h2>API Methods</h2>
         <div class="scrollable">
             <th:block th:each="method : ${methods}">
-                <a th:class="'method-link' + (${current != null && isMethod && method.root + '/' + method.path == current.root+ '/' + current.path} ? ' link-active' : '')"
+                <a th:class="'method-link' + (${current != null && isMethod && method.root + '/' + method.path == current.root + '/' + current.path} ? ' link-active' : '')"
                    th:href="'docs?section=' + ${method.root} + '/' + ${method.path}">
                     <p>
                         <span th:class="'method-type method-type-' + ${method.type}"

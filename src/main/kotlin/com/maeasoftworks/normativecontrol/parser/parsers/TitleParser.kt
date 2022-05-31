@@ -1,5 +1,6 @@
 package com.maeasoftworks.normativecontrol.parser.parsers
 
+import com.maeasoftworks.normativecontrol.parser.PFunctionWrapper
 import com.maeasoftworks.normativecontrol.parser.Rules
 import com.maeasoftworks.normativecontrol.parser.model.Chapter
 
@@ -9,7 +10,7 @@ class TitleParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapte
             this,
             null,
             null,
-            createPRules(
+            PFunctionWrapper.iterable(
                 Rules.Default.PictureTitle.P::justifyIsCenter,
                 Rules.Default.PictureTitle.P::hasNotDotInEnd
             ) + pCommonFunctions,

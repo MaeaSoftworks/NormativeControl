@@ -13,13 +13,14 @@ import org.docx4j.dml.wordprocessingDrawing.Anchor
 import org.docx4j.math.CTOMath
 import org.docx4j.math.CTOMathPara
 import org.docx4j.mce.AlternateContent
-import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
 import org.docx4j.wml.*
 import javax.xml.bind.JAXBElement
 
 abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentParser) {
     var pictureTitleExpected: Boolean = false
     val orderedListMarkers = "абвгежиклмнпрстуфхцшщэюя".toList()
+    val alphabet = "абвгдежзиклмнопрстуфхцчшщыэюя".toList()
+    private var listPosition = 0
 
     abstract fun parse()
 
@@ -43,7 +44,7 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
         rFunctions: Iterable<RFunctionWrapper>
     ) {
         if (headerPFunctions != null && headerRFunctions != null) {
-            pLauncher(
+            handleP(
                 this,
                 chapter.startPos,
                 root.mainDocumentPart.content[chapter.startPos] as P,
@@ -51,9 +52,8 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
                 headerRFunctions
             )
         }
-        var p: Int? = chapter.startPos + 1
-        while (p!! < chapter.startPos + chapter.content.size) {
-            handleContent(p, context, pFunctions, rFunctions).let { p = it ?: (p!! + 1) }
+        for (p in chapter.startPos + 1 until chapter.startPos + chapter.content.size) {
+            handleContent(p, context, pFunctions, rFunctions)
         }
     }
 
@@ -62,10 +62,10 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
         context: ChapterParser,
         pFunctions: Iterable<PFunctionWrapper>,
         rFunctions: Iterable<RFunctionWrapper>
-    ): Int? {
+    ) {
         when (val something = root.mainDocumentPart.content[p]) {
             is P -> {
-                return pLauncher(context, p, something, pFunctions, rFunctions)
+                handleP(context, p, something, pFunctions, rFunctions)
             }
             is SdtBlock -> {
                 context.handleContents(p)
@@ -80,30 +80,24 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
                 something::class.simpleName!!
             )
         }
-        return null
     }
 
-    fun pLauncher(
-        context: ChapterParser,
-        p: Int,
-        paragraph: P,
-        pFunctions: Iterable<PFunctionWrapper>,
-        rFunctions: Iterable<RFunctionWrapper>
-    ): Int? {
+    open fun handleP(context: ChapterParser, p: Int, paragraph: P, pFunctions: Iterable<PFunctionWrapper>, rFunctions: Iterable<RFunctionWrapper>) {
         val pPr = root.resolver.getEffectivePPr(paragraph.pPr)
         val isEmpty = TextUtils.getText(paragraph).isBlank()
         for (r in 0 until paragraph.content.size) {
             context.parseR(p, r, paragraph, rFunctions)
         }
-        return context.parseP(p, pPr, isEmpty, pFunctions)
+        context.parseP(p, pPr, isEmpty, pFunctions)
     }
 
-    open fun parseP(p: Int, pPr: PPr, isEmpty: Boolean, pFunctions: Iterable<PFunctionWrapper>): Int? {
+    open fun parseP(p: Int, pPr: PPr, isEmpty: Boolean, pFunctions: Iterable<PFunctionWrapper>) {
         pFunctions.apply(root, p, pPr, isEmpty)
-        if (pPr.numPr != null) {
-            return validateList(p)
+        if (pPr.numPr != null && pPr.numPr.numId.`val`.toInt() != 0) {
+            validateListElement(p)
+        } else {
+            listPosition = 0
         }
-        return null
     }
 
     open fun parseR(p: Int, r: Int, paragraph: P, rFunctions: Iterable<RFunctionWrapper>) {
@@ -276,41 +270,37 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
         ).parse()
     }
 
-    fun validateList(startParagraph: Int): Int {
-        var end = startParagraph
-        val list = ArrayList<P>()
-        while (root.mainDocumentPart.content.size > end
-            && root.mainDocumentPart.content[end] is P
-            && (root.mainDocumentPart.content[end] as P).pPr.numPr != null
-        ) {
-            list += root.mainDocumentPart.content[end] as P
-            end++
+    fun validateListElement(p: Int) {
+        val pPr = (root.mainDocumentPart.content[p] as P).pPr
+        val numberingFormat = root.numbering!!.instanceListDefinitions[pPr.numPr.numId.`val`.toString()]!!.abstractListDefinition
+        if (pPr.numPr.ilvl.`val` != null && pPr.numPr.ilvl.`val`.toInt() > 1) {
+            root.addError(LIST_LEVEL_MORE_THAN_2, p)
         }
-        val startPPr = root.resolver.getEffectivePPr((root.mainDocumentPart.content[startParagraph] as P).pPr)
-        val numberingFormat =
-            root.numbering!!.instanceListDefinitions[startPPr.numPr.numId.`val`.toString()]!!.abstractListDefinition
-        if (startPPr.numPr.ilvl.`val`.toInt() == 0) {
-
+        if (pPr.numPr.ilvl.`val`.toInt() == 0) {
+            when (numberingFormat.listLevels["0"]!!.numFmt) {
+                NumberFormat.BULLET -> if (numberingFormat.listLevels["0"]!!.levelText != "–") {
+                    root.addError(ORDERED_LIST_INCORRECT_MARKER_FORMAT_AT_LEVEL_1, p, description = "/\"–\" (U+2013)")
+                }
+                NumberFormat.RUSSIAN_LOWER -> if (numberingFormat.listLevels["0"]!!.levelText != "%1)") {
+                    root.addError(ORDERED_LIST_INCORRECT_MARKER_FORMAT_AT_LEVEL_1, p, description = "/\"<RU_LOWER_LETTER>)\"")
+                }
+                else -> root.addError(ORDERED_LIST_INCORRECT_MARKER_FORMAT, p)
+            }
+        } else if (pPr.numPr.ilvl.`val`.toInt() == 1) {
+            if (numberingFormat.listLevels["1"]!!.numFmt != NumberFormat.DECIMAL || numberingFormat.listLevels["1"]!!.levelText != "%2)") {
+                root.addError(ORDERED_LIST_INCORRECT_MARKER_FORMAT_AT_LEVEL_2, p, description = "/\"<DIGIT>)\"")
+            }
         }
-        for (p in startParagraph until startParagraph + list.size) {
-
-        }
-        return end - 1
     }
 
     companion object {
-        fun createRRules(vararg rules: (String, Int, Int, RPr, Boolean, MainDocumentPart) -> DocumentError?): Iterable<RFunctionWrapper> =
-            rules.map { RFunctionWrapper(it) }
 
-        fun createPRules(vararg rules: (String, Int, PPr, Boolean, MainDocumentPart) -> DocumentError?): Iterable<PFunctionWrapper> =
-            rules.map { PFunctionWrapper(it) }
-
-        val pCommonFunctions = createPRules(
+        val pCommonFunctions = PFunctionWrapper.iterable(
             Rules.Default.Common.P::hasNotBackground,
             Rules.Default.Common.P::notBordered
         )
 
-        val rCommonFunctions = createRRules(
+        val rCommonFunctions = RFunctionWrapper.iterable(
             Rules.Default.Common.R::isTimesNewRoman,
             Rules.Default.Common.R::fontSizeIs14,
             Rules.Default.Common.R::notItalic,
@@ -320,19 +310,19 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
             Rules.Default.Common.R::letterSpacingIs0
         )
 
-        val headerRFunctions = createRRules(
+        val headerRFunctions = RFunctionWrapper.iterable(
             Rules.Default.Header.R::isBold,
             Rules.Default.Header.R::isUppercase
         )
 
-        val headerPFunctions = createPRules(
+        val headerPFunctions = PFunctionWrapper.iterable(
             Rules.Default.Header.P::justifyIsCenter,
             Rules.Default.Header.P::lineSpacingIsOne,
             Rules.Default.Header.P::emptyLineAfterHeaderExists,
             Rules.Default.Header.P::hasNotDotInEnd
         )
 
-        val regularPFunctions = createPRules(
+        val regularPFunctions = PFunctionWrapper.iterable(
             Rules.Default.RegularText.P::leftIndentIs0,
             Rules.Default.RegularText.P::rightIndentIs0,
             Rules.Default.RegularText.P::firstLineIndentIs1dot25,
@@ -340,7 +330,7 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
             Rules.Default.RegularText.P::lineSpacingIsOneAndHalf
         )
 
-        val regularRFunctions = createRRules(
+        val regularRFunctions = RFunctionWrapper.iterable(
             Rules.Default.RegularText.R::isNotBold,
             Rules.Default.RegularText.R::isNotCaps,
             Rules.Default.RegularText.R::isUnderline

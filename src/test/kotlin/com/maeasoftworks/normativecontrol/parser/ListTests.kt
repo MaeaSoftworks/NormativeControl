@@ -12,7 +12,7 @@ class ListTests : ParserTestFactory(ListTests::class) {
     fun `list borders found properly`() {
         val parser = createParser("list size.docx")
         val mock: ChapterParser = SimpleParser(Chapter(0), parser)
-        mock.validateList(0)
+        mock.validateListElement(0)
         Assert.isTrue(parser.errors.size == 0, "There shouldn't be any error!")
     }
 }

@@ -33,6 +33,14 @@ class DocumentParser(val document: Document) {
     var tables: MutableList<Table> = ArrayList()
     val pictures: MutableList<Picture> = ArrayList()
 
+    fun addError(errorType: ErrorType,
+                 paragraphId: Int,
+                 runId: Int = -1,
+                 chapterId: Int = -1,
+                 description: String = "") {
+        errors.add(DocumentError(document.id, chapterId, paragraphId, runId, errorType, description))
+    }
+
     fun init() {
         try {
             mlPackage = WordprocessingMLPackage.load(ByteArrayInputStream(document.file))

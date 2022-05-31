@@ -1,6 +1,8 @@
 package com.maeasoftworks.normativecontrol.parser.parsers
 
 import com.maeasoftworks.normativecontrol.entities.DocumentError
+import com.maeasoftworks.normativecontrol.parser.PFunctionWrapper
+import com.maeasoftworks.normativecontrol.parser.RFunctionWrapper
 import com.maeasoftworks.normativecontrol.parser.Rules
 import com.maeasoftworks.normativecontrol.parser.apply
 import com.maeasoftworks.normativecontrol.parser.enums.ErrorType
@@ -85,11 +87,9 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
                 }
             }
         }
-        var p = subchapter.startPos + 1
-        while (p < subchapter.startPos + subchapter.content.size) {
+        for (p in subchapter.startPos + 1 until subchapter.startPos + subchapter.content.size) {
             if (pictureTitleExpected) {
                 pictureTitleExpected = false
-                p++
                 continue
             }
             val pPr = root.resolver.getEffectivePPr((root.mainDocumentPart.content[p] as P).pPr)
@@ -108,11 +108,10 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
                 }
             }
             if (pPr.numPr != null) {
-                p = validateList(p)
+                validateListElement(p)
             } else {
                 regularPAfterListCheckFunctions.apply(root, p, pPr, isEmptyP)
             }
-            p++
         }
         for (sub in subchapter.subchapters) {
             parseSubchapter(sub)
@@ -174,13 +173,13 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
 
     companion object {
         private val commonPFunctions =
-            createPRules(
+            PFunctionWrapper.iterable(
                 Rules.Default.Common.P::hasNotBackground,
                 Rules.Default.Common.P::notBordered
             )
 
         private val commonRFunctions =
-            createRRules(
+            RFunctionWrapper.iterable(
                 Rules.Default.Common.R::isTimesNewRoman,
                 Rules.Default.Common.R::fontSizeIs14,
                 Rules.Default.Common.R::notItalic,
@@ -191,12 +190,12 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
             )
 
         private val headerRFunctions =
-            createRRules(
+            RFunctionWrapper.iterable(
                 Rules.Default.Header.R::isBold
             )
 
         private val headerPFunctions =
-            createPRules(
+            PFunctionWrapper.iterable(
                 Rules.Body.Header.P::justifyIsLeft,
                 Rules.Body.Header.P::isNotUppercase,
                 Rules.Default.Header.P::lineSpacingIsOne,
@@ -206,20 +205,20 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
             )
 
         private val regularPAfterListCheckFunctions =
-            createPRules(
+            PFunctionWrapper.iterable(
                 Rules.Default.RegularText.P::leftIndentIs0,
                 Rules.Default.RegularText.P::rightIndentIs0,
                 Rules.Default.RegularText.P::firstLineIndentIs1dot25
             )
 
         private val regularPBeforeListCheckFunctions =
-            createPRules(
+            PFunctionWrapper.iterable(
                 Rules.Default.RegularText.P::justifyIsBoth,
                 Rules.Default.RegularText.P::lineSpacingIsOneAndHalf
             )
 
         private val regularRFunctions =
-            createRRules(
+            RFunctionWrapper.iterable(
                 Rules.Default.RegularText.R::isNotBold,
                 Rules.Default.RegularText.R::isNotCaps,
                 Rules.Default.RegularText.R::isUnderline
