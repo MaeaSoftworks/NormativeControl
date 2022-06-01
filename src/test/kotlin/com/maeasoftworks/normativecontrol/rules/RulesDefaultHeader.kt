@@ -2,7 +2,7 @@ package com.maeasoftworks.normativecontrol.rules
 
 import com.maeasoftworks.normativecontrol.parser.PFunctionWrapper
 import com.maeasoftworks.normativecontrol.parser.Rules
-import com.maeasoftworks.normativecontrol.parser.enums.ErrorType
+import com.maeasoftworks.normativecontrol.parser.enums.MistakeType
 import org.junit.jupiter.api.Test
 
 class RulesDefaultHeader : RulesTestBase() {
@@ -13,7 +13,7 @@ class RulesDefaultHeader : RulesTestBase() {
     @Test
     fun `justify is center failed`() {
         base(0, PFunctionWrapper(Rules.Default.Header.P::justifyIsCenter)) {
-            it != null && it.errorType == ErrorType.TEXT_HEADER_ALIGNMENT
+            it != null && it.mistakeType == MistakeType.TEXT_HEADER_ALIGNMENT
         }
     }
 
@@ -27,7 +27,7 @@ class RulesDefaultHeader : RulesTestBase() {
     @Test
     fun `line spacing is one failed`() {
         base(2, PFunctionWrapper(Rules.Default.Header.P::lineSpacingIsOne)) {
-            it != null && it.errorType == ErrorType.TEXT_HEADER_LINE_SPACING
+            it != null && it.mistakeType == MistakeType.TEXT_HEADER_LINE_SPACING
         }
     }
 
@@ -41,7 +41,7 @@ class RulesDefaultHeader : RulesTestBase() {
     @Test
     fun `has not dot in end failed`() {
         base(4, PFunctionWrapper(Rules.Default.Header.P::hasNotDotInEnd)) {
-            it != null && it.errorType == ErrorType.TEXT_HEADER_REDUNDANT_DOT
+            it != null && it.mistakeType == MistakeType.TEXT_HEADER_REDUNDANT_DOT
         }
     }
 
@@ -55,7 +55,7 @@ class RulesDefaultHeader : RulesTestBase() {
     @Test
     fun `empty line after header exists failed`() {
         base(6, PFunctionWrapper(Rules.Default.Header.P::emptyLineAfterHeaderExists)) {
-            it != null && it.errorType == ErrorType.TEXT_HEADER_EMPTY_LINE_AFTER_HEADER_REQUIRED
+            it != null && it.mistakeType == MistakeType.TEXT_HEADER_EMPTY_LINE_AFTER_HEADER_REQUIRED
         }
     }
 

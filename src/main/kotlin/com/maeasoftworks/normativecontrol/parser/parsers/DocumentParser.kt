@@ -1,12 +1,12 @@
 package com.maeasoftworks.normativecontrol.parser.parsers
 
-import com.maeasoftworks.normativecontrol.entities.DocumentError
+import com.maeasoftworks.normativecontrol.entities.Mistake
 import com.maeasoftworks.normativecontrol.parser.HeadersKeywords
 import com.maeasoftworks.normativecontrol.parser.enums.ChapterType
-import com.maeasoftworks.normativecontrol.parser.enums.ErrorType
-import com.maeasoftworks.normativecontrol.parser.enums.ErrorType.*
 import com.maeasoftworks.normativecontrol.parser.enums.FailureType
-import com.maeasoftworks.normativecontrol.parser.enums.State
+import com.maeasoftworks.normativecontrol.parser.enums.MistakeType
+import com.maeasoftworks.normativecontrol.parser.enums.MistakeType.*
+import com.maeasoftworks.normativecontrol.parser.enums.Status
 import com.maeasoftworks.normativecontrol.parser.model.Chapter
 import com.maeasoftworks.normativecontrol.parser.model.Document
 import com.maeasoftworks.normativecontrol.parser.model.Picture
@@ -22,23 +22,25 @@ import org.docx4j.wml.P
 import java.io.ByteArrayInputStream
 
 class DocumentParser(val document: Document) {
-    lateinit var mlPackage: WordprocessingMLPackage
+    private lateinit var mlPackage: WordprocessingMLPackage
     lateinit var mainDocumentPart: MainDocumentPart
     lateinit var resolver: PropertyResolver
     var numbering: NumberingDefinitionsPart? = null
 
     var chapters: MutableList<Chapter> = ArrayList()
     var parsers: MutableList<ChapterParser> = ArrayList()
-    var errors: MutableList<DocumentError> = ArrayList()
+    var errors: MutableList<Mistake> = ArrayList()
     var tables: MutableList<Table> = ArrayList()
     val pictures: MutableList<Picture> = ArrayList()
 
-    fun addError(errorType: ErrorType,
-                 paragraphId: Int,
-                 runId: Int = -1,
-                 chapterId: Int = -1,
-                 description: String = "") {
-        errors.add(DocumentError(document.id, chapterId, paragraphId, runId, errorType, description))
+    fun addError(
+        mistakeType: MistakeType,
+        paragraphId: Int,
+        runId: Int = -1,
+        chapterId: Int = -1,
+        description: String = ""
+    ) {
+        errors.add(Mistake(document.id, chapterId, paragraphId, runId, mistakeType, description))
     }
 
     fun init() {
@@ -48,12 +50,12 @@ class DocumentParser(val document: Document) {
             resolver = PropertyResolver(mlPackage)
             numbering = mlPackage.parts.get(PartName("/word/numbering.xml")) as NumberingDefinitionsPart?
         } catch (e: Docx4JException) {
-            document.state = State.ERROR
+            document.status = Status.ERROR
             document.failureType = FailureType.FILE_READING_ERROR
         }
     }
 
-    fun runVerification(): List<DocumentError> {
+    fun runVerification(): List<Mistake> {
         verifyPageSize()
         verifyPageMargins()
         setupChapters()
@@ -75,26 +77,26 @@ class DocumentParser(val document: Document) {
     fun verifyPageSize() {
         val pageSize = mainDocumentPart.contents.body.sectPr.pgSz
         if (pageSize.w.intValueExact() != 11906) {
-            errors += DocumentError(document.id, PAGE_WIDTH_IS_INCORRECT)
+            errors += Mistake(document.id, PAGE_WIDTH_IS_INCORRECT)
         }
         if (pageSize.h.intValueExact() != 16838) {
-            errors += DocumentError(document.id, PAGE_HEIGHT_IS_INCORRECT)
+            errors += Mistake(document.id, PAGE_HEIGHT_IS_INCORRECT)
         }
     }
 
     fun verifyPageMargins() {
         val pageMargins = mainDocumentPart.contents.body.sectPr.pgMar
         if (pageMargins.top.intValueExact() != 1134) {
-            errors += DocumentError(document.id, PAGE_MARGIN_TOP_IS_INCORRECT)
+            errors += Mistake(document.id, PAGE_MARGIN_TOP_IS_INCORRECT)
         }
         if (pageMargins.right.intValueExact() != 850) {
-            errors += DocumentError(document.id, PAGE_MARGIN_RIGHT_IS_INCORRECT)
+            errors += Mistake(document.id, PAGE_MARGIN_RIGHT_IS_INCORRECT)
         }
         if (pageMargins.bottom.intValueExact() != 1134) {
-            errors += DocumentError(document.id, PAGE_MARGIN_BOTTOM_IS_INCORRECT)
+            errors += Mistake(document.id, PAGE_MARGIN_BOTTOM_IS_INCORRECT)
         }
         if (pageMargins.left.intValueExact() != 1701) {
-            errors += DocumentError(document.id, PAGE_MARGIN_LEFT_IS_INCORRECT)
+            errors += Mistake(document.id, PAGE_MARGIN_LEFT_IS_INCORRECT)
         }
     }
 
@@ -132,7 +134,7 @@ class DocumentParser(val document: Document) {
                 val text = TextUtils.getText(chapters[chapter].header)
                 if (text.isEmpty()) {
                     emptyChapters += chapter
-                    errors.add(DocumentError(document.id, chapter.toLong(), TEXT_HEADER_EMPTY))
+                    errors.add(Mistake(document.id, chapter.toLong(), TEXT_HEADER_EMPTY))
                     continue
                 }
                 chapters[chapter].type = detectNodeType(text, chapter)
@@ -163,7 +165,7 @@ class DocumentParser(val document: Document) {
             }
         }
 
-        errors += DocumentError(document.id, chapterId.toLong(), CHAPTER_UNDEFINED_CHAPTER)
+        errors += Mistake(document.id, chapterId.toLong(), CHAPTER_UNDEFINED_CHAPTER)
         return ChapterType.UNDEFINED
     }
 
@@ -171,14 +173,14 @@ class DocumentParser(val document: Document) {
         pos: Int,
         type: ChapterType,
         types: List<ChapterType?>,
-        notFound: ErrorType,
-        mismatch: ErrorType
+        notFound: MistakeType,
+        mismatch: MistakeType
     ) {
         try {
             if (type !in types) {
-                errors += DocumentError(document.id, pos.toLong(), notFound)
+                errors += Mistake(document.id, pos.toLong(), notFound)
             } else if (chapters[pos].type != type) {
-                errors += DocumentError(document.id, pos.toLong(), mismatch)
+                errors += Mistake(document.id, pos.toLong(), mismatch)
             }
         } catch (_: IndexOutOfBoundsException) {
         }
@@ -187,7 +189,7 @@ class DocumentParser(val document: Document) {
     fun verifyChapters() {
         val types = chapters.map { it.type }
         if (chapters.size == 0) {
-            errors += DocumentError(document.id, CHAPTER_NO_ONE_CHAPTER_FOUND)
+            errors += Mistake(document.id, CHAPTER_NO_ONE_CHAPTER_FOUND)
         }
         verifyChapter(
             0,
@@ -274,7 +276,7 @@ class DocumentParser(val document: Document) {
         var i = 0
         chapters.filter { it.type == ChapterType.BODY }.forEach {
             if (!TextUtils.getText(it.header).startsWith((++i).toString())) {
-                errors += DocumentError(document.id, chapters.indexOf(it).toLong(), CHAPTER_BODY_DISORDER)
+                errors += Mistake(document.id, chapters.indexOf(it).toLong(), CHAPTER_BODY_DISORDER)
             }
         }
     }
@@ -306,11 +308,11 @@ class DocumentParser(val document: Document) {
                 val match = context.pictureTitleMatcher(picture.title!!)
                 if (match != null) {
                     if (match.groups[1 + level]!!.value.toInt() != index) {
-                        errors += DocumentError(document.id, picture.p, picture.r, PICTURE_TITLE_NUMBER_DISORDER)
+                        errors += Mistake(document.id, picture.p, picture.r, PICTURE_TITLE_NUMBER_DISORDER)
                     }
                     context.validatePictureTitleStyle(picture.p)
                 } else {
-                    errors += DocumentError(document.id, picture.p, picture.r, PICTURE_TITLE_WRONG_FORMAT)
+                    errors += Mistake(document.id, picture.p, picture.r, PICTURE_TITLE_WRONG_FORMAT)
                 }
                 index++
             }

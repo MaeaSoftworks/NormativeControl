@@ -1,9 +1,11 @@
 package com.maeasoftworks.normativecontrol.documentation
 
-import com.maeasoftworks.normativecontrol.documentation.annotations.*
+import com.maeasoftworks.normativecontrol.documentation.annotations.BodyParam
+import com.maeasoftworks.normativecontrol.documentation.annotations.Documentation
+import com.maeasoftworks.normativecontrol.documentation.annotations.PossibleResponse
+import com.maeasoftworks.normativecontrol.documentation.annotations.PropertyDocumentation
 import com.maeasoftworks.normativecontrol.documentation.objects.*
-import com.maeasoftworks.normativecontrol.entities.DocumentError
-import org.apache.commons.lang3.reflect.MethodUtils
+import com.maeasoftworks.normativecontrol.entities.*
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression
 import org.springframework.stereotype.Controller
@@ -13,8 +15,9 @@ import java.net.InetAddress
 import javax.annotation.PostConstruct
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
+import kotlin.reflect.full.functions
 import kotlin.reflect.full.memberProperties
-import kotlin.reflect.jvm.kotlinFunction
+import kotlin.reflect.full.superclasses
 
 @Controller
 @CrossOrigin
@@ -46,20 +49,22 @@ class DocumentationController {
     }
 
     private final fun createControllerDocs(clazz: KClass<*>): List<MethodInfo> {
-        val functions = MethodUtils.getMethodsListWithAnnotation(clazz.java, Documentation::class.java)
+        val functions = clazz.functions.filter { x -> x.annotations.any { it is Documentation } }
+        val funNames = functions.map { it.name }
+        val superclass = clazz.superclasses[0]
+        val superFunctions = superclass.functions.filter { it.name in funNames }
         val infos = ArrayList<MethodInfo>()
-        val root = (clazz.annotations.first { it is RequestMapping } as RequestMapping).value[0]
-        for (function in functions) {
+        val root = (superclass.annotations.first { it is RequestMapping } as RequestMapping).value[0]
+        for (f in functions.indices) {
             val info = MethodInfo()
 
             val mappings = listOf(
-                function.getAnnotation(GetMapping::class.java),
-                function.getAnnotation(PostMapping::class.java),
-                function.getAnnotation(PatchMapping::class.java),
-                function.getAnnotation(PutMapping::class.java),
-                function.getAnnotation(DeleteMapping::class.java),
-                function.getAnnotation(RequestMapping::class.java)
-            )
+                superFunctions[f].annotations.firstOrNull { it is GetMapping },
+                superFunctions[f].annotations.firstOrNull { it is PostMapping },
+                superFunctions[f].annotations.firstOrNull { it is PatchMapping },
+                superFunctions[f].annotations.firstOrNull { it is PutMapping },
+                superFunctions[f].annotations.firstOrNull { it is DeleteMapping },
+                superFunctions[f].annotations.firstOrNull { it is RequestMapping })
             for (mapping in mappings) {
                 if (mapping != null) {
                     when (mapping) {
@@ -88,55 +93,57 @@ class DocumentationController {
                             info.path = mapping.value[0]
                         }
                     }
+                    info.path = root + "/" + info.path
+                    info.path = info.path.replace("{", "\$")
+                    info.path = info.path.replace("}", "")
                     break
                 }
             }
 
-            info.description = function.getAnnotation(Documentation::class.java).description
+            info.description = (functions[f].annotations.first { it is Documentation } as Documentation).description
             info.root = root
 
             val queryParams = ArrayList<Parameter>()
             val bodyParams = ArrayList<Parameter>()
+            val pathParams = ArrayList<Parameter>()
 
-            for (parameter in function.kotlinFunction!!.parameters) {
-                if (parameter.kind == KParameter.Kind.INSTANCE) {
+            for (p in functions[f].parameters.indices) {
+                val fParam = functions[f].parameters[p]
+                val fSuperParam = superFunctions[f].parameters[p]
+                if (fParam.kind == KParameter.Kind.INSTANCE) {
                     continue
                 } else {
                     val param = Parameter()
-                    param.name = parameter.name
-                    param.description =
-                        (parameter.annotations.first { it is Documentation } as Documentation).description
-                    param.type = (parameter.type.classifier as KClass<*>).simpleName
-                    if (parameter.annotations.any { it is BodyParam }) {
-                        bodyParams.add(param)
+                    param.name = fParam.name
+                    param.description = (fParam.annotations.first { it is Documentation } as Documentation).description
+                    param.type = (fParam.type.classifier as KClass<*>).simpleName
+                    if (fSuperParam.annotations.any { it is BodyParam }) {
+                        bodyParams += param
+                        param.name =
+                            (fSuperParam.annotations.first { it is RequestParam } as RequestParam).value.let { if (it != "") it else param.name }
+                    } else if (fSuperParam.annotations.any { it is PathVariable }) {
+                        pathParams += param
+                        param.name =
+                            (fSuperParam.annotations.first { it is PathVariable } as PathVariable).value.let { if (it != "") it else param.name }
                     } else {
-                        queryParams.add(param)
+                        queryParams += param
+                        param.name =
+                            (fSuperParam.annotations.first { it is RequestParam } as RequestParam).value.let { if (it != "") it else param.name }
                     }
                 }
             }
             info.bodyParams = bodyParams
             info.queryParams = queryParams
+            info.pathParams = pathParams
 
             val responses = ArrayList<Response>()
 
-            for (annotation in function.kotlinFunction!!.annotations.filterIsInstance<PossibleResponse>()) {
+            for (annotation in functions[f].annotations.filterIsInstance<PossibleResponse>()) {
                 val response = Response()
                 response.httpStatus = annotation.httpStatus
                 response.description = annotation.description
                 response.body = annotation.body
                 response.type = annotation.type.simpleName!!
-                responses.add(response)
-            }
-
-            for (annotation in function.kotlinFunction!!.annotations.filterIsInstance<PossibleResponseWithEnum>()) {
-                val response = Response()
-                response.httpStatus = annotation.httpStatus
-                response.description = annotation.description
-                response.body = annotation.body
-                response.type = annotation.type.simpleName!!
-                if (annotation.enum.java.isEnum) {
-                    response.body += enumToString(annotation.enum)
-                }
                 responses.add(response)
             }
             responses.sortBy { it.httpStatus.value() }
@@ -170,18 +177,25 @@ class DocumentationController {
         return info
     }
 
-    val methods = createControllerDocs(DocumentProcessingDocumentation::class)
-    val objects = arrayOf(createObjectDocs(DocumentError::class))
+    val methods =
+        createControllerDocs(DocumentDocs::class) + createControllerDocs(QueueDocs::class)
+    val objects = arrayOf(
+        createObjectDocs(FileResponse::class),
+        createObjectDocs(Mistake::class),
+        createObjectDocs(MistakesResponse::class),
+        createObjectDocs(StatusResponse::class),
+        createObjectDocs(QueueResponse::class)
+    )
 
     @GetMapping
     fun mainPage(@RequestParam("section") section: String?, model: Model): String {
         model.addAttribute("methods", methods)
-        model.addAttribute("objects", objects)
+        model.addAttribute("entities", objects)
         model.addAttribute("address", address)
         model.addAttribute("sandboxEnabled", false)
-        if (section != null && '/' in section && methods.any { it.root + "/" + it.path == section }) {
+        if (section != null && "/" in section && methods.any { it.path == section }) {
             model.addAttribute("isMethod", true)
-            model.addAttribute("current", methods.first { it.root + "/" + it.path == section })
+            model.addAttribute("current", methods.first { it.path == section })
         } else if (section in objects.map { it.name }) {
             model.addAttribute("isMethod", false)
             model.addAttribute("current", objects.first { it.name == section })

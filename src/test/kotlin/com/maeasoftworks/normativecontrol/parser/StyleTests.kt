@@ -1,6 +1,6 @@
 package com.maeasoftworks.normativecontrol.parser
 
-import com.maeasoftworks.normativecontrol.parser.enums.ErrorType
+import com.maeasoftworks.normativecontrol.parser.enums.MistakeType
 import com.maeasoftworks.normativecontrol.parser.model.Chapter
 import com.maeasoftworks.normativecontrol.parser.parsers.SimpleParser
 import org.junit.jupiter.api.Test
@@ -10,7 +10,7 @@ class StyleTests : ParserTestFactory(StyleTests::class) {
     fun `incorrect page size validated properly`() {
         val parser = createParser("incorrect size.docx")
         parser.verifyPageSize()
-        errorAssert(parser.errors, ErrorType.PAGE_WIDTH_IS_INCORRECT, ErrorType.PAGE_HEIGHT_IS_INCORRECT)
+        errorAssert(parser.errors, MistakeType.PAGE_WIDTH_IS_INCORRECT, MistakeType.PAGE_HEIGHT_IS_INCORRECT)
     }
 
     @Test
@@ -19,10 +19,10 @@ class StyleTests : ParserTestFactory(StyleTests::class) {
         parser.verifyPageMargins()
         errorAssert(
             parser.errors,
-            ErrorType.PAGE_MARGIN_TOP_IS_INCORRECT,
-            ErrorType.PAGE_MARGIN_RIGHT_IS_INCORRECT,
-            ErrorType.PAGE_MARGIN_BOTTOM_IS_INCORRECT,
-            ErrorType.PAGE_MARGIN_LEFT_IS_INCORRECT
+            MistakeType.PAGE_MARGIN_TOP_IS_INCORRECT,
+            MistakeType.PAGE_MARGIN_RIGHT_IS_INCORRECT,
+            MistakeType.PAGE_MARGIN_BOTTOM_IS_INCORRECT,
+            MistakeType.PAGE_MARGIN_LEFT_IS_INCORRECT
         )
     }
 
@@ -33,18 +33,18 @@ class StyleTests : ParserTestFactory(StyleTests::class) {
         parser.parsers[0].parse()
         errorAssert(
             parser.errors,
-            ErrorType.TEXT_HEADER_NOT_UPPERCASE,
-            ErrorType.TEXT_COMMON_FONT,
-            ErrorType.TEXT_COMMON_INCORRECT_FONT_SIZE,
-            ErrorType.TEXT_COMMON_ITALIC_TEXT,
-            ErrorType.TEXT_COMMON_STRIKETHROUGH,
-            ErrorType.TEXT_COMMON_HIGHLIGHT,
-            ErrorType.TEXT_COMMON_TEXT_COLOR,
-            ErrorType.TEXT_HEADER_ALIGNMENT,
-            ErrorType.TEXT_HEADER_LINE_SPACING,
-            ErrorType.CHAPTER_EMPTY,
-            ErrorType.TEXT_COMMON_BACKGROUND_FILL,
-            ErrorType.TEXT_COMMON_BORDER
+            MistakeType.TEXT_HEADER_NOT_UPPERCASE,
+            MistakeType.TEXT_COMMON_FONT,
+            MistakeType.TEXT_COMMON_INCORRECT_FONT_SIZE,
+            MistakeType.TEXT_COMMON_ITALIC_TEXT,
+            MistakeType.TEXT_COMMON_STRIKETHROUGH,
+            MistakeType.TEXT_COMMON_HIGHLIGHT,
+            MistakeType.TEXT_COMMON_TEXT_COLOR,
+            MistakeType.TEXT_HEADER_ALIGNMENT,
+            MistakeType.TEXT_HEADER_LINE_SPACING,
+            MistakeType.CHAPTER_EMPTY,
+            MistakeType.TEXT_COMMON_BACKGROUND_FILL,
+            MistakeType.TEXT_COMMON_BORDER
         )
     }
 }

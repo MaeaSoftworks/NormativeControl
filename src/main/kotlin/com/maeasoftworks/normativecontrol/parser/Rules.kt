@@ -2,8 +2,8 @@
 
 package com.maeasoftworks.normativecontrol.parser
 
-import com.maeasoftworks.normativecontrol.entities.DocumentError
-import com.maeasoftworks.normativecontrol.parser.enums.ErrorType
+import com.maeasoftworks.normativecontrol.entities.Mistake
+import com.maeasoftworks.normativecontrol.parser.enums.MistakeType
 import org.docx4j.TextUtils
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
 import org.docx4j.wml.JcEnumeration
@@ -23,13 +23,13 @@ object Rules {
                     pPr: PPr,
                     isEmpty: Boolean,
                     mainDocumentPart: MainDocumentPart
-                ): DocumentError? {
+                ): Mistake? {
                     return if (pPr.pBdr != null) {
-                        DocumentError(
+                        Mistake(
                             documentId,
                             p,
                             -1,
-                            if (isEmpty) ErrorType.TEXT_WHITESPACE_BORDER else ErrorType.TEXT_COMMON_BORDER
+                            if (isEmpty) MistakeType.TEXT_WHITESPACE_BORDER else MistakeType.TEXT_COMMON_BORDER
                         )
                     } else null
                 }
@@ -40,13 +40,13 @@ object Rules {
                     pPr: PPr,
                     isEmpty: Boolean,
                     mainDocumentPart: MainDocumentPart
-                ): DocumentError? {
+                ): Mistake? {
                     return if (pPr.shd != null && pPr.shd.fill != null && pPr.shd.fill != "FFFFFF") {
-                        DocumentError(
+                        Mistake(
                             documentId,
                             p,
                             -1,
-                            if (isEmpty) ErrorType.TEXT_WHITESPACE_BACKGROUND_FILL else ErrorType.TEXT_COMMON_BACKGROUND_FILL
+                            if (isEmpty) MistakeType.TEXT_WHITESPACE_BACKGROUND_FILL else MistakeType.TEXT_COMMON_BACKGROUND_FILL
                         )
                     } else null
                 }
@@ -60,13 +60,13 @@ object Rules {
                     rPr: RPr,
                     isEmpty: Boolean,
                     mainDocumentPart: MainDocumentPart
-                ): DocumentError? {
+                ): Mistake? {
                     return if (rPr.rFonts.ascii != "Times New Roman") {
-                        DocumentError(
+                        Mistake(
                             documentId,
                             p,
                             r,
-                            if (isEmpty) ErrorType.TEXT_WHITESPACE_FONT else ErrorType.TEXT_COMMON_FONT
+                            if (isEmpty) MistakeType.TEXT_WHITESPACE_FONT else MistakeType.TEXT_COMMON_FONT
                         )
                     } else null
                 }
@@ -78,13 +78,13 @@ object Rules {
                     rPr: RPr,
                     isEmpty: Boolean,
                     mainDocumentPart: MainDocumentPart
-                ): DocumentError? {
+                ): Mistake? {
                     return if (rPr.sz.`val`.toInt() / 2 != 14) {
-                        DocumentError(
+                        Mistake(
                             documentId,
                             p,
                             r,
-                            if (isEmpty) ErrorType.TEXT_WHITESPACE_INCORRECT_FONT_SIZE else ErrorType.TEXT_COMMON_INCORRECT_FONT_SIZE
+                            if (isEmpty) MistakeType.TEXT_WHITESPACE_INCORRECT_FONT_SIZE else MistakeType.TEXT_COMMON_INCORRECT_FONT_SIZE
                         )
                     } else null
                 }
@@ -96,13 +96,13 @@ object Rules {
                     rPr: RPr,
                     isEmpty: Boolean,
                     mainDocumentPart: MainDocumentPart
-                ): DocumentError? {
+                ): Mistake? {
                     return if (!(rPr.i == null || !rPr.i.isVal)) {
-                        DocumentError(
+                        Mistake(
                             documentId,
                             p,
                             r,
-                            if (isEmpty) ErrorType.TEXT_WHITESPACE_ITALIC else ErrorType.TEXT_COMMON_ITALIC_TEXT
+                            if (isEmpty) MistakeType.TEXT_WHITESPACE_ITALIC else MistakeType.TEXT_COMMON_ITALIC_TEXT
                         )
                     } else null
                 }
@@ -114,13 +114,13 @@ object Rules {
                     rPr: RPr,
                     isEmpty: Boolean,
                     mainDocumentPart: MainDocumentPart
-                ): DocumentError? {
+                ): Mistake? {
                     return if (!(rPr.strike == null || !rPr.strike.isVal)) {
-                        DocumentError(
+                        Mistake(
                             documentId,
                             p,
                             r,
-                            if (isEmpty) ErrorType.TEXT_WHITESPACE_STRIKETHROUGH else ErrorType.TEXT_COMMON_STRIKETHROUGH
+                            if (isEmpty) MistakeType.TEXT_WHITESPACE_STRIKETHROUGH else MistakeType.TEXT_COMMON_STRIKETHROUGH
                         )
                     } else null
                 }
@@ -132,13 +132,13 @@ object Rules {
                     rPr: RPr,
                     isEmpty: Boolean,
                     mainDocumentPart: MainDocumentPart
-                ): DocumentError? {
+                ): Mistake? {
                     return if (!(rPr.highlight == null || rPr.highlight.`val` == "white")) {
-                        DocumentError(
+                        Mistake(
                             documentId,
                             p,
                             r,
-                            if (isEmpty) ErrorType.TEXT_WHITESPACE_HIGHLIGHT else ErrorType.TEXT_COMMON_HIGHLIGHT
+                            if (isEmpty) MistakeType.TEXT_WHITESPACE_HIGHLIGHT else MistakeType.TEXT_COMMON_HIGHLIGHT
                         )
                     } else null
                 }
@@ -150,13 +150,13 @@ object Rules {
                     rPr: RPr,
                     isEmpty: Boolean,
                     mainDocumentPart: MainDocumentPart
-                ): DocumentError? {
+                ): Mistake? {
                     return if (rPr.color != null && rPr.color.`val` != "000000" && rPr.color.`val` != "auto") {
-                        DocumentError(
+                        Mistake(
                             documentId,
                             p,
                             r,
-                            if (isEmpty) ErrorType.TEXT_WHITESPACE_TEXT_COLOR else ErrorType.TEXT_COMMON_TEXT_COLOR
+                            if (isEmpty) MistakeType.TEXT_WHITESPACE_TEXT_COLOR else MistakeType.TEXT_COMMON_TEXT_COLOR
                         )
                     } else null
                 }
@@ -168,12 +168,13 @@ object Rules {
                     rPr: RPr,
                     isEmpty: Boolean,
                     mainDocumentPart: MainDocumentPart
-                ): DocumentError? {
+                ): Mistake? {
                     return if (rPr.spacing != null && rPr.spacing.`val` != null && rPr.spacing.`val`.intValueExact() != 0) {
-                        DocumentError(
+                        Mistake(
                             documentId,
                             p,
-                            r, if (isEmpty) ErrorType.TEXT_WHITESPACE_RUN_SPACING else ErrorType.TEXT_COMMON_RUN_SPACING
+                            r,
+                            if (isEmpty) MistakeType.TEXT_WHITESPACE_RUN_SPACING else MistakeType.TEXT_COMMON_RUN_SPACING
                         )
                     } else null
                 }
@@ -188,13 +189,13 @@ object Rules {
                     pPr: PPr,
                     isEmpty: Boolean,
                     mainDocumentPart: MainDocumentPart
-                ): DocumentError? {
+                ): Mistake? {
                     return if (pPr.jc == null || pPr.jc.`val` != JcEnumeration.CENTER) {
-                        DocumentError(
+                        Mistake(
                             documentId,
                             p,
                             0,
-                            if (isEmpty) ErrorType.TEXT_WHITESPACE_AFTER_HEADER_ALIGNMENT else ErrorType.TEXT_HEADER_ALIGNMENT
+                            if (isEmpty) MistakeType.TEXT_WHITESPACE_AFTER_HEADER_ALIGNMENT else MistakeType.TEXT_HEADER_ALIGNMENT
                         )
                     } else null
                 }
@@ -205,9 +206,9 @@ object Rules {
                     pPr: PPr,
                     isEmpty: Boolean,
                     mainDocumentPart: MainDocumentPart
-                ): DocumentError? {
+                ): Mistake? {
                     return if (pPr.spacing != null && pPr.spacing.line != null && pPr.spacing.line.intValueExact() != 240) {
-                        DocumentError(documentId, p, 0, ErrorType.TEXT_HEADER_LINE_SPACING)
+                        Mistake(documentId, p, 0, MistakeType.TEXT_HEADER_LINE_SPACING)
                     } else null
                 }
 
@@ -217,10 +218,10 @@ object Rules {
                     pPr: PPr,
                     isEmpty: Boolean,
                     mainDocumentPart: MainDocumentPart
-                ): DocumentError? {
+                ): Mistake? {
                     val text = TextUtils.getText(mainDocumentPart.content[p] as org.docx4j.wml.P)
                     return if (text.endsWith(".")) {
-                        DocumentError(documentId, p, -1, ErrorType.TEXT_HEADER_REDUNDANT_DOT)
+                        Mistake(documentId, p, -1, MistakeType.TEXT_HEADER_REDUNDANT_DOT)
                     } else null
                 }
 
@@ -230,28 +231,28 @@ object Rules {
                     pPr: PPr,
                     isEmpty: Boolean,
                     mainDocumentPart: MainDocumentPart
-                ): DocumentError? {
+                ): Mistake? {
                     if (mainDocumentPart.content.size <= p + 1) {
-                        return DocumentError(
+                        return Mistake(
                             documentId,
                             p + 1,
-                            ErrorType.CHAPTER_EMPTY
+                            MistakeType.CHAPTER_EMPTY
                         )
                     }
                     val isNotEmpty = try {
                         TextUtils.getText(mainDocumentPart.content[p + 1] as org.docx4j.wml.P).isNotEmpty()
                     } catch (e: ClassCastException) {
-                        return DocumentError(
+                        return Mistake(
                             documentId,
                             p + 1,
-                            ErrorType.TEXT_HEADER_EMPTY_LINE_AFTER_HEADER_REQUIRED
+                            MistakeType.TEXT_HEADER_EMPTY_LINE_AFTER_HEADER_REQUIRED
                         )
                     }
                     return if (isNotEmpty) {
-                        DocumentError(
+                        Mistake(
                             documentId,
                             p + 1,
-                            ErrorType.TEXT_HEADER_EMPTY_LINE_AFTER_HEADER_REQUIRED
+                            MistakeType.TEXT_HEADER_EMPTY_LINE_AFTER_HEADER_REQUIRED
                         )
                     } else null
                 }
@@ -265,15 +266,15 @@ object Rules {
                     rPr: RPr,
                     isEmpty: Boolean,
                     mainDocumentPart: MainDocumentPart
-                ): DocumentError? {
+                ): Mistake? {
                     val text =
                         TextUtils.getText((mainDocumentPart.content[p] as org.docx4j.wml.P).content[r] as org.docx4j.wml.R)
                     return if (!(text.uppercase() == text || (rPr.caps != null && rPr.caps.isVal))) {
-                        DocumentError(
+                        Mistake(
                             documentId,
                             p,
                             r,
-                            if (isEmpty) ErrorType.TEXT_WHITESPACE_AFTER_HEADER_UPPERCASE else ErrorType.TEXT_HEADER_NOT_UPPERCASE
+                            if (isEmpty) MistakeType.TEXT_WHITESPACE_AFTER_HEADER_UPPERCASE else MistakeType.TEXT_HEADER_NOT_UPPERCASE
                         )
                     } else null
                 }
@@ -285,13 +286,13 @@ object Rules {
                     rPr: RPr,
                     isEmpty: Boolean,
                     mainDocumentPart: MainDocumentPart
-                ): DocumentError? {
+                ): Mistake? {
                     return if (rPr.b == null || !rPr.b.isVal) {
-                        DocumentError(
+                        Mistake(
                             documentId,
                             p,
                             r,
-                            if (isEmpty) ErrorType.TEXT_WHITESPACE_AFTER_HEADER_BOLD else ErrorType.TEXT_HEADER_NOT_BOLD
+                            if (isEmpty) MistakeType.TEXT_WHITESPACE_AFTER_HEADER_BOLD else MistakeType.TEXT_HEADER_NOT_BOLD
                         )
                     } else null
                 }
@@ -306,13 +307,13 @@ object Rules {
                     pPr: PPr,
                     isEmpty: Boolean,
                     mainDocumentPart: MainDocumentPart
-                ): DocumentError? {
+                ): Mistake? {
                     return if (pPr.jc == null || pPr.jc.`val` != JcEnumeration.BOTH) {
-                        DocumentError(
+                        Mistake(
                             documentId,
                             p,
                             -1,
-                            if (isEmpty) ErrorType.TEXT_WHITESPACE_ALIGNMENT else ErrorType.TEXT_REGULAR_INCORRECT_ALIGNMENT
+                            if (isEmpty) MistakeType.TEXT_WHITESPACE_ALIGNMENT else MistakeType.TEXT_REGULAR_INCORRECT_ALIGNMENT
                         )
                     } else null
                 }
@@ -323,14 +324,14 @@ object Rules {
                     pPr: PPr,
                     isEmpty: Boolean,
                     mainDocumentPart: MainDocumentPart
-                ): DocumentError? {
+                ): Mistake? {
                     return if (pPr.spacing != null && pPr.spacing.line != null) {
                         if (pPr.spacing.lineRule.value() == "auto" && pPr.spacing.line.intValueExact() != 360) {
-                            DocumentError(
+                            Mistake(
                                 documentId,
                                 p,
                                 -1,
-                                if (isEmpty) ErrorType.TEXT_WHITESPACE_LINE_SPACING else ErrorType.TEXT_REGULAR_LINE_SPACING
+                                if (isEmpty) MistakeType.TEXT_WHITESPACE_LINE_SPACING else MistakeType.TEXT_REGULAR_LINE_SPACING
                             )
                         } else null
                     } else null
@@ -342,13 +343,13 @@ object Rules {
                     pPr: PPr,
                     isEmpty: Boolean,
                     mainDocumentPart: MainDocumentPart
-                ): DocumentError? {
+                ): Mistake? {
                     return if (pPr.numPr != null && pPr.ind != null && pPr.ind.firstLine != null && abs(floor(pPr.ind.firstLine.intValueExact() / 1440 * 2.54) - 1.25) <= 0.01) {
-                        DocumentError(
+                        Mistake(
                             documentId,
                             p,
                             -1,
-                            if (isEmpty) ErrorType.TEXT_WHITESPACE_INDENT_FIRST_LINES else ErrorType.TEXT_COMMON_INDENT_FIRST_LINES
+                            if (isEmpty) MistakeType.TEXT_WHITESPACE_INDENT_FIRST_LINES else MistakeType.TEXT_COMMON_INDENT_FIRST_LINES
                         )
                     } else null
                 }
@@ -359,13 +360,13 @@ object Rules {
                     pPr: PPr,
                     isEmpty: Boolean,
                     mainDocumentPart: MainDocumentPart
-                ): DocumentError? {
+                ): Mistake? {
                     return if (pPr.numPr != null && pPr.ind != null && pPr.ind.left != null && pPr.ind.left.intValueExact() != 0) {
-                        DocumentError(
+                        Mistake(
                             documentId,
                             p,
                             -1,
-                            if (isEmpty) ErrorType.TEXT_WHITESPACE_INDENT_LEFT else ErrorType.TEXT_COMMON_INDENT_LEFT
+                            if (isEmpty) MistakeType.TEXT_WHITESPACE_INDENT_LEFT else MistakeType.TEXT_COMMON_INDENT_LEFT
                         )
                     } else null
                 }
@@ -376,13 +377,13 @@ object Rules {
                     pPr: PPr,
                     isEmpty: Boolean,
                     mainDocumentPart: MainDocumentPart
-                ): DocumentError? {
+                ): Mistake? {
                     return if (pPr.numPr != null && pPr.ind != null && pPr.ind.right != null && pPr.ind.right.intValueExact() != 0) {
-                        DocumentError(
+                        Mistake(
                             documentId,
                             p,
                             -1,
-                            if (isEmpty) ErrorType.TEXT_WHITESPACE_INDENT_RIGHT else ErrorType.TEXT_COMMON_INDENT_RIGHT
+                            if (isEmpty) MistakeType.TEXT_WHITESPACE_INDENT_RIGHT else MistakeType.TEXT_COMMON_INDENT_RIGHT
                         )
                     } else null
                 }
@@ -396,13 +397,13 @@ object Rules {
                     rPr: RPr,
                     isEmpty: Boolean,
                     mainDocumentPart: MainDocumentPart
-                ): DocumentError? {
+                ): Mistake? {
                     return if (rPr.b != null && !rPr.b.isVal) {
-                        DocumentError(
+                        Mistake(
                             documentId,
                             p,
                             r,
-                            if (isEmpty) ErrorType.TEXT_WHITESPACE_BOLD else ErrorType.TEXT_REGULAR_WAS_BOLD
+                            if (isEmpty) MistakeType.TEXT_WHITESPACE_BOLD else MistakeType.TEXT_REGULAR_WAS_BOLD
                         )
                     } else null
                 }
@@ -414,13 +415,13 @@ object Rules {
                     rPr: RPr,
                     isEmpty: Boolean,
                     mainDocumentPart: MainDocumentPart
-                ): DocumentError? {
+                ): Mistake? {
                     return if (rPr.caps != null && !rPr.caps.isVal) {
-                        DocumentError(
+                        Mistake(
                             documentId,
                             p,
                             r,
-                            if (isEmpty) ErrorType.TEXT_WHITESPACE_UPPERCASE else ErrorType.TEXT_REGULAR_UPPERCASE
+                            if (isEmpty) MistakeType.TEXT_WHITESPACE_UPPERCASE else MistakeType.TEXT_REGULAR_UPPERCASE
                         )
                     } else null
                 }
@@ -432,13 +433,13 @@ object Rules {
                     rPr: RPr,
                     isEmpty: Boolean,
                     mainDocumentPart: MainDocumentPart
-                ): DocumentError? {
+                ): Mistake? {
                     return if (rPr.u != null && rPr.u.`val`.value() != "none") {
-                        DocumentError(
+                        Mistake(
                             documentId,
                             p,
                             r,
-                            if (isEmpty) ErrorType.TEXT_WHITESPACE_UNDERLINED else ErrorType.TEXT_COMMON_UNDERLINED
+                            if (isEmpty) MistakeType.TEXT_WHITESPACE_UNDERLINED else MistakeType.TEXT_COMMON_UNDERLINED
                         )
                     } else null
                 }
@@ -453,13 +454,13 @@ object Rules {
                     pPr: PPr,
                     isEmpty: Boolean,
                     mainDocumentPart: MainDocumentPart
-                ): DocumentError? {
+                ): Mistake? {
                     return if (pPr.jc == null || pPr.jc.`val` != JcEnumeration.CENTER) {
-                        DocumentError(
+                        Mistake(
                             documentId,
                             p,
                             0,
-                            if (isEmpty) ErrorType.TEXT_WHITESPACE_AFTER_HEADER_ALIGNMENT else ErrorType.PICTURE_TITLE_NOT_CENTERED
+                            if (isEmpty) MistakeType.TEXT_WHITESPACE_AFTER_HEADER_ALIGNMENT else MistakeType.PICTURE_TITLE_NOT_CENTERED
                         )
                     } else null
                 }
@@ -470,10 +471,10 @@ object Rules {
                     pPr: PPr,
                     isEmpty: Boolean,
                     mainDocumentPart: MainDocumentPart
-                ): DocumentError? {
+                ): Mistake? {
                     val text = TextUtils.getText(mainDocumentPart.content[p] as org.docx4j.wml.P)
                     return if (text.endsWith(".")) {
-                        DocumentError(documentId, p, -1, ErrorType.PICTURE_TITLE_ENDS_WITH_DOT)
+                        Mistake(documentId, p, -1, MistakeType.PICTURE_TITLE_ENDS_WITH_DOT)
                     } else null
                 }
             }
@@ -489,13 +490,13 @@ object Rules {
                     pPr: PPr,
                     isEmpty: Boolean,
                     mainDocumentPart: MainDocumentPart
-                ): DocumentError? {
+                ): Mistake? {
                     return if (pPr.jc != null && pPr.jc.`val` != JcEnumeration.LEFT) {
-                        DocumentError(
+                        Mistake(
                             documentId,
                             p,
                             0,
-                            if (isEmpty) ErrorType.TEXT_WHITESPACE_AFTER_HEADER_ALIGNMENT else ErrorType.TEXT_HEADER_BODY_ALIGNMENT
+                            if (isEmpty) MistakeType.TEXT_WHITESPACE_AFTER_HEADER_ALIGNMENT else MistakeType.TEXT_HEADER_BODY_ALIGNMENT
                         )
                     } else null
                 }
@@ -506,7 +507,7 @@ object Rules {
                     pPr: PPr,
                     isEmpty: Boolean,
                     mainDocumentPart: MainDocumentPart
-                ): DocumentError? {
+                ): Mistake? {
                     val paragraph = mainDocumentPart.content[p] as org.docx4j.wml.P
                     val text = TextUtils.getText(paragraph)
                     return if (!isEmpty && (text.uppercase() == text || (paragraph.content.all { x ->
@@ -517,11 +518,11 @@ object Rules {
                                 true
                             }
                         }))) {
-                        DocumentError(
+                        Mistake(
                             documentId,
                             p,
                             -1,
-                            ErrorType.TEXT_HEADER_BODY_UPPERCASE
+                            MistakeType.TEXT_HEADER_BODY_UPPERCASE
                         )
                     } else null
                 }

@@ -1,6 +1,5 @@
 package com.maeasoftworks.normativecontrol.parser
 
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.util.Assert
 
@@ -14,7 +13,7 @@ class GeneralTests : ParserTestFactory(GeneralTests::class) {
         parser.createParsers()
         parser.parsers[1].parse()
         for (error in parser.errors) {
-            println("${error.paragraphId} ${error.runId} ${error.errorType} ${error.description}")
+            println("${error.paragraphId} ${error.runId} ${error.mistakeType} ${error.description}")
         }
         Assert.isTrue(parser.errors.size == 0, "There shouldn't be any error!")
     }
@@ -28,7 +27,7 @@ class GeneralTests : ParserTestFactory(GeneralTests::class) {
         parser.createParsers()
         parser.parsers[3].parse()
         for (error in parser.errors) {
-            println("${error.paragraphId} ${error.runId} ${error.errorType} ${error.description}")
+            println("${error.paragraphId} ${error.runId} ${error.mistakeType} ${error.description}")
         }
         Assert.isTrue(parser.errors.size != 0, "There should be errors!")
     }
@@ -42,8 +41,8 @@ class GeneralTests : ParserTestFactory(GeneralTests::class) {
         parser.parsers[5].parse()
         parser.parsers[6].parse()
         parser.parsers[7].parse()
-        for (error in parser.errors.filter { !it.errorType.name.contains("WHITESPACE") }) {
-            println("${error.paragraphId} ${error.runId} ${error.errorType} ${error.description}")
+        for (error in parser.errors.filter { !it.mistakeType.name.contains("WHITESPACE") }) {
+            println("${error.paragraphId} ${error.runId} ${error.mistakeType} ${error.description}")
         }
         Assert.isTrue(parser.errors.size != 0, "There should be errors!")
     }
@@ -54,8 +53,8 @@ class GeneralTests : ParserTestFactory(GeneralTests::class) {
         parser.setupChapters()
         parser.createParsers()
         parser.parsers[2].parse()
-        for (error in parser.errors.filter { !it.errorType.name.contains("WHITESPACE") }) {
-            println("${error.paragraphId} ${error.runId} ${error.errorType} ${error.description}")
+        for (error in parser.errors.filter { !it.mistakeType.name.contains("WHITESPACE") }) {
+            println("${error.paragraphId} ${error.runId} ${error.mistakeType} ${error.description}")
         }
         Assert.isTrue(parser.errors.size != 0, "There should be errors!")
     }
@@ -66,8 +65,8 @@ class GeneralTests : ParserTestFactory(GeneralTests::class) {
         parser.setupChapters()
         parser.createParsers()
         parser.runVerification()
-        for (error in parser.errors.filter { !it.errorType.name.contains("WHITESPACE") }) {
-            println("${error.paragraphId} ${error.runId} ${error.errorType} ${error.description}")
+        for (error in parser.errors.filter { !it.mistakeType.name.contains("WHITESPACE") }) {
+            println("${error.paragraphId} ${error.runId} ${error.mistakeType} ${error.description}")
         }
         Assert.isTrue(parser.errors.size != 0, "There should be errors!")
     }

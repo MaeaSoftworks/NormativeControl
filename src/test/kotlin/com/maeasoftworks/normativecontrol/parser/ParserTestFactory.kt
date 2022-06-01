@@ -2,8 +2,8 @@ package com.maeasoftworks.normativecontrol.parser
 
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
-import com.maeasoftworks.normativecontrol.entities.DocumentError
-import com.maeasoftworks.normativecontrol.parser.enums.ErrorType
+import com.maeasoftworks.normativecontrol.entities.Mistake
+import com.maeasoftworks.normativecontrol.parser.enums.MistakeType
 import com.maeasoftworks.normativecontrol.parser.model.Document
 import com.maeasoftworks.normativecontrol.parser.parsers.DocumentParser
 import org.docx4j.openpackaging.exceptions.Docx4JException
@@ -20,10 +20,10 @@ open class ParserTestFactory(testClass: KClass<*>) {
         directory = testClass.simpleName!!.removeSuffix("Tests").lowercase()
     }
 
-    protected fun errorAssert(found: MutableList<DocumentError>, vararg expected: ErrorType) {
+    protected fun errorAssert(found: MutableList<Mistake>, vararg expected: MistakeType) {
         assert(found.size == expected.size) { "Expected: ${expected.size} errors\nFound: ${found.size}" }
         for (i in 0 until found.size) {
-            assert(found[i].errorType == expected[i]) { "Expected: ${expected[i].name}\nFound: ${found[i].errorType.name}" }
+            assert(found[i].mistakeType == expected[i]) { "Expected: ${expected[i].name}\nFound: ${found[i].mistakeType.name}" }
         }
     }
 

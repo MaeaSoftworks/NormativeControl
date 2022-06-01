@@ -1,6 +1,6 @@
 package com.maeasoftworks.normativecontrol.parser.enums
 
-enum class State {
+enum class Status {
     QUEUE,
     READY_TO_UPLOAD,
     PROCESSING,

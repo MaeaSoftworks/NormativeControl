@@ -3,7 +3,7 @@ package com.maeasoftworks.normativecontrol.rules
 import com.maeasoftworks.normativecontrol.parser.PFunctionWrapper
 import com.maeasoftworks.normativecontrol.parser.RFunctionWrapper
 import com.maeasoftworks.normativecontrol.parser.Rules
-import com.maeasoftworks.normativecontrol.parser.enums.ErrorType.*
+import com.maeasoftworks.normativecontrol.parser.enums.MistakeType.*
 import org.junit.jupiter.api.Test
 
 open class RulesDefaultCommon : RulesTestBase() {
@@ -14,7 +14,7 @@ open class RulesDefaultCommon : RulesTestBase() {
     @Test
     fun `bordered failed`() {
         base(2, PFunctionWrapper(Rules.Default.Common.P::notBordered)) {
-            it != null && it.errorType == TEXT_COMMON_BORDER
+            it != null && it.mistakeType == TEXT_COMMON_BORDER
         }
     }
 
@@ -28,7 +28,7 @@ open class RulesDefaultCommon : RulesTestBase() {
     @Test
     fun `not background failed`() {
         base(4, PFunctionWrapper(Rules.Default.Common.P::hasNotBackground)) {
-            it != null && it.errorType == TEXT_COMMON_BACKGROUND_FILL
+            it != null && it.mistakeType == TEXT_COMMON_BACKGROUND_FILL
         }
     }
 
@@ -42,7 +42,7 @@ open class RulesDefaultCommon : RulesTestBase() {
     @Test
     fun `is times new roman failed`() {
         base(6, RFunctionWrapper(Rules.Default.Common.R::isTimesNewRoman)) {
-            it != null && it.errorType == TEXT_COMMON_FONT
+            it != null && it.mistakeType == TEXT_COMMON_FONT
         }
     }
 
@@ -56,7 +56,7 @@ open class RulesDefaultCommon : RulesTestBase() {
     @Test
     fun `font size is 14 failed`() {
         base(8, RFunctionWrapper(Rules.Default.Common.R::fontSizeIs14)) {
-            it != null && it.errorType == TEXT_COMMON_INCORRECT_FONT_SIZE
+            it != null && it.mistakeType == TEXT_COMMON_INCORRECT_FONT_SIZE
         }
     }
 
@@ -70,7 +70,7 @@ open class RulesDefaultCommon : RulesTestBase() {
     @Test
     fun `not italic failed`() {
         base(10, RFunctionWrapper(Rules.Default.Common.R::notItalic)) {
-            it != null && it.errorType == TEXT_COMMON_ITALIC_TEXT
+            it != null && it.mistakeType == TEXT_COMMON_ITALIC_TEXT
         }
     }
 
@@ -84,7 +84,7 @@ open class RulesDefaultCommon : RulesTestBase() {
     @Test
     fun `not crossed out failed`() {
         base(12, RFunctionWrapper(Rules.Default.Common.R::notCrossedOut)) {
-            it != null && it.errorType == TEXT_COMMON_STRIKETHROUGH
+            it != null && it.mistakeType == TEXT_COMMON_STRIKETHROUGH
         }
     }
 
@@ -98,7 +98,7 @@ open class RulesDefaultCommon : RulesTestBase() {
     @Test
     fun `not highlighted failed`() {
         base(14, RFunctionWrapper(Rules.Default.Common.R::notHighlighted)) {
-            it != null && it.errorType == TEXT_COMMON_HIGHLIGHT
+            it != null && it.mistakeType == TEXT_COMMON_HIGHLIGHT
         }
     }
 
@@ -112,7 +112,7 @@ open class RulesDefaultCommon : RulesTestBase() {
     @Test
     fun `is black failed`() {
         base(16, RFunctionWrapper(Rules.Default.Common.R::isBlack)) {
-            it != null && it.errorType == TEXT_COMMON_TEXT_COLOR
+            it != null && it.mistakeType == TEXT_COMMON_TEXT_COLOR
         }
     }
 
@@ -126,7 +126,7 @@ open class RulesDefaultCommon : RulesTestBase() {
     @Test
     fun `letter spacing failed`() {
         base(18, RFunctionWrapper(Rules.Default.Common.R::letterSpacingIs0)) {
-            it != null && it.errorType == TEXT_COMMON_RUN_SPACING
+            it != null && it.mistakeType == TEXT_COMMON_RUN_SPACING
         }
     }
 

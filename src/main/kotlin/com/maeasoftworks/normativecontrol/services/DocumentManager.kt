@@ -1,16 +1,16 @@
 package com.maeasoftworks.normativecontrol.services
 
-import com.maeasoftworks.normativecontrol.controllers.DocumentProcessingController
-import com.maeasoftworks.normativecontrol.entities.DocumentFile
-import com.maeasoftworks.normativecontrol.entities.DocumentKey
+import com.maeasoftworks.normativecontrol.controllers.DocumentController
+import com.maeasoftworks.normativecontrol.entities.BinaryFile
+import com.maeasoftworks.normativecontrol.entities.DocumentCredentials
 import com.maeasoftworks.normativecontrol.parser.enums.FailureType
-import com.maeasoftworks.normativecontrol.parser.enums.State
+import com.maeasoftworks.normativecontrol.parser.enums.Status
 import com.maeasoftworks.normativecontrol.parser.model.Document
 import com.maeasoftworks.normativecontrol.parser.parsers.DocumentParser
 import com.maeasoftworks.normativecontrol.parser.parsers.DocumentParserFactory
-import com.maeasoftworks.normativecontrol.repositories.DocumentErrorRepository
-import com.maeasoftworks.normativecontrol.repositories.DocumentFileRepository
-import com.maeasoftworks.normativecontrol.repositories.DocumentRepository
+import com.maeasoftworks.normativecontrol.repositories.BinaryFileRepository
+import com.maeasoftworks.normativecontrol.repositories.CredentialsRepository
+import com.maeasoftworks.normativecontrol.repositories.MistakeRepository
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.context.event.EventListener
 import org.springframework.scheduling.annotation.Async
@@ -19,12 +19,12 @@ import org.springframework.transaction.annotation.Transactional
 import java.util.*
 
 @Service
-@ConditionalOnBean(DocumentProcessingController::class)
+@ConditionalOnBean(DocumentController::class)
 class DocumentManager(
     private val queue: DocumentQueue,
-    private val errorRepository: DocumentErrorRepository,
-    private val fileRepository: DocumentFileRepository,
-    private val documentRepository: DocumentRepository,
+    private val errorRepository: MistakeRepository,
+    private val fileRepository: BinaryFileRepository,
+    private val credentialsRepository: CredentialsRepository,
     private val factory: DocumentParserFactory
 ) {
     fun addToQueue(accessKey: String): String {
@@ -47,27 +47,27 @@ class DocumentManager(
     @Async
     fun saveToDatabase(parser: DocumentParser) {
         if (parser.document.failureType == FailureType.NONE) {
-            fileRepository.save(DocumentFile(parser.document.id, parser.document.accessKey, parser.document.file))
+            fileRepository.save(BinaryFile(parser.document.id, parser.document.accessKey, parser.document.file))
             errorRepository.saveAll(parser.errors)
-            documentRepository.save(DocumentKey(parser.document.id, parser.document.accessKey))
+            credentialsRepository.save(DocumentCredentials(parser.document.id, parser.document.accessKey))
             queue.remove(parser.document.id)
         }
     }
 
     @Transactional
-    fun getState(documentId: String, accessKey: String): State {
+    fun getState(documentId: String, accessKey: String): Status {
         val parser = queue.getById(documentId)
-        return if (parser?.document?.state == null) {
-            if (fileRepository.existsDocumentFileByDocumentId(documentId)) State.SAVED else State.UNDEFINED
+        return if (parser?.document?.status == null) {
+            if (fileRepository.existsBinaryFileByDocumentId(documentId)) Status.SAVED else Status.UNDEFINED
         } else if (queue.isUploadAvailable(documentId)) {
-            State.READY_TO_UPLOAD
+            Status.READY_TO_UPLOAD
         } else {
-            parser.document.state
+            parser.document.status
         }
     }
 
     @Transactional
-    fun getErrors(id: String) = errorRepository.findAllByDocumentId(id)
+    fun getMistakes(id: String) = errorRepository.findAllByDocumentId(id)
 
     @Transactional
     fun getFile(id: String) = fileRepository.findByDocumentId(id)?.bytes?.toList()?.toByteArray()
@@ -76,19 +76,19 @@ class DocumentManager(
     fun dropDatabase() {
         errorRepository.deleteAll()
         fileRepository.deleteAll()
-        documentRepository.deleteAll()
+        credentialsRepository.deleteAll()
     }
 
     @Transactional
     fun getAccessKey(documentId: String): String? {
-        return queue.getById(documentId)?.document?.accessKey ?: documentRepository.findById(documentId).orElse(
-            DocumentKey("", null)
+        return queue.getById(documentId)?.document?.accessKey ?: credentialsRepository.findById(documentId).orElse(
+            DocumentCredentials("", null)
         ).accessKey
     }
 
     fun uploaded(accessKey: String, documentId: String): Boolean {
         return queue.getById(documentId)
-            .let { it != null && it.document.accessKey == accessKey && !it.document.file.contentEquals(ByteArray(0)) } || documentRepository.findById(
+            .let { it != null && it.document.accessKey == accessKey && !it.document.file.contentEquals(ByteArray(0)) } || credentialsRepository.findById(
             documentId
         ).let { it.isPresent && it.get().accessKey == accessKey }
     }

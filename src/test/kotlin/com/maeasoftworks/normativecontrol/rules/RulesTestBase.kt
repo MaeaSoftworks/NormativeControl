@@ -2,7 +2,7 @@ package com.maeasoftworks.normativecontrol.rules
 
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
-import com.maeasoftworks.normativecontrol.entities.DocumentError
+import com.maeasoftworks.normativecontrol.entities.Mistake
 import com.maeasoftworks.normativecontrol.parser.PFunctionWrapper
 import com.maeasoftworks.normativecontrol.parser.RFunctionWrapper
 import com.maeasoftworks.normativecontrol.parser.model.Document
@@ -18,7 +18,7 @@ import java.io.IOException
 open class RulesTestBase {
     lateinit var parser: DocumentParser
 
-    fun base(p: Int, wrapper: PFunctionWrapper, condition: (DocumentError?) -> Boolean) {
+    fun base(p: Int, wrapper: PFunctionWrapper, condition: (Mistake?) -> Boolean) {
         val paragraph = parser.mainDocumentPart.content[p] as P
         assert(
             wrapper.function(
@@ -31,7 +31,7 @@ open class RulesTestBase {
         )
     }
 
-    fun base(p: Int, wrapper: RFunctionWrapper, condition: (DocumentError?) -> Boolean) {
+    fun base(p: Int, wrapper: RFunctionWrapper, condition: (Mistake?) -> Boolean) {
         val paragraph = parser.mainDocumentPart.content[p] as P
         assert(
             wrapper.function(

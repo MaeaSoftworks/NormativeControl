@@ -1,11 +1,11 @@
 package com.maeasoftworks.normativecontrol.parser.parsers
 
-import com.maeasoftworks.normativecontrol.entities.DocumentError
+import com.maeasoftworks.normativecontrol.entities.Mistake
 import com.maeasoftworks.normativecontrol.parser.PFunctionWrapper
 import com.maeasoftworks.normativecontrol.parser.RFunctionWrapper
 import com.maeasoftworks.normativecontrol.parser.Rules
 import com.maeasoftworks.normativecontrol.parser.apply
-import com.maeasoftworks.normativecontrol.parser.enums.ErrorType
+import com.maeasoftworks.normativecontrol.parser.enums.MistakeType
 import com.maeasoftworks.normativecontrol.parser.model.Chapter
 import com.maeasoftworks.normativecontrol.parser.model.Picture
 import org.docx4j.TextUtils
@@ -74,7 +74,8 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
         if (subchapter.subheader != null) {
             val subheaderPPr = root.resolver.getEffectivePPr(subchapter.subheader.pPr)
             val isEmpty = TextUtils.getText(subchapter.subheader).isEmpty()
-            (headerPFunctions + commonPFunctions).apply(root, subchapter.startPos, subheaderPPr, isEmpty)
+            headerPFunctions.apply(root, subchapter.startPos, subheaderPPr, isEmpty)
+            commonPFunctions.apply(root, subchapter.startPos, subheaderPPr, isEmpty)
             for (r in 0 until subchapter.subheader.content.size) {
                 if (subchapter.subheader.content[r] is R) {
                     val rPr = root.resolver.getEffectiveRPr(
@@ -121,7 +122,8 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
     private fun parseHeader() {
         val headerPPr = root.resolver.getEffectivePPr(chapter.header.pPr)
         val isEmpty = TextUtils.getText(chapter.header).isBlank()
-        (headerPFunctions + commonPFunctions).apply(root, chapter.startPos, headerPPr, isEmpty)
+        headerPFunctions.apply(root, chapter.startPos, headerPPr, isEmpty)
+        commonPFunctions.apply(root, chapter.startPos, headerPPr, isEmpty)
         for (r in 0 until chapter.header.content.size) {
             if (chapter.header.content[r] is R) {
                 val rPr = root.resolver.getEffectiveRPr((chapter.header.content[r] as R).rPr, chapter.header.pPr)
@@ -133,7 +135,7 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
     }
 
     override fun handleHyperlink(p: Int, r: Int) {
-        root.errors += DocumentError(root.document.id, p, r, ErrorType.TEXT_HYPERLINKS_NOT_ALLOWED_HERE)
+        root.errors += Mistake(root.document.id, p, r, MistakeType.TEXT_HYPERLINKS_NOT_ALLOWED_HERE)
     }
 
     override fun handleTable(p: Int) {}
@@ -141,19 +143,19 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
     private fun validateSubchapters(expectedNum: String, subchapter: Subchapter) {
         for (sub in 0 until subchapter.subchapters.size) {
             if ("${expectedNum}.${subchapter.subchapters[sub].num}" != "${expectedNum}.${sub + 1}") {
-                root.errors += DocumentError(
+                root.errors += Mistake(
                     root.document.id,
                     this.chapter.startPos,
-                    ErrorType.TEXT_BODY_SUBHEADER_NUMBER_ORDER_MISMATCH,
+                    MistakeType.TEXT_BODY_SUBHEADER_NUMBER_ORDER_MISMATCH,
                     "${expectedNum}.${subchapter.subchapters[sub].num}/${expectedNum}.${sub + 1}"
                 )
                 return
             }
             if (subchapter.level > 3) {
-                root.errors += DocumentError(
+                root.errors += Mistake(
                     root.document.id,
                     this.chapter.startPos,
-                    ErrorType.TEXT_BODY_SUBHEADER_LEVEL_WAS_MORE_THAN_3
+                    MistakeType.TEXT_BODY_SUBHEADER_LEVEL_WAS_MORE_THAN_3
                 )
                 return
             }

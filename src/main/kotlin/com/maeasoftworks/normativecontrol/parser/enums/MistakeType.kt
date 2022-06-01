@@ -1,7 +1,7 @@
 package com.maeasoftworks.normativecontrol.parser.enums
 
 //@formatter:off
-enum class ErrorType {
+enum class MistakeType {
     // page size
     PAGE_WIDTH_IS_INCORRECT,
     PAGE_HEIGHT_IS_INCORRECT,

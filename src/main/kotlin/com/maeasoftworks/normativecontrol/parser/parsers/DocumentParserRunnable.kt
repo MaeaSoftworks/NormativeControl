@@ -1,6 +1,6 @@
 package com.maeasoftworks.normativecontrol.parser.parsers
 
-import com.maeasoftworks.normativecontrol.parser.enums.State
+import com.maeasoftworks.normativecontrol.parser.enums.Status
 import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationEventPublisher
 import java.util.concurrent.atomic.AtomicInteger
@@ -19,7 +19,7 @@ class DocumentParserRunnable(
         val end = System.currentTimeMillis()
         log.info("[{}] time taken: {} ms", parser.document.id, end - start)
         count.decrementAndGet()
-        parser.document.state = State.READY
+        parser.document.status = Status.READY
         publisher.publishEvent(parser)
     }
 }

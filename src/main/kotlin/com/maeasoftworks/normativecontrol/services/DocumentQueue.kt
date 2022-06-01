@@ -1,6 +1,6 @@
 package com.maeasoftworks.normativecontrol.services
 
-import com.maeasoftworks.normativecontrol.parser.enums.State
+import com.maeasoftworks.normativecontrol.parser.enums.Status
 import com.maeasoftworks.normativecontrol.parser.parsers.DocumentParser
 import com.maeasoftworks.normativecontrol.parser.parsers.DocumentParserRunnable
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
@@ -19,20 +19,20 @@ class DocumentQueue(private val publisher: ApplicationEventPublisher) {
 
     fun put(parser: DocumentParser) {
         documentMap[parser.document.id] = parser
-        parser.document.state = State.READY_TO_UPLOAD
+        parser.document.status = Status.READY_TO_UPLOAD
     }
 
     fun runById(documentId: String) {
         val parser = documentMap[documentId]
         if (parser != null) {
             count.incrementAndGet()
-            parser.document.state = State.PROCESSING
+            parser.document.status = Status.PROCESSING
             executor.execute(DocumentParserRunnable(parser, count, publisher))
         }
     }
 
     fun isUploadAvailable(documentId: String): Boolean {
-        return documentMap[documentId]?.document?.state == State.READY_TO_UPLOAD && count.get() < 100
+        return documentMap[documentId]?.document?.status == Status.READY_TO_UPLOAD && count.get() < 100
     }
 
     fun getById(id: String): DocumentParser? {

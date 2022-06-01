@@ -2,7 +2,7 @@ package com.maeasoftworks.normativecontrol.parser
 
 import com.maeasoftworks.normativecontrol.parser.enums.ChapterType
 import com.maeasoftworks.normativecontrol.parser.enums.ChapterType.*
-import com.maeasoftworks.normativecontrol.parser.enums.ErrorType.*
+import com.maeasoftworks.normativecontrol.parser.enums.MistakeType.*
 import com.maeasoftworks.normativecontrol.parser.model.Chapter
 import org.junit.jupiter.api.Test
 

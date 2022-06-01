@@ -91,12 +91,12 @@ main {
     height: calc(100% - 100px);
 }
 
-.methods-list, .objects {
+.methods-list, .entities {
     display: grid;
     grid-template-rows: auto auto;
 }
 
-.methods-list, .objects, .description-block {
+.methods-list, .entities, .description-block {
     border-radius: 10px;
     background-color: #323232;
     padding: 10px;
@@ -115,7 +115,7 @@ main {
 .method-link p {
     margin: auto;
     display: grid;
-    grid-template-columns: 50% 50%;
+    grid-template-columns: 40% 60%;
 }
 
 .method-type {
@@ -141,7 +141,7 @@ main {
     color: yellow;
 }
 
-.objects {
+.entities {
     grid-row: 2;
     grid-column: 1;
 }
@@ -245,7 +245,7 @@ code {
     background-color: #191919;
 }
 
-.object-link p span {
+.entity-link p span {
     text-align: center;
     grid-column: span 2;
 }

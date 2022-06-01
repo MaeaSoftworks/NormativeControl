@@ -12,10 +12,6 @@ internal class FileSizeExceptionAdvice {
     @ExceptionHandler(MaxUploadSizeExceededException::class)
     @ResponseBody
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    fun handleFileSizeException(e: MaxUploadSizeExceededException?): Map<String, Any> {
-        val map = HashMap<String, Any>()
-        map["status"] = 400
-        map["templates/error"] = "Document was too big"
-        return map
-    }
+    fun handleFileSizeException(e: MaxUploadSizeExceededException?) =
+        mapOf("status" to 400, "templates/error" to "Document was too big")
 }

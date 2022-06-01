@@ -1,11 +1,11 @@
 package com.maeasoftworks.normativecontrol.parser.parsers
 
-import com.maeasoftworks.normativecontrol.entities.DocumentError
+import com.maeasoftworks.normativecontrol.entities.Mistake
 import com.maeasoftworks.normativecontrol.parser.PFunctionWrapper
 import com.maeasoftworks.normativecontrol.parser.RFunctionWrapper
 import com.maeasoftworks.normativecontrol.parser.Rules
 import com.maeasoftworks.normativecontrol.parser.apply
-import com.maeasoftworks.normativecontrol.parser.enums.ErrorType.*
+import com.maeasoftworks.normativecontrol.parser.enums.MistakeType.*
 import com.maeasoftworks.normativecontrol.parser.model.Chapter
 import com.maeasoftworks.normativecontrol.parser.model.Picture
 import org.docx4j.TextUtils
@@ -25,15 +25,15 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
     abstract fun parse()
 
     open fun handleHyperlink(p: Int, r: Int) {
-        root.errors += DocumentError(root.document.id, p, DOCUMENT_UNEXPECTED_CONTENT)
+        root.errors += Mistake(root.document.id, p, DOCUMENT_UNEXPECTED_CONTENT)
     }
 
     open fun handleTable(p: Int) {
-        root.errors += DocumentError(root.document.id, p, DOCUMENT_UNEXPECTED_CONTENT)
+        root.errors += Mistake(root.document.id, p, DOCUMENT_UNEXPECTED_CONTENT)
     }
 
     open fun handleContents(p: Int) {
-        root.errors += DocumentError(root.document.id, p, DOCUMENT_UNEXPECTED_CONTENT)
+        root.errors += Mistake(root.document.id, p, DOCUMENT_UNEXPECTED_CONTENT)
     }
 
     fun parse(
@@ -73,7 +73,7 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
             is Tbl -> {
                 context.handleTable(p)
             }
-            else -> root.errors += DocumentError(
+            else -> root.errors += Mistake(
                 root.document.id,
                 p,
                 DOCUMENT_UNEXPECTED_CONTENT,
@@ -82,7 +82,13 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
         }
     }
 
-    open fun handleP(context: ChapterParser, p: Int, paragraph: P, pFunctions: Iterable<PFunctionWrapper>, rFunctions: Iterable<RFunctionWrapper>) {
+    open fun handleP(
+        context: ChapterParser,
+        p: Int,
+        paragraph: P,
+        pFunctions: Iterable<PFunctionWrapper>,
+        rFunctions: Iterable<RFunctionWrapper>
+    ) {
         val pPr = root.resolver.getEffectivePPr(paragraph.pPr)
         val isEmpty = TextUtils.getText(paragraph).isBlank()
         for (r in 0 until paragraph.content.size) {
@@ -115,7 +121,7 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
     }
 
     private fun unexpectedP(p: Int, something: Any) {
-        root.errors += DocumentError(root.document.id, p, PARAGRAPH_UNEXPECTED_CONTENT, something::class.simpleName!!)
+        root.errors += Mistake(root.document.id, p, PARAGRAPH_UNEXPECTED_CONTENT, something::class.simpleName!!)
     }
 
     open fun handlePContent(p: Int, r: Int, context: ChapterParser) {
@@ -151,9 +157,9 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
             }
             is ProofErr -> {
                 if (something.type == "gramStart") {
-                    root.errors += DocumentError(root.document.id, p, r + 1, WORD_GRAMMATICAL_ERROR)
+                    root.errors += Mistake(root.document.id, p, r + 1, WORD_GRAMMATICAL_ERROR)
                 } else if (something.type == "spellStart") {
-                    root.errors += DocumentError(root.document.id, p, r + 1, WORD_SPELL_ERROR)
+                    root.errors += Mistake(root.document.id, p, r + 1, WORD_SPELL_ERROR)
                 }
             }
             is Br,
@@ -196,7 +202,7 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
                 is R.Sym,
                 is R.CommentReference,
                 is R.FootnoteRef,
-                is R.DayLong -> root.errors += DocumentError(
+                is R.DayLong -> root.errors += Mistake(
                     root.document.id,
                     p,
                     r,
@@ -204,15 +210,15 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
                     something.declaredType.simpleName
                 )
             }
-            is Br -> root.errors += DocumentError(root.document.id, p, r, TODO_ERROR)
-            is DelText -> root.errors += DocumentError(root.document.id, p, r, TODO_ERROR)
+            is Br -> root.errors += Mistake(root.document.id, p, r, TODO_ERROR)
+            is DelText -> root.errors += Mistake(root.document.id, p, r, TODO_ERROR)
             is AlternateContent -> {
                 // todo: is it only first object?
                 if (something.choice.first().any.first() is Drawing) {
                     pictureTitleExpected = true
                     context.handleDrawing(p, r, c, root.pictures)
                 } else {
-                    root.errors += DocumentError(root.document.id, p, r, TODO_ERROR)
+                    root.errors += Mistake(root.document.id, p, r, TODO_ERROR)
                 }
             }
         }
@@ -227,14 +233,14 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
 
         val picture = Picture(p, r, c, drawing)
         if ((drawing.anchorOrInline as ArrayListWml<*>)[0] is Anchor) {
-            root.errors += DocumentError(root.document.id, p, r, PICTURE_IS_NOT_INLINED)
+            root.errors += Mistake(root.document.id, p, r, PICTURE_IS_NOT_INLINED)
         } else {
             container.add(picture)
             picture.title = TextUtils.getText(root.mainDocumentPart.content[p + 1] as P).let {
                 if (it.uppercase().startsWith("РИСУНОК ")) {
                     it
                 } else {
-                    root.errors += DocumentError(
+                    root.errors += Mistake(
                         root.document.id,
                         p,
                         r,
@@ -244,11 +250,11 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
                 }
             }
             if (TextUtils.getText(root.mainDocumentPart.content[p - 1] as P).isNotBlank()) {
-                root.errors += DocumentError(root.document.id, p, r, PICTURE_REQUIRED_BLANK_LINE_BEFORE_PICTURE)
+                root.errors += Mistake(root.document.id, p, r, PICTURE_REQUIRED_BLANK_LINE_BEFORE_PICTURE)
             }
             if (!root.isHeader(p + 2)) {
                 if (TextUtils.getText(root.mainDocumentPart.content[p + 2] as P).isNotBlank()) {
-                    root.errors += DocumentError(
+                    root.errors += Mistake(
                         root.document.id,
                         p,
                         r,
@@ -272,7 +278,8 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
 
     fun validateListElement(p: Int) {
         val pPr = (root.mainDocumentPart.content[p] as P).pPr
-        val numberingFormat = root.numbering!!.instanceListDefinitions[pPr.numPr.numId.`val`.toString()]!!.abstractListDefinition
+        val numberingFormat =
+            root.numbering!!.instanceListDefinitions[pPr.numPr.numId.`val`.toString()]!!.abstractListDefinition
         if (pPr.numPr.ilvl.`val` != null && pPr.numPr.ilvl.`val`.toInt() > 1) {
             root.addError(LIST_LEVEL_MORE_THAN_2, p)
         }
@@ -282,7 +289,11 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
                     root.addError(ORDERED_LIST_INCORRECT_MARKER_FORMAT_AT_LEVEL_1, p, description = "/\"–\" (U+2013)")
                 }
                 NumberFormat.RUSSIAN_LOWER -> if (numberingFormat.listLevels["0"]!!.levelText != "%1)") {
-                    root.addError(ORDERED_LIST_INCORRECT_MARKER_FORMAT_AT_LEVEL_1, p, description = "/\"<RU_LOWER_LETTER>)\"")
+                    root.addError(
+                        ORDERED_LIST_INCORRECT_MARKER_FORMAT_AT_LEVEL_1,
+                        p,
+                        description = "/\"<RU_LOWER_LETTER>)\""
+                    )
                 }
                 else -> root.addError(ORDERED_LIST_INCORRECT_MARKER_FORMAT, p)
             }

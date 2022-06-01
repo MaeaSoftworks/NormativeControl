@@ -24,25 +24,25 @@
         <h2>API Methods</h2>
         <div class="scrollable">
             <th:block th:each="method : ${methods}">
-                <a th:class="'method-link' + (${current != null && isMethod && method.root + '/' + method.path == current.root + '/' + current.path} ? ' link-active' : '')"
-                   th:href="'docs?section=' + ${method.root} + '/' + ${method.path}">
+                <a th:class="'method-link' + (${current != null && isMethod && method.path == current.path} ? ' link-active' : '')"
+                   th:href="'docs?section=' + ${method.path}">
                     <p>
                         <span th:class="'method-type method-type-' + ${method.type}"
                               th:utext="'[' + ${method.type} + ']'"></span>
-                        <span class="method-name" th:utext="${method.root} + '/' + ${method.path}"></span>
+                        <span class="method-name" th:utext="${method.path}"></span>
                     </p>
                 </a>
             </th:block>
         </div>
     </div>
-    <div class="objects">
-        <h2>API Objects</h2>
+    <div class="entities">
+        <h2>API Entities</h2>
         <div class="scrollable">
-            <th:block th:each="object : ${objects}">
-                <a th:class="'method-link object-link' + (${current != null && !isMethod && object.name == current.name} ? ' link-active' : '')"
-                   th:href="'docs?section=' + ${object.name}">
+            <th:block th:each="entity : ${entities}">
+                <a th:class="'method-link entity-link' + (${current != null && !isMethod && entity.name == current.name} ? ' link-active' : '')"
+                   th:href="'docs?section=' + ${entity.name}">
                     <p>
-                        <span class="method-name" th:utext="${object.name}"></span>
+                        <span class="method-name" th:utext="${entity.name}"></span>
                     </p>
                 </a>
             </th:block>
@@ -52,9 +52,9 @@
         <h2 th:if="${current != null && isMethod}">Method</h2>
         <p class="current-section-name" th:if="${current != null && isMethod}">
             <span th:class="'method-type method-type-' + ${current.type}" th:utext="'[' + ${current.type} + ']'"></span>
-            <span class="method-name" th:utext="${current.root} + '/' + ${current.path}"></span>
+            <span class="method-name" th:utext="${current.path}"></span>
         </p>
-        <h2 th:if="${current != null && !isMethod}">Object</h2>
+        <h2 th:if="${current != null && !isMethod}">Entity</h2>
         <p class="current-section-name" th:if="${current != null && !isMethod}">
             <span class="section-name" th:utext="${current.name}"></span>
         </p>
@@ -63,6 +63,22 @@
             <div class="content scrollable">
                 <h3>Description:</h3>
                 <div class="description" th:utext="${current.description}"></div>
+                <th:block th:if="${current.pathParams.size() > 0}">
+                    <h3>Path params:</h3>
+                    <ul>
+                        <th:block th:each="pathParam, state : ${current.pathParams}">
+                            <li class="parameter">
+                                <p>
+                                    <span class="parameter-name" th:utext="${pathParam.name}"></span>:&#160;
+                                    <code class="parameter-type" th:utext="${pathParam.type}"></code>&#160;&#8212;&#160;
+                                    <span class="parameter-description" th:utext="${pathParam.description}"></span>
+                                    <span class="text-span" th:if="${state.last}">.</span>
+                                    <span class="text-span" th:if="${!state.last}">;</span>
+                                </p>
+                            </li>
+                        </th:block>
+                    </ul>
+                </th:block>
                 <th:block th:if="${current.queryParams.size() > 0}">
                     <h3>Query params:</h3>
                     <ul>
@@ -173,7 +189,7 @@
         </th:block>
         <th:block th:if="${current == null}">
             <div class="selected-empty">
-                <span><b>Please, select method or object.</b></span>
+                <span><b>Please, select method or entity.</b></span>
             </div>
         </th:block>
     </div>
