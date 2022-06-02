@@ -11,6 +11,7 @@ import com.maeasoftworks.normativecontrol.parser.parsers.DocumentParserFactory
 import com.maeasoftworks.normativecontrol.repositories.BinaryFileRepository
 import com.maeasoftworks.normativecontrol.repositories.CredentialsRepository
 import com.maeasoftworks.normativecontrol.repositories.MistakeRepository
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.context.event.EventListener
 import org.springframework.scheduling.annotation.Async
@@ -20,7 +21,7 @@ import java.util.*
 
 @Service
 @ConditionalOnBean(DocumentController::class)
-class DocumentManager(
+class DocumentManager @Autowired constructor(
     private val queue: DocumentQueue,
     private val errorRepository: MistakeRepository,
     private val fileRepository: BinaryFileRepository,
@@ -60,7 +61,7 @@ class DocumentManager(
         return if (parser?.document?.status == null) {
             if (fileRepository.existsBinaryFileByDocumentId(documentId)) Status.SAVED else Status.UNDEFINED
         } else if (queue.isUploadAvailable(documentId)) {
-            Status.READY_TO_UPLOAD
+            Status.READY_TO_ENQUEUE
         } else {
             parser.document.status
         }
