@@ -21,7 +21,7 @@
 </header>
 <main>
     <div class="methods-list">
-        <h2>API Methods</h2>
+        <h2 th:text="#{docs.methods.title}">API Methods</h2>
         <div class="scrollable">
             <th:block th:each="method : ${methods}">
                 <a th:class="'method-link' + (${current != null && isMethod && method.path == current.path} ? ' link-active' : '')"
@@ -36,7 +36,7 @@
         </div>
     </div>
     <div class="entities">
-        <h2>API Entities</h2>
+        <h2 th:text="#{docs.entities.title}">API Entities</h2>
         <div class="scrollable">
             <th:block th:each="entity : ${entities}">
                 <a th:class="'method-link entity-link' + (${current != null && !isMethod && entity.name == current.name} ? ' link-active' : '')"
@@ -49,29 +49,29 @@
         </div>
     </div>
     <div class="description-block">
-        <h2 th:if="${current != null && isMethod}">Method</h2>
+        <h2 th:if="${current != null && isMethod}" th:text="#{docs.info.method.header}">Method</h2>
         <p class="current-section-name" th:if="${current != null && isMethod}">
             <span th:class="'method-type method-type-' + ${current.type}" th:utext="'[' + ${current.type} + ']'"></span>
             <span class="method-name" th:utext="${current.path}"></span>
         </p>
-        <h2 th:if="${current != null && !isMethod}">Entity</h2>
+        <h2 th:if="${current != null && !isMethod}" th:text="#{docs.info.entity.header}">Entity</h2>
         <p class="current-section-name" th:if="${current != null && !isMethod}">
             <span class="section-name" th:utext="${current.name}"></span>
         </p>
 
         <th:block th:if="${current != null && isMethod}">
             <div class="content scrollable">
-                <h3>Description:</h3>
-                <div class="description" th:utext="${current.description}"></div>
+                <h3 th:text="#{docs.info.common.description} + ':'">Description:</h3>
+                <div class="description" th:utext="#{${current.description}}"></div>
                 <th:block th:if="${current.pathParams.size() > 0}">
-                    <h3>Path params:</h3>
+                    <h3 th:text="#{docs.info.method.path_params} + ':'">Path params:</h3>
                     <ul>
                         <th:block th:each="pathParam, state : ${current.pathParams}">
                             <li class="parameter">
                                 <p>
                                     <span class="parameter-name" th:utext="${pathParam.name}"></span>:&#160;
                                     <code class="parameter-type" th:utext="${pathParam.type}"></code>&#160;&#8212;&#160;
-                                    <span class="parameter-description" th:utext="${pathParam.description}"></span>
+                                    <span class="parameter-description" th:utext="#{${pathParam.description}}"></span>
                                     <span class="text-span" th:if="${state.last}">.</span>
                                     <span class="text-span" th:if="${!state.last}">;</span>
                                 </p>
@@ -80,14 +80,14 @@
                     </ul>
                 </th:block>
                 <th:block th:if="${current.queryParams.size() > 0}">
-                    <h3>Query params:</h3>
+                    <h3 th:text="#{docs.info.method.query_params} + ':'">Query params:</h3>
                     <ul>
                         <th:block th:each="queryParam, state : ${current.queryParams}">
                             <li class="parameter">
                                 <p>
                                     <span class="parameter-name" th:utext="${queryParam.name}"></span>:&#160;
                                     <code class="parameter-type" th:utext="${queryParam.type}"></code>&#160;&#8212;&#160;
-                                    <span class="parameter-description" th:utext="${queryParam.description}"></span>
+                                    <span class="parameter-description" th:utext="#{${queryParam.description}}"></span>
                                     <span class="text-span" th:if="${state.last}">.</span>
                                     <span class="text-span" th:if="${!state.last}">;</span>
                                 </p>
@@ -96,14 +96,14 @@
                     </ul>
                 </th:block>
                 <th:block th:if="${current.bodyParams.size() > 0}">
-                    <h3>Body params:</h3>
+                    <h3 th:text="#{docs.info.method.body_params} + ':'">Body params:</h3>
                     <ul>
                         <th:block th:each="bodyParam, state : ${current.bodyParams}">
                             <li class="parameter">
                                 <p>
                                     <span class="argument-name" th:utext="${bodyParam.name}"></span>:&#160;
                                     <code class="argument-type" th:utext="${bodyParam.type}"></code>&#160;&#8212;&#160;
-                                    <span class="argument-description" th:utext="${bodyParam.description}"></span>
+                                    <span class="argument-description" th:utext="#{${bodyParam.description}}"></span>
                                     <span class="text-span" th:if="${state.last}">.</span>
                                     <span class="text-span" th:if="${!state.last}">;</span>
                                 </p>
@@ -112,7 +112,7 @@
                     </ul>
                 </th:block>
                 <th:block th:if="${current.responses != null}">
-                    <h3>Responses:</h3>
+                    <h3 th:text="#{docs.info.method.responses} + ':'">Responses:</h3>
                     <ul>
                         <th:block th:each="response, state : ${current.responses}">
                             <li class="response">
@@ -123,7 +123,7 @@
                                     <span th:if="${response.type != 'Unit'}">+</span>
                                     <code class="response-type" th:if="${response.type != 'Unit'}"
                                           th:utext="${response.type + (response.type == 'String' ? ' [JSON]' : '')}"></code>&#160;&#8212;&#160;
-                                    <span class="response-description" th:utext="${response.description}"></span><br
+                                    <span class="response-description" th:utext="#{${response.description}}"></span><br
                                         th:if="${response.body != ''}">
                                     <span class="response-body" th:if="${response.body != ''}"
                                           th:utext="'JSON format: ' + ${response.body}"></span>
@@ -166,20 +166,27 @@
         </th:block>
         <th:block th:if="${current != null && !isMethod}">
             <div class="content scrollable">
-                <h3>Description:</h3>
-                <div class="description" th:utext="${current.description}"></div>
+                <h3 th:text="#{docs.info.common.description} + ':'">Description:</h3>
+                <div class="description" th:utext="#{${current.description}}"></div>
                 <th:block th:if="${current.properties != null}">
-                    <h3>Properties:</h3>
+                    <h3 th:text="#{docs.info.entity.properties} + ':'">Properties:</h3>
                     <ul>
                         <th:block th:each="property, state : ${current.properties}">
                             <li class="parameter">
                                 <p>
                                     <span class="argument-name" th:utext="${property.name}"></span>:&#160;
                                     <code class="argument-type" th:utext="${property.type}"></code>&#160;&#8212;&#160;
-                                    <span class="argument-description" th:utext="${property.description}"></span>
+                                    <span class="argument-description" th:utext="#{${property.description}}"></span>
                                     <span class="argument-description" th:utext="${property.body}"></span>
-                                    <span class="text-span" th:if="${state.last && property.body == ''}">.</span>
-                                    <span class="text-span" th:if="${!state.last && property.body == ''}">;</span>
+                                    <div th:if="${property.enum != null}">
+                                        <ul>
+                                            <th:block th:each="element : ${property.enum}">
+                                                <li th:text="${element} + ((#{${'enum.' + element}} != '%obviously%') ? ' — ' + #{${'enum.' + element}} : '')"></li>
+                                            </th:block>
+                                        </ul>
+                                    </div>
+                                    <span class="text-span" th:if="${state.last && property.body == '' && property.enum == null}">.</span>
+                                    <span class="text-span" th:if="${!state.last && property.body == '' && property.enum == null}">;</span>
                                 </p>
                             </li>
                         </th:block>
@@ -189,7 +196,7 @@
         </th:block>
         <th:block th:if="${current == null}">
             <div class="selected-empty">
-                <span><b>Please, select method or entity.</b></span>
+                <span><b th:text="#{docs.info.no_selection}">Please, select method or entity.</b></span>
             </div>
         </th:block>
     </div>

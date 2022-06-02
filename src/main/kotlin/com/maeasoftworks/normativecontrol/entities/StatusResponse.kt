@@ -5,12 +5,12 @@ import com.maeasoftworks.normativecontrol.documentation.annotations.PropertyDocu
 import com.maeasoftworks.normativecontrol.parser.enums.Status
 import java.time.LocalDateTime
 
-@Documentation("Represents state of document.")
+@Documentation("docs.entity.StatusResponse.info")
 data class StatusResponse(
-    @PropertyDocumentation("document id")
+    @PropertyDocumentation("docs.entity.common.id")
     val documentId: String,
-    @PropertyDocumentation("status of document. Can be:", Status::class)
+    @PropertyDocumentation("docs.entity.StatusResponse.prop0", Status::class)
     val status: Status,
-    @PropertyDocumentation("request timestamp")
+    @PropertyDocumentation("docs.entity.common.time")
     val timestamp: LocalDateTime = LocalDateTime.now()
 )

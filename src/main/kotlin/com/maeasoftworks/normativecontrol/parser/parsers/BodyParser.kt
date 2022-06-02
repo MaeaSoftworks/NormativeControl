@@ -52,6 +52,7 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
                 )
                 newChapter.content.add(root.mainDocumentPart.content[pos])
                 currentChapter.subchapters.add(newChapter)
+                currentChapter.subchapters.sortBy { it.level }
                 pos = createSubchaptersModel(pos + 1, level + 1, newChapter)
             } else if (root.isHeader(pos, level - 1)) {
                 return pos

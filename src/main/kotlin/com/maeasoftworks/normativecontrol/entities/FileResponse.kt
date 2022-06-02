@@ -4,13 +4,13 @@ import com.maeasoftworks.normativecontrol.documentation.annotations.Documentatio
 import com.maeasoftworks.normativecontrol.documentation.annotations.PropertyDocumentation
 import java.time.LocalDateTime
 
-@Documentation("Represents file.")
+@Documentation("docs.entity.FileResponse.info")
 data class FileResponse(
-    @PropertyDocumentation("document id")
+    @PropertyDocumentation("docs.entity.common.id")
     val documentId: String,
     @Suppress("ArrayInDataClass")
-    @PropertyDocumentation("file serialized as Base64 string")
+    @PropertyDocumentation("docs.entity.FileResponse.prop0")
     val file: ByteArray?,
-    @PropertyDocumentation("request timestamp")
+    @PropertyDocumentation("docs.entity.common.time")
     val timestamp: LocalDateTime = LocalDateTime.now()
 )

@@ -12,20 +12,20 @@ import javax.persistence.Table
 
 @Entity
 @Table
-@Documentation("Represents mistake found in document.")
+@Documentation("docs.entity.Mistake.info")
 class Mistake(
     @JsonIgnore
     val documentId: String?,
     @Suppress("unused")
-    @PropertyDocumentation("pointer to chapter in document")
+    @PropertyDocumentation("docs.entity.Mistake.prop0")
     val chapterId: Int,
-    @PropertyDocumentation("pointer to paragraph in document")
+    @PropertyDocumentation("docs.entity.Mistake.prop1")
     val paragraphId: Int,
-    @PropertyDocumentation("pointer to run in paragraph with <code>paragraphId</code>")
+    @PropertyDocumentation("docs.entity.Mistake.prop2")
     val runId: Int,
-    @PropertyDocumentation("mistake type. Can be:", MistakeType::class)
+    @PropertyDocumentation("docs.entity.Mistake.prop3", MistakeType::class)
     val mistakeType: MistakeType,
-    @PropertyDocumentation("describes expected and found values. Format: <code>\"\${\$FOUND}/\${\$EXPECTED}\"</code>.<br>Also can contains some debug information")
+    @PropertyDocumentation("docs.entity.Mistake.prop4")
     val description: String = ""
 ) {
     @Id

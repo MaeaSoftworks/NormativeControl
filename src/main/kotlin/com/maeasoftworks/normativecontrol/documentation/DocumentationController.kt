@@ -41,11 +41,12 @@ class DocumentationController {
         }
     }
 
-    fun enumToString(clazz: KClass<*>): String {
-        val enum =
-            ((clazz.members.first { it.name == "values" }.call()) as Array<*>).map { it.toString() }.toMutableList()
-        enum.sort()
-        return "<ul>" + enum.joinToString("") { "<li>\"$it\"</li>" } + "</ul>"
+    fun enumToList(clazz: KClass<*>): List<String> {
+        val enum = ((clazz.members.first { it.name == "values" }.call()) as Array<*>)
+            .map {(it as Enum<*>).toString() }
+            .toMutableList()
+        enum.sortBy { it }
+        return enum
     }
 
     private final fun createControllerDocs(clazz: KClass<*>): List<MethodInfo> {
@@ -100,7 +101,7 @@ class DocumentationController {
                 }
             }
 
-            info.description = (functions[f].annotations.first { it is Documentation } as Documentation).description
+            info.description = (functions[f].annotations.first { it is Documentation } as Documentation).translationId
             info.root = root
 
             val queryParams = ArrayList<Parameter>()
@@ -115,7 +116,7 @@ class DocumentationController {
                 } else {
                     val param = Parameter()
                     param.name = fParam.name
-                    param.description = (fParam.annotations.first { it is Documentation } as Documentation).description
+                    param.description = (fParam.annotations.first { it is Documentation } as Documentation).translationId
                     param.type = (fParam.type.classifier as KClass<*>).simpleName
                     if (fSuperParam.annotations.any { it is BodyParam }) {
                         bodyParams += param
@@ -156,7 +157,7 @@ class DocumentationController {
     private final fun createObjectDocs(clazz: KClass<*>): ObjectInfo {
         val info = ObjectInfo()
         val classAnnotation = clazz.annotations.first { it is Documentation } as Documentation
-        info.description = classAnnotation.description
+        info.description = classAnnotation.translationId
         info.name = clazz.simpleName!!
         val properties = ArrayList<PropertyInfo>()
         for (property in clazz.memberProperties) {
@@ -166,9 +167,9 @@ class DocumentationController {
                     property.annotations.first { it is PropertyDocumentation } as PropertyDocumentation
                 prop.name = property.name
                 prop.type = (property.returnType.classifier as KClass<*>).simpleName!!
-                prop.description = propertyAnnotation.description
+                prop.description = propertyAnnotation.translationId
                 if (propertyAnnotation.enum !== Unit::class) {
-                    prop.body += enumToString(propertyAnnotation.enum)
+                    prop.enum = enumToList(propertyAnnotation.enum)
                 }
                 properties.add(prop)
             }

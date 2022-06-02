@@ -4,12 +4,12 @@ import com.maeasoftworks.normativecontrol.documentation.annotations.Documentatio
 import com.maeasoftworks.normativecontrol.documentation.annotations.PropertyDocumentation
 import java.time.LocalDateTime
 
-@Documentation("Represents document credentials.")
+@Documentation("docs.entity.QueueResponse.info")
 data class QueueResponse(
-    @PropertyDocumentation("document id")
+    @PropertyDocumentation("docs.entity.common.id")
     val documentId: String,
-    @PropertyDocumentation("document access key which generated on client side")
+    @PropertyDocumentation("docs.entity.common.key")
     val accessKey: String,
-    @PropertyDocumentation("request timestamp")
+    @PropertyDocumentation("docs.entity.common.time")
     val timestamp: LocalDateTime = LocalDateTime.now()
 )
