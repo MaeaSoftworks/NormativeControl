@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger
 
 @Service
 @ConditionalOnBean(DocumentManager::class)
-class DocumentQueue @Autowired constructor(private val publisher: ApplicationEventPublisher) {
+class DocumentQueue(private val publisher: ApplicationEventPublisher) {
     private val documentMap: HashMap<String, DocumentParser> = HashMap()
     private val executor: ExecutorService = Executors.newFixedThreadPool(100)
     var count: AtomicInteger = AtomicInteger(0)

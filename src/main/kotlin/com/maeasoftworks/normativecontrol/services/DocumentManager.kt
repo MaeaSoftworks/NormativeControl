@@ -21,7 +21,7 @@ import java.util.*
 
 @Service
 @ConditionalOnBean(DocumentController::class)
-class DocumentManager @Autowired constructor(
+class DocumentManager(
     private val queue: DocumentQueue,
     private val errorRepository: MistakeRepository,
     private val fileRepository: BinaryFileRepository,
