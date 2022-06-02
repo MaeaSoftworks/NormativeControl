@@ -8,5 +8,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 @Component
 @ConditionalOnBean(DocumentQueue::class)
 class SimultaneousProcessingMetric(registry: MeterRegistry, queue: DocumentQueue) {
-    init { queue.count = registry.gauge("simultaneous.processing.count", queue.count)!! }
+    init {
+        queue.count = registry.gauge("simultaneous.processing.count", queue.count)!!
+    }
 }
