@@ -11,7 +11,6 @@ import com.maeasoftworks.normativecontrol.parser.parsers.DocumentParserFactory
 import com.maeasoftworks.normativecontrol.repositories.BinaryFileRepository
 import com.maeasoftworks.normativecontrol.repositories.CredentialsRepository
 import com.maeasoftworks.normativecontrol.repositories.MistakeRepository
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.context.event.EventListener
 import org.springframework.scheduling.annotation.Async
@@ -72,13 +71,6 @@ class DocumentManager(
 
     @Transactional
     fun getFile(id: String) = fileRepository.findByDocumentId(id)?.bytes?.toList()?.toByteArray()
-
-    @Transactional
-    fun dropDatabase() {
-        errorRepository.deleteAll()
-        fileRepository.deleteAll()
-        credentialsRepository.deleteAll()
-    }
 
     @Transactional
     fun getAccessKey(documentId: String): String? {
