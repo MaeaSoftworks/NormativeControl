@@ -1,18 +1,17 @@
 package com.maeasoftworks.normativecontrol.parser
 
-import com.maeasoftworks.normativecontrol.entities.Mistake
+import com.maeasoftworks.normativecontrol.parser.model.MistakeData
 import com.maeasoftworks.normativecontrol.parser.parsers.DocumentParser
-import com.maeasoftworks.normativecontrol.utils.smartAdd
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
 import org.docx4j.wml.RPr
 
-class RFunctionWrapper(val function: (String, Int, Int, RPr, Boolean, MainDocumentPart) -> Mistake?) {
+class RFunctionWrapper(val function: (Int, Int, RPr, Boolean, MainDocumentPart) -> MistakeData?) {
     companion object {
-        fun iterable(vararg rules: (String, Int, Int, RPr, Boolean, MainDocumentPart) -> Mistake?): Iterable<RFunctionWrapper> =
+        fun iterable(vararg rules: (Int, Int, RPr, Boolean, MainDocumentPart) -> MistakeData?): Iterable<RFunctionWrapper> =
             rules.map { RFunctionWrapper(it) }
     }
 }
 
 fun Iterable<RFunctionWrapper>.apply(root: DocumentParser, p: Int, r: Int, rPr: RPr, isEmpty: Boolean) {
-    this.forEach { root.errors.smartAdd(it.function(root.document.id, p, r, rPr, isEmpty, root.mainDocumentPart)) }
+    this.forEach { root.addMistake(it.function(p, r, rPr, isEmpty, root.mainDocumentPart)) }
 }

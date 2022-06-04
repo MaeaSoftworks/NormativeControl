@@ -2,8 +2,8 @@
 
 package com.maeasoftworks.normativecontrol.parser
 
-import com.maeasoftworks.normativecontrol.entities.Mistake
-import com.maeasoftworks.normativecontrol.parser.enums.MistakeType
+import com.maeasoftworks.normativecontrol.parser.enums.MistakeType.*
+import com.maeasoftworks.normativecontrol.parser.model.MistakeData
 import org.docx4j.TextUtils
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
 import org.docx4j.wml.JcEnumeration
@@ -17,165 +17,65 @@ object Rules {
     object Default {
         object Common {
             object P {
-                fun notBordered(
-                    documentId: String,
-                    p: Int,
-                    pPr: PPr,
-                    isEmpty: Boolean,
-                    mainDocumentPart: MainDocumentPart
-                ): Mistake? {
+                fun notBordered(p: Int, pPr: PPr, isEmpty: Boolean, m: MainDocumentPart): MistakeData? {
                     return if (pPr.pBdr != null) {
-                        Mistake(
-                            documentId,
-                            p,
-                            -1,
-                            if (isEmpty) MistakeType.TEXT_WHITESPACE_BORDER else MistakeType.TEXT_COMMON_BORDER
-                        )
+                        MistakeData(if (isEmpty) TEXT_WHITESPACE_BORDER else TEXT_COMMON_BORDER, p)
                     } else null
                 }
 
-                fun hasNotBackground(
-                    documentId: String,
-                    p: Int,
-                    pPr: PPr,
-                    isEmpty: Boolean,
-                    mainDocumentPart: MainDocumentPart
-                ): Mistake? {
+                fun hasNotBackground(p: Int, pPr: PPr, isEmpty: Boolean, m: MainDocumentPart): MistakeData? {
                     return if (pPr.shd != null && pPr.shd.fill != null && pPr.shd.fill != "FFFFFF") {
-                        Mistake(
-                            documentId,
-                            p,
-                            -1,
-                            if (isEmpty) MistakeType.TEXT_WHITESPACE_BACKGROUND_FILL else MistakeType.TEXT_COMMON_BACKGROUND_FILL
-                        )
+                        MistakeData(if (isEmpty) TEXT_WHITESPACE_BACKGROUND_FILL else TEXT_COMMON_BACKGROUND_FILL, p)
                     } else null
                 }
             }
 
             object R {
-                fun isTimesNewRoman(
-                    documentId: String,
-                    p: Int,
-                    r: Int,
-                    rPr: RPr,
-                    isEmpty: Boolean,
-                    mainDocumentPart: MainDocumentPart
-                ): Mistake? {
+                fun isTimesNewRoman(p: Int, r: Int, rPr: RPr, isEmpty: Boolean, m: MainDocumentPart): MistakeData? {
                     return if (rPr.rFonts.ascii != "Times New Roman") {
-                        Mistake(
-                            documentId,
-                            p,
-                            r,
-                            if (isEmpty) MistakeType.TEXT_WHITESPACE_FONT else MistakeType.TEXT_COMMON_FONT
-                        )
+                        MistakeData(if (isEmpty) TEXT_WHITESPACE_FONT else TEXT_COMMON_FONT, p, r)
                     } else null
                 }
 
-                fun fontSizeIs14(
-                    documentId: String,
-                    p: Int,
-                    r: Int,
-                    rPr: RPr,
-                    isEmpty: Boolean,
-                    mainDocumentPart: MainDocumentPart
-                ): Mistake? {
+                fun fontSizeIs14(p: Int, r: Int, rPr: RPr, isEmpty: Boolean, m: MainDocumentPart): MistakeData? {
                     return if (rPr.sz.`val`.toInt() / 2 != 14) {
-                        Mistake(
-                            documentId,
+                        MistakeData(
+                            if (isEmpty) TEXT_WHITESPACE_INCORRECT_FONT_SIZE else TEXT_COMMON_INCORRECT_FONT_SIZE,
                             p,
-                            r,
-                            if (isEmpty) MistakeType.TEXT_WHITESPACE_INCORRECT_FONT_SIZE else MistakeType.TEXT_COMMON_INCORRECT_FONT_SIZE
+                            r
                         )
                     } else null
                 }
 
-                fun notItalic(
-                    documentId: String,
-                    p: Int,
-                    r: Int,
-                    rPr: RPr,
-                    isEmpty: Boolean,
-                    mainDocumentPart: MainDocumentPart
-                ): Mistake? {
+                fun notItalic(p: Int, r: Int, rPr: RPr, isEmpty: Boolean, m: MainDocumentPart): MistakeData? {
                     return if (!(rPr.i == null || !rPr.i.isVal)) {
-                        Mistake(
-                            documentId,
-                            p,
-                            r,
-                            if (isEmpty) MistakeType.TEXT_WHITESPACE_ITALIC else MistakeType.TEXT_COMMON_ITALIC_TEXT
-                        )
+                        MistakeData(if (isEmpty) TEXT_WHITESPACE_ITALIC else TEXT_COMMON_ITALIC_TEXT, p, r)
                     } else null
                 }
 
-                fun notCrossedOut(
-                    documentId: String,
-                    p: Int,
-                    r: Int,
-                    rPr: RPr,
-                    isEmpty: Boolean,
-                    mainDocumentPart: MainDocumentPart
-                ): Mistake? {
+                fun notCrossedOut(p: Int, r: Int, rPr: RPr, isEmpty: Boolean, m: MainDocumentPart): MistakeData? {
                     return if (!(rPr.strike == null || !rPr.strike.isVal)) {
-                        Mistake(
-                            documentId,
-                            p,
-                            r,
-                            if (isEmpty) MistakeType.TEXT_WHITESPACE_STRIKETHROUGH else MistakeType.TEXT_COMMON_STRIKETHROUGH
-                        )
+                        MistakeData(if (isEmpty) TEXT_WHITESPACE_STRIKETHROUGH else TEXT_COMMON_STRIKETHROUGH, p, r)
                     } else null
                 }
 
-                fun notHighlighted(
-                    documentId: String,
-                    p: Int,
-                    r: Int,
-                    rPr: RPr,
-                    isEmpty: Boolean,
-                    mainDocumentPart: MainDocumentPart
-                ): Mistake? {
+                fun notHighlighted(p: Int, r: Int, rPr: RPr, isEmpty: Boolean, m: MainDocumentPart): MistakeData? {
                     return if (!(rPr.highlight == null || rPr.highlight.`val` == "white")) {
-                        Mistake(
-                            documentId,
-                            p,
-                            r,
-                            if (isEmpty) MistakeType.TEXT_WHITESPACE_HIGHLIGHT else MistakeType.TEXT_COMMON_HIGHLIGHT
-                        )
+                        MistakeData(if (isEmpty) TEXT_WHITESPACE_HIGHLIGHT else TEXT_COMMON_HIGHLIGHT, p, r)
                     } else null
                 }
 
-                fun isBlack(
-                    documentId: String,
-                    p: Int,
-                    r: Int,
-                    rPr: RPr,
-                    isEmpty: Boolean,
-                    mainDocumentPart: MainDocumentPart
-                ): Mistake? {
+                fun isBlack(p: Int, r: Int, rPr: RPr, isEmpty: Boolean, m: MainDocumentPart): MistakeData? {
                     return if (rPr.color != null && rPr.color.`val` != "000000" && rPr.color.`val` != "auto") {
-                        Mistake(
-                            documentId,
-                            p,
-                            r,
-                            if (isEmpty) MistakeType.TEXT_WHITESPACE_TEXT_COLOR else MistakeType.TEXT_COMMON_TEXT_COLOR
-                        )
+                        MistakeData(if (isEmpty) TEXT_WHITESPACE_TEXT_COLOR else TEXT_COMMON_TEXT_COLOR, p, r)
                     } else null
                 }
 
-                fun letterSpacingIs0(
-                    documentId: String,
-                    p: Int,
-                    r: Int,
-                    rPr: RPr,
-                    isEmpty: Boolean,
-                    mainDocumentPart: MainDocumentPart
-                ): Mistake? {
-                    return if (rPr.spacing != null && rPr.spacing.`val` != null && rPr.spacing.`val`.intValueExact() != 0) {
-                        Mistake(
-                            documentId,
-                            p,
-                            r,
-                            if (isEmpty) MistakeType.TEXT_WHITESPACE_RUN_SPACING else MistakeType.TEXT_COMMON_RUN_SPACING
-                        )
+                fun letterSpacingIs0(p: Int, r: Int, rPr: RPr, isEmpty: Boolean, m: MainDocumentPart): MistakeData? {
+                    return if (rPr.spacing != null && rPr.spacing.`val` != null
+                        && rPr.spacing.`val`.intValueExact() != 0
+                    ) {
+                        MistakeData(if (isEmpty) TEXT_WHITESPACE_RUN_SPACING else TEXT_COMMON_RUN_SPACING, p, r)
                     } else null
                 }
             }
@@ -183,117 +83,62 @@ object Rules {
 
         object Header {
             object P {
-                fun justifyIsCenter(
-                    documentId: String,
-                    p: Int,
-                    pPr: PPr,
-                    isEmpty: Boolean,
-                    mainDocumentPart: MainDocumentPart
-                ): Mistake? {
+                fun justifyIsCenter(p: Int, pPr: PPr, isEmpty: Boolean, m: MainDocumentPart): MistakeData? {
                     return if (pPr.jc == null || pPr.jc.`val` != JcEnumeration.CENTER) {
-                        Mistake(
-                            documentId,
+                        MistakeData(
+                            if (isEmpty) TEXT_WHITESPACE_AFTER_HEADER_ALIGNMENT else TEXT_HEADER_ALIGNMENT,
                             p,
-                            0,
-                            if (isEmpty) MistakeType.TEXT_WHITESPACE_AFTER_HEADER_ALIGNMENT else MistakeType.TEXT_HEADER_ALIGNMENT
+                            0
                         )
                     } else null
                 }
 
-                fun lineSpacingIsOne(
-                    documentId: String,
-                    p: Int,
-                    pPr: PPr,
-                    isEmpty: Boolean,
-                    mainDocumentPart: MainDocumentPart
-                ): Mistake? {
-                    return if (pPr.spacing != null && pPr.spacing.line != null && pPr.spacing.line.intValueExact() != 240) {
-                        Mistake(documentId, p, 0, MistakeType.TEXT_HEADER_LINE_SPACING)
+                fun lineSpacingIsOne(p: Int, pPr: PPr, isEmpty: Boolean, m: MainDocumentPart): MistakeData? {
+                    return if (pPr.spacing != null && pPr.spacing.line != null
+                        && pPr.spacing.line.intValueExact() != 240
+                    ) {
+                        MistakeData(TEXT_HEADER_LINE_SPACING, p)
                     } else null
                 }
 
-                fun hasNotDotInEnd(
-                    documentId: String,
-                    p: Int,
-                    pPr: PPr,
-                    isEmpty: Boolean,
-                    mainDocumentPart: MainDocumentPart
-                ): Mistake? {
-                    val text = TextUtils.getText(mainDocumentPart.content[p] as org.docx4j.wml.P)
+                fun hasNotDotInEnd(p: Int, pPr: PPr, isEmpty: Boolean, m: MainDocumentPart): MistakeData? {
+                    val text = TextUtils.getText(m.content[p] as org.docx4j.wml.P)
                     return if (text.endsWith(".")) {
-                        Mistake(documentId, p, -1, MistakeType.TEXT_HEADER_REDUNDANT_DOT)
+                        MistakeData(TEXT_HEADER_REDUNDANT_DOT, p)
                     } else null
                 }
 
-                fun emptyLineAfterHeaderExists(
-                    documentId: String,
-                    p: Int,
-                    pPr: PPr,
-                    isEmpty: Boolean,
-                    mainDocumentPart: MainDocumentPart
-                ): Mistake? {
-                    if (mainDocumentPart.content.size <= p + 1) {
-                        return Mistake(
-                            documentId,
-                            p + 1,
-                            MistakeType.CHAPTER_EMPTY
-                        )
+                fun emptyLineAfterHeaderExists(p: Int, pPr: PPr, isEmpty: Boolean, m: MainDocumentPart): MistakeData? {
+                    if (m.content.size <= p + 1) {
+                        return MistakeData(CHAPTER_EMPTY, p + 1)
                     }
                     val isNotEmpty = try {
-                        TextUtils.getText(mainDocumentPart.content[p + 1] as org.docx4j.wml.P).isNotEmpty()
+                        TextUtils.getText(m.content[p + 1] as org.docx4j.wml.P).isNotEmpty()
                     } catch (e: ClassCastException) {
-                        return Mistake(
-                            documentId,
-                            p + 1,
-                            MistakeType.TEXT_HEADER_EMPTY_LINE_AFTER_HEADER_REQUIRED
-                        )
+                        return MistakeData(TEXT_HEADER_EMPTY_LINE_AFTER_HEADER_REQUIRED, p + 1)
                     }
                     return if (isNotEmpty) {
-                        Mistake(
-                            documentId,
-                            p + 1,
-                            MistakeType.TEXT_HEADER_EMPTY_LINE_AFTER_HEADER_REQUIRED
-                        )
+                        MistakeData(TEXT_HEADER_EMPTY_LINE_AFTER_HEADER_REQUIRED, p + 1)
                     } else null
                 }
             }
 
             object R {
-                fun isUppercase(
-                    documentId: String,
-                    p: Int,
-                    r: Int,
-                    rPr: RPr,
-                    isEmpty: Boolean,
-                    mainDocumentPart: MainDocumentPart
-                ): Mistake? {
+                fun isUppercase(p: Int, r: Int, rPr: RPr, isEmpty: Boolean, m: MainDocumentPart): MistakeData? {
                     val text =
-                        TextUtils.getText((mainDocumentPart.content[p] as org.docx4j.wml.P).content[r] as org.docx4j.wml.R)
+                        TextUtils.getText((m.content[p] as org.docx4j.wml.P).content[r] as org.docx4j.wml.R)
                     return if (!(text.uppercase() == text || (rPr.caps != null && rPr.caps.isVal))) {
-                        Mistake(
-                            documentId,
+                        MistakeData(
+                            if (isEmpty) TEXT_WHITESPACE_AFTER_HEADER_UPPERCASE else TEXT_HEADER_NOT_UPPERCASE,
                             p,
-                            r,
-                            if (isEmpty) MistakeType.TEXT_WHITESPACE_AFTER_HEADER_UPPERCASE else MistakeType.TEXT_HEADER_NOT_UPPERCASE
+                            r
                         )
                     } else null
                 }
 
-                fun isBold(
-                    documentId: String,
-                    p: Int,
-                    r: Int,
-                    rPr: RPr,
-                    isEmpty: Boolean,
-                    mainDocumentPart: MainDocumentPart
-                ): Mistake? {
+                fun isBold(p: Int, r: Int, rPr: RPr, isEmpty: Boolean, m: MainDocumentPart): MistakeData? {
                     return if (rPr.b == null || !rPr.b.isVal) {
-                        Mistake(
-                            documentId,
-                            p,
-                            r,
-                            if (isEmpty) MistakeType.TEXT_WHITESPACE_AFTER_HEADER_BOLD else MistakeType.TEXT_HEADER_NOT_BOLD
-                        )
+                        MistakeData(if (isEmpty) TEXT_WHITESPACE_AFTER_HEADER_BOLD else TEXT_HEADER_NOT_BOLD, p, r)
                     } else null
                 }
             }
@@ -301,146 +146,65 @@ object Rules {
 
         object RegularText {
             object P {
-                fun justifyIsBoth(
-                    documentId: String,
-                    p: Int,
-                    pPr: PPr,
-                    isEmpty: Boolean,
-                    mainDocumentPart: MainDocumentPart
-                ): Mistake? {
+                fun justifyIsBoth(p: Int, pPr: PPr, isEmpty: Boolean, m: MainDocumentPart): MistakeData? {
                     return if (pPr.jc == null || pPr.jc.`val` != JcEnumeration.BOTH) {
-                        Mistake(
-                            documentId,
-                            p,
-                            -1,
-                            if (isEmpty) MistakeType.TEXT_WHITESPACE_ALIGNMENT else MistakeType.TEXT_REGULAR_INCORRECT_ALIGNMENT
-                        )
+                        MistakeData(if (isEmpty) TEXT_WHITESPACE_ALIGNMENT else TEXT_REGULAR_INCORRECT_ALIGNMENT, p)
                     } else null
                 }
 
-                fun lineSpacingIsOneAndHalf(
-                    documentId: String,
-                    p: Int,
-                    pPr: PPr,
-                    isEmpty: Boolean,
-                    mainDocumentPart: MainDocumentPart
-                ): Mistake? {
+                fun lineSpacingIsOneAndHalf(p: Int, pPr: PPr, isEmpty: Boolean, m: MainDocumentPart): MistakeData? {
                     return if (pPr.spacing != null && pPr.spacing.line != null) {
                         if (pPr.spacing.lineRule.value() == "auto" && pPr.spacing.line.intValueExact() != 360) {
-                            Mistake(
-                                documentId,
-                                p,
-                                -1,
-                                if (isEmpty) MistakeType.TEXT_WHITESPACE_LINE_SPACING else MistakeType.TEXT_REGULAR_LINE_SPACING
-                            )
+                            MistakeData(if (isEmpty) TEXT_WHITESPACE_LINE_SPACING else TEXT_REGULAR_LINE_SPACING, p)
                         } else null
                     } else null
                 }
 
-                fun firstLineIndentIs1dot25(
-                    documentId: String,
-                    p: Int,
-                    pPr: PPr,
-                    isEmpty: Boolean,
-                    mainDocumentPart: MainDocumentPart
-                ): Mistake? {
-                    return if (pPr.numPr != null && pPr.ind != null && pPr.ind.firstLine != null && abs(floor(pPr.ind.firstLine.intValueExact() / 1440 * 2.54) - 1.25) <= 0.01) {
-                        Mistake(
-                            documentId,
-                            p,
-                            -1,
-                            if (isEmpty) MistakeType.TEXT_WHITESPACE_INDENT_FIRST_LINES else MistakeType.TEXT_COMMON_INDENT_FIRST_LINES
+                fun firstLineIndentIs1dot25(p: Int, pPr: PPr, isEmpty: Boolean, m: MainDocumentPart): MistakeData? {
+                    return if (pPr.numPr != null && pPr.ind != null
+                        && pPr.ind.firstLine != null
+                        && abs(floor(pPr.ind.firstLine.intValueExact() / 1440 * 2.54) - 1.25) <= 0.01
+                    ) {
+                        MistakeData(
+                            if (isEmpty) TEXT_WHITESPACE_INDENT_FIRST_LINES else TEXT_COMMON_INDENT_FIRST_LINES,
+                            p
                         )
                     } else null
                 }
 
-                fun leftIndentIs0(
-                    documentId: String,
-                    p: Int,
-                    pPr: PPr,
-                    isEmpty: Boolean,
-                    mainDocumentPart: MainDocumentPart
-                ): Mistake? {
-                    return if (pPr.numPr != null && pPr.ind != null && pPr.ind.left != null && pPr.ind.left.intValueExact() != 0) {
-                        Mistake(
-                            documentId,
-                            p,
-                            -1,
-                            if (isEmpty) MistakeType.TEXT_WHITESPACE_INDENT_LEFT else MistakeType.TEXT_COMMON_INDENT_LEFT
-                        )
+                fun leftIndentIs0(p: Int, pPr: PPr, isEmpty: Boolean, m: MainDocumentPart): MistakeData? {
+                    return if (pPr.numPr != null && pPr.ind != null
+                        && pPr.ind.left != null && pPr.ind.left.intValueExact() != 0
+                    ) {
+                        MistakeData(if (isEmpty) TEXT_WHITESPACE_INDENT_LEFT else TEXT_COMMON_INDENT_LEFT, p)
                     } else null
                 }
 
-                fun rightIndentIs0(
-                    documentId: String,
-                    p: Int,
-                    pPr: PPr,
-                    isEmpty: Boolean,
-                    mainDocumentPart: MainDocumentPart
-                ): Mistake? {
-                    return if (pPr.numPr != null && pPr.ind != null && pPr.ind.right != null && pPr.ind.right.intValueExact() != 0) {
-                        Mistake(
-                            documentId,
-                            p,
-                            -1,
-                            if (isEmpty) MistakeType.TEXT_WHITESPACE_INDENT_RIGHT else MistakeType.TEXT_COMMON_INDENT_RIGHT
-                        )
+                fun rightIndentIs0(p: Int, pPr: PPr, isEmpty: Boolean, m: MainDocumentPart): MistakeData? {
+                    return if (pPr.numPr != null && pPr.ind != null
+                        && pPr.ind.right != null && pPr.ind.right.intValueExact() != 0
+                    ) {
+                        MistakeData(if (isEmpty) TEXT_WHITESPACE_INDENT_RIGHT else TEXT_COMMON_INDENT_RIGHT, p)
                     } else null
                 }
             }
 
             object R {
-                fun isNotBold(
-                    documentId: String,
-                    p: Int,
-                    r: Int,
-                    rPr: RPr,
-                    isEmpty: Boolean,
-                    mainDocumentPart: MainDocumentPart
-                ): Mistake? {
+                fun isNotBold(p: Int, r: Int, rPr: RPr, isEmpty: Boolean, m: MainDocumentPart): MistakeData? {
                     return if (rPr.b != null && !rPr.b.isVal) {
-                        Mistake(
-                            documentId,
-                            p,
-                            r,
-                            if (isEmpty) MistakeType.TEXT_WHITESPACE_BOLD else MistakeType.TEXT_REGULAR_WAS_BOLD
-                        )
+                        MistakeData(if (isEmpty) TEXT_WHITESPACE_BOLD else TEXT_REGULAR_WAS_BOLD, p, r)
                     } else null
                 }
 
-                fun isNotCaps(
-                    documentId: String,
-                    p: Int,
-                    r: Int,
-                    rPr: RPr,
-                    isEmpty: Boolean,
-                    mainDocumentPart: MainDocumentPart
-                ): Mistake? {
+                fun isNotCaps(p: Int, r: Int, rPr: RPr, isEmpty: Boolean, m: MainDocumentPart): MistakeData? {
                     return if (rPr.caps != null && !rPr.caps.isVal) {
-                        Mistake(
-                            documentId,
-                            p,
-                            r,
-                            if (isEmpty) MistakeType.TEXT_WHITESPACE_UPPERCASE else MistakeType.TEXT_REGULAR_UPPERCASE
-                        )
+                        MistakeData(if (isEmpty) TEXT_WHITESPACE_UPPERCASE else TEXT_REGULAR_UPPERCASE, p, r)
                     } else null
                 }
 
-                fun isUnderline(
-                    documentId: String,
-                    p: Int,
-                    r: Int,
-                    rPr: RPr,
-                    isEmpty: Boolean,
-                    mainDocumentPart: MainDocumentPart
-                ): Mistake? {
+                fun isUnderline(p: Int, r: Int, rPr: RPr, isEmpty: Boolean, m: MainDocumentPart): MistakeData? {
                     return if (rPr.u != null && rPr.u.`val`.value() != "none") {
-                        Mistake(
-                            documentId,
-                            p,
-                            r,
-                            if (isEmpty) MistakeType.TEXT_WHITESPACE_UNDERLINED else MistakeType.TEXT_COMMON_UNDERLINED
-                        )
+                        MistakeData(if (isEmpty) TEXT_WHITESPACE_UNDERLINED else TEXT_COMMON_UNDERLINED, p, r)
                     } else null
                 }
             }
@@ -448,33 +212,19 @@ object Rules {
 
         object PictureTitle {
             object P {
-                fun justifyIsCenter(
-                    documentId: String,
-                    p: Int,
-                    pPr: PPr,
-                    isEmpty: Boolean,
-                    mainDocumentPart: MainDocumentPart
-                ): Mistake? {
+                fun justifyIsCenter(p: Int, pPr: PPr, isEmpty: Boolean, m: MainDocumentPart): MistakeData? {
                     return if (pPr.jc == null || pPr.jc.`val` != JcEnumeration.CENTER) {
-                        Mistake(
-                            documentId,
-                            p,
-                            0,
-                            if (isEmpty) MistakeType.TEXT_WHITESPACE_AFTER_HEADER_ALIGNMENT else MistakeType.PICTURE_TITLE_NOT_CENTERED
+                        MistakeData(
+                            if (isEmpty) TEXT_WHITESPACE_AFTER_HEADER_ALIGNMENT else PICTURE_TITLE_NOT_CENTERED,
+                            p
                         )
                     } else null
                 }
 
-                fun hasNotDotInEnd(
-                    documentId: String,
-                    p: Int,
-                    pPr: PPr,
-                    isEmpty: Boolean,
-                    mainDocumentPart: MainDocumentPart
-                ): Mistake? {
-                    val text = TextUtils.getText(mainDocumentPart.content[p] as org.docx4j.wml.P)
+                fun hasNotDotInEnd(p: Int, pPr: PPr, isEmpty: Boolean, m: MainDocumentPart): MistakeData? {
+                    val text = TextUtils.getText(m.content[p] as org.docx4j.wml.P)
                     return if (text.endsWith(".")) {
-                        Mistake(documentId, p, -1, MistakeType.PICTURE_TITLE_ENDS_WITH_DOT)
+                        MistakeData(PICTURE_TITLE_ENDS_WITH_DOT, p)
                     } else null
                 }
             }
@@ -484,46 +234,27 @@ object Rules {
     object Body {
         object Header {
             object P {
-                fun justifyIsLeft(
-                    documentId: String,
-                    p: Int,
-                    pPr: PPr,
-                    isEmpty: Boolean,
-                    mainDocumentPart: MainDocumentPart
-                ): Mistake? {
+                fun justifyIsLeft(p: Int, pPr: PPr, isEmpty: Boolean, m: MainDocumentPart): MistakeData? {
                     return if (pPr.jc != null && pPr.jc.`val` != JcEnumeration.LEFT) {
-                        Mistake(
-                            documentId,
-                            p,
-                            0,
-                            if (isEmpty) MistakeType.TEXT_WHITESPACE_AFTER_HEADER_ALIGNMENT else MistakeType.TEXT_HEADER_BODY_ALIGNMENT
+                        MistakeData(
+                            if (isEmpty) TEXT_WHITESPACE_AFTER_HEADER_ALIGNMENT else TEXT_HEADER_BODY_ALIGNMENT,
+                            p
                         )
                     } else null
                 }
 
-                fun isNotUppercase(
-                    documentId: String,
-                    p: Int,
-                    pPr: PPr,
-                    isEmpty: Boolean,
-                    mainDocumentPart: MainDocumentPart
-                ): Mistake? {
-                    val paragraph = mainDocumentPart.content[p] as org.docx4j.wml.P
+                fun isNotUppercase(p: Int, pPr: PPr, isEmpty: Boolean, m: MainDocumentPart): MistakeData? {
+                    val paragraph = m.content[p] as org.docx4j.wml.P
                     val text = TextUtils.getText(paragraph)
                     return if (!isEmpty && (text.uppercase() == text || (paragraph.content.all { x ->
                             if (x is R) {
-                                val rPr = mainDocumentPart.propertyResolver.getEffectiveRPr(x.rPr, pPr)
+                                val rPr = m.propertyResolver.getEffectiveRPr(x.rPr, pPr)
                                 rPr.caps != null && rPr.caps.isVal
                             } else {
                                 true
                             }
                         }))) {
-                        Mistake(
-                            documentId,
-                            p,
-                            -1,
-                            MistakeType.TEXT_HEADER_BODY_UPPERCASE
-                        )
+                        MistakeData(TEXT_HEADER_BODY_UPPERCASE, p)
                     } else null
                 }
             }

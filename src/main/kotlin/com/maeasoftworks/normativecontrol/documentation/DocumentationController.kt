@@ -45,7 +45,7 @@ class DocumentationController {
 
     fun enumToList(clazz: KClass<*>): List<String> {
         val enum = ((clazz.members.first { it.name == "values" }.call()) as Array<*>)
-            .map {(it as Enum<*>).toString() }
+            .map { (it as Enum<*>).toString() }
             .toMutableList()
         enum.sortBy { it }
         return enum
@@ -118,7 +118,8 @@ class DocumentationController {
                 } else {
                     val param = Parameter()
                     param.name = fParam.name
-                    param.description = (fParam.annotations.first { it is Documentation } as Documentation).translationId
+                    param.description =
+                        (fParam.annotations.first { it is Documentation } as Documentation).translationId
                     param.type = (fParam.type.classifier as KClass<*>).simpleName
                     if (fSuperParam.annotations.any { it is BodyParam }) {
                         bodyParams += param
@@ -167,7 +168,8 @@ class DocumentationController {
             if (property.annotations.any { it is PropertyDocumentation }) {
                 val propertyAnnotation =
                     property.annotations.first { it is PropertyDocumentation } as PropertyDocumentation
-                prop.name = property.javaGetter!!.annotations.firstOrNull { it is JsonProperty }.let { if (it != null) (it as JsonProperty).value else property.name }
+                prop.name = property.javaGetter!!.annotations.firstOrNull { it is JsonProperty }
+                    .let { if (it != null) (it as JsonProperty).value else property.name }
                 prop.type = (property.returnType.classifier as KClass<*>).simpleName!!
                 prop.description = propertyAnnotation.translationId
                 if (propertyAnnotation.enum !== Unit::class) {

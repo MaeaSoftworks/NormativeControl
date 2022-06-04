@@ -1,6 +1,5 @@
 package com.maeasoftworks.normativecontrol.parser.parsers
 
-import com.maeasoftworks.normativecontrol.entities.Mistake
 import com.maeasoftworks.normativecontrol.parser.PFunctionWrapper
 import com.maeasoftworks.normativecontrol.parser.RFunctionWrapper
 import com.maeasoftworks.normativecontrol.parser.Rules
@@ -25,15 +24,15 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
     abstract fun parse()
 
     open fun handleHyperlink(p: Int, r: Int) {
-        root.errors += Mistake(root.document.id, p, DOCUMENT_UNEXPECTED_CONTENT)
+        root.addMistake(DOCUMENT_UNEXPECTED_CONTENT, p, r)
     }
 
     open fun handleTable(p: Int) {
-        root.errors += Mistake(root.document.id, p, DOCUMENT_UNEXPECTED_CONTENT)
+        root.addMistake(DOCUMENT_UNEXPECTED_CONTENT, p)
     }
 
     open fun handleContents(p: Int) {
-        root.errors += Mistake(root.document.id, p, DOCUMENT_UNEXPECTED_CONTENT)
+        root.addMistake(DOCUMENT_UNEXPECTED_CONTENT, p)
     }
 
     fun parse(
@@ -73,12 +72,7 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
             is Tbl -> {
                 context.handleTable(p)
             }
-            else -> root.errors += Mistake(
-                root.document.id,
-                p,
-                DOCUMENT_UNEXPECTED_CONTENT,
-                something::class.simpleName!!
-            )
+            else -> root.addMistake(DOCUMENT_UNEXPECTED_CONTENT, p, description = something::class.simpleName!!)
         }
     }
 
@@ -121,7 +115,7 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
     }
 
     private fun unexpectedP(p: Int, something: Any) {
-        root.errors += Mistake(root.document.id, p, PARAGRAPH_UNEXPECTED_CONTENT, something::class.simpleName!!)
+        root.addMistake(PARAGRAPH_UNEXPECTED_CONTENT, p, description = something::class.simpleName!!)
     }
 
     open fun handlePContent(p: Int, r: Int, context: ChapterParser) {
@@ -157,9 +151,9 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
             }
             is ProofErr -> {
                 if (something.type == "gramStart") {
-                    root.errors += Mistake(root.document.id, p, r + 1, WORD_GRAMMATICAL_ERROR)
+                    root.addMistake(WORD_GRAMMATICAL_ERROR, p, r + 1)
                 } else if (something.type == "spellStart") {
-                    root.errors += Mistake(root.document.id, p, r + 1, WORD_SPELL_ERROR)
+                    root.addMistake(WORD_SPELL_ERROR, p, r + 1)
                 }
             }
             is Br,
@@ -202,23 +196,17 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
                 is R.Sym,
                 is R.CommentReference,
                 is R.FootnoteRef,
-                is R.DayLong -> root.errors += Mistake(
-                    root.document.id,
-                    p,
-                    r,
-                    RUN_UNEXPECTED_CONTENT,
-                    something.declaredType.simpleName
-                )
+                is R.DayLong -> root.addMistake(RUN_UNEXPECTED_CONTENT, p, r, something.declaredType.simpleName)
             }
-            is Br -> root.errors += Mistake(root.document.id, p, r, TODO_ERROR)
-            is DelText -> root.errors += Mistake(root.document.id, p, r, TODO_ERROR)
+            is Br -> root.addMistake(TODO_ERROR, p, r)
+            is DelText -> root.addMistake(TODO_ERROR, p, r)
             is AlternateContent -> {
                 // todo: is it only first object?
                 if (something.choice.first().any.first() is Drawing) {
                     pictureTitleExpected = true
                     context.handleDrawing(p, r, c, root.pictures)
                 } else {
-                    root.errors += Mistake(root.document.id, p, r, TODO_ERROR)
+                    root.addMistake(TODO_ERROR, p, r)
                 }
             }
         }
@@ -233,33 +221,23 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
 
         val picture = Picture(p, r, c, drawing)
         if ((drawing.anchorOrInline as ArrayListWml<*>)[0] is Anchor) {
-            root.errors += Mistake(root.document.id, p, r, PICTURE_IS_NOT_INLINED)
+            root.addMistake(PICTURE_IS_NOT_INLINED, p, r)
         } else {
             container.add(picture)
             picture.title = TextUtils.getText(root.mainDocumentPart.content[p + 1] as P).let {
                 if (it.uppercase().startsWith("РИСУНОК ")) {
-                    it
+                    return@let it
                 } else {
-                    root.errors += Mistake(
-                        root.document.id,
-                        p,
-                        r,
-                        PICTURE_TITLE_REQUIRED_LINE_BREAK_BETWEEN_PICTURE_AND_TITLE
-                    )
-                    null
+                    root.addMistake(PICTURE_TITLE_REQUIRED_LINE_BREAK_BETWEEN_PICTURE_AND_TITLE, p, r)
+                    return@let null
                 }
             }
             if (TextUtils.getText(root.mainDocumentPart.content[p - 1] as P).isNotBlank()) {
-                root.errors += Mistake(root.document.id, p, r, PICTURE_REQUIRED_BLANK_LINE_BEFORE_PICTURE)
+                root.addMistake(PICTURE_REQUIRED_BLANK_LINE_BEFORE_PICTURE, p, r)
             }
             if (!root.isHeader(p + 2)) {
                 if (TextUtils.getText(root.mainDocumentPart.content[p + 2] as P).isNotBlank()) {
-                    root.errors += Mistake(
-                        root.document.id,
-                        p,
-                        r,
-                        PICTURE_REQUIRED_BLANK_LINE_AFTER_PICTURE_TITLE
-                    )
+                    root.addMistake(PICTURE_REQUIRED_BLANK_LINE_AFTER_PICTURE_TITLE, p, r)
                 }
             }
         }
@@ -281,25 +259,25 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
         val numberingFormat =
             root.numbering!!.instanceListDefinitions[pPr.numPr.numId.`val`.toString()]!!.abstractListDefinition
         if (pPr.numPr.ilvl.`val` != null && pPr.numPr.ilvl.`val`.toInt() > 1) {
-            root.addError(LIST_LEVEL_MORE_THAN_2, p)
+            root.addMistake(LIST_LEVEL_MORE_THAN_2, p)
         }
         if (pPr.numPr.ilvl.`val`.toInt() == 0) {
             when (numberingFormat.listLevels["0"]!!.numFmt) {
                 NumberFormat.BULLET -> if (numberingFormat.listLevels["0"]!!.levelText != "–") {
-                    root.addError(ORDERED_LIST_INCORRECT_MARKER_FORMAT_AT_LEVEL_1, p, description = "/\"–\" (U+2013)")
+                    root.addMistake(ORDERED_LIST_INCORRECT_MARKER_FORMAT_AT_LEVEL_1, p, description = "/\"–\" (U+2013)")
                 }
                 NumberFormat.RUSSIAN_LOWER -> if (numberingFormat.listLevels["0"]!!.levelText != "%1)") {
-                    root.addError(
+                    root.addMistake(
                         ORDERED_LIST_INCORRECT_MARKER_FORMAT_AT_LEVEL_1,
                         p,
                         description = "/\"<RU_LOWER_LETTER>)\""
                     )
                 }
-                else -> root.addError(ORDERED_LIST_INCORRECT_MARKER_FORMAT, p)
+                else -> root.addMistake(ORDERED_LIST_INCORRECT_MARKER_FORMAT, p)
             }
         } else if (pPr.numPr.ilvl.`val`.toInt() == 1) {
             if (numberingFormat.listLevels["1"]!!.numFmt != NumberFormat.DECIMAL || numberingFormat.listLevels["1"]!!.levelText != "%2)") {
-                root.addError(ORDERED_LIST_INCORRECT_MARKER_FORMAT_AT_LEVEL_2, p, description = "/\"<DIGIT>)\"")
+                root.addMistake(ORDERED_LIST_INCORRECT_MARKER_FORMAT_AT_LEVEL_2, p, description = "/\"<DIGIT>)\"")
             }
         }
     }

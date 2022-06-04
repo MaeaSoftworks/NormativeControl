@@ -14,7 +14,7 @@ class HeaderTests : ParserTestFactory(HeaderTests::class) {
         val parserBase = createParser("correct header style.docx")
         parserBase.parsers += SimpleParser(Chapter(0, parserBase.mainDocumentPart.content), parserBase)
         parserBase.parsers[0].parse()
-        errorAssert(parserBase.errors, WORD_SPELL_ERROR)
+        errorAssert(parserBase.mistakes, WORD_SPELL_ERROR)
     }
 
     @Test
@@ -23,7 +23,7 @@ class HeaderTests : ParserTestFactory(HeaderTests::class) {
         parserBase.parsers += SimpleParser(Chapter(0, parserBase.mainDocumentPart.content), parserBase)
         parserBase.parsers[0].parse()
         errorAssert(
-            parserBase.errors,
+            parserBase.mistakes,
             TEXT_HEADER_NOT_BOLD,
             TEXT_HEADER_NOT_UPPERCASE,
             TEXT_COMMON_FONT,
@@ -46,7 +46,7 @@ class HeaderTests : ParserTestFactory(HeaderTests::class) {
         )
         parserBase.parsers[0].parse()
         errorAssert(
-            parserBase.errors
+            parserBase.mistakes
         )
     }
 
@@ -61,7 +61,7 @@ class HeaderTests : ParserTestFactory(HeaderTests::class) {
         )
         parserBase.parsers[0].parse()
         errorAssert(
-            parserBase.errors,
+            parserBase.mistakes,
             TEXT_HEADER_BODY_ALIGNMENT,
             TEXT_HEADER_BODY_UPPERCASE
         )

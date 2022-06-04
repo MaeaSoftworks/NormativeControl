@@ -10,7 +10,7 @@ class StyleTests : ParserTestFactory(StyleTests::class) {
     fun `incorrect page size validated properly`() {
         val parser = createParser("incorrect size.docx")
         parser.verifyPageSize()
-        errorAssert(parser.errors, MistakeType.PAGE_WIDTH_IS_INCORRECT, MistakeType.PAGE_HEIGHT_IS_INCORRECT)
+        errorAssert(parser.mistakes, MistakeType.PAGE_WIDTH_IS_INCORRECT, MistakeType.PAGE_HEIGHT_IS_INCORRECT)
     }
 
     @Test
@@ -18,7 +18,7 @@ class StyleTests : ParserTestFactory(StyleTests::class) {
         val parser = createParser("incorrect margin.docx")
         parser.verifyPageMargins()
         errorAssert(
-            parser.errors,
+            parser.mistakes,
             MistakeType.PAGE_MARGIN_TOP_IS_INCORRECT,
             MistakeType.PAGE_MARGIN_RIGHT_IS_INCORRECT,
             MistakeType.PAGE_MARGIN_BOTTOM_IS_INCORRECT,
@@ -32,7 +32,7 @@ class StyleTests : ParserTestFactory(StyleTests::class) {
         parser.parsers += SimpleParser(Chapter(0, parser.mainDocumentPart.content), parser)
         parser.parsers[0].parse()
         errorAssert(
-            parser.errors,
+            parser.mistakes,
             MistakeType.TEXT_HEADER_NOT_UPPERCASE,
             MistakeType.TEXT_COMMON_FONT,
             MistakeType.TEXT_COMMON_INCORRECT_FONT_SIZE,

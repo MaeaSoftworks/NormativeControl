@@ -13,7 +13,6 @@ class BinaryFile(
     @Id
     @JsonIgnore
     val documentId: String,
-    val accessKey: String,
     @Lob
     val bytes: ByteArray
 )

@@ -1,11 +1,10 @@
 package com.maeasoftworks.normativecontrol.parser.parsers
 
-import com.maeasoftworks.normativecontrol.entities.Mistake
 import com.maeasoftworks.normativecontrol.parser.PFunctionWrapper
 import com.maeasoftworks.normativecontrol.parser.RFunctionWrapper
 import com.maeasoftworks.normativecontrol.parser.Rules
 import com.maeasoftworks.normativecontrol.parser.apply
-import com.maeasoftworks.normativecontrol.parser.enums.MistakeType
+import com.maeasoftworks.normativecontrol.parser.enums.MistakeType.*
 import com.maeasoftworks.normativecontrol.parser.model.Chapter
 import com.maeasoftworks.normativecontrol.parser.model.Picture
 import org.docx4j.TextUtils
@@ -83,7 +82,8 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
                         (subchapter.subheader.content[r] as R).rPr,
                         subchapter.subheader.pPr
                     )
-                    (headerRFunctions + commonRFunctions).apply(root, subchapter.startPos, r, rPr, isEmpty)
+                    headerRFunctions.apply(root, subchapter.startPos, r, rPr, isEmpty)
+                    commonRFunctions.apply(root, subchapter.startPos, r, rPr, isEmpty)
                 } else {
                     handlePContent(subchapter.startPos, r, this)
                 }
@@ -97,11 +97,13 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
             val pPr = root.resolver.getEffectivePPr((root.mainDocumentPart.content[p] as P).pPr)
             val paragraph = root.mainDocumentPart.content[p] as P
             val isEmptyP = TextUtils.getText(paragraph).isBlank()
-            (commonPFunctions + regularPBeforeListCheckFunctions).apply(root, p, pPr, isEmptyP)
+            commonPFunctions.apply(root, p, pPr, isEmptyP)
+            regularPFunctions.apply(root, p, pPr, isEmptyP)
             for (r in 0 until paragraph.content.size) {
                 if (paragraph.content[r] is R) {
                     val rPr = root.resolver.getEffectiveRPr((paragraph.content[r] as R).rPr, paragraph.pPr)
-                    (commonRFunctions + regularRFunctions).apply(root, p, r, rPr, isEmptyP)
+                    commonRFunctions.apply(root, p, r, rPr, isEmptyP)
+                    regularRFunctions.apply(root, p, r, rPr, isEmptyP)
                     for (c in 0 until (paragraph.content[r] as R).content.size) {
                         handleRContent(p, r, c, this, subchapter.pictures)
                     }
@@ -111,8 +113,6 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
             }
             if (pPr.numPr != null) {
                 validateListElement(p)
-            } else {
-                regularPAfterListCheckFunctions.apply(root, p, pPr, isEmptyP)
             }
         }
         for (sub in subchapter.subchapters) {
@@ -128,7 +128,8 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
         for (r in 0 until chapter.header.content.size) {
             if (chapter.header.content[r] is R) {
                 val rPr = root.resolver.getEffectiveRPr((chapter.header.content[r] as R).rPr, chapter.header.pPr)
-                (headerRFunctions + commonRFunctions).apply(root, chapter.startPos, r, rPr, isEmpty)
+                headerRFunctions.apply(root, chapter.startPos, r, rPr, isEmpty)
+                commonRFunctions.apply(root, chapter.startPos, r, rPr, isEmpty)
             } else {
                 handlePContent(chapter.startPos, r, this)
             }
@@ -136,7 +137,7 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
     }
 
     override fun handleHyperlink(p: Int, r: Int) {
-        root.errors += Mistake(root.document.id, p, r, MistakeType.TEXT_HYPERLINKS_NOT_ALLOWED_HERE)
+        root.addMistake(TEXT_HYPERLINKS_NOT_ALLOWED_HERE, p, r)
     }
 
     override fun handleTable(p: Int) {}
@@ -144,20 +145,15 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
     private fun validateSubchapters(expectedNum: String, subchapter: Subchapter) {
         for (sub in 0 until subchapter.subchapters.size) {
             if ("${expectedNum}.${subchapter.subchapters[sub].num}" != "${expectedNum}.${sub + 1}") {
-                root.errors += Mistake(
-                    root.document.id,
+                root.addMistake(
+                    TEXT_BODY_SUBHEADER_NUMBER_ORDER_MISMATCH,
                     this.chapter.startPos,
-                    MistakeType.TEXT_BODY_SUBHEADER_NUMBER_ORDER_MISMATCH,
-                    "${expectedNum}.${subchapter.subchapters[sub].num}/${expectedNum}.${sub + 1}"
+                    description = "${expectedNum}.${subchapter.subchapters[sub].num}/${expectedNum}.${sub + 1}"
                 )
                 return
             }
             if (subchapter.level > 3) {
-                root.errors += Mistake(
-                    root.document.id,
-                    this.chapter.startPos,
-                    MistakeType.TEXT_BODY_SUBHEADER_LEVEL_WAS_MORE_THAN_3
-                )
+                root.addMistake(TEXT_BODY_SUBHEADER_LEVEL_WAS_MORE_THAN_3, this.chapter.startPos)
                 return
             }
             validateSubchapters("${expectedNum}.${sub + 1}", subchapter.subchapters[sub])
@@ -207,15 +203,11 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
                 Rules.Default.RegularText.P::firstLineIndentIs1dot25,
             )
 
-        private val regularPAfterListCheckFunctions =
+        private val regularPFunctions =
             PFunctionWrapper.iterable(
                 Rules.Default.RegularText.P::leftIndentIs0,
                 Rules.Default.RegularText.P::rightIndentIs0,
-                Rules.Default.RegularText.P::firstLineIndentIs1dot25
-            )
-
-        private val regularPBeforeListCheckFunctions =
-            PFunctionWrapper.iterable(
+                Rules.Default.RegularText.P::firstLineIndentIs1dot25,
                 Rules.Default.RegularText.P::justifyIsBoth,
                 Rules.Default.RegularText.P::lineSpacingIsOneAndHalf
             )

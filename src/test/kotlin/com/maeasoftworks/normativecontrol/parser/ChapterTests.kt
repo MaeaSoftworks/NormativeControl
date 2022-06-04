@@ -33,7 +33,7 @@ class ChapterTests : ParserTestFactory(ChapterTests::class) {
             REFERENCES,
             APPENDIX
         )
-        errorAssert(parser.errors)
+        errorAssert(parser.mistakes)
     }
 
     @Test
@@ -44,7 +44,7 @@ class ChapterTests : ParserTestFactory(ChapterTests::class) {
         parser.verifyChapters()
 
         chapterAssert(parser.chapters, FRONT_PAGE, ANNOTATION, CONTENTS, INTRODUCTION, CONCLUSION, REFERENCES, APPENDIX)
-        errorAssert(parser.errors, CHAPTER_BODY_NOT_FOUND)
+        errorAssert(parser.mistakes, CHAPTER_BODY_NOT_FOUND)
     }
 
     @Test
@@ -55,7 +55,7 @@ class ChapterTests : ParserTestFactory(ChapterTests::class) {
         parser.verifyChapters()
         chapterAssert(parser.chapters, FRONT_PAGE, APPENDIX)
         errorAssert(
-            parser.errors,
+            parser.mistakes,
             CHAPTER_ANNOTATION_NOT_FOUND,
             CHAPTER_CONTENTS_NOT_FOUND,
             CHAPTER_INTRODUCTION_NOT_FOUND,
@@ -86,7 +86,7 @@ class ChapterTests : ParserTestFactory(ChapterTests::class) {
             REFERENCES,
             APPENDIX
         )
-        errorAssert(parser.errors)
+        errorAssert(parser.mistakes)
     }
 
     @Test
@@ -95,7 +95,7 @@ class ChapterTests : ParserTestFactory(ChapterTests::class) {
         parserBase.setupChapters()
         chapterAssert(parserBase.chapters, BODY, BODY, BODY, BODY)
         errorAssert(
-            parserBase.errors,
+            parserBase.mistakes,
             CHAPTER_FRONT_PAGE_NOT_FOUND,
             CHAPTER_ANNOTATION_NOT_FOUND,
             CHAPTER_CONTENTS_NOT_FOUND,
@@ -112,7 +112,7 @@ class ChapterTests : ParserTestFactory(ChapterTests::class) {
         parserBase.setupChapters()
         chapterAssert(parserBase.chapters, BODY, BODY, BODY, BODY)
         errorAssert(
-            parserBase.errors,
+            parserBase.mistakes,
             CHAPTER_FRONT_PAGE_NOT_FOUND,
             CHAPTER_ANNOTATION_NOT_FOUND,
             CHAPTER_CONTENTS_NOT_FOUND,

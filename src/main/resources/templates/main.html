@@ -178,15 +178,17 @@
                                     <code class="argument-type" th:utext="${property.type}"></code>&#160;&#8212;&#160;
                                     <span class="argument-description" th:utext="#{${property.description}}"></span>
                                     <span class="argument-description" th:utext="${property.body}"></span>
-                                    <div th:if="${property.enum != null}">
-                                        <ul>
-                                            <th:block th:each="element : ${property.enum}">
-                                                <li th:text="${element} + ((#{${'enum.' + element}} != '%obviously%') ? ' — ' + #{${'enum.' + element}} : '')"></li>
-                                            </th:block>
-                                        </ul>
-                                    </div>
-                                    <span class="text-span" th:if="${state.last && property.body == '' && property.enum == null}">.</span>
-                                    <span class="text-span" th:if="${!state.last && property.body == '' && property.enum == null}">;</span>
+                                <div th:if="${property.enum != null}">
+                                    <ul>
+                                        <th:block th:each="element : ${property.enum}">
+                                            <li th:text="${element} + ((#{${'enum.' + element}} != '%obviously%') ? ' — ' + #{${'enum.' + element}} : '')"></li>
+                                        </th:block>
+                                    </ul>
+                                </div>
+                                <span class="text-span"
+                                      th:if="${state.last && property.body == '' && property.enum == null}">.</span>
+                                <span class="text-span"
+                                      th:if="${!state.last && property.body == '' && property.enum == null}">;</span>
                                 </p>
                             </li>
                         </th:block>

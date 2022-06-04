@@ -3,14 +3,12 @@ package com.maeasoftworks.normativecontrol.parser.parsers
 import com.maeasoftworks.normativecontrol.entities.Mistake
 import com.maeasoftworks.normativecontrol.parser.HeadersKeywords
 import com.maeasoftworks.normativecontrol.parser.enums.ChapterType
+import com.maeasoftworks.normativecontrol.parser.enums.ChapterType.*
 import com.maeasoftworks.normativecontrol.parser.enums.FailureType
 import com.maeasoftworks.normativecontrol.parser.enums.MistakeType
 import com.maeasoftworks.normativecontrol.parser.enums.MistakeType.*
 import com.maeasoftworks.normativecontrol.parser.enums.Status
-import com.maeasoftworks.normativecontrol.parser.model.Chapter
-import com.maeasoftworks.normativecontrol.parser.model.Document
-import com.maeasoftworks.normativecontrol.parser.model.Picture
-import com.maeasoftworks.normativecontrol.parser.model.Table
+import com.maeasoftworks.normativecontrol.parser.model.*
 import org.docx4j.TextUtils
 import org.docx4j.model.PropertyResolver
 import org.docx4j.openpackaging.exceptions.Docx4JException
@@ -29,12 +27,20 @@ class DocumentParser(val document: Document) {
 
     var chapters: MutableList<Chapter> = ArrayList()
     var parsers: MutableList<ChapterParser> = ArrayList()
-    var errors: MutableList<Mistake> = ArrayList()
+    var mistakes: MutableList<Mistake> = ArrayList()
     var tables: MutableList<Table> = ArrayList()
     val pictures: MutableList<Picture> = ArrayList()
 
-    fun addError(mistakeType: MistakeType, paragraphId: Int, runId: Int = -1, chapterId: Int = -1, description: String = "") {
-        errors.add(Mistake(document.id, chapterId, paragraphId, runId, mistakeType, description))
+    private var mistakeId: Long = 0
+
+    fun addMistake(type: MistakeType, p: Int? = null, r: Int? = null, description: String? = null) {
+        mistakes.add(Mistake(document.id, mistakeId++, p, r, type, description))
+    }
+
+    fun addMistake(mistake: MistakeData?) {
+        if (mistake != null) {
+            mistakes.add(Mistake(document.id, mistakeId++, mistake.p, mistake.r, mistake.mistakeType))
+        }
     }
 
     fun init() {
@@ -58,7 +64,7 @@ class DocumentParser(val document: Document) {
             parser.parse()
         }
         checkPicturesOrder(AnonymousParser(this), 0, true, pictures)
-        return errors
+        return mistakes
     }
 
     fun setupChapters() {
@@ -71,26 +77,26 @@ class DocumentParser(val document: Document) {
     fun verifyPageSize() {
         val pageSize = mainDocumentPart.contents.body.sectPr.pgSz
         if (pageSize.w.intValueExact() != 11906) {
-            errors += Mistake(document.id, PAGE_WIDTH_IS_INCORRECT)
+            addMistake(PAGE_WIDTH_IS_INCORRECT)
         }
         if (pageSize.h.intValueExact() != 16838) {
-            errors += Mistake(document.id, PAGE_HEIGHT_IS_INCORRECT)
+            addMistake(PAGE_HEIGHT_IS_INCORRECT)
         }
     }
 
     fun verifyPageMargins() {
         val pageMargins = mainDocumentPart.contents.body.sectPr.pgMar
         if (pageMargins.top.intValueExact() != 1134) {
-            errors += Mistake(document.id, PAGE_MARGIN_TOP_IS_INCORRECT)
+            addMistake(PAGE_MARGIN_TOP_IS_INCORRECT)
         }
         if (pageMargins.right.intValueExact() != 850) {
-            errors += Mistake(document.id, PAGE_MARGIN_RIGHT_IS_INCORRECT)
+            addMistake(PAGE_MARGIN_RIGHT_IS_INCORRECT)
         }
         if (pageMargins.bottom.intValueExact() != 1134) {
-            errors += Mistake(document.id, PAGE_MARGIN_BOTTOM_IS_INCORRECT)
+            addMistake(PAGE_MARGIN_BOTTOM_IS_INCORRECT)
         }
         if (pageMargins.left.intValueExact() != 1701) {
-            errors += Mistake(document.id, PAGE_MARGIN_LEFT_IS_INCORRECT)
+            addMistake(PAGE_MARGIN_LEFT_IS_INCORRECT)
         }
     }
 
@@ -122,29 +128,29 @@ class DocumentParser(val document: Document) {
         for (chapter in 0 until chapters.size) {
             if (chapters[chapter][0] is P) {
                 if (!chapters[chapter].hasHeader) {
-                    chapters[chapter].type = ChapterType.FRONT_PAGE
+                    chapters[chapter].type = FRONT_PAGE
                     continue
                 }
                 val text = TextUtils.getText(chapters[chapter].header)
                 if (text.isEmpty()) {
                     emptyChapters += chapter
-                    errors.add(Mistake(document.id, chapter.toLong(), TEXT_HEADER_EMPTY))
+                    addMistake(TEXT_HEADER_EMPTY)
                     continue
                 }
-                chapters[chapter].type = detectNodeType(text, chapter)
+                chapters[chapter].type = detectNodeType(text)
             }
         }
         if (!chapters[0].isChapterDetected) {
-            chapters[0].type = ChapterType.FRONT_PAGE
+            chapters[0].type = FRONT_PAGE
         }
         for (empty in emptyChapters) {
             chapters.removeAt(empty)
         }
     }
 
-    private fun detectNodeType(text: String, chapterId: Int): ChapterType {
+    private fun detectNodeType(text: String): ChapterType {
         if (text.split(Regex("\\s+"))[0].matches(Regex("^(?:\\d{1,2}\\.?){1,3}$"))) {
-            return ChapterType.BODY
+            return BODY
         }
         for (keys in 0 until HeadersKeywords.keywordsBySector.size) {
             for (key in HeadersKeywords.keywordsBySector[keys]) {
@@ -155,12 +161,12 @@ class DocumentParser(val document: Document) {
         }
         for (keyword in HeadersKeywords.appendix) {
             if (text.uppercase().startsWith(keyword)) {
-                return ChapterType.APPENDIX
+                return APPENDIX
             }
         }
 
-        errors += Mistake(document.id, chapterId.toLong(), CHAPTER_UNDEFINED_CHAPTER)
-        return ChapterType.UNDEFINED
+        addMistake(CHAPTER_UNDEFINED_CHAPTER)
+        return UNDEFINED
     }
 
     private fun verifyChapter(
@@ -172,95 +178,47 @@ class DocumentParser(val document: Document) {
     ) {
         try {
             if (type !in types) {
-                errors += Mistake(document.id, pos.toLong(), notFound)
+                addMistake(notFound)
             } else if (chapters[pos].type != type) {
-                errors += Mistake(document.id, pos.toLong(), mismatch)
+                addMistake(mismatch)
             }
         } catch (_: IndexOutOfBoundsException) {
         }
     }
 
     fun verifyChapters() {
-        val types = chapters.map { it.type }
+        val t = chapters.map { it.type }
         if (chapters.size == 0) {
-            errors += Mistake(document.id, CHAPTER_NO_ONE_CHAPTER_FOUND)
+            addMistake(CHAPTER_NO_ONE_CHAPTER_FOUND)
         }
-        verifyChapter(
-            0,
-            ChapterType.FRONT_PAGE,
-            types,
-            CHAPTER_FRONT_PAGE_NOT_FOUND,
-            CHAPTER_FRONT_PAGE_POSITION_MISMATCH
-        )
-        verifyChapter(
-            1,
-            ChapterType.ANNOTATION,
-            types,
-            CHAPTER_ANNOTATION_NOT_FOUND,
-            CHAPTER_ANNOTATION_POSITION_MISMATCH
-        )
-        verifyChapter(
-            2,
-            ChapterType.CONTENTS,
-            types,
-            CHAPTER_CONTENTS_NOT_FOUND,
-            CHAPTER_CONTENTS_POSITION_MISMATCH
-        )
-        verifyChapter(
-            3,
-            ChapterType.INTRODUCTION,
-            types,
-            CHAPTER_INTRODUCTION_NOT_FOUND,
-            CHAPTER_INTRODUCTION_POSITION_MISMATCH
-        )
-        verifyChapter(
-            4,
-            ChapterType.BODY,
-            types,
-            CHAPTER_BODY_NOT_FOUND,
-            CHAPTER_BODY_POSITION_MISMATCH
-        )
+        verifyChapter(0, FRONT_PAGE, t, CHAPTER_FRONT_PAGE_NOT_FOUND, CHAPTER_FRONT_PAGE_POSITION_MISMATCH)
+        verifyChapter(1, ANNOTATION, t, CHAPTER_ANNOTATION_NOT_FOUND, CHAPTER_ANNOTATION_POSITION_MISMATCH)
+        verifyChapter(2, CONTENTS, t, CHAPTER_CONTENTS_NOT_FOUND, CHAPTER_CONTENTS_POSITION_MISMATCH)
+        verifyChapter(3, INTRODUCTION, t, CHAPTER_INTRODUCTION_NOT_FOUND, CHAPTER_INTRODUCTION_POSITION_MISMATCH)
+        verifyChapter(4, BODY, t, CHAPTER_BODY_NOT_FOUND, CHAPTER_BODY_POSITION_MISMATCH)
         var i = 4
         try {
-            while (chapters[i].type == ChapterType.BODY) {
+            while (chapters[i].type == BODY) {
                 i++
             }
         } catch (_: Exception) {
         }
-        verifyChapter(
-            i,
-            ChapterType.CONCLUSION,
-            types,
-            CHAPTER_CONCLUSION_NOT_FOUND,
-            CHAPTER_CONCLUSION_POSITION_MISMATCH
-        )
-        verifyChapter(
-            i + 1,
-            ChapterType.REFERENCES,
-            types,
-            CHAPTER_REFERENCES_NOT_FOUND,
-            CHAPTER_REFERENCES_POSITION_MISMATCH
-        )
-        verifyChapter(
-            i + 2,
-            ChapterType.APPENDIX,
-            types,
-            CHAPTER_APPENDIX_NOT_FOUND,
-            CHAPTER_APPENDIX_POSITION_MISMATCH
-        )
+        verifyChapter(i, CONCLUSION, t, CHAPTER_CONCLUSION_NOT_FOUND, CHAPTER_CONCLUSION_POSITION_MISMATCH)
+        verifyChapter(i + 1, REFERENCES, t, CHAPTER_REFERENCES_NOT_FOUND, CHAPTER_REFERENCES_POSITION_MISMATCH)
+        verifyChapter(i + 2, APPENDIX, t, CHAPTER_APPENDIX_NOT_FOUND, CHAPTER_APPENDIX_POSITION_MISMATCH)
     }
 
     fun createParsers() {
         for (chapter in chapters) {
             when (chapter.type) {
-                ChapterType.FRONT_PAGE -> parsers.add(FrontPageParser(chapter, this))
-                ChapterType.ANNOTATION -> parsers.add(SimpleParser(chapter, this))
-                ChapterType.CONTENTS -> parsers.add(ContentsParser(chapter, this))
-                ChapterType.INTRODUCTION -> parsers.add(SimpleParser(chapter, this))
-                ChapterType.BODY -> parsers.add(BodyParser(chapter, this))
-                ChapterType.CONCLUSION -> parsers.add(ConclusionParser(chapter, this))
-                ChapterType.REFERENCES -> parsers.add(ReferencesParser(chapter, this))
-                ChapterType.APPENDIX -> parsers.add(AppendixParser(chapter, this))
+                FRONT_PAGE -> parsers.add(FrontPageParser(chapter, this))
+                ANNOTATION -> parsers.add(SimpleParser(chapter, this))
+                CONTENTS -> parsers.add(ContentsParser(chapter, this))
+                INTRODUCTION -> parsers.add(SimpleParser(chapter, this))
+                BODY -> parsers.add(BodyParser(chapter, this))
+                CONCLUSION -> parsers.add(ConclusionParser(chapter, this))
+                REFERENCES -> parsers.add(ReferencesParser(chapter, this))
+                APPENDIX -> parsers.add(AppendixParser(chapter, this))
                 else -> {}
             }
         }
@@ -268,9 +226,9 @@ class DocumentParser(val document: Document) {
 
     private fun verifyBody() {
         var i = 0
-        chapters.filter { it.type == ChapterType.BODY }.forEach {
+        chapters.filter { it.type == BODY }.forEach {
             if (!TextUtils.getText(it.header).startsWith((++i).toString())) {
-                errors += Mistake(document.id, chapters.indexOf(it).toLong(), CHAPTER_BODY_DISORDER)
+                addMistake(CHAPTER_BODY_DISORDER)
             }
         }
     }
@@ -302,11 +260,11 @@ class DocumentParser(val document: Document) {
                 val match = context.pictureTitleMatcher(picture.title!!)
                 if (match != null) {
                     if (match.groups[1 + level]!!.value.toInt() != index) {
-                        errors += Mistake(document.id, picture.p, picture.r, PICTURE_TITLE_NUMBER_DISORDER)
+                        addMistake(PICTURE_TITLE_NUMBER_DISORDER, picture.p, picture.r)
                     }
                     context.validatePictureTitleStyle(picture.p)
                 } else {
-                    errors += Mistake(document.id, picture.p, picture.r, PICTURE_TITLE_WRONG_FORMAT)
+                    addMistake(PICTURE_TITLE_WRONG_FORMAT, picture.p, picture.r)
                 }
                 index++
             }

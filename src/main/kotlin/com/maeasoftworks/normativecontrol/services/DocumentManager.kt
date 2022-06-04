@@ -47,8 +47,8 @@ class DocumentManager(
     @Async
     fun saveToDatabase(parser: DocumentParser) {
         if (parser.document.failureType == FailureType.NONE) {
-            fileRepository.save(BinaryFile(parser.document.id, parser.document.accessKey, parser.document.file))
-            errorRepository.saveAll(parser.errors)
+            fileRepository.save(BinaryFile(parser.document.id, parser.document.file))
+            errorRepository.saveAll(parser.mistakes)
             credentialsRepository.save(DocumentCredentials(parser.document.id, parser.document.accessKey))
             queue.remove(parser.document.id)
         }

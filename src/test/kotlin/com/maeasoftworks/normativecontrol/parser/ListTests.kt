@@ -13,6 +13,6 @@ class ListTests : ParserTestFactory(ListTests::class) {
         val parser = createParser("list size.docx")
         val mock: ChapterParser = SimpleParser(Chapter(0), parser)
         mock.validateListElement(0)
-        Assert.isTrue(parser.errors.size == 0, "There shouldn't be any error!")
+        Assert.isTrue(parser.mistakes.size == 0, "There shouldn't be any error!")
     }
 }
