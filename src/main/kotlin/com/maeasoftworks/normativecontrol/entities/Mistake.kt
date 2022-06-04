@@ -1,6 +1,7 @@
 package com.maeasoftworks.normativecontrol.entities
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.maeasoftworks.normativecontrol.documentation.annotations.Documentation
 import com.maeasoftworks.normativecontrol.documentation.annotations.PropertyDocumentation
 import com.maeasoftworks.normativecontrol.parser.enums.MistakeType
@@ -15,15 +16,20 @@ import javax.persistence.Table
 @Documentation("docs.entity.Mistake.info")
 class Mistake(
     @JsonIgnore
+    @get:JsonProperty(value = "document-id")
     val documentId: String?,
     @Suppress("unused")
     @PropertyDocumentation("docs.entity.Mistake.prop0")
+    @get:JsonProperty(value = "chapter-id")
     val chapterId: Int,
     @PropertyDocumentation("docs.entity.Mistake.prop1")
+    @get:JsonProperty(value = "paragraph-id")
     val paragraphId: Int,
     @PropertyDocumentation("docs.entity.Mistake.prop2")
+    @get:JsonProperty(value = "run-id")
     val runId: Int,
     @PropertyDocumentation("docs.entity.Mistake.prop3", MistakeType::class)
+    @get:JsonProperty(value = "mistake-type")
     val mistakeType: MistakeType,
     @PropertyDocumentation("docs.entity.Mistake.prop4")
     val description: String = ""

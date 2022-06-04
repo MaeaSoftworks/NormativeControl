@@ -1,5 +1,6 @@
 package com.maeasoftworks.normativecontrol.documentation
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.maeasoftworks.normativecontrol.documentation.annotations.BodyParam
 import com.maeasoftworks.normativecontrol.documentation.annotations.Documentation
 import com.maeasoftworks.normativecontrol.documentation.annotations.PossibleResponse
@@ -18,6 +19,7 @@ import kotlin.reflect.KParameter
 import kotlin.reflect.full.functions
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.superclasses
+import kotlin.reflect.jvm.javaGetter
 
 @Controller
 @CrossOrigin
@@ -165,7 +167,7 @@ class DocumentationController {
             if (property.annotations.any { it is PropertyDocumentation }) {
                 val propertyAnnotation =
                     property.annotations.first { it is PropertyDocumentation } as PropertyDocumentation
-                prop.name = property.name
+                prop.name = property.javaGetter!!.annotations.firstOrNull { it is JsonProperty }.let { if (it != null) (it as JsonProperty).value else property.name }
                 prop.type = (property.returnType.classifier as KClass<*>).simpleName!!
                 prop.description = propertyAnnotation.translationId
                 if (propertyAnnotation.enum !== Unit::class) {

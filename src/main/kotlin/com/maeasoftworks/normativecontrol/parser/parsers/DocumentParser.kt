@@ -33,13 +33,7 @@ class DocumentParser(val document: Document) {
     var tables: MutableList<Table> = ArrayList()
     val pictures: MutableList<Picture> = ArrayList()
 
-    fun addError(
-        mistakeType: MistakeType,
-        paragraphId: Int,
-        runId: Int = -1,
-        chapterId: Int = -1,
-        description: String = ""
-    ) {
+    fun addError(mistakeType: MistakeType, paragraphId: Int, runId: Int = -1, chapterId: Int = -1, description: String = "") {
         errors.add(Mistake(document.id, chapterId, paragraphId, runId, mistakeType, description))
     }
 
