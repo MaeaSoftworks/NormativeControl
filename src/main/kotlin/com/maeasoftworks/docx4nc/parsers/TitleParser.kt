@@ -1,6 +1,5 @@
 package com.maeasoftworks.docx4nc.parsers
 
-import com.maeasoftworks.docx4nc.PFunctionWrapper
 import com.maeasoftworks.docx4nc.Rules
 import com.maeasoftworks.docx4nc.model.Chapter
 
@@ -10,7 +9,7 @@ class TitleParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapte
             this,
             null,
             null,
-            PFunctionWrapper.iterable(
+            listOf(
                 Rules.Default.PictureTitle.P::justifyIsCenter,
                 Rules.Default.PictureTitle.P::hasNotDotInEnd
             ) + pCommonFunctions,
