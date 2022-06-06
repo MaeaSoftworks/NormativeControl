@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component
 import java.security.SignatureException
 import java.util.*
 
-
 @Component
 class JwtUtils {
     @Value("\${app.jwtSecret}")
@@ -19,30 +18,26 @@ class JwtUtils {
     @Value("\${app.jwtExpirationMs}")
     private var jwtExpirationMs: Long = 0
 
-    fun generateJwtToken(authentication: Authentication): String {
-        val userPrincipal = authentication.principal as UserDetailsImpl
-        return Jwts.builder()
-            .setSubject(userPrincipal.username)
-            .setIssuedAt(Date())
-            .setExpiration(Date(Date().time + jwtExpirationMs))
+    fun generateJwtToken(authentication: Authentication) = generateTokenFromEmail((authentication.principal as UserDetailsImpl).email)
+
+    fun generateTokenFromEmail(email: String): String = Date().let {
+        Jwts.builder()
+            .setSubject(email)
+            .setIssuedAt(it)
+            .setExpiration(Date(it.time + jwtExpirationMs))
             .signWith(SignatureAlgorithm.HS512, jwtSecret)
             .compact()
     }
 
-    fun generateTokenFromUsername(username: String?): String? {
-        return Jwts.builder()
-            .setSubject(username)
-            .setIssuedAt(Date())
-            .setExpiration(Date(Date().time + jwtExpirationMs))
-            .signWith(SignatureAlgorithm.HS512, jwtSecret)
-            .compact()
+    fun getEmailFromJwtToken(token: String): String {
+        val a =  Jwts.parser()
+            val b = a.setSigningKey(jwtSecret)
+                val c = b.parseClaimsJws(token)
+                    val d = c.body.subject
+        return d
     }
 
-    fun getUserNameFromJwtToken(token: String?): String {
-        return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).body.subject
-    }
-
-    fun validateJwtToken(authToken: String?): Boolean {
+    fun validateJwtToken(authToken: String): Boolean {
         try {
             Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(authToken)
             return true

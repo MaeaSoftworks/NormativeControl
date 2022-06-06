@@ -14,7 +14,6 @@ import javax.servlet.FilterChain
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
-
 class AuthTokenFilter : OncePerRequestFilter() {
 
     @Autowired
@@ -31,13 +30,11 @@ class AuthTokenFilter : OncePerRequestFilter() {
         try {
             val jwt = parseJwt(request)
             if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
-                val username: String = jwtUtils.getUserNameFromJwtToken(jwt)
-                val userDetails = userDetailsService.loadUserByUsername(username)
-                val authentication = UsernamePasswordAuthenticationToken(
-                    userDetails, null, userDetails.authorities
-                )
-                authentication.details = WebAuthenticationDetailsSource().buildDetails(request)
-                SecurityContextHolder.getContext().authentication = authentication
+                val userDetails = userDetailsService.loadUserByEmail(jwtUtils.getEmailFromJwtToken(jwt))
+                SecurityContextHolder.getContext().authentication =
+                    UsernamePasswordAuthenticationToken(userDetails, null, userDetails.authorities).also {
+                        it.details = WebAuthenticationDetailsSource().buildDetails(request)
+                    }
             }
         } catch (e: Exception) {
             Companion.logger.error("Cannot set user authentication: {}", e.message)
