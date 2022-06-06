@@ -1,8 +1,8 @@
 package com.maeasoftworks.normativecontrol.controllers
 
-import com.maeasoftworks.normativecontrol.entities.FileResponse
-import com.maeasoftworks.normativecontrol.entities.MistakesResponse
-import com.maeasoftworks.normativecontrol.entities.StatusResponse
+import com.maeasoftworks.normativecontrol.dto.response.FileResponse
+import com.maeasoftworks.normativecontrol.dto.response.MistakesResponse
+import com.maeasoftworks.normativecontrol.dto.response.StatusResponse
 import com.maeasoftworks.normativecontrol.services.DocumentManager
 import com.maeasoftworks.normativecontrol.utils.createNullableByteArrayResource
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression

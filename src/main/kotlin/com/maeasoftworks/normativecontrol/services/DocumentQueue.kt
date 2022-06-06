@@ -1,8 +1,10 @@
 package com.maeasoftworks.normativecontrol.services
 
-import com.maeasoftworks.normativecontrol.parser.enums.Status
-import com.maeasoftworks.normativecontrol.parser.parsers.DocumentParser
-import com.maeasoftworks.normativecontrol.parser.parsers.DocumentParserRunnable
+import com.maeasoftworks.docx4nc.parsers.DocumentParser
+import com.maeasoftworks.normativecontrol.dto.Document
+import com.maeasoftworks.normativecontrol.dto.DocumentParserRunnable
+import com.maeasoftworks.normativecontrol.dto.OrderedParser
+import com.maeasoftworks.normativecontrol.dto.Status
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
@@ -13,29 +15,29 @@ import java.util.concurrent.atomic.AtomicInteger
 @Service
 @ConditionalOnBean(DocumentManager::class)
 class DocumentQueue(private val publisher: ApplicationEventPublisher) {
-    private val documentMap: HashMap<String, DocumentParser> = HashMap()
+    private val documentMap: HashMap<String, OrderedParser> = HashMap()
     private val executor: ExecutorService = Executors.newFixedThreadPool(100)
     var count: AtomicInteger = AtomicInteger(0)
 
-    fun put(parser: DocumentParser) {
-        documentMap[parser.document.id] = parser
-        parser.document.status = Status.READY_TO_ENQUEUE
+    fun put(parser: DocumentParser, document: Document) {
+        documentMap[document.id] = OrderedParser(parser, document)
+        parser.documentData.status = Status.READY_TO_ENQUEUE
     }
 
     fun runById(documentId: String) {
-        val parser = documentMap[documentId]
-        if (parser != null) {
+        val order = documentMap[documentId]
+        if (order != null) {
             count.incrementAndGet()
-            parser.document.status = Status.PROCESSING
-            executor.execute(DocumentParserRunnable(parser, count, publisher))
+            order.document.data.status = Status.PROCESSING
+            executor.execute(DocumentParserRunnable(order, count, publisher))
         }
     }
 
     fun isUploadAvailable(documentId: String): Boolean {
-        return documentMap[documentId]?.document?.status == Status.READY_TO_ENQUEUE && count.get() < 100
+        return documentMap[documentId]?.document?.data?.status == Status.READY_TO_ENQUEUE && count.get() < 100
     }
 
-    fun getById(id: String): DocumentParser? {
+    fun getById(id: String): OrderedParser? {
         return documentMap[id]
     }
 

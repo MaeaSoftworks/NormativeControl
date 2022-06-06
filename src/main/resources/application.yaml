@@ -27,3 +27,8 @@ management:
     web:
       exposure:
         include: health,metrics,prometheus
+
+app:
+  jwtSecret: K5b4qldMjy
+  jwtExpirationMs: 3600000
+  jwtRefreshExpirationMs: 2592000000

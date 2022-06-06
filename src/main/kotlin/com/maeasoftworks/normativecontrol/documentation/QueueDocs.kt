@@ -4,7 +4,7 @@ import com.maeasoftworks.normativecontrol.controllers.QueueController
 import com.maeasoftworks.normativecontrol.documentation.annotations.BodyParam
 import com.maeasoftworks.normativecontrol.documentation.annotations.Documentation
 import com.maeasoftworks.normativecontrol.documentation.annotations.PossibleResponse
-import com.maeasoftworks.normativecontrol.entities.QueueResponse
+import com.maeasoftworks.normativecontrol.dto.response.QueueResponse
 import com.maeasoftworks.normativecontrol.services.DocumentManager
 import org.springframework.http.HttpStatus
 import org.springframework.web.multipart.MultipartFile

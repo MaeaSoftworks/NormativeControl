@@ -1,6 +1,6 @@
 package com.maeasoftworks.normativecontrol.controllers
 
-import com.maeasoftworks.normativecontrol.entities.QueueResponse
+import com.maeasoftworks.normativecontrol.dto.response.QueueResponse
 import com.maeasoftworks.normativecontrol.services.DocumentManager
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression
 import org.springframework.http.HttpStatus

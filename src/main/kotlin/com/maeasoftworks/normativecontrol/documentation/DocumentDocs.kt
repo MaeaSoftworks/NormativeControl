@@ -3,10 +3,10 @@ package com.maeasoftworks.normativecontrol.documentation
 import com.maeasoftworks.normativecontrol.controllers.DocumentController
 import com.maeasoftworks.normativecontrol.documentation.annotations.Documentation
 import com.maeasoftworks.normativecontrol.documentation.annotations.PossibleResponse
-import com.maeasoftworks.normativecontrol.entities.FileResponse
-import com.maeasoftworks.normativecontrol.entities.MistakesResponse
-import com.maeasoftworks.normativecontrol.entities.StatusResponse
-import com.maeasoftworks.normativecontrol.parser.enums.Status
+import com.maeasoftworks.normativecontrol.dto.Status
+import com.maeasoftworks.normativecontrol.dto.response.FileResponse
+import com.maeasoftworks.normativecontrol.dto.response.MistakesResponse
+import com.maeasoftworks.normativecontrol.dto.response.StatusResponse
 import com.maeasoftworks.normativecontrol.services.DocumentManager
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.http.HttpStatus
