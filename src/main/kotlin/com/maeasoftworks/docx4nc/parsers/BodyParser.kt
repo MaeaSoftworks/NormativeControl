@@ -1,7 +1,5 @@
 package com.maeasoftworks.docx4nc.parsers
 
-import com.maeasoftworks.docx4nc.PFunctionWrapper
-import com.maeasoftworks.docx4nc.RFunctionWrapper
 import com.maeasoftworks.docx4nc.Rules
 import com.maeasoftworks.docx4nc.apply
 import com.maeasoftworks.docx4nc.enums.MistakeType.*
@@ -171,53 +169,47 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
     }
 
     companion object {
-        private val commonPFunctions =
-            PFunctionWrapper.iterable(
-                Rules.Default.Common.P::hasNotBackground,
-                Rules.Default.Common.P::notBordered
-            )
+        private val commonPFunctions = listOf(
+            Rules.Default.Common.P::hasNotBackground,
+            Rules.Default.Common.P::notBordered
+        )
 
-        private val commonRFunctions =
-            RFunctionWrapper.iterable(
-                Rules.Default.Common.R::isTimesNewRoman,
-                Rules.Default.Common.R::fontSizeIs14,
-                Rules.Default.Common.R::notItalic,
-                Rules.Default.Common.R::notCrossedOut,
-                Rules.Default.Common.R::notHighlighted,
-                Rules.Default.Common.R::isBlack,
-                Rules.Default.Common.R::letterSpacingIs0
-            )
+        private val commonRFunctions = listOf(
+            Rules.Default.Common.R::isTimesNewRoman,
+            Rules.Default.Common.R::fontSizeIs14,
+            Rules.Default.Common.R::notItalic,
+            Rules.Default.Common.R::notCrossedOut,
+            Rules.Default.Common.R::notHighlighted,
+            Rules.Default.Common.R::isBlack,
+            Rules.Default.Common.R::letterSpacingIs0
+        )
 
-        private val headerRFunctions =
-            RFunctionWrapper.iterable(
-                Rules.Default.Header.R::isBold
-            )
+        private val headerRFunctions = listOf(
+            Rules.Default.Header.R::isBold
+        )
 
-        private val headerPFunctions =
-            PFunctionWrapper.iterable(
-                Rules.Body.Header.P::justifyIsLeft,
-                Rules.Body.Header.P::isNotUppercase,
-                Rules.Default.Header.P::lineSpacingIsOne,
-                Rules.Default.Header.P::emptyLineAfterHeaderExists,
-                Rules.Default.Header.P::hasNotDotInEnd,
-                Rules.Default.RegularText.P::firstLineIndentIs1dot25,
-            )
+        private val headerPFunctions = listOf(
+            Rules.Body.Header.P::justifyIsLeft,
+            Rules.Body.Header.P::isNotUppercase,
+            Rules.Default.Header.P::lineSpacingIsOne,
+            Rules.Default.Header.P::emptyLineAfterHeaderExists,
+            Rules.Default.Header.P::hasNotDotInEnd,
+            Rules.Default.RegularText.P::firstLineIndentIs1dot25,
+        )
 
-        private val regularPFunctions =
-            PFunctionWrapper.iterable(
-                Rules.Default.RegularText.P::leftIndentIs0,
-                Rules.Default.RegularText.P::rightIndentIs0,
-                Rules.Default.RegularText.P::firstLineIndentIs1dot25,
-                Rules.Default.RegularText.P::justifyIsBoth,
-                Rules.Default.RegularText.P::lineSpacingIsOneAndHalf
-            )
+        private val regularPFunctions = listOf(
+            Rules.Default.RegularText.P::leftIndentIs0,
+            Rules.Default.RegularText.P::rightIndentIs0,
+            Rules.Default.RegularText.P::firstLineIndentIs1dot25,
+            Rules.Default.RegularText.P::justifyIsBoth,
+            Rules.Default.RegularText.P::lineSpacingIsOneAndHalf
+        )
 
-        private val regularRFunctions =
-            RFunctionWrapper.iterable(
-                Rules.Default.RegularText.R::isNotBold,
-                Rules.Default.RegularText.R::isNotCaps,
-                Rules.Default.RegularText.R::isUnderline
-            )
+        private val regularRFunctions = listOf(
+            Rules.Default.RegularText.R::isNotBold,
+            Rules.Default.RegularText.R::isNotCaps,
+            Rules.Default.RegularText.R::isUnderline
+        )
     }
 
     inner class Subchapter(

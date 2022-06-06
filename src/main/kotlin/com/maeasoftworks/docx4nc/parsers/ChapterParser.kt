@@ -1,9 +1,6 @@
 package com.maeasoftworks.docx4nc.parsers
 
-import com.maeasoftworks.docx4nc.PFunctionWrapper
-import com.maeasoftworks.docx4nc.RFunctionWrapper
-import com.maeasoftworks.docx4nc.Rules
-import com.maeasoftworks.docx4nc.apply
+import com.maeasoftworks.docx4nc.*
 import com.maeasoftworks.docx4nc.enums.MistakeType.*
 import com.maeasoftworks.docx4nc.model.Chapter
 import com.maeasoftworks.docx4nc.model.Picture
@@ -37,10 +34,10 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
 
     fun parse(
         context: ChapterParser,
-        headerPFunctions: Iterable<PFunctionWrapper>?,
-        headerRFunctions: Iterable<RFunctionWrapper>?,
-        pFunctions: Iterable<PFunctionWrapper>,
-        rFunctions: Iterable<RFunctionWrapper>
+        headerPFunctions: Iterable<PFunction>?,
+        headerRFunctions: Iterable<RFunction>?,
+        pFunctions: Iterable<PFunction>,
+        rFunctions: Iterable<RFunction>
     ) {
         if (headerPFunctions != null && headerRFunctions != null) {
             handleP(
@@ -56,11 +53,11 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
         }
     }
 
-    fun handleContent(
+    private fun handleContent(
         p: Int,
         context: ChapterParser,
-        pFunctions: Iterable<PFunctionWrapper>,
-        rFunctions: Iterable<RFunctionWrapper>
+        pFunctions: Iterable<PFunction>,
+        rFunctions: Iterable<RFunction>
     ) {
         when (val something = root.mainDocumentPart.content[p]) {
             is P -> {
@@ -80,8 +77,8 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
         context: ChapterParser,
         p: Int,
         paragraph: P,
-        pFunctions: Iterable<PFunctionWrapper>,
-        rFunctions: Iterable<RFunctionWrapper>
+        pFunctions: Iterable<PFunction>,
+        rFunctions: Iterable<RFunction>
     ) {
         val pPr = root.resolver.getEffectivePPr(paragraph.pPr)
         val isEmpty = TextUtils.getText(paragraph).isBlank()
@@ -91,7 +88,7 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
         context.parseP(p, pPr, isEmpty, pFunctions)
     }
 
-    open fun parseP(p: Int, pPr: PPr, isEmpty: Boolean, pFunctions: Iterable<PFunctionWrapper>) {
+    open fun parseP(p: Int, pPr: PPr, isEmpty: Boolean, pFunctions: Iterable<PFunction>) {
         pFunctions.apply(root, p, pPr, isEmpty)
         if (pPr.numPr != null && pPr.numPr.numId.`val`.toInt() != 0) {
             validateListElement(p)
@@ -100,7 +97,7 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
         }
     }
 
-    open fun parseR(p: Int, r: Int, paragraph: P, rFunctions: Iterable<RFunctionWrapper>) {
+    open fun parseR(p: Int, r: Int, paragraph: P, rFunctions: Iterable<RFunction>) {
         if (paragraph.content[r] is R) {
             rFunctions.apply(
                 root,
@@ -284,12 +281,12 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
 
     companion object {
 
-        val pCommonFunctions = PFunctionWrapper.iterable(
+        val pCommonFunctions = listOf(
             Rules.Default.Common.P::hasNotBackground,
             Rules.Default.Common.P::notBordered
         )
 
-        val rCommonFunctions = RFunctionWrapper.iterable(
+        val rCommonFunctions = listOf(
             Rules.Default.Common.R::isTimesNewRoman,
             Rules.Default.Common.R::fontSizeIs14,
             Rules.Default.Common.R::notItalic,
@@ -299,19 +296,19 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
             Rules.Default.Common.R::letterSpacingIs0
         )
 
-        val headerRFunctions = RFunctionWrapper.iterable(
+        val headerRFunctions = listOf(
             Rules.Default.Header.R::isBold,
             Rules.Default.Header.R::isUppercase
         )
 
-        val headerPFunctions = PFunctionWrapper.iterable(
+        val headerPFunctions = listOf(
             Rules.Default.Header.P::justifyIsCenter,
             Rules.Default.Header.P::lineSpacingIsOne,
             Rules.Default.Header.P::emptyLineAfterHeaderExists,
             Rules.Default.Header.P::hasNotDotInEnd
         )
 
-        val regularPFunctions = PFunctionWrapper.iterable(
+        val regularPFunctions = listOf(
             Rules.Default.RegularText.P::leftIndentIs0,
             Rules.Default.RegularText.P::rightIndentIs0,
             Rules.Default.RegularText.P::firstLineIndentIs1dot25,
@@ -319,7 +316,7 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
             Rules.Default.RegularText.P::lineSpacingIsOneAndHalf
         )
 
-        val regularRFunctions = RFunctionWrapper.iterable(
+        val regularRFunctions = listOf(
             Rules.Default.RegularText.R::isNotBold,
             Rules.Default.RegularText.R::isNotCaps,
             Rules.Default.RegularText.R::isUnderline
