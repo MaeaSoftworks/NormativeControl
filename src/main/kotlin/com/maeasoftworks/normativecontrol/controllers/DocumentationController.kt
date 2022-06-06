@@ -2,6 +2,7 @@ package com.maeasoftworks.normativecontrol.controllers
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.maeasoftworks.normativecontrol.dao.Mistake
+import com.maeasoftworks.normativecontrol.documentation.AuthDocs
 import com.maeasoftworks.normativecontrol.documentation.DocumentDocs
 import com.maeasoftworks.normativecontrol.documentation.QueueDocs
 import com.maeasoftworks.normativecontrol.documentation.annotations.BodyParam
@@ -9,10 +10,10 @@ import com.maeasoftworks.normativecontrol.documentation.annotations.Documentatio
 import com.maeasoftworks.normativecontrol.documentation.annotations.PossibleResponse
 import com.maeasoftworks.normativecontrol.documentation.annotations.PropertyDocumentation
 import com.maeasoftworks.normativecontrol.documentation.objects.*
-import com.maeasoftworks.normativecontrol.dto.response.FileResponse
-import com.maeasoftworks.normativecontrol.dto.response.MistakesResponse
-import com.maeasoftworks.normativecontrol.dto.response.QueueResponse
-import com.maeasoftworks.normativecontrol.dto.response.StatusResponse
+import com.maeasoftworks.normativecontrol.dto.request.LoginRequest
+import com.maeasoftworks.normativecontrol.dto.request.RegistrationRequest
+import com.maeasoftworks.normativecontrol.dto.request.TokenRefreshRequest
+import com.maeasoftworks.normativecontrol.dto.response.*
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression
 import org.springframework.stereotype.Controller
@@ -127,18 +128,18 @@ class DocumentationController {
                     param.description =
                         (fParam.annotations.first { it is Documentation } as Documentation).translationId
                     param.type = (fParam.type.classifier as KClass<*>).simpleName
-                    if (fSuperParam.annotations.any { it is BodyParam }) {
+                    if (fParam.annotations.any { it is BodyParam }) {
                         bodyParams += param
                         param.name =
-                            (fSuperParam.annotations.first { it is RequestParam } as RequestParam).value.let { if (it != "") it else param.name }
+                            (fParam.annotations.firstOrNull { it is RequestParam } as RequestParam?)?.value.let { if (it != null && it != "") it else param.name }
                     } else if (fSuperParam.annotations.any { it is PathVariable }) {
                         pathParams += param
                         param.name =
-                            (fSuperParam.annotations.first { it is PathVariable } as PathVariable).value.let { if (it != "") it else param.name }
+                            (fSuperParam.annotations.firstOrNull { it is PathVariable } as PathVariable?)?.value.let { if (it != null && it != "") it else param.name }
                     } else {
                         queryParams += param
                         param.name =
-                            (fSuperParam.annotations.first { it is RequestParam } as RequestParam).value.let { if (it != "") it else param.name }
+                            (fSuperParam.annotations.firstOrNull { it is RequestParam } as RequestParam?)?.value.let { if (it != null && it != "") it else param.name }
                     }
                 }
             }
@@ -189,13 +190,20 @@ class DocumentationController {
     }
 
     val methods =
-        createControllerDocs(DocumentDocs::class) + createControllerDocs(QueueDocs::class)
+        createControllerDocs(AuthDocs::class) + createControllerDocs(DocumentDocs::class) +
+                createControllerDocs(QueueDocs::class)
+
     val objects = arrayOf(
         createObjectDocs(FileResponse::class),
         createObjectDocs(Mistake::class),
         createObjectDocs(MistakesResponse::class),
         createObjectDocs(StatusResponse::class),
-        createObjectDocs(QueueResponse::class)
+        createObjectDocs(QueueResponse::class),
+        createObjectDocs(RegistrationRequest::class),
+        createObjectDocs(LoginRequest::class),
+        createObjectDocs(JwtResponse::class),
+        createObjectDocs(TokenRefreshRequest::class),
+        createObjectDocs(TokenRefreshResponse::class)
     )
 
     @GetMapping

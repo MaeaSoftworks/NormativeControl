@@ -30,11 +30,7 @@ class JwtUtils {
     }
 
     fun getEmailFromJwtToken(token: String): String {
-        val a =  Jwts.parser()
-            val b = a.setSigningKey(jwtSecret)
-                val c = b.parseClaimsJws(token)
-                    val d = c.body.subject
-        return d
+        return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).body.subject
     }
 
     fun validateJwtToken(authToken: String): Boolean {

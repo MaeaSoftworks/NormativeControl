@@ -35,12 +35,9 @@ class AuthController(
     private val jwtUtils: JwtUtils,
     private val refreshTokenService: RefreshTokenService
 ) {
-    @PostMapping("/register")
+    @PostMapping("register")
     @PreAuthorize("hasRole('DEV')")
     fun registerUser(@Valid @RequestBody registrationRequest: RegistrationRequest) {
-        if (userRepository.existsByUsername(registrationRequest.username)) {
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Error: Username is already taken!")
-        }
         if (userRepository.existsByEmail(registrationRequest.email)) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Error: Email is already in use!")
         }
@@ -60,7 +57,7 @@ class AuthController(
         )
     }
 
-    @PostMapping("/login")
+    @PostMapping("login")
     @ResponseBody
     fun authenticateUser(@Valid @RequestBody loginRequest: LoginRequest): JwtResponse {
         val authentication = authenticationManager.authenticate(
@@ -79,7 +76,7 @@ class AuthController(
         }
     }
 
-    @PostMapping("/refresh-token")
+    @PostMapping("refresh-token")
     @ResponseBody
     fun refreshToken(@RequestBody request: @Valid TokenRefreshRequest) = request.refreshToken.let {
         TokenRefreshResponse(

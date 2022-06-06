@@ -48,8 +48,8 @@ class SecurityConfig(
         http.cors().and().csrf().disable()
             .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-            .authorizeRequests().antMatchers("/control-panel/**").permitAll()
-            .antMatchers("/docs/**").authenticated()
+            .authorizeRequests().antMatchers("/control-panel/**").authenticated()
+            .antMatchers("/docs/**").permitAll()
             .anyRequest().permitAll()
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter::class.java)
     }
