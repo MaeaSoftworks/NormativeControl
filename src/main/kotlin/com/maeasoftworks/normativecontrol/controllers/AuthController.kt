@@ -14,6 +14,7 @@ import com.maeasoftworks.normativecontrol.services.RefreshTokenService
 import com.maeasoftworks.normativecontrol.utils.JwtUtils
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression
 import org.springframework.http.HttpStatus
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
@@ -35,7 +36,7 @@ class AuthController(
     private val refreshTokenService: RefreshTokenService
 ) {
     @PostMapping("register")
-    //@PreAuthorize("hasRole('DEV')")
+    @PreAuthorize("hasRole('DEV')")
     fun registerUser(@Valid @RequestBody registrationRequest: RegistrationRequest) {
         if (userRepository.existsByEmail(registrationRequest.email)) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Error: Email is already in use!")
