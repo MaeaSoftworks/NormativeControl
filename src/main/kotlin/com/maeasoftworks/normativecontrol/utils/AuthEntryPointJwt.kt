@@ -11,7 +11,8 @@ import javax.servlet.http.HttpServletResponse
 @Component
 class AuthEntryPointJwt : AuthenticationEntryPoint {
     override fun commence(
-        request: HttpServletRequest?, response: HttpServletResponse,
+        request: HttpServletRequest?,
+        response: HttpServletResponse,
         authException: AuthenticationException
     ) {
         logger.error("Unauthorized error: {}", authException.message)

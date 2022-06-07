@@ -10,6 +10,7 @@ import com.maeasoftworks.normativecontrol.dto.response.StatusResponse
 import com.maeasoftworks.normativecontrol.services.DocumentManager
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 
 sealed class DocumentDocs(d: DocumentManager) : DocumentController(d) {
 
@@ -61,5 +62,5 @@ sealed class DocumentDocs(d: DocumentManager) : DocumentController(d) {
         documentId: String,
         @Documentation("docs.method.common.args.key")
         accessKey: String
-    ): ByteArrayResource?
+    ): ResponseEntity<ByteArrayResource?>
 }

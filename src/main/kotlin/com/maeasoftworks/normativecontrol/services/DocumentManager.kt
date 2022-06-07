@@ -53,7 +53,8 @@ class DocumentManager(
                 BinaryFile(
                     order.document.id,
                     order.document.data.file,
-                    UUID.randomUUID().toString().filterNot { it == '-' })
+                    UUID.randomUUID().toString().filterNot { it == '-' }
+                )
             )
             errorRepository.saveAll(order.documentParser.mistakes.map { it.toDto(order.document.id) })
             credentialsRepository.save(DocumentCredentials(order.document.id, order.document.accessKey))
@@ -89,11 +90,11 @@ class DocumentManager(
     fun uploaded(accessKey: String, documentId: String): Boolean {
         return queue.getById(documentId)
             .let {
-                it != null && it.document.accessKey == accessKey
-                        && !it.document.data.file.contentEquals(ByteArray(0))
-            }
-                || credentialsRepository.findById(documentId)
-            .let { it.isPresent && it.get().accessKey == accessKey }
+                it != null && it.document.accessKey == accessKey &&
+                    !it.document.data.file.contentEquals(ByteArray(0))
+            } ||
+            credentialsRepository.findById(documentId)
+                .let { it.isPresent && it.get().accessKey == accessKey }
     }
 
     fun find(filter: String): List<BinaryFile>? {

@@ -74,7 +74,8 @@ class DocumentationController {
                 superFunctions[f].annotations.firstOrNull { it is PatchMapping },
                 superFunctions[f].annotations.firstOrNull { it is PutMapping },
                 superFunctions[f].annotations.firstOrNull { it is DeleteMapping },
-                superFunctions[f].annotations.firstOrNull { it is RequestMapping })
+                superFunctions[f].annotations.firstOrNull { it is RequestMapping }
+            )
             for (mapping in mappings) {
                 if (mapping != null) {
                     when (mapping) {
@@ -191,7 +192,7 @@ class DocumentationController {
 
     val methods =
         createControllerDocs(AuthDocs::class) + createControllerDocs(DocumentDocs::class) +
-                createControllerDocs(QueueDocs::class)
+            createControllerDocs(QueueDocs::class)
 
     val objects = arrayOf(
         createObjectDocs(FileResponse::class),

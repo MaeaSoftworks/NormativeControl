@@ -42,7 +42,8 @@ class HeaderTests : ParserTestFactory(HeaderTests::class) {
             Chapter(0, parserBase.mainDocumentPart.content.take(3).toMutableList()).also {
                 it.header = parserBase.mainDocumentPart.content[0] as P
                 it.type = ChapterType.BODY
-            }, parserBase
+            },
+            parserBase
         )
         parserBase.parsers[0].parse()
         errorAssert(
@@ -57,7 +58,8 @@ class HeaderTests : ParserTestFactory(HeaderTests::class) {
             Chapter(3, parserBase.mainDocumentPart.content.drop(3).toMutableList()).also {
                 it.header = parserBase.mainDocumentPart.content[3] as P
                 it.type = ChapterType.BODY
-            }, parserBase
+            },
+            parserBase
         )
         parserBase.parsers[0].parse()
         errorAssert(

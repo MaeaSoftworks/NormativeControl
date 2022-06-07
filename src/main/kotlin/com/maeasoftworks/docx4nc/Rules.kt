@@ -72,8 +72,8 @@ object Rules {
                 }
 
                 fun letterSpacingIs0(p: Int, r: Int, rPr: RPr, isEmpty: Boolean, m: MainDocumentPart): MistakeBody? {
-                    return if (rPr.spacing != null && rPr.spacing.`val` != null
-                        && rPr.spacing.`val`.intValueExact() != 0
+                    return if (rPr.spacing != null && rPr.spacing.`val` != null &&
+                        rPr.spacing.`val`.intValueExact() != 0
                     ) {
                         MistakeBody(if (isEmpty) TEXT_WHITESPACE_RUN_SPACING else TEXT_COMMON_RUN_SPACING, p, r)
                     } else null
@@ -94,8 +94,8 @@ object Rules {
                 }
 
                 fun lineSpacingIsOne(p: Int, pPr: PPr, isEmpty: Boolean, m: MainDocumentPart): MistakeBody? {
-                    return if (pPr.spacing != null && pPr.spacing.line != null
-                        && pPr.spacing.line.intValueExact() != 240
+                    return if (pPr.spacing != null && pPr.spacing.line != null &&
+                        pPr.spacing.line.intValueExact() != 240
                     ) {
                         MistakeBody(TEXT_HEADER_LINE_SPACING, p)
                     } else null
@@ -125,8 +125,7 @@ object Rules {
 
             object R {
                 fun isUppercase(p: Int, r: Int, rPr: RPr, isEmpty: Boolean, m: MainDocumentPart): MistakeBody? {
-                    val text =
-                        TextUtils.getText((m.content[p] as org.docx4j.wml.P).content[r] as org.docx4j.wml.R)
+                    val text = TextUtils.getText((m.content[p] as org.docx4j.wml.P).content[r] as org.docx4j.wml.R)
                     return if (!(text.uppercase() == text || (rPr.caps != null && rPr.caps.isVal))) {
                         MistakeBody(
                             if (isEmpty) TEXT_WHITESPACE_AFTER_HEADER_UPPERCASE else TEXT_HEADER_NOT_UPPERCASE,
@@ -161,9 +160,9 @@ object Rules {
                 }
 
                 fun firstLineIndentIs1dot25(p: Int, pPr: PPr, isEmpty: Boolean, m: MainDocumentPart): MistakeBody? {
-                    return if (pPr.numPr != null && pPr.ind != null
-                        && pPr.ind.firstLine != null
-                        && abs(floor(pPr.ind.firstLine.intValueExact() / 1440 * 2.54) - 1.25) <= 0.01
+                    return if (pPr.numPr != null && pPr.ind != null &&
+                        pPr.ind.firstLine != null &&
+                        abs(floor(pPr.ind.firstLine.intValueExact() / 1440 * 2.54) - 1.25) <= 0.01
                     ) {
                         MistakeBody(
                             if (isEmpty) TEXT_WHITESPACE_INDENT_FIRST_LINES else TEXT_COMMON_INDENT_FIRST_LINES,
@@ -173,16 +172,16 @@ object Rules {
                 }
 
                 fun leftIndentIs0(p: Int, pPr: PPr, isEmpty: Boolean, m: MainDocumentPart): MistakeBody? {
-                    return if (pPr.numPr != null && pPr.ind != null
-                        && pPr.ind.left != null && pPr.ind.left.intValueExact() != 0
+                    return if (pPr.numPr != null && pPr.ind != null &&
+                        pPr.ind.left != null && pPr.ind.left.intValueExact() != 0
                     ) {
                         MistakeBody(if (isEmpty) TEXT_WHITESPACE_INDENT_LEFT else TEXT_COMMON_INDENT_LEFT, p)
                     } else null
                 }
 
                 fun rightIndentIs0(p: Int, pPr: PPr, isEmpty: Boolean, m: MainDocumentPart): MistakeBody? {
-                    return if (pPr.numPr != null && pPr.ind != null
-                        && pPr.ind.right != null && pPr.ind.right.intValueExact() != 0
+                    return if (pPr.numPr != null && pPr.ind != null &&
+                        pPr.ind.right != null && pPr.ind.right.intValueExact() != 0
                     ) {
                         MistakeBody(if (isEmpty) TEXT_WHITESPACE_INDENT_RIGHT else TEXT_COMMON_INDENT_RIGHT, p)
                     } else null
@@ -246,14 +245,19 @@ object Rules {
                 fun isNotUppercase(p: Int, pPr: PPr, isEmpty: Boolean, m: MainDocumentPart): MistakeBody? {
                     val paragraph = m.content[p] as org.docx4j.wml.P
                     val text = TextUtils.getText(paragraph)
-                    return if (!isEmpty && (text.uppercase() == text || (paragraph.content.all { x ->
-                            if (x is R) {
-                                val rPr = m.propertyResolver.getEffectiveRPr(x.rPr, pPr)
-                                rPr.caps != null && rPr.caps.isVal
-                            } else {
-                                true
+                    return if (!isEmpty && (
+                        text.uppercase() == text || (
+                            paragraph.content.all { x ->
+                                if (x is R) {
+                                    val rPr = m.propertyResolver.getEffectiveRPr(x.rPr, pPr)
+                                    rPr.caps != null && rPr.caps.isVal
+                                } else {
+                                    true
+                                }
                             }
-                        }))) {
+                            )
+                        )
+                    ) {
                         MistakeBody(TEXT_HEADER_BODY_UPPERCASE, p)
                     } else null
                 }

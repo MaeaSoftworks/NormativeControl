@@ -3,9 +3,7 @@ package com.maeasoftworks.normativecontrol.dto
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.maeasoftworks.normativecontrol.dao.User
 import org.springframework.security.core.GrantedAuthority
-
 import org.springframework.security.core.authority.SimpleGrantedAuthority
-
 import org.springframework.security.core.userdetails.UserDetails
 
 class UserDetailsImpl(

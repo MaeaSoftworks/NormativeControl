@@ -8,20 +8,28 @@ import com.maeasoftworks.docx4nc.enums.MistakeType.*
 import com.maeasoftworks.docx4nc.model.*
 import com.maeasoftworks.normativecontrol.dto.Status
 import org.docx4j.TextUtils
+import org.docx4j.jaxb.Context
 import org.docx4j.model.PropertyResolver
 import org.docx4j.openpackaging.exceptions.Docx4JException
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage
 import org.docx4j.openpackaging.parts.WordprocessingML.CommentsPart
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
 import org.docx4j.openpackaging.parts.WordprocessingML.NumberingDefinitionsPart
+import org.docx4j.wml.Comments
 import org.docx4j.wml.P
+import org.docx4j.wml.R
 import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
+import java.math.BigInteger
+
 
 class DocumentParser(val documentData: DocumentData) {
     private lateinit var mlPackage: WordprocessingMLPackage
     lateinit var mainDocumentPart: MainDocumentPart
     lateinit var resolver: PropertyResolver
     var numbering: NumberingDefinitionsPart? = null
+    private val factory = Context.getWmlObjectFactory()
+
 
     var chapters: MutableList<Chapter> = ArrayList()
     var parsers: MutableList<ChapterParser> = ArrayList()
@@ -38,7 +46,7 @@ class DocumentParser(val documentData: DocumentData) {
 
     fun addMistake(mistake: MistakeBody?) {
         if (mistake != null) {
-            mistakes.add(MistakeData(mistakeId++, mistake.p, mistake.r, mistake.mistakeType))
+            addMistake(mistake.mistakeType, mistake.p, mistake.r, mistake.description)
         }
     }
 
@@ -49,6 +57,11 @@ class DocumentParser(val documentData: DocumentData) {
             mainDocumentPart.contents.body
             resolver = PropertyResolver(mlPackage)
             comments = mainDocumentPart.commentsPart
+            if (comments == null) {
+                comments = CommentsPart().also { it.jaxbElement = factory.createComments() }
+                mainDocumentPart.addTargetPart(comments)
+            }
+            mistakeId = comments!!.jaxbElement.comment.size.toLong()
             numbering = mainDocumentPart.numberingDefinitionsPart
         } catch (e: Docx4JException) {
             documentData.status = Status.ERROR
@@ -65,7 +78,52 @@ class DocumentParser(val documentData: DocumentData) {
             parser.parse()
         }
         checkPicturesOrder(AnonymousParser(this), 0, true, pictures)
+        addComments()
         return mistakes
+    }
+
+    private fun addComments() {
+        val errors = mistakes.asIterable().sortedWith(compareBy({ it.p }, { it.r })).reversed().toList()
+        for (mistake in errors) {
+            val comment = createComment(mistake.mistakeId, "[p${mistake.p} r${mistake.r}] ${mistake.mistakeType.name}: ${mistake.description}")
+            comments!!.jaxbElement.comment.add(comment)
+
+            val commentRangeStart = factory.createCommentRangeStart().also { it.id = BigInteger.valueOf(mistake.mistakeId) }
+            val commentRangeEnd = factory.createCommentRangeEnd().also { it.id = BigInteger.valueOf(mistake.mistakeId) }
+
+            if (mistake.p == null) {
+                val paragraph = mainDocumentPart.content[0] as P
+                paragraph.content.add(commentRangeStart)
+                paragraph.content.add(commentRangeEnd)
+                paragraph.content.add(createRunCommentReference(mistake.mistakeId))
+            } else if (mistake.r == null) {
+                val paragraph: P = try {
+                    mainDocumentPart.content[mistake.p] as P
+                } catch (e: ClassCastException) {
+                    factory.createP().apply { mainDocumentPart.content.add(mistake.p + 1, this) }
+                }
+                paragraph.content.add(0, commentRangeStart)
+                paragraph.content.add(commentRangeEnd)
+                paragraph.content.add(createRunCommentReference(mistake.mistakeId))
+            } else {
+                val paragraph: P = try {
+                    mainDocumentPart.content[mistake.p] as P
+                } catch (e: ClassCastException) {
+                    factory.createP().apply { mainDocumentPart.content.add(mistake.p + 1, this) }
+                }
+                paragraph.content.add(if (mistake.r == 0) 0 else mistake.r - 1, commentRangeStart)
+                if (mistake.r == paragraph.content.size - 1) {
+                    paragraph.content.add(commentRangeEnd)
+                    paragraph.content.add(createRunCommentReference(mistake.mistakeId))
+                } else {
+                    paragraph.content.add(mistake.r + 1, commentRangeEnd)
+                    paragraph.content.add(mistake.r + 2, createRunCommentReference(mistake.mistakeId))
+                }
+            }
+        }
+        val stream = ByteArrayOutputStream()
+        mlPackage.save(stream)
+        documentData.file = stream.toByteArray()
     }
 
     fun setupChapters() {
@@ -271,6 +329,28 @@ class DocumentParser(val documentData: DocumentData) {
             }
         } else {
             context.root.pictures.addAll(container)
+        }
+    }
+
+    private fun createComment(commentId: Long, message: String): Comments.Comment {
+        return factory.createCommentsComment().also { comment ->
+            comment.id = BigInteger.valueOf(commentId)
+            comment.author = "normative control"
+            comment.content.add(
+                factory.createP().also { p ->
+                    p.content.add(
+                        factory.createR().also { r ->
+                            r.content.add(factory.createText().also { text -> text.value = message })
+                        }
+                    )
+                }
+            )
+        }
+    }
+
+    private fun createRunCommentReference(commentId: Long): R {
+        return factory.createR().also { run ->
+            run.content.add(factory.createRCommentReference().also { it.id = BigInteger.valueOf(commentId) })
         }
     }
 }

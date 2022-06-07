@@ -142,11 +142,11 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
 
     private fun validateSubchapters(expectedNum: String, subchapter: Subchapter) {
         for (sub in 0 until subchapter.subchapters.size) {
-            if ("${expectedNum}.${subchapter.subchapters[sub].num}" != "${expectedNum}.${sub + 1}") {
+            if ("$expectedNum.${subchapter.subchapters[sub].num}" != "$expectedNum.${sub + 1}") {
                 root.addMistake(
                     TEXT_BODY_SUBHEADER_NUMBER_ORDER_MISMATCH,
                     this.chapter.startPos,
-                    description = "${expectedNum}.${subchapter.subchapters[sub].num}/${expectedNum}.${sub + 1}"
+                    description = "$expectedNum.${subchapter.subchapters[sub].num}/$expectedNum.${sub + 1}"
                 )
                 return
             }
@@ -154,7 +154,7 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
                 root.addMistake(TEXT_BODY_SUBHEADER_LEVEL_WAS_MORE_THAN_3, this.chapter.startPos)
                 return
             }
-            validateSubchapters("${expectedNum}.${sub + 1}", subchapter.subchapters[sub])
+            validateSubchapters("$expectedNum.${sub + 1}", subchapter.subchapters[sub])
         }
     }
 

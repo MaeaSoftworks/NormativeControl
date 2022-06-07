@@ -3,7 +3,6 @@ package com.maeasoftworks.normativecontrol.dao
 import com.maeasoftworks.normativecontrol.dto.RoleType
 import javax.persistence.*
 
-
 @Entity
 @Table(name = "ROLES")
 class Role(

@@ -18,7 +18,7 @@ import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.web.bind.annotation.RequestBody
 
-sealed class AuthDocs(a: AuthenticationManager, u: UserRepository, r: RoleRepository, e: PasswordEncoder, j: JwtUtils, r1: RefreshTokenService): AuthController(a, u, r, e, j, r1) {
+sealed class AuthDocs(a: AuthenticationManager, u: UserRepository, r: RoleRepository, e: PasswordEncoder, j: JwtUtils, r1: RefreshTokenService) : AuthController(a, u, r, e, j, r1) {
     @Documentation("docs.method.register.info")
     @PossibleResponse(HttpStatus.OK, description = "docs.method.register.response0")
     @PossibleResponse(HttpStatus.BAD_REQUEST, description = "docs.method.register.response1")
@@ -49,5 +49,5 @@ sealed class AuthDocs(a: AuthenticationManager, u: UserRepository, r: RoleReposi
         @RequestBody
         @BodyParam
         request: TokenRefreshRequest
-    ) : TokenRefreshResponse
+    ): TokenRefreshResponse
 }

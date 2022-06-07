@@ -11,7 +11,6 @@ import org.springframework.web.server.ResponseStatusException
 import java.time.Instant
 import java.util.*
 
-
 @Service
 class RefreshTokenService(
     private val refreshTokenRepository: RefreshTokenRepository,

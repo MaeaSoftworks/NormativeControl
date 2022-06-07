@@ -42,16 +42,19 @@ class AuthController(
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Error: Email is already in use!")
         }
         userRepository.save(
-            User(registrationRequest.username,
+            User(
+                registrationRequest.username,
                 registrationRequest.email,
                 encoder.encode(registrationRequest.password)
             ).also {
-                it.roles = registrationRequest.roles.map{ role ->
-                    roleRepository.findByName(name = try {
-                        RoleType.valueOf("ROLE_${role.uppercase()}")
-                    } catch (e: IllegalArgumentException) {
-                        throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Role is not found.")
-                    }).get()
+                it.roles = registrationRequest.roles.map { role ->
+                    roleRepository.findByName(
+                        name = try {
+                            RoleType.valueOf("ROLE_${role.uppercase()}")
+                        } catch (e: IllegalArgumentException) {
+                            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Role is not found.")
+                        }
+                    ).get()
                 }.toSet()
             }
         )
