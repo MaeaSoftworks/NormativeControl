@@ -4,3 +4,12 @@ server:
 controllers:
   docs: true
   api: true
+
+spring:
+  datasource:
+    password: ${database_password}
+    username: ${database_user}
+    url: ${database_url}
+
+app:
+  jwtSecret: ${jwt_secret}

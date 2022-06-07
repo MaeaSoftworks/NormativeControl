@@ -26,7 +26,8 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
-    implementation("org.hsqldb:hsqldb:2.6.1")
+    implementation("org.postgresql:postgresql")
+
     implementation("org.slf4j:slf4j-api:1.7.36")
     implementation("org.docx4j:docx4j-JAXB-ReferenceImpl:8.3.4")
     implementation("io.jsonwebtoken:jjwt:0.9.1")

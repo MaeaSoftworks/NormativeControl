@@ -2,8 +2,8 @@ package com.maeasoftworks.docx4nc.rules
 
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
-import com.maeasoftworks.docx4nc.PFunctionWrapper
-import com.maeasoftworks.docx4nc.RFunctionWrapper
+import com.maeasoftworks.docx4nc.PFunction
+import com.maeasoftworks.docx4nc.RFunction
 import com.maeasoftworks.docx4nc.model.DocumentData
 import com.maeasoftworks.docx4nc.model.MistakeBody
 import com.maeasoftworks.docx4nc.parsers.DocumentParser
@@ -18,10 +18,10 @@ import java.io.IOException
 open class RulesTestBase {
     lateinit var parser: DocumentParser
 
-    fun base(p: Int, wrapper: PFunctionWrapper, condition: (MistakeBody?) -> Boolean) {
+    fun base(p: Int, wrapper: PFunction, condition: (MistakeBody?) -> Boolean) {
         val paragraph = parser.mainDocumentPart.content[p] as P
         assert(
-            wrapper.function(
+            wrapper(
                 p,
                 parser.resolver.getEffectivePPr(paragraph.pPr),
                 TextUtils.getText(paragraph).isEmpty(),
@@ -30,10 +30,10 @@ open class RulesTestBase {
         )
     }
 
-    fun base(p: Int, wrapper: RFunctionWrapper, condition: (MistakeBody?) -> Boolean) {
+    fun base(p: Int, wrapper: RFunction, condition: (MistakeBody?) -> Boolean) {
         val paragraph = parser.mainDocumentPart.content[p] as P
         assert(
-            wrapper.function(
+            wrapper(
                 p,
                 0,
                 parser.resolver.getEffectiveRPr((paragraph.content[0] as R).rPr, paragraph.pPr),
