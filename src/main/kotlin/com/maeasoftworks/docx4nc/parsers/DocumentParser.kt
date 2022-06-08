@@ -24,7 +24,6 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.math.BigInteger
 
-
 class DocumentParser(val documentData: DocumentData, private var password: String) {
     private lateinit var mlPackage: WordprocessingMLPackage
     lateinit var mainDocumentPart: MainDocumentPart

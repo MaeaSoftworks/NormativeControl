@@ -9,7 +9,6 @@ import com.maeasoftworks.normativecontrol.dto.request.RegistrationRequest
 import com.maeasoftworks.normativecontrol.dto.request.TokenRefreshRequest
 import com.maeasoftworks.normativecontrol.dto.response.JwtResponse
 import com.maeasoftworks.normativecontrol.dto.response.TokenRefreshResponse
-import com.maeasoftworks.normativecontrol.repository.RoleRepository
 import com.maeasoftworks.normativecontrol.repository.UserRepository
 import com.maeasoftworks.normativecontrol.services.RefreshTokenService
 import com.maeasoftworks.normativecontrol.utils.JwtUtils
@@ -18,7 +17,7 @@ import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.web.bind.annotation.RequestBody
 
-sealed class AuthDocs(a: AuthenticationManager, u: UserRepository, r: RoleRepository, e: PasswordEncoder, j: JwtUtils, r1: RefreshTokenService) : AuthController(a, u, r, e, j, r1) {
+sealed class AuthDocs(a: AuthenticationManager, u: UserRepository, e: PasswordEncoder, j: JwtUtils, r: RefreshTokenService) : AuthController(a, u, e, j, r) {
     @Documentation("docs.method.register.info")
     @PossibleResponse(HttpStatus.OK, description = "docs.method.register.response0")
     @PossibleResponse(HttpStatus.BAD_REQUEST, description = "docs.method.register.response1")

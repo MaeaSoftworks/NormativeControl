@@ -3,19 +3,20 @@ package com.maeasoftworks.normativecontrol.dao
 import java.time.Instant
 import javax.persistence.*
 
-@Entity(name = "REFRESH_TOKEN")
+@Entity
+@Table(name = "refresh_tokens")
 class RefreshToken {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     val id: Long = 0
 
     @OneToOne
-    @JoinColumn(name = "USER_ID", referencedColumnName = "ID")
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
     lateinit var user: User
 
-    @Column(nullable = false, unique = true)
-    lateinit var token: String
+    @Column(name = "refresh_token", unique = true)
+    lateinit var refreshToken: String
 
-    @Column(nullable = false)
+    @Column(name = "expiry_date")
     lateinit var expiryDate: Instant
 }

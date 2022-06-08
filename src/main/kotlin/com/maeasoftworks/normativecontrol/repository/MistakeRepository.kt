@@ -8,4 +8,6 @@ import org.springframework.data.repository.CrudRepository
 @ConditionalOnBean(DocumentManager::class)
 interface MistakeRepository : CrudRepository<Mistake, String> {
     fun findAllByDocumentId(documentId: String): List<Mistake>
+
+    fun deleteAllByDocumentId(documentId: String)
 }

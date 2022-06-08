@@ -50,7 +50,7 @@ class UserDetailsImpl(
             user.username,
             user.email,
             user.password,
-            user.roles.map { SimpleGrantedAuthority(it.name!!.name) }
+            user.roles.map { SimpleGrantedAuthority(it.name) }
         )
     }
 }

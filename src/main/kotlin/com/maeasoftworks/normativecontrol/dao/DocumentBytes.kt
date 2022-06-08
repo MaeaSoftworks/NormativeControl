@@ -1,16 +1,14 @@
 package com.maeasoftworks.normativecontrol.dao
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import javax.persistence.Entity
-import javax.persistence.Id
-import javax.persistence.Lob
-import javax.persistence.Table
+import javax.persistence.*
 
 @Table
 @Entity
-class BinaryFile(
+class DocumentBytes(
     @Id
     @JsonIgnore
+    @Column(name = "document_id")
     val documentId: String,
     @Lob
     val bytes: ByteArray

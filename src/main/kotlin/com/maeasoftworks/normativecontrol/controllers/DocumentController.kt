@@ -27,13 +27,13 @@ class DocumentController(documentManager: DocumentManager) : DocumentCredentials
 
     @GetMapping("{document-id}/mistakes")
     fun getMistakes(
-        @PathVariable(value = "document-id") documentId: String,
+        @PathVariable("document-id") documentId: String,
         @RequestParam("access-key") accessKey: String
     ) = validate(documentId, accessKey) { MistakesResponse(documentId, documentManager.getMistakes(documentId)) }
 
     @GetMapping("{document-id}/raw-file")
     fun getRawFile(
-        @PathVariable(value = "document-id") documentId: String,
+        @PathVariable("document-id") documentId: String,
         @RequestParam("access-key") accessKey: String
     ) = validate(documentId, accessKey) {
         val headers = HttpHeaders()
@@ -48,7 +48,7 @@ class DocumentController(documentManager: DocumentManager) : DocumentCredentials
 
     @GetMapping("{document-id}/file")
     fun getFile(
-        @PathVariable(value = "document-id") documentId: String,
+        @PathVariable("document-id") documentId: String,
         @RequestParam("access-key") accessKey: String
     ) = validate(documentId, accessKey) { FileResponse(documentId, documentManager.getFile(documentId)) }
 }

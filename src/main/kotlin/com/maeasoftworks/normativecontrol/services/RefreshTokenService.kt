@@ -20,14 +20,14 @@ class RefreshTokenService(
     private var refreshTokenDurationMs: Long = 0
 
     fun findByToken(token: String): Optional<RefreshToken> {
-        return refreshTokenRepository.findByToken(token)
+        return refreshTokenRepository.findByRefreshToken(token)
     }
 
     fun createRefreshToken(userId: Long): RefreshToken {
         var refreshToken = RefreshToken()
         refreshToken.user = userRepository.findById(userId).get()
         refreshToken.expiryDate = Instant.now().plusMillis(refreshTokenDurationMs)
-        refreshToken.token = UUID.randomUUID().toString()
+        refreshToken.refreshToken = UUID.randomUUID().toString()
         refreshToken = refreshTokenRepository.save(refreshToken)
         return refreshToken
     }

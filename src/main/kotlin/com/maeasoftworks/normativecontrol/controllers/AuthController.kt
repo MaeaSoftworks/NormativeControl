@@ -8,7 +8,6 @@ import com.maeasoftworks.normativecontrol.dto.request.RegistrationRequest
 import com.maeasoftworks.normativecontrol.dto.request.TokenRefreshRequest
 import com.maeasoftworks.normativecontrol.dto.response.JwtResponse
 import com.maeasoftworks.normativecontrol.dto.response.TokenRefreshResponse
-import com.maeasoftworks.normativecontrol.repository.RoleRepository
 import com.maeasoftworks.normativecontrol.repository.UserRepository
 import com.maeasoftworks.normativecontrol.services.RefreshTokenService
 import com.maeasoftworks.normativecontrol.utils.JwtUtils
@@ -30,7 +29,6 @@ import javax.validation.Valid
 class AuthController(
     private val authenticationManager: AuthenticationManager,
     private val userRepository: UserRepository,
-    private val roleRepository: RoleRepository,
     private val encoder: PasswordEncoder,
     private val jwtUtils: JwtUtils,
     private val refreshTokenService: RefreshTokenService
@@ -48,13 +46,11 @@ class AuthController(
                 encoder.encode(registrationRequest.password)
             ).also {
                 it.roles = registrationRequest.roles.map { role ->
-                    roleRepository.findByName(
-                        name = try {
-                            RoleType.valueOf("ROLE_${role.uppercase()}")
-                        } catch (e: IllegalArgumentException) {
-                            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Role is not found.")
-                        }
-                    ).get()
+                    try {
+                        RoleType.valueOf("ROLE_${role.uppercase()}")
+                    } catch (e: IllegalArgumentException) {
+                        throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Role is not found.")
+                    }
                 }.toSet()
             }
         )
@@ -70,7 +66,7 @@ class AuthController(
         return (authentication.principal as UserDetailsImpl).let {
             JwtResponse(
                 jwtUtils.generateJwtToken(authentication),
-                refreshTokenService.createRefreshToken(it.id).token,
+                refreshTokenService.createRefreshToken(it.id).refreshToken,
                 it.id,
                 it.username,
                 it.email,

@@ -3,11 +3,12 @@ package com.maeasoftworks.normativecontrol.services
 import com.maeasoftworks.docx4nc.model.DocumentData
 import com.maeasoftworks.docx4nc.model.FailureType
 import com.maeasoftworks.normativecontrol.controllers.DocumentController
-import com.maeasoftworks.normativecontrol.dao.BinaryFile
+import com.maeasoftworks.normativecontrol.dao.DocumentBytes
 import com.maeasoftworks.normativecontrol.dao.DocumentCredentials
 import com.maeasoftworks.normativecontrol.dto.Document
 import com.maeasoftworks.normativecontrol.dto.OrderedParser
 import com.maeasoftworks.normativecontrol.dto.Status
+import com.maeasoftworks.normativecontrol.dto.response.DocumentControlPanelResponse
 import com.maeasoftworks.normativecontrol.repository.BinaryFileRepository
 import com.maeasoftworks.normativecontrol.repository.CredentialsRepository
 import com.maeasoftworks.normativecontrol.repository.MistakeRepository
@@ -23,7 +24,7 @@ import java.util.*
 @ConditionalOnBean(DocumentController::class)
 class DocumentManager(
     private val queue: DocumentQueue,
-    private val errorRepository: MistakeRepository,
+    private val mistakeRepository: MistakeRepository,
     private val fileRepository: BinaryFileRepository,
     private val credentialsRepository: CredentialsRepository,
     private val factory: DocumentParserFactory
@@ -45,17 +46,18 @@ class DocumentManager(
         }
     }
 
+    @Transactional
     @EventListener
     @Async
     fun saveToDatabase(order: OrderedParser) {
         if (order.document.data.failureType == FailureType.NONE) {
             fileRepository.save(
-                BinaryFile(
+                DocumentBytes(
                     order.document.id,
                     order.document.data.file
                 )
             )
-            errorRepository.saveAll(order.documentParser.mistakes.map { it.toDto(order.document.id) })
+            mistakeRepository.saveAll(order.documentParser.mistakes.map { it.toDto(order.document.id) })
             credentialsRepository.save(DocumentCredentials(order.document.id, order.document.accessKey, order.document.password))
             queue.remove(order.document.id)
         }
@@ -74,7 +76,7 @@ class DocumentManager(
     }
 
     @Transactional
-    fun getMistakes(id: String) = errorRepository.findAllByDocumentId(id)
+    fun getMistakes(id: String) = mistakeRepository.findAllByDocumentId(id)
 
     @Transactional
     fun getFile(id: String) = fileRepository.findByDocumentId(id)?.bytes?.toList()?.toByteArray()
@@ -87,20 +89,25 @@ class DocumentManager(
     }
 
     fun uploaded(accessKey: String, documentId: String): Boolean {
-        return queue.getById(documentId)
-            .let {
-                it != null && it.document.accessKey == accessKey &&
-                    !it.document.data.file.contentEquals(ByteArray(0))
-            } ||
-            credentialsRepository.findById(documentId)
-                .let { it.isPresent && it.get().accessKey == accessKey }
+        return queue.getById(documentId).let {
+            it != null && it.document.accessKey == accessKey &&
+                !it.document.data.file.contentEquals(ByteArray(0))
+        } || credentialsRepository.findById(documentId).let { it.isPresent && it.get().accessKey == accessKey }
     }
 
-    fun find(filter: String): List<BinaryFile>? {
-        return fileRepository.findByDocumentId(filter).let { if (it != null) listOf(it) else null }
+    @Transactional
+    fun find(id: String): DocumentControlPanelResponse? {
+        return if (credentialsRepository.existsById(id)) {
+            val mistakes = mistakeRepository.findAllByDocumentId(id)
+            val credentials = credentialsRepository.findById(id).get()
+            DocumentControlPanelResponse(id, credentials.accessKey, credentials.password, mistakes)
+        } else null
     }
 
-    fun findAll(): List<BinaryFile> {
-        return fileRepository.findAll()
-    }
+    @Transactional
+    fun deleteById(id: String) = if (credentialsRepository.existsById(id)) {
+        fileRepository.deleteById(id)
+        credentialsRepository.deleteById(id)
+        mistakeRepository.deleteAllByDocumentId(id)
+    } else null
 }

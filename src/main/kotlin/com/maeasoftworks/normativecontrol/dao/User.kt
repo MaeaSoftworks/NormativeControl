@@ -1,15 +1,13 @@
 package com.maeasoftworks.normativecontrol.dao
 
+import com.maeasoftworks.normativecontrol.dto.RoleType
 import javax.persistence.*
 import javax.validation.constraints.Email
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.Size
 
 @Entity
-@Table(
-    name = "USERS",
-    uniqueConstraints = [UniqueConstraint(columnNames = ["USERNAME"]), UniqueConstraint(columnNames = ["EMAIL"])]
-)
+@Table(name = "users", uniqueConstraints = [UniqueConstraint(columnNames = ["email"])])
 class User(
     @NotBlank
     @Size(max = 20)
@@ -26,11 +24,7 @@ class User(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = 0
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-        name = "USER_ROLES",
-        joinColumns = [JoinColumn(name = "USER_ID")],
-        inverseJoinColumns = [JoinColumn(name = "ROLE_ID")]
-    )
-    var roles: Set<Role> = HashSet()
+    @ElementCollection(targetClass = RoleType::class, fetch = FetchType.EAGER)
+    @Enumerated(EnumType.STRING)
+    lateinit var roles: Set<RoleType>
 }

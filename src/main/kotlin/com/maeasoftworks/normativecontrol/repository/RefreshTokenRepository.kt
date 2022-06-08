@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Modifying
 import java.util.*
 
 interface RefreshTokenRepository : JpaRepository<RefreshToken, Long> {
-    fun findByToken(token: String): Optional<RefreshToken>
+    fun findByRefreshToken(token: String): Optional<RefreshToken>
 
     @Modifying
     fun deleteByUser(user: User): Int
