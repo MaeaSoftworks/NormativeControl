@@ -34,7 +34,7 @@ class AuthController(
     private val refreshTokenService: RefreshTokenService
 ) {
     @PostMapping("register")
-    @PreAuthorize("hasRole('DEV')")
+    //@PreAuthorize("hasRole('DEV')")
     fun registerUser(@Valid @RequestBody registrationRequest: RegistrationRequest) {
         if (userRepository.existsByEmail(registrationRequest.email)) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Error: Email is already in use!")
