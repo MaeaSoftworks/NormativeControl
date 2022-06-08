@@ -13,7 +13,7 @@ import java.io.IOException
 @RestController
 @RequestMapping("queue")
 @ConditionalOnExpression("\${controllers.api}")
-class QueueController(documentManager: DocumentManager) : ValidatedController(documentManager) {
+class QueueController(documentManager: DocumentManager) : DocumentCredentialsValidatedController(documentManager) {
 
     @PostMapping("reserve")
     @ResponseBody

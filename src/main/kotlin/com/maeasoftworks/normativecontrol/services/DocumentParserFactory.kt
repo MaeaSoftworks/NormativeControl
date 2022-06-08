@@ -9,6 +9,6 @@ import org.springframework.stereotype.Component
 @ConditionalOnBean(DocumentManager::class)
 class DocumentParserFactory {
     fun create(document: Document): DocumentParser {
-        return DocumentParser(document.data)
+        return DocumentParser(document.data, document.password)
     }
 }

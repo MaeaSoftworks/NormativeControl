@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("document")
 @ConditionalOnExpression("\${controllers.api}")
-class DocumentController(documentManager: DocumentManager) : ValidatedController(documentManager) {
+class DocumentController(documentManager: DocumentManager) : DocumentCredentialsValidatedController(documentManager) {
 
     @GetMapping("{document-id}/status")
     @ResponseBody

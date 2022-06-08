@@ -13,6 +13,5 @@ class BinaryFile(
     @JsonIgnore
     val documentId: String,
     @Lob
-    val bytes: ByteArray,
-    val password: String
+    val bytes: ByteArray
 )

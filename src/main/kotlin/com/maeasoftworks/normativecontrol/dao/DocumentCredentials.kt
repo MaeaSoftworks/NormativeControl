@@ -11,5 +11,6 @@ class DocumentCredentials(
     @Id
     @JsonIgnore
     val documentId: String,
-    val accessKey: String?
+    val accessKey: String,
+    val password: String
 )

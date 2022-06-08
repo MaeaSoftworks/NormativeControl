@@ -30,7 +30,7 @@ class DocumentManager(
 ) {
     fun addToQueue(accessKey: String): String {
         val id = UUID.randomUUID().toString().filterNot { it == '-' }
-        val document = Document(id, accessKey, DocumentData())
+        val document = Document(id, accessKey, DocumentData(), UUID.randomUUID().toString().filterNot { it == '-' })
         queue.put(factory.create(document), document)
         return id
     }
@@ -52,12 +52,11 @@ class DocumentManager(
             fileRepository.save(
                 BinaryFile(
                     order.document.id,
-                    order.document.data.file,
-                    UUID.randomUUID().toString().filterNot { it == '-' }
+                    order.document.data.file
                 )
             )
             errorRepository.saveAll(order.documentParser.mistakes.map { it.toDto(order.document.id) })
-            credentialsRepository.save(DocumentCredentials(order.document.id, order.document.accessKey))
+            credentialsRepository.save(DocumentCredentials(order.document.id, order.document.accessKey, order.document.password))
             queue.remove(order.document.id)
         }
     }
@@ -83,8 +82,8 @@ class DocumentManager(
     @Transactional
     fun getAccessKey(documentId: String): String? {
         return queue.getById(documentId)?.document?.accessKey ?: credentialsRepository.findById(documentId).orElse(
-            DocumentCredentials("", null)
-        ).accessKey
+            DocumentCredentials("", "", "")
+        ).accessKey.let { if (it == "") null else it }
     }
 
     fun uploaded(accessKey: String, documentId: String): Boolean {

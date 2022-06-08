@@ -155,9 +155,12 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
             }
             is Br,
             is RunIns,
-            is RunDel,
-            is CommentRangeStart,
-            is CommentRangeEnd -> unexpectedP(p, something)
+            is RunDel -> unexpectedP(p, something)
+
+            /*
+            * CommentRangeStart
+            * CommentRangeEnd
+            * */
         }
     }
 
@@ -179,7 +182,6 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
                 is Pict,
                 is R.Tab,
                 is R.Separator,
-                is R.LastRenderedPageBreak,
                 is CTObject,
                 is CTFtnEdnRef,
                 is R.MonthShort,
@@ -194,6 +196,9 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
                 is R.CommentReference,
                 is R.FootnoteRef,
                 is R.DayLong -> root.addMistake(RUN_UNEXPECTED_CONTENT, p, r, something.declaredType.simpleName)
+                /*
+                * R.LastRenderedPageBreak
+                * */
             }
             is Br -> root.addMistake(TODO_ERROR, p, r)
             is DelText -> root.addMistake(TODO_ERROR, p, r)

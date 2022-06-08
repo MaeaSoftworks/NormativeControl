@@ -11,6 +11,7 @@ import org.docx4j.TextUtils
 import org.docx4j.jaxb.Context
 import org.docx4j.model.PropertyResolver
 import org.docx4j.openpackaging.exceptions.Docx4JException
+import org.docx4j.openpackaging.packages.ProtectDocument
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage
 import org.docx4j.openpackaging.parts.WordprocessingML.CommentsPart
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
@@ -18,25 +19,25 @@ import org.docx4j.openpackaging.parts.WordprocessingML.NumberingDefinitionsPart
 import org.docx4j.wml.Comments
 import org.docx4j.wml.P
 import org.docx4j.wml.R
+import org.docx4j.wml.STDocProtect
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.math.BigInteger
 
 
-class DocumentParser(val documentData: DocumentData) {
+class DocumentParser(val documentData: DocumentData, private var password: String) {
     private lateinit var mlPackage: WordprocessingMLPackage
     lateinit var mainDocumentPart: MainDocumentPart
     lateinit var resolver: PropertyResolver
     var numbering: NumberingDefinitionsPart? = null
     private val factory = Context.getWmlObjectFactory()
 
-
     var chapters: MutableList<Chapter> = ArrayList()
     var parsers: MutableList<ChapterParser> = ArrayList()
     var mistakes: MutableList<MistakeData> = ArrayList()
     var tables: MutableList<Table> = ArrayList()
     val pictures: MutableList<Picture> = ArrayList()
-    var comments: CommentsPart? = null
+    private var comments: CommentsPart? = null
 
     private var mistakeId: Long = 0
 
@@ -79,7 +80,20 @@ class DocumentParser(val documentData: DocumentData) {
         }
         checkPicturesOrder(AnonymousParser(this), 0, true, pictures)
         addComments()
+        lock()
+        save()
         return mistakes
+    }
+
+    private fun save() {
+        val stream = ByteArrayOutputStream()
+        mlPackage.save(stream)
+        documentData.file = stream.toByteArray()
+    }
+
+    private fun lock() {
+        val protection = ProtectDocument(mlPackage)
+        protection.restrictEditing(STDocProtect.READ_ONLY, password)
     }
 
     private fun addComments() {
@@ -87,10 +101,8 @@ class DocumentParser(val documentData: DocumentData) {
         for (mistake in errors) {
             val comment = createComment(mistake.mistakeId, "[p${mistake.p} r${mistake.r}] ${mistake.mistakeType.name}: ${mistake.description}")
             comments!!.jaxbElement.comment.add(comment)
-
             val commentRangeStart = factory.createCommentRangeStart().also { it.id = BigInteger.valueOf(mistake.mistakeId) }
             val commentRangeEnd = factory.createCommentRangeEnd().also { it.id = BigInteger.valueOf(mistake.mistakeId) }
-
             if (mistake.p == null) {
                 val paragraph = mainDocumentPart.content[0] as P
                 paragraph.content.add(commentRangeStart)
@@ -121,9 +133,6 @@ class DocumentParser(val documentData: DocumentData) {
                 }
             }
         }
-        val stream = ByteArrayOutputStream()
-        mlPackage.save(stream)
-        documentData.file = stream.toByteArray()
     }
 
     fun setupChapters() {
