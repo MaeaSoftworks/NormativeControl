@@ -41,10 +41,10 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
                     root.mainDocumentPart.content[pos] as P,
                     currentChapter,
                     Regex("^(?:\\d\\.?){1,3}")
-                        .find(TextUtils.getText(root.mainDocumentPart.content[pos]))!!.value
-                        .removeSuffix(".")
-                        .split('.')[level - 1]
-                        .toInt(),
+                        .find(TextUtils.getText(root.mainDocumentPart.content[pos]))?.value
+                        ?.removeSuffix(".")
+                        ?.split('.')?.get(level - 1)
+                        ?.toInt().also { if (it == null) root.addMistake(TEXT_BODY_SUBHEADER_WAS_EMPTY, pos) },
                     level
                 )
                 newChapter.content.add(root.mainDocumentPart.content[pos])

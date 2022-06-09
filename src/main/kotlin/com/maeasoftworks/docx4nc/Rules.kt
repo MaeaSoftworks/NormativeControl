@@ -18,7 +18,7 @@ object Rules {
         object Common {
             object P {
                 fun notBordered(p: Int, pPr: PPr, isEmpty: Boolean, m: MainDocumentPart): MistakeBody? {
-                    return if (pPr.pBdr != null) {
+                    return if (pPr.pBdr != null && setOf(pPr.pBdr.left, pPr.pBdr.right, pPr.pBdr.top, pPr.pBdr.bottom).any { it.`val`.name != "NIL" }) {
                         MistakeBody(if (isEmpty) TEXT_WHITESPACE_BORDER else TEXT_COMMON_BORDER, p)
                     } else null
                 }
@@ -33,7 +33,7 @@ object Rules {
             object R {
                 fun isTimesNewRoman(p: Int, r: Int, rPr: RPr, isEmpty: Boolean, m: MainDocumentPart): MistakeBody? {
                     return if (rPr.rFonts.ascii != "Times New Roman") {
-                        MistakeBody(if (isEmpty) TEXT_WHITESPACE_FONT else TEXT_COMMON_FONT, p, r)
+                        MistakeBody(if (isEmpty) TEXT_WHITESPACE_FONT else TEXT_COMMON_FONT, p, r, "${rPr.rFonts.ascii}/Times New Roman")
                     } else null
                 }
 
@@ -42,7 +42,8 @@ object Rules {
                         MistakeBody(
                             if (isEmpty) TEXT_WHITESPACE_INCORRECT_FONT_SIZE else TEXT_COMMON_INCORRECT_FONT_SIZE,
                             p,
-                            r
+                            r,
+                            "${rPr.sz.`val`.toInt() / 2}/14"
                         )
                     } else null
                 }
@@ -67,15 +68,13 @@ object Rules {
 
                 fun isBlack(p: Int, r: Int, rPr: RPr, isEmpty: Boolean, m: MainDocumentPart): MistakeBody? {
                     return if (rPr.color != null && rPr.color.`val` != "000000" && rPr.color.`val` != "auto") {
-                        MistakeBody(if (isEmpty) TEXT_WHITESPACE_TEXT_COLOR else TEXT_COMMON_TEXT_COLOR, p, r)
+                        MistakeBody(if (isEmpty) TEXT_WHITESPACE_TEXT_COLOR else TEXT_COMMON_TEXT_COLOR, p, r, "${rPr.color.`val`}/black")
                     } else null
                 }
 
                 fun letterSpacingIs0(p: Int, r: Int, rPr: RPr, isEmpty: Boolean, m: MainDocumentPart): MistakeBody? {
-                    return if (rPr.spacing != null && rPr.spacing.`val` != null &&
-                        rPr.spacing.`val`.intValueExact() != 0
-                    ) {
-                        MistakeBody(if (isEmpty) TEXT_WHITESPACE_RUN_SPACING else TEXT_COMMON_RUN_SPACING, p, r)
+                    return if (rPr.spacing != null && rPr.spacing.`val` != null && rPr.spacing.`val`.intValueExact() != 0) {
+                        MistakeBody(if (isEmpty) TEXT_WHITESPACE_RUN_SPACING else TEXT_COMMON_RUN_SPACING, p, r, "${rPr.spacing.`val`.intValueExact()}/0")
                     } else null
                 }
             }
@@ -88,7 +87,7 @@ object Rules {
                         MistakeBody(
                             if (isEmpty) TEXT_WHITESPACE_AFTER_HEADER_ALIGNMENT else TEXT_HEADER_ALIGNMENT,
                             p,
-                            0
+                            description = "${pPr.jc.`val`}/${JcEnumeration.CENTER}"
                         )
                     } else null
                 }
@@ -97,7 +96,7 @@ object Rules {
                     return if (pPr.spacing != null && pPr.spacing.line != null &&
                         pPr.spacing.line.intValueExact() != 240
                     ) {
-                        MistakeBody(TEXT_HEADER_LINE_SPACING, p)
+                        MistakeBody(TEXT_HEADER_LINE_SPACING, p, description = "${pPr.spacing.line.intValueExact() / 240}/1")
                     } else null
                 }
 
@@ -113,12 +112,12 @@ object Rules {
                         return MistakeBody(CHAPTER_EMPTY, p + 1)
                     }
                     val isNotEmpty = try {
-                        TextUtils.getText(m.content[p + 1] as org.docx4j.wml.P).isNotEmpty()
+                        TextUtils.getText(m.content[p + 1] as org.docx4j.wml.P).isNotBlank()
                     } catch (e: ClassCastException) {
-                        return MistakeBody(TEXT_HEADER_EMPTY_LINE_AFTER_HEADER_REQUIRED, p + 1)
+                        return MistakeBody(TEXT_HEADER_EMPTY_LINE_AFTER_HEADER_REQUIRED, p)
                     }
                     return if (isNotEmpty) {
-                        MistakeBody(TEXT_HEADER_EMPTY_LINE_AFTER_HEADER_REQUIRED, p + 1)
+                        MistakeBody(TEXT_HEADER_EMPTY_LINE_AFTER_HEADER_REQUIRED, p)
                     } else null
                 }
             }
@@ -147,14 +146,14 @@ object Rules {
             object P {
                 fun justifyIsBoth(p: Int, pPr: PPr, isEmpty: Boolean, m: MainDocumentPart): MistakeBody? {
                     return if (pPr.jc == null || pPr.jc.`val` != JcEnumeration.BOTH) {
-                        MistakeBody(if (isEmpty) TEXT_WHITESPACE_ALIGNMENT else TEXT_REGULAR_INCORRECT_ALIGNMENT, p)
+                        MistakeBody(if (isEmpty) TEXT_WHITESPACE_ALIGNMENT else TEXT_REGULAR_INCORRECT_ALIGNMENT, p, description = "${pPr.jc?.`val`}/${JcEnumeration.BOTH}")
                     } else null
                 }
 
                 fun lineSpacingIsOneAndHalf(p: Int, pPr: PPr, isEmpty: Boolean, m: MainDocumentPart): MistakeBody? {
                     return if (pPr.spacing != null && pPr.spacing.line != null) {
                         if (pPr.spacing.lineRule.value() == "auto" && pPr.spacing.line.intValueExact() != 360) {
-                            MistakeBody(if (isEmpty) TEXT_WHITESPACE_LINE_SPACING else TEXT_REGULAR_LINE_SPACING, p)
+                            MistakeBody(if (isEmpty) TEXT_WHITESPACE_LINE_SPACING else TEXT_REGULAR_LINE_SPACING, p, description = "${pPr.spacing.line.intValueExact() / 240}/1.5")
                         } else null
                     } else null
                 }
@@ -166,7 +165,8 @@ object Rules {
                     ) {
                         MistakeBody(
                             if (isEmpty) TEXT_WHITESPACE_INDENT_FIRST_LINES else TEXT_COMMON_INDENT_FIRST_LINES,
-                            p
+                            p,
+                            description = "${floor(pPr.ind.firstLine.intValueExact() / 1440 * 2.54)}/1.25"
                         )
                     } else null
                 }
@@ -175,7 +175,7 @@ object Rules {
                     return if (pPr.numPr != null && pPr.ind != null &&
                         pPr.ind.left != null && pPr.ind.left.intValueExact() != 0
                     ) {
-                        MistakeBody(if (isEmpty) TEXT_WHITESPACE_INDENT_LEFT else TEXT_COMMON_INDENT_LEFT, p)
+                        MistakeBody(if (isEmpty) TEXT_WHITESPACE_INDENT_LEFT else TEXT_COMMON_INDENT_LEFT, p, description = "${pPr.ind.left.intValueExact() / 240}/0")
                     } else null
                 }
 
@@ -183,7 +183,7 @@ object Rules {
                     return if (pPr.numPr != null && pPr.ind != null &&
                         pPr.ind.right != null && pPr.ind.right.intValueExact() != 0
                     ) {
-                        MistakeBody(if (isEmpty) TEXT_WHITESPACE_INDENT_RIGHT else TEXT_COMMON_INDENT_RIGHT, p)
+                        MistakeBody(if (isEmpty) TEXT_WHITESPACE_INDENT_RIGHT else TEXT_COMMON_INDENT_RIGHT, p, description = "${pPr.ind.right.intValueExact() / 240}/0")
                     } else null
                 }
             }
@@ -215,7 +215,8 @@ object Rules {
                     return if (pPr.jc == null || pPr.jc.`val` != JcEnumeration.CENTER) {
                         MistakeBody(
                             if (isEmpty) TEXT_WHITESPACE_AFTER_HEADER_ALIGNMENT else PICTURE_TITLE_NOT_CENTERED,
-                            p
+                            p,
+                            description = "${pPr.jc.`val`}/${JcEnumeration.CENTER}"
                         )
                     } else null
                 }
@@ -237,7 +238,7 @@ object Rules {
                     return if (pPr.jc != null && pPr.jc.`val` != JcEnumeration.LEFT) {
                         MistakeBody(
                             if (isEmpty) TEXT_WHITESPACE_AFTER_HEADER_ALIGNMENT else TEXT_HEADER_BODY_ALIGNMENT,
-                            p
+                            p, description = "${pPr.jc.`val`}/${JcEnumeration.LEFT}"
                         )
                     } else null
                 }

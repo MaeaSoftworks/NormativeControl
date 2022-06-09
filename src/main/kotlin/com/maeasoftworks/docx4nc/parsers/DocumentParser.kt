@@ -98,7 +98,7 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
     private fun addComments() {
         val errors = mistakes.asIterable().sortedWith(compareBy({ it.p }, { it.r })).reversed().toList()
         for (mistake in errors) {
-            val comment = createComment(mistake.mistakeId, "[p${mistake.p} r${mistake.r}] ${mistake.mistakeType.name}: ${mistake.description}")
+            val comment = createComment(mistake.mistakeId, "[p ${mistake.p}; r ${mistake.r}] ${mistake.mistakeType.name}${if (mistake.description != null) ": ${mistake.description}" else ""}")
             comments!!.jaxbElement.comment.add(comment)
             val commentRangeStart = factory.createCommentRangeStart().also { it.id = BigInteger.valueOf(mistake.mistakeId) }
             val commentRangeEnd = factory.createCommentRangeEnd().also { it.id = BigInteger.valueOf(mistake.mistakeId) }

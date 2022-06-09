@@ -38,7 +38,8 @@ open class ParserTestFactory(testClass: KClass<*>) {
                             "src/test/resources/$directory/$filename"
                         }
                     ).readAllBytes()
-                )
+                ),
+                "test"
             )
             parser.init()
             return parser

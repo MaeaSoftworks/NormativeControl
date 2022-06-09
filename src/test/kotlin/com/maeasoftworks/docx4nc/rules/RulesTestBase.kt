@@ -46,7 +46,7 @@ open class RulesTestBase {
     fun createParser(path: String): DocumentParser {
         (LoggerFactory.getLogger("org.docx4j") as Logger).level = Level.ERROR
         try {
-            val parser = DocumentParser(DocumentData(FileInputStream("src/test/resources/$path.docx").readAllBytes()))
+            val parser = DocumentParser(DocumentData(FileInputStream("src/test/resources/$path.docx").readAllBytes()), "test")
             parser.init()
             return parser
         } catch (e: IOException) {
