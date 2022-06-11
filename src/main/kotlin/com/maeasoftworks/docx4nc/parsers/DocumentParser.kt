@@ -27,16 +27,17 @@ import java.math.BigInteger
 class DocumentParser(val documentData: DocumentData, private var password: String) {
     private lateinit var mlPackage: WordprocessingMLPackage
     lateinit var mainDocumentPart: MainDocumentPart
-    lateinit var resolver: PropertyResolver
-    var numbering: NumberingDefinitionsPart? = null
+    lateinit var resolverWrapper: ResolverWrapper
     private val factory = Context.getWmlObjectFactory()
+
+    var numbering: NumberingDefinitionsPart? = null
+    private var comments: CommentsPart? = null
 
     var chapters: MutableList<Chapter> = ArrayList()
     var parsers: MutableList<ChapterParser> = ArrayList()
     var mistakes: MutableList<MistakeData> = ArrayList()
     var tables: MutableList<Table> = ArrayList()
     val pictures: MutableList<Picture> = ArrayList()
-    private var comments: CommentsPart? = null
 
     private var mistakeId: Long = 0
 
@@ -55,7 +56,7 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
             mlPackage = WordprocessingMLPackage.load(ByteArrayInputStream(documentData.file))
             mainDocumentPart = mlPackage.mainDocumentPart
             mainDocumentPart.contents.body
-            resolver = PropertyResolver(mlPackage)
+            resolverWrapper = ResolverWrapper(PropertyResolver(mlPackage))
             comments = mainDocumentPart.commentsPart
             if (comments == null) {
                 comments = CommentsPart().also { it.jaxbElement = factory.createComments() }
@@ -304,8 +305,8 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
     }
 
     fun isHeader(paragraph: Int, level: Int? = null): Boolean {
-        val pPr = resolver.getEffectivePPr((mainDocumentPart.content[paragraph] as P).pPr)
-        if (pPr == null || pPr.outlineLvl == null) {
+        val pPr = resolverWrapper.getEffectivePPr(mainDocumentPart.content[paragraph] as P)
+        if (pPr.outlineLvl == null) {
             return false
         }
         return if (level != null) {

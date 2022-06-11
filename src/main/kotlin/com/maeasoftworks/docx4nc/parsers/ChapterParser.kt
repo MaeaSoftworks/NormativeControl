@@ -83,7 +83,7 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
         pFunctions: Iterable<PFunction>,
         rFunctions: Iterable<RFunction>?
     ) {
-        val pPr = root.resolver.getEffectivePPr(paragraph.pPr)
+        val pPr = root.resolverWrapper.getEffectivePPr(paragraph)
         val isEmpty = TextUtils.getText(paragraph).isBlank()
         for (r in 0 until paragraph.content.size) {
             if (rFunctions != null) {
@@ -108,7 +108,7 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
                 root,
                 p,
                 r,
-                root.resolver.getEffectiveRPr((paragraph.content[r] as R).rPr, paragraph.pPr),
+                root.resolverWrapper.getEffectiveRPr(paragraph.content[r] as R),
                 TextUtils.getText(paragraph.content[r]).isBlank()
             )
         } else {
