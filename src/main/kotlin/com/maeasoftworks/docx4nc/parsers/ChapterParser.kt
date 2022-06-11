@@ -1,6 +1,9 @@
 package com.maeasoftworks.docx4nc.parsers
 
-import com.maeasoftworks.docx4nc.*
+import com.maeasoftworks.docx4nc.PFunction
+import com.maeasoftworks.docx4nc.RFunction
+import com.maeasoftworks.docx4nc.Rules
+import com.maeasoftworks.docx4nc.apply
 import com.maeasoftworks.docx4nc.enums.MistakeType.*
 import com.maeasoftworks.docx4nc.model.Chapter
 import com.maeasoftworks.docx4nc.model.Picture
@@ -37,11 +40,11 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
         headerPFunctions: Iterable<PFunction>?,
         headerRFunctions: Iterable<RFunction>?,
         pFunctions: Iterable<PFunction>,
-        rFunctions: Iterable<RFunction>
+        rFunctions: Iterable<RFunction>?
     ) {
         if (headerPFunctions != null && headerRFunctions != null) {
             handleP(
-                this,
+                context,
                 chapter.startPos,
                 root.mainDocumentPart.content[chapter.startPos] as P,
                 headerPFunctions,
@@ -57,7 +60,7 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
         p: Int,
         context: ChapterParser,
         pFunctions: Iterable<PFunction>,
-        rFunctions: Iterable<RFunction>
+        rFunctions: Iterable<RFunction>?
     ) {
         when (val something = root.mainDocumentPart.content[p]) {
             is P -> {
@@ -78,12 +81,14 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
         p: Int,
         paragraph: P,
         pFunctions: Iterable<PFunction>,
-        rFunctions: Iterable<RFunction>
+        rFunctions: Iterable<RFunction>?
     ) {
         val pPr = root.resolver.getEffectivePPr(paragraph.pPr)
         val isEmpty = TextUtils.getText(paragraph).isBlank()
         for (r in 0 until paragraph.content.size) {
-            context.parseR(p, r, paragraph, rFunctions)
+            if (rFunctions != null) {
+                context.parseR(p, r, paragraph, rFunctions)
+            }
         }
         context.parseP(p, pPr, isEmpty, pFunctions)
     }
@@ -171,7 +176,9 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
                     pictureTitleExpected = true
                     context.handleDrawing(p, r, c, pictureContainer)
                 }
-                is Text -> Unit
+                is R.Tab -> {
+                    root.addMistake(TEXT_COMMON_USE_FIRST_LINE_INDENT_INSTEAD_OF_TAB, p, r)
+                }
                 is R.Ptab,
                 is R.YearLong,
                 is R.DayShort,
@@ -180,7 +187,6 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
                 is R.PgNum,
                 is R.SoftHyphen,
                 is Pict,
-                is R.Tab,
                 is R.Separator,
                 is CTObject,
                 is CTFtnEdnRef,
@@ -198,6 +204,7 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
                 is R.DayLong -> root.addMistake(RUN_UNEXPECTED_CONTENT, p, r, something.declaredType.simpleName)
                 /*
                 * R.LastRenderedPageBreak
+                * Text
                 * */
             }
             is Br -> root.addMistake(TODO_ERROR, p, r)
@@ -251,8 +258,7 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
 
     fun validatePictureTitleStyle(pictureP: Int) {
         TitleParser(
-            Chapter(pictureP + 1, listOf(root.mainDocumentPart.content[pictureP + 1]).toMutableList()),
-            root
+            Chapter(pictureP + 1, listOf(root.mainDocumentPart.content[pictureP + 1]).toMutableList()), root
         ).parse()
     }
 
@@ -276,6 +282,8 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
                     )
                 }
                 else -> root.addMistake(ORDERED_LIST_INCORRECT_MARKER_FORMAT, p)
+            }
+            object : AnonymousParser(Chapter(p, mutableListOf(root.mainDocumentPart.content[p])), root) {
             }
         } else if (pPr.numPr.ilvl.`val`.toInt() == 1) {
             if (numberingFormat.listLevels["1"]!!.numFmt != NumberFormat.DECIMAL || numberingFormat.listLevels["1"]!!.levelText != "%2)") {

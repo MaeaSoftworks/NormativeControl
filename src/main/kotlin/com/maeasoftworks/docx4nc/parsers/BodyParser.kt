@@ -135,7 +135,7 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
     }
 
     override fun handleHyperlink(p: Int, r: Int) {
-        root.addMistake(TEXT_HYPERLINKS_NOT_ALLOWED_HERE, p, r)
+        root.addMistake(TEXT_HYPERLINKS_NOT_ALLOWED_HERE, p, r + 1)
     }
 
     override fun handleTable(p: Int) {}
@@ -194,7 +194,7 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
             Rules.Default.Header.P::lineSpacingIsOne,
             Rules.Default.Header.P::emptyLineAfterHeaderExists,
             Rules.Default.Header.P::hasNotDotInEnd,
-            Rules.Default.RegularText.P::firstLineIndentIs1dot25,
+            Rules.Default.Header.P::firstLineIndentIs1dot25,
         )
 
         private val regularPFunctions = listOf(

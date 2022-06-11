@@ -58,7 +58,13 @@ class DocumentManager(
                 )
             )
             mistakeRepository.saveAll(order.documentParser.mistakes.map { it.toDto(order.document.id) })
-            credentialsRepository.save(DocumentCredentials(order.document.id, order.document.accessKey, order.document.password))
+            credentialsRepository.save(
+                DocumentCredentials(
+                    order.document.id,
+                    order.document.accessKey,
+                    order.document.password
+                )
+            )
             queue.remove(order.document.id)
         }
     }
@@ -91,7 +97,7 @@ class DocumentManager(
     fun uploaded(accessKey: String, documentId: String): Boolean {
         return queue.getById(documentId).let {
             it != null && it.document.accessKey == accessKey &&
-                !it.document.data.file.contentEquals(ByteArray(0))
+                    !it.document.data.file.contentEquals(ByteArray(0))
         } || credentialsRepository.findById(documentId).let { it.isPresent && it.get().accessKey == accessKey }
     }
 

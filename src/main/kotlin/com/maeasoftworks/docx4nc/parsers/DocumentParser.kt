@@ -91,16 +91,19 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
     }
 
     private fun lock() {
-        val protection = ProtectDocument(mlPackage)
-        protection.restrictEditing(STDocProtect.READ_ONLY, password)
+        ProtectDocument(mlPackage).restrictEditing(STDocProtect.READ_ONLY, password)
     }
 
     private fun addComments() {
         val errors = mistakes.asIterable().sortedWith(compareBy({ it.p }, { it.r })).reversed().toList()
         for (mistake in errors) {
-            val comment = createComment(mistake.mistakeId, "[p ${mistake.p}; r ${mistake.r}] ${mistake.mistakeType.name}${if (mistake.description != null) ": ${mistake.description}" else ""}")
+            val comment = createComment(
+                mistake.mistakeId,
+                "[p ${mistake.p}; r ${mistake.r}] ${mistake.mistakeType.ru}${if (mistake.description != null) ": ${mistake.description}" else ""}"
+            )
             comments!!.jaxbElement.comment.add(comment)
-            val commentRangeStart = factory.createCommentRangeStart().also { it.id = BigInteger.valueOf(mistake.mistakeId) }
+            val commentRangeStart =
+                factory.createCommentRangeStart().also { it.id = BigInteger.valueOf(mistake.mistakeId) }
             val commentRangeEnd = factory.createCommentRangeEnd().also { it.id = BigInteger.valueOf(mistake.mistakeId) }
             if (mistake.p == null) {
                 val paragraph = mainDocumentPart.content[0] as P
@@ -349,6 +352,12 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
                     p.content.add(
                         factory.createR().also { r ->
                             r.content.add(factory.createText().also { text -> text.value = message })
+                            r.rPr = factory.createRPr()
+                            r.rPr.rFonts = factory.createRFonts()
+                            r.rPr.rFonts.ascii = "Consolas"
+                            r.rPr.rFonts.cs = "Consolas"
+                            r.rPr.rFonts.eastAsia = "Consolas"
+                            r.rPr.rFonts.hAnsi = "Consolas"
                         }
                     )
                 }

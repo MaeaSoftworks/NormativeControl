@@ -61,7 +61,7 @@ class GeneralTests : ParserTestFactory(GeneralTests::class) {
 
     @Test
     fun `full document validated properly`() {
-        val parser = createParser("full test 1.docx")
+        val parser = createParser("full test 2.docx")
         parser.setupChapters()
         parser.createParsers()
         parser.runVerification()

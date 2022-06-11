@@ -42,8 +42,12 @@ class DocumentController(documentManager: DocumentManager) : DocumentCredentials
             HttpHeaders.CONTENT_DISPOSITION,
             "attachment; filename=document.docx"
         )
-        headers.set(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment().filename("$documentId.docx").build().toString())
-        return@validate ResponseEntity.ok().headers(headers).body(createNullableByteArrayResource(documentManager.getFile(documentId)))
+        headers.set(
+            HttpHeaders.CONTENT_DISPOSITION,
+            ContentDisposition.attachment().filename("$documentId.docx").build().toString()
+        )
+        return@validate ResponseEntity.ok().headers(headers)
+            .body(createNullableByteArrayResource(documentManager.getFile(documentId)))
     }
 
     @GetMapping("{document-id}/file")

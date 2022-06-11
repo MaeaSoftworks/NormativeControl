@@ -18,7 +18,8 @@ class JwtUtils {
     @Value("\${app.jwtExpirationMs}")
     private var jwtExpirationMs: Long = 0
 
-    fun generateJwtToken(authentication: Authentication) = generateTokenFromEmail((authentication.principal as UserDetailsImpl).email)
+    fun generateJwtToken(authentication: Authentication) =
+        generateTokenFromEmail((authentication.principal as UserDetailsImpl).email)
 
     fun generateTokenFromEmail(email: String): String = Date().let {
         Jwts.builder()

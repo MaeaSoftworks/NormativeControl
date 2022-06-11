@@ -17,7 +17,13 @@ import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.web.bind.annotation.RequestBody
 
-sealed class AuthDocs(a: AuthenticationManager, u: UserRepository, e: PasswordEncoder, j: JwtUtils, r: RefreshTokenService) : AuthController(a, u, e, j, r) {
+sealed class AuthDocs(
+    a: AuthenticationManager,
+    u: UserRepository,
+    e: PasswordEncoder,
+    j: JwtUtils,
+    r: RefreshTokenService
+) : AuthController(a, u, e, j, r) {
     @Documentation("docs.method.register.info")
     @PossibleResponse(HttpStatus.OK, description = "docs.method.register.response0")
     @PossibleResponse(HttpStatus.BAD_REQUEST, description = "docs.method.register.response1")

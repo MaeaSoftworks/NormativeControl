@@ -1,6 +1,7 @@
 package com.maeasoftworks.normativecontrol.controllers
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.maeasoftworks.docx4nc.enums.MistakeType
 import com.maeasoftworks.normativecontrol.dao.Mistake
 import com.maeasoftworks.normativecontrol.documentation.AuthDocs
 import com.maeasoftworks.normativecontrol.documentation.DocumentDocs
@@ -14,13 +15,10 @@ import com.maeasoftworks.normativecontrol.dto.request.LoginRequest
 import com.maeasoftworks.normativecontrol.dto.request.RegistrationRequest
 import com.maeasoftworks.normativecontrol.dto.request.TokenRefreshRequest
 import com.maeasoftworks.normativecontrol.dto.response.*
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.*
-import java.net.InetAddress
-import javax.annotation.PostConstruct
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.functions
@@ -33,26 +31,9 @@ import kotlin.reflect.jvm.javaGetter
 @RequestMapping("docs")
 @ConditionalOnExpression("\${controllers.docs}")
 class DocumentationController {
-    private lateinit var address: String
-
-    @Value("\${server.port}")
-    private lateinit var host: String
-
-    @PostConstruct
-    fun init() {
-        val loopbackAddress = InetAddress.getLoopbackAddress().hostAddress
-        val localAddress = InetAddress.getLocalHost().hostAddress
-
-        address = if (localAddress.startsWith("192.168")) {
-            "$loopbackAddress:$host"
-        } else {
-            loopbackAddress
-        }
-    }
-
-    fun enumToList(clazz: KClass<*>): List<String> {
+    fun enumToList(clazz: KClass<*>, translatable: Boolean = false): List<String> {
         val enum = ((clazz.members.first { it.name == "values" }.call()) as Array<*>)
-            .map { (it as Enum<*>).toString() }
+            .map { if (!translatable) (it as Enum<*>).toString() else "${(it as Enum<*>)} — ${(it as MistakeType).ru}"}
             .toMutableList()
         enum.sortBy { it }
         return enum
@@ -165,7 +146,7 @@ class DocumentationController {
         return infos.sortedWith(compareBy({ it.type }, { it.root }, { it.path }))
     }
 
-    private final fun createObjectDocs(clazz: KClass<*>): ObjectInfo {
+    private final fun createObjectDocs(clazz: KClass<*>, translatable: Boolean = false): ObjectInfo {
         val info = ObjectInfo()
         val classAnnotation = clazz.annotations.first { it is Documentation } as Documentation
         info.description = classAnnotation.translationId
@@ -181,7 +162,8 @@ class DocumentationController {
                 prop.type = (property.returnType.classifier as KClass<*>).simpleName!!
                 prop.description = propertyAnnotation.translationId
                 if (propertyAnnotation.enum !== Unit::class) {
-                    prop.enum = enumToList(propertyAnnotation.enum)
+                    prop.enum = enumToList(propertyAnnotation.enum, translatable)
+                    prop.isEnumTranslated = translatable
                 }
                 properties.add(prop)
             }
@@ -190,13 +172,11 @@ class DocumentationController {
         return info
     }
 
-    val methods =
-        createControllerDocs(AuthDocs::class) + createControllerDocs(DocumentDocs::class) +
-            createControllerDocs(QueueDocs::class)
+    val methods = createControllerDocs(AuthDocs::class) + createControllerDocs(DocumentDocs::class) + createControllerDocs(QueueDocs::class)
 
     val objects = arrayOf(
         createObjectDocs(FileResponse::class),
-        createObjectDocs(Mistake::class),
+        createObjectDocs(Mistake::class, true),
         createObjectDocs(MistakesResponse::class),
         createObjectDocs(StatusResponse::class),
         createObjectDocs(QueueResponse::class),
@@ -211,16 +191,12 @@ class DocumentationController {
     fun mainPage(@RequestParam("section") section: String?, model: Model): String {
         model.addAttribute("methods", methods)
         model.addAttribute("entities", objects)
-        model.addAttribute("address", address)
-        model.addAttribute("sandboxEnabled", false)
         if (section != null && "/" in section && methods.any { it.path == section }) {
             model.addAttribute("isMethod", true)
-            model.addAttribute("current", methods.first { it.path == section })
+            model.addAttribute("currentMethod", methods.first { it.path == section })
         } else if (section in objects.map { it.name }) {
             model.addAttribute("isMethod", false)
-            model.addAttribute("current", objects.first { it.name == section })
-        } else {
-            model.addAttribute("current", null)
+            model.addAttribute("currentEntity", objects.first { it.name == section })
         }
         return "main"
     }
