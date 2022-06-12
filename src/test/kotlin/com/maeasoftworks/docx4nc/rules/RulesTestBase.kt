@@ -23,7 +23,7 @@ open class RulesTestBase {
         assert(
             wrapper(
                 p,
-                parser.resolver.getEffectivePPr(paragraph.pPr),
+                parser.resolver.getEffectivePPr(paragraph),
                 TextUtils.getText(paragraph).isEmpty(),
                 parser.mainDocumentPart
             ).let(condition)
@@ -36,7 +36,7 @@ open class RulesTestBase {
             wrapper(
                 p,
                 0,
-                parser.resolver.getEffectiveRPr((paragraph.content[0] as R).rPr, paragraph.pPr),
+                parser.resolver.getEffectiveRPr(paragraph.content[0] as R),
                 TextUtils.getText(paragraph).isEmpty(),
                 parser.mainDocumentPart
             ).let(condition)

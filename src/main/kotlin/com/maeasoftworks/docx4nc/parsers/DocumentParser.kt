@@ -5,6 +5,7 @@ import com.maeasoftworks.docx4nc.enums.ChapterType
 import com.maeasoftworks.docx4nc.enums.ChapterType.*
 import com.maeasoftworks.docx4nc.enums.MistakeType
 import com.maeasoftworks.docx4nc.enums.MistakeType.*
+import com.maeasoftworks.docx4nc.ignoring
 import com.maeasoftworks.docx4nc.model.*
 import com.maeasoftworks.normativecontrol.dto.Status
 import org.docx4j.TextUtils
@@ -27,7 +28,7 @@ import java.math.BigInteger
 class DocumentParser(val documentData: DocumentData, private var password: String) {
     private lateinit var mlPackage: WordprocessingMLPackage
     lateinit var mainDocumentPart: MainDocumentPart
-    lateinit var resolverWrapper: ResolverWrapper
+    lateinit var resolver: Resolver
     private val factory = Context.getWmlObjectFactory()
 
     var numbering: NumberingDefinitionsPart? = null
@@ -56,7 +57,7 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
             mlPackage = WordprocessingMLPackage.load(ByteArrayInputStream(documentData.file))
             mainDocumentPart = mlPackage.mainDocumentPart
             mainDocumentPart.contents.body
-            resolverWrapper = ResolverWrapper(PropertyResolver(mlPackage))
+            resolver = Resolver(PropertyResolver(mlPackage))
             comments = mainDocumentPart.commentsPart
             if (comments == null) {
                 comments = CommentsPart().also { it.jaxbElement = factory.createComments() }
@@ -208,7 +209,7 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
                     addMistake(TEXT_HEADER_EMPTY)
                     continue
                 }
-                chapters[chapter].type = detectNodeType(text)
+                chapters[chapter].type = detectNodeType(text, chapters[chapter].startPos)
             }
         }
         if (!chapters[0].isChapterDetected) {
@@ -219,7 +220,7 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
         }
     }
 
-    private fun detectNodeType(text: String): ChapterType {
+    private fun detectNodeType(text: String, startPos: Int): ChapterType {
         if (text.split(Regex("\\s+"))[0].matches(Regex("^(?:\\d{1,2}\\.?){1,3}$"))) {
             return BODY
         }
@@ -235,8 +236,7 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
                 return APPENDIX
             }
         }
-
-        addMistake(CHAPTER_UNDEFINED_CHAPTER)
+        addMistake(CHAPTER_UNDEFINED_CHAPTER, startPos)
         return UNDEFINED
     }
 
@@ -247,13 +247,12 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
         notFound: MistakeType,
         mismatch: MistakeType
     ) {
-        try {
+        ignoring<IndexOutOfBoundsException> {
             if (type !in types) {
                 addMistake(notFound)
             } else if (chapters[pos].type != type) {
                 addMistake(mismatch)
             }
-        } catch (_: IndexOutOfBoundsException) {
         }
     }
 
@@ -268,11 +267,10 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
         verifyChapter(3, INTRODUCTION, t, CHAPTER_INTRODUCTION_NOT_FOUND, CHAPTER_INTRODUCTION_POSITION_MISMATCH)
         verifyChapter(4, BODY, t, CHAPTER_BODY_NOT_FOUND, CHAPTER_BODY_POSITION_MISMATCH)
         var i = 4
-        try {
+        ignoring<IndexOutOfBoundsException> {
             while (chapters[i].type == BODY) {
                 i++
             }
-        } catch (_: Exception) {
         }
         verifyChapter(i, CONCLUSION, t, CHAPTER_CONCLUSION_NOT_FOUND, CHAPTER_CONCLUSION_POSITION_MISMATCH)
         verifyChapter(i + 1, REFERENCES, t, CHAPTER_REFERENCES_NOT_FOUND, CHAPTER_REFERENCES_POSITION_MISMATCH)
@@ -305,7 +303,7 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
     }
 
     fun isHeader(paragraph: Int, level: Int? = null): Boolean {
-        val pPr = resolverWrapper.getEffectivePPr(mainDocumentPart.content[paragraph] as P)
+        val pPr = resolver.getEffectivePPr(mainDocumentPart.content[paragraph] as P)
         if (pPr.outlineLvl == null) {
             return false
         }
@@ -353,12 +351,13 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
                     p.content.add(
                         factory.createR().also { r ->
                             r.content.add(factory.createText().also { text -> text.value = message })
-                            r.rPr = factory.createRPr()
-                            r.rPr.rFonts = factory.createRFonts()
-                            r.rPr.rFonts.ascii = "Consolas"
-                            r.rPr.rFonts.cs = "Consolas"
-                            r.rPr.rFonts.eastAsia = "Consolas"
-                            r.rPr.rFonts.hAnsi = "Consolas"
+                            r.rPr = factory.createRPr().also {
+                                it.rFonts = factory.createRFonts()
+                                it.rFonts.ascii = "Consolas"
+                                it.rFonts.cs = "Consolas"
+                                it.rFonts.eastAsia = "Consolas"
+                                it.rFonts.hAnsi = "Consolas"
+                            }
                         }
                     )
                 }
@@ -368,7 +367,9 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
 
     private fun createRunCommentReference(commentId: Long): R {
         return factory.createR().also { run ->
-            run.content.add(factory.createRCommentReference().also { it.id = BigInteger.valueOf(commentId) })
+            run.content.add(factory.createRCommentReference().also {
+                it.id = BigInteger.valueOf(commentId)
+            })
         }
     }
 }

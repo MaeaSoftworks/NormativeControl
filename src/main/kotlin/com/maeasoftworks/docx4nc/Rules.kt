@@ -89,12 +89,12 @@ object Rules {
                 }
 
                 fun letterSpacingIs0(p: Int, r: Int, rPr: RPr, isEmpty: Boolean, m: MainDocumentPart): MistakeBody? {
-                    return if (rPr.spacing != null && rPr.spacing.`val` != null && rPr.spacing.`val`.intValueExact() != 0) {
+                    return if (rPr.spacing != null && rPr.spacing.`val` != null && rPr.spacing.`val`.toDouble() != 0.0) {
                         MistakeBody(
                             if (isEmpty) TEXT_WHITESPACE_RUN_SPACING else TEXT_COMMON_RUN_SPACING,
                             p,
                             r,
-                            "${rPr.spacing.`val`.intValueExact()}/0"
+                            "${rPr.spacing.`val`.toDouble()}/0"
                         )
                     } else null
                 }
@@ -115,12 +115,12 @@ object Rules {
 
                 fun lineSpacingIsOne(p: Int, pPr: PPr, isEmpty: Boolean, m: MainDocumentPart): MistakeBody? {
                     return if (pPr.spacing != null && pPr.spacing.line != null &&
-                        pPr.spacing.line.intValueExact() != 240
+                        pPr.spacing.line.toDouble() != 240.0
                     ) {
                         MistakeBody(
                             TEXT_HEADER_LINE_SPACING,
                             p,
-                            description = "${pPr.spacing.line.intValueExact() / 240}/1"
+                            description = "${pPr.spacing.line.toDouble() / 240.0}/1"
                         )
                     } else null
                 }
@@ -148,11 +148,11 @@ object Rules {
 
                 fun firstLineIndentIs1dot25(p: Int, pPr: PPr, isEmpty: Boolean, m: MainDocumentPart): MistakeBody? {
                     return if (pPr.numPr != null && pPr.ind != null && pPr.ind.firstLine != null &&
-                        abs(floor(pPr.ind.firstLine.intValueExact() / 1440 * 2.54) - 1.25) <= 0.01
+                        abs(floor(pPr.ind.firstLine.toDouble() / 1440.0 * 2.54) - 1.25) <= 0.01
                     ) {
                         MistakeBody(
                             TEXT_HEADER_INDENT_FIRST_LINES, p,
-                            description = "${floor(pPr.ind.firstLine.intValueExact() / 1440 * 2.54)}/1.25"
+                            description = "${floor(pPr.ind.firstLine.toDouble() / 1440.0 * 2.54)}/1.25"
                         )
                     } else null
                 }
@@ -192,11 +192,11 @@ object Rules {
 
                 fun lineSpacingIsOneAndHalf(p: Int, pPr: PPr, isEmpty: Boolean, m: MainDocumentPart): MistakeBody? {
                     return if (pPr.spacing != null && pPr.spacing.line != null) {
-                        if (pPr.spacing.lineRule.value() == "auto" && pPr.spacing.line.intValueExact() != 360) {
+                        if (pPr.spacing.lineRule.value() == "auto" && pPr.spacing.line.toDouble() != 360.0) {
                             MistakeBody(
                                 if (isEmpty) TEXT_WHITESPACE_LINE_SPACING else TEXT_REGULAR_LINE_SPACING,
                                 p,
-                                description = "${pPr.spacing.line.intValueExact() / 240}/1.5"
+                                description = "${pPr.spacing.line.toDouble() / 240.0}/1.5"
                             )
                         } else null
                     } else null
@@ -205,36 +205,36 @@ object Rules {
                 fun firstLineIndentIs1dot25(p: Int, pPr: PPr, isEmpty: Boolean, m: MainDocumentPart): MistakeBody? {
                     return if (pPr.numPr != null && pPr.ind != null &&
                         pPr.ind.firstLine != null &&
-                        abs(floor(pPr.ind.firstLine.intValueExact() / 1440 * 2.54) - 1.25) <= 0.01
+                        abs(floor(pPr.ind.firstLine.toDouble() / 1440.0 * 2.54) - 1.25) <= 0.01
                     ) {
                         MistakeBody(
                             if (isEmpty) TEXT_WHITESPACE_INDENT_FIRST_LINES else TEXT_REGULAR_INDENT_FIRST_LINES,
                             p,
-                            description = "${floor(pPr.ind.firstLine.intValueExact() / 1440 * 2.54)}/1.25"
+                            description = "${floor(pPr.ind.firstLine.toDouble() / 1440 * 2.54)}/1.25"
                         )
                     } else null
                 }
 
                 fun leftIndentIs0(p: Int, pPr: PPr, isEmpty: Boolean, m: MainDocumentPart): MistakeBody? {
                     return if (pPr.numPr != null && pPr.ind != null &&
-                        pPr.ind.left != null && pPr.ind.left.intValueExact() != 0
+                        pPr.ind.left != null && pPr.ind.left.toDouble() != 0.0
                     ) {
                         MistakeBody(
                             if (isEmpty) TEXT_WHITESPACE_INDENT_LEFT else TEXT_COMMON_INDENT_LEFT,
                             p,
-                            description = "${pPr.ind.left.intValueExact() / 240}/0"
+                            description = "${pPr.ind.left.toDouble() / 240.0}/0"
                         )
                     } else null
                 }
 
                 fun rightIndentIs0(p: Int, pPr: PPr, isEmpty: Boolean, m: MainDocumentPart): MistakeBody? {
                     return if (pPr.numPr != null && pPr.ind != null &&
-                        pPr.ind.right != null && pPr.ind.right.intValueExact() != 0
+                        pPr.ind.right != null && pPr.ind.right.toDouble() != 0.0
                     ) {
                         MistakeBody(
                             if (isEmpty) TEXT_WHITESPACE_INDENT_RIGHT else TEXT_COMMON_INDENT_RIGHT,
                             p,
-                            description = "${pPr.ind.right.intValueExact() / 240}/0"
+                            description = "${pPr.ind.right.toDouble() / 240.0}/0"
                         )
                     } else null
                 }

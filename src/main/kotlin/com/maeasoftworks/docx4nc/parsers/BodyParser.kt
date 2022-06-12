@@ -70,13 +70,13 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
 
     private fun parseSubchapter(subchapter: Subchapter) {
         if (subchapter.subheader != null) {
-            val subheaderPPr = root.resolverWrapper.getEffectivePPr(subchapter.subheader)
+            val subheaderPPr = root.resolver.getEffectivePPr(subchapter.subheader)
             val isEmpty = TextUtils.getText(subchapter.subheader).isEmpty()
             headerPFunctions.apply(root, subchapter.startPos, subheaderPPr, isEmpty)
             commonPFunctions.apply(root, subchapter.startPos, subheaderPPr, isEmpty)
             for (r in 0 until subchapter.subheader.content.size) {
                 if (subchapter.subheader.content[r] is R) {
-                    val rPr = root.resolverWrapper.getEffectiveRPr(subchapter.subheader.content[r] as R)
+                    val rPr = root.resolver.getEffectiveRPr(subchapter.subheader.content[r] as R)
                     headerRFunctions.apply(root, subchapter.startPos, r, rPr, isEmpty)
                     commonRFunctions.apply(root, subchapter.startPos, r, rPr, isEmpty)
                 } else {
@@ -89,14 +89,14 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
                 pictureTitleExpected = false
                 continue
             }
-            val pPr = root.resolverWrapper.getEffectivePPr(root.mainDocumentPart.content[p] as P)
+            val pPr = root.resolver.getEffectivePPr(root.mainDocumentPart.content[p] as P)
             val paragraph = root.mainDocumentPart.content[p] as P
             val isEmptyP = TextUtils.getText(paragraph).isBlank()
             commonPFunctions.apply(root, p, pPr, isEmptyP)
             regularPFunctions.apply(root, p, pPr, isEmptyP)
             for (r in 0 until paragraph.content.size) {
                 if (paragraph.content[r] is R) {
-                    val rPr = root.resolverWrapper.getEffectiveRPr(paragraph.content[r] as R)
+                    val rPr = root.resolver.getEffectiveRPr(paragraph.content[r] as R)
                     commonRFunctions.apply(root, p, r, rPr, isEmptyP)
                     regularRFunctions.apply(root, p, r, rPr, isEmptyP)
                     for (c in 0 until (paragraph.content[r] as R).content.size) {
@@ -116,13 +116,13 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
     }
 
     private fun parseHeader() {
-        val headerPPr = root.resolverWrapper.getEffectivePPr(chapter.header)
+        val headerPPr = root.resolver.getEffectivePPr(chapter.header)
         val isEmpty = TextUtils.getText(chapter.header).isBlank()
         headerPFunctions.apply(root, chapter.startPos, headerPPr, isEmpty)
         commonPFunctions.apply(root, chapter.startPos, headerPPr, isEmpty)
         for (r in 0 until chapter.header.content.size) {
             if (chapter.header.content[r] is R) {
-                val rPr = root.resolverWrapper.getEffectiveRPr(chapter.header.content[r] as R)
+                val rPr = root.resolver.getEffectiveRPr(chapter.header.content[r] as R)
                 headerRFunctions.apply(root, chapter.startPos, r, rPr, isEmpty)
                 commonRFunctions.apply(root, chapter.startPos, r, rPr, isEmpty)
             } else {

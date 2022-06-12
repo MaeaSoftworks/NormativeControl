@@ -4,6 +4,7 @@ import com.maeasoftworks.docx4nc.model.MistakeBody
 import com.maeasoftworks.docx4nc.parsers.DocumentParser
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
 import org.docx4j.wml.PPr
+import org.docx4j.wml.R
 import org.docx4j.wml.RPr
 
 typealias PFunction = (Int, PPr, Boolean, MainDocumentPart) -> MistakeBody?
@@ -16,4 +17,14 @@ fun Iterable<PFunction>.apply(root: DocumentParser, p: Int, pPr: PPr, isEmpty: B
 
 fun Iterable<RFunction>.apply(root: DocumentParser, p: Int, r: Int, rPr: RPr, isEmpty: Boolean) {
     this.forEach { root.addMistake(it(p, r, rPr, isEmpty, root.mainDocumentPart)) }
+}
+
+inline fun <reified E : Exception> ignoring(body: () -> Unit) {
+    try {
+        body()
+    } catch (e: Exception) {
+        if (e !is E) {
+            throw e
+        }
+    }
 }
