@@ -13,7 +13,7 @@ import java.io.IOException
 @RestController
 @RequestMapping("queue")
 @ConditionalOnExpression("\${controllers.api}")
-class QueueController(documentManager: DocumentManager) : DocumentCredentialsValidatedController(documentManager) {
+class QueueController(documentManager: DocumentManager) : DocumentCredentialsConfirmedController(documentManager) {
 
     @PostMapping("reserve")
     @ResponseBody
@@ -26,7 +26,7 @@ class QueueController(documentManager: DocumentManager) : DocumentCredentialsVal
         @RequestParam("document-id") documentId: String,
         @RequestParam("access-key") accessKey: String,
         @RequestParam("file") file: MultipartFile
-    ) = validate(documentId, accessKey) {
+    ) = confirming(documentId, accessKey) {
         if (documentManager.uploaded(accessKey, documentId)) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "File already uploaded")
         }

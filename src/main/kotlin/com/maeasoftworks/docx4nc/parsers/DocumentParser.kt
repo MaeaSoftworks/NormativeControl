@@ -104,8 +104,9 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
                 "[p ${mistake.p}; r ${mistake.r}] ${mistake.mistakeType.ru}${if (mistake.description != null) ": ${mistake.description}" else ""}"
             )
             comments!!.jaxbElement.comment.add(comment)
-            val commentRangeStart =
-                factory.createCommentRangeStart().also { it.id = BigInteger.valueOf(mistake.mistakeId) }
+            val commentRangeStart = factory.createCommentRangeStart().also {
+                it.id = BigInteger.valueOf(mistake.mistakeId)
+            }
             val commentRangeEnd = factory.createCommentRangeEnd().also { it.id = BigInteger.valueOf(mistake.mistakeId) }
             if (mistake.p == null) {
                 val paragraph = mainDocumentPart.content[0] as P
