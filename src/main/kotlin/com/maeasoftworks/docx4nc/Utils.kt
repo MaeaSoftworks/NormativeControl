@@ -1,6 +1,6 @@
 package com.maeasoftworks.docx4nc
 
-inline fun <reified E : Exception> ignoring(body: () -> Unit) {
+inline fun <reified E : Exception> ignore(body: () -> Unit) {
     try {
         body()
     } catch (e: Exception) {

@@ -12,6 +12,7 @@ import com.maeasoftworks.normativecontrol.repository.BinaryFileRepository
 import com.maeasoftworks.normativecontrol.repository.CredentialsRepository
 import com.maeasoftworks.normativecontrol.repository.MistakeRepository
 import com.maeasoftworks.normativecontrol.utils.toDao
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.concurrent.ExecutorService
@@ -22,7 +23,8 @@ import java.util.concurrent.atomic.AtomicInteger
 class DocumentQueue(
     private val mistakeRepository: MistakeRepository,
     private val fileRepository: BinaryFileRepository,
-    private val credentialsRepository: CredentialsRepository
+    private val credentialsRepository: CredentialsRepository,
+    private val bCryptPasswordEncoder: BCryptPasswordEncoder
 ) {
     private val queue: HashMap<String, EnqueuedParser> = HashMap()
     private val executor: ExecutorService = Executors.newFixedThreadPool(100)
@@ -48,7 +50,11 @@ class DocumentQueue(
             fileRepository.save(DocumentBytes(order.document.id, order.document.data.file))
             mistakeRepository.saveAll(order.documentParser.mistakes.map { it.toDao(order.document.id) })
             credentialsRepository.save(
-                DocumentCredentials(order.document.id, order.document.accessKey, order.document.password)
+                DocumentCredentials(
+                    order.document.id,
+                    bCryptPasswordEncoder.encode(order.document.accessKey),
+                    order.document.password
+                )
             )
             queue.remove(order.document.id)
         }

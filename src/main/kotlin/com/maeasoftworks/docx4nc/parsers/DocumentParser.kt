@@ -4,10 +4,9 @@ import com.maeasoftworks.docx4nc.enums.ChapterType
 import com.maeasoftworks.docx4nc.enums.ChapterType.*
 import com.maeasoftworks.docx4nc.enums.MistakeType
 import com.maeasoftworks.docx4nc.enums.MistakeType.*
-import com.maeasoftworks.docx4nc.ignoring
+import com.maeasoftworks.docx4nc.ignore
 import com.maeasoftworks.docx4nc.model.*
 import com.maeasoftworks.normativecontrol.dto.Status
-import org.docx4j.TextUtils
 import org.docx4j.jaxb.Context
 import org.docx4j.model.PropertyResolver
 import org.docx4j.openpackaging.exceptions.Docx4JException
@@ -25,10 +24,11 @@ import java.io.ByteArrayOutputStream
 import java.math.BigInteger
 
 class DocumentParser(val documentData: DocumentData, private var password: String) {
-    private lateinit var mlPackage: WordprocessingMLPackage
+    val texts = Texts()
     lateinit var doc: MainDocumentPart
     lateinit var resolver: Resolver
     private val factory = Context.getWmlObjectFactory()
+    private lateinit var mlPackage: WordprocessingMLPackage
 
     var numbering: NumberingDefinitionsPart? = null
     private var comments: CommentsPart? = null
@@ -36,7 +36,6 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
     var chapters: MutableList<Chapter> = ArrayList()
     var parsers: MutableList<ChapterParser> = ArrayList()
     var mistakes: MutableList<MistakeOuter> = ArrayList()
-    var tables: MutableList<Table> = ArrayList()
     val pictures: MutableList<Picture> = ArrayList()
 
     private var mistakeId: Long = 0
@@ -100,7 +99,13 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
         for (mistake in errors) {
             val comment = createComment(
                 mistake.mistakeId,
-                "[p ${mistake.p}; r ${mistake.r}] ${mistake.mistakeType.ru}${if (mistake.description != null) ": ${mistake.description}" else ""}"
+                mistake.mistakeType.ru.let { x ->
+                    if (mistake.description != null) {
+                        return@let x + ": ${mistake.description.split('/').let { "найдено: ${it[0]}, ожидалось: ${it[1]}" }}"
+                    } else {
+                        return@let x
+                    }
+                }
             )
             comments!!.jaxbElement.comment.add(comment)
             val commentRangeStart = factory.createCommentRangeStart().also {
@@ -203,7 +208,7 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
                     chapters[chapter].type = FRONT_PAGE
                     continue
                 }
-                val text = TextUtils.getText(chapters[chapter].header)
+                val text = texts.getText(chapters[chapter].header)
                 if (text.isEmpty()) {
                     emptyChapters += chapter
                     addMistake(TEXT_HEADER_EMPTY)
@@ -246,13 +251,11 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
         types: List<ChapterType?>,
         notFound: MistakeType,
         mismatch: MistakeType
-    ) {
-        ignoring<IndexOutOfBoundsException> {
-            if (type !in types) {
-                addMistake(notFound)
-            } else if (chapters[pos].type != type) {
-                addMistake(mismatch)
-            }
+    ) = ignore<IndexOutOfBoundsException> {
+        if (type !in types) {
+            addMistake(notFound)
+        } else if (chapters[pos].type != type) {
+            addMistake(mismatch)
         }
     }
 
@@ -267,7 +270,7 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
         verifyChapter(3, INTRODUCTION, t, CHAPTER_INTRODUCTION_NOT_FOUND, CHAPTER_INTRODUCTION_POSITION_MISMATCH)
         verifyChapter(4, BODY, t, CHAPTER_BODY_NOT_FOUND, CHAPTER_BODY_POSITION_MISMATCH)
         var i = 4
-        ignoring<IndexOutOfBoundsException> {
+        ignore<IndexOutOfBoundsException> {
             while (chapters[i].type == BODY) {
                 i++
             }
@@ -296,7 +299,7 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
     private fun verifyBody() {
         var i = 0
         chapters.filter { it.type == BODY }.forEach {
-            if (!TextUtils.getText(it.header).startsWith((++i).toString())) {
+            if (!texts.getText(it.header).startsWith((++i).toString())) {
                 addMistake(CHAPTER_BODY_DISORDER)
             }
         }

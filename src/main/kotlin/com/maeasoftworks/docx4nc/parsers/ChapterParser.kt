@@ -82,7 +82,7 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
         rFunctions: Iterable<RFunction>?
     ) {
         val pPr = root.resolver.getEffectivePPr(paragraph)
-        val isEmpty = TextUtils.getText(paragraph).isBlank()
+        val isEmpty = root.texts.getText(paragraph).isBlank()
         for (r in 0 until paragraph.content.size) {
             if (rFunctions != null) {
                 context.parseR(p, r, paragraph, rFunctions)
@@ -233,7 +233,7 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
             root.addMistake(PICTURE_IS_NOT_INLINED, p, r)
         } else {
             container.add(picture)
-            picture.title = TextUtils.getText(root.doc.content[p + 1] as P).let {
+            picture.title = root.texts.getText(root.doc.content[p + 1] as P).let {
                 if (it.uppercase().startsWith("РИСУНОК ")) {
                     return@let it
                 } else {
@@ -241,11 +241,11 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
                     return@let null
                 }
             }
-            if (TextUtils.getText(root.doc.content[p - 1] as P).isNotBlank()) {
+            if (root.texts.getText(root.doc.content[p - 1] as P).isNotBlank()) {
                 root.addMistake(PICTURE_REQUIRED_BLANK_LINE_BEFORE_PICTURE, p, r)
             }
             if (!root.isHeader(p + 2)) {
-                if (TextUtils.getText(root.doc.content[p + 2] as P).isNotBlank()) {
+                if (root.texts.getText(root.doc.content[p + 2] as P).isNotBlank()) {
                     root.addMistake(PICTURE_REQUIRED_BLANK_LINE_AFTER_PICTURE_TITLE, p, r)
                 }
             }

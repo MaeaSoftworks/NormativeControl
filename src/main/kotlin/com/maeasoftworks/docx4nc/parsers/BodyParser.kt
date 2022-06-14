@@ -5,7 +5,6 @@ import com.maeasoftworks.docx4nc.enums.MistakeType.*
 import com.maeasoftworks.docx4nc.model.Chapter
 import com.maeasoftworks.docx4nc.model.Picture
 import com.maeasoftworks.docx4nc.model.Rules
-import org.docx4j.TextUtils
 import org.docx4j.wml.P
 import org.docx4j.wml.R
 
@@ -41,7 +40,7 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
                     root.doc.content[pos] as P,
                     currentChapter,
                     Regex("^(?:\\d\\.?){1,3}")
-                        .find(TextUtils.getText(root.doc.content[pos]))?.value
+                        .find(root.texts.getText(root.doc.content[pos] as P))?.value
                         ?.removeSuffix(".")
                         ?.split('.')?.get(level - 1)
                         ?.toInt().also { if (it == null) root.addMistake(TEXT_BODY_SUBHEADER_WAS_EMPTY, pos) },
@@ -71,7 +70,7 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
     private fun parseSubchapter(subchapter: Subchapter) {
         if (subchapter.subheader != null) {
             val subheaderPPr = root.resolver.getEffectivePPr(subchapter.subheader)
-            val isEmpty = TextUtils.getText(subchapter.subheader).isEmpty()
+            val isEmpty = root.texts.getText(subchapter.subheader).isEmpty()
             headerPFunctions.apply(root, subchapter.startPos, subheaderPPr, isEmpty)
             commonPFunctions.apply(root, subchapter.startPos, subheaderPPr, isEmpty)
             for (r in 0 until subchapter.subheader.content.size) {
@@ -91,7 +90,7 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
             }
             val pPr = root.resolver.getEffectivePPr(root.doc.content[p] as P)
             val paragraph = root.doc.content[p] as P
-            val isEmptyP = TextUtils.getText(paragraph).isBlank()
+            val isEmptyP = root.texts.getText(paragraph).isBlank()
             commonPFunctions.apply(root, p, pPr, isEmptyP)
             regularPFunctions.apply(root, p, pPr, isEmptyP)
             for (r in 0 until paragraph.content.size) {
@@ -117,7 +116,7 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
 
     private fun parseHeader() {
         val headerPPr = root.resolver.getEffectivePPr(chapter.header)
-        val isEmpty = TextUtils.getText(chapter.header).isBlank()
+        val isEmpty = root.texts.getText(chapter.header).isBlank()
         headerPFunctions.apply(root, chapter.startPos, headerPPr, isEmpty)
         commonPFunctions.apply(root, chapter.startPos, headerPPr, isEmpty)
         for (r in 0 until chapter.header.content.size) {
@@ -216,17 +215,12 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
         val num: Int?,
         val level: Int
     ) {
-        /*
-        * Generates Subchapter with predefined args. Use carefully!
-        * */
+
         constructor() : this(
             chapter.startPos + 1,
             null,
             null,
-            Regex("^(?:\\d\\.?){1,3}").let {
-                TextUtils.getText(chapter.header)
-                    .let { x -> if (x != null) it.find(x)?.value?.removeSuffix(".")?.toInt() else null }
-            },
+            Regex("^(?:\\d\\.?){1,3}").find(this@BodyParser.root.texts.getText(chapter.header))?.value?.removeSuffix(".")?.toInt(),
             1
         )
 

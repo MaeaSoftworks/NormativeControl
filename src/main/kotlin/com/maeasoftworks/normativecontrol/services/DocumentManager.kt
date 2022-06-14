@@ -13,6 +13,7 @@ import com.maeasoftworks.normativecontrol.repository.CredentialsRepository
 import com.maeasoftworks.normativecontrol.repository.MistakeRepository
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.http.HttpStatus
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.server.ResponseStatusException
@@ -23,7 +24,8 @@ class DocumentManager(
     private val queue: DocumentQueue,
     private val mistakeRepository: MistakeRepository,
     private val fileRepository: BinaryFileRepository,
-    private val credentialsRepository: CredentialsRepository
+    private val credentialsRepository: CredentialsRepository,
+    private val bCryptPasswordEncoder: BCryptPasswordEncoder
 ) {
     fun createParser(document: Document) = DocumentParser(document.data, document.password)
 
@@ -65,12 +67,9 @@ class DocumentManager(
     }
 
     @Transactional
-    fun getAccessKey(documentId: String): String {
-        return (
-            queue[documentId]?.document?.accessKey
-                ?: credentialsRepository.findByDocumentId(documentId)?.accessKey
-            )
-            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found.")
+    fun validateAccessKey(documentId: String, accessKey: String): Boolean {
+        return ((queue[documentId]?.document?.accessKey ?: credentialsRepository.findByDocumentId(documentId)?.accessKey)
+            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found.")) == bCryptPasswordEncoder.encode(accessKey)
     }
 
     fun uploaded(accessKey: String, documentId: String): Boolean {
