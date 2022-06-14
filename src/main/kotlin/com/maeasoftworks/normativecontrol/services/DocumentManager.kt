@@ -1,119 +1,105 @@
 package com.maeasoftworks.normativecontrol.services
 
 import com.maeasoftworks.docx4nc.model.DocumentData
-import com.maeasoftworks.docx4nc.model.FailureType
-import com.maeasoftworks.normativecontrol.controllers.DocumentController
-import com.maeasoftworks.normativecontrol.dao.DocumentBytes
-import com.maeasoftworks.normativecontrol.dao.DocumentCredentials
+import com.maeasoftworks.docx4nc.parsers.DocumentParser
 import com.maeasoftworks.normativecontrol.dto.Document
-import com.maeasoftworks.normativecontrol.dto.OrderedParser
 import com.maeasoftworks.normativecontrol.dto.Status
 import com.maeasoftworks.normativecontrol.dto.response.DocumentControlPanelResponse
+import com.maeasoftworks.normativecontrol.dto.response.MistakesResponse
+import com.maeasoftworks.normativecontrol.dto.response.QueueResponse
+import com.maeasoftworks.normativecontrol.dto.response.StatusResponse
 import com.maeasoftworks.normativecontrol.repository.BinaryFileRepository
 import com.maeasoftworks.normativecontrol.repository.CredentialsRepository
 import com.maeasoftworks.normativecontrol.repository.MistakeRepository
-import com.maeasoftworks.normativecontrol.utils.toDto
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
-import org.springframework.context.event.EventListener
-import org.springframework.scheduling.annotation.Async
+import org.springframework.core.io.ByteArrayResource
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.server.ResponseStatusException
 import java.util.*
 
 @Service
-@ConditionalOnBean(DocumentController::class)
 class DocumentManager(
     private val queue: DocumentQueue,
     private val mistakeRepository: MistakeRepository,
     private val fileRepository: BinaryFileRepository,
-    private val credentialsRepository: CredentialsRepository,
-    private val factory: DocumentParserFactory
+    private val credentialsRepository: CredentialsRepository
 ) {
-    fun addToQueue(accessKey: String): String {
+    fun createParser(document: Document) = DocumentParser(document.data, document.password)
+
+    fun addToQueue(accessKey: String): QueueResponse {
         val id = UUID.randomUUID().toString().filterNot { it == '-' }
         val document = Document(id, accessKey, DocumentData(), UUID.randomUUID().toString().filterNot { it == '-' })
-        queue.put(factory.create(document), document)
-        return id
+        queue.put(createParser(document), document)
+        return QueueResponse(id, accessKey)
     }
 
-    fun appendFile(documentId: String, accessKey: String, bytes: ByteArray) {
-        val order = queue.getById(documentId)
-        if (order?.document?.accessKey == accessKey) {
-            order.document.data.file = bytes
-            queue.runById(documentId)
-        } else {
-            TODO("throw error")
+    fun enqueue(documentId: String, bytes: ByteArray) {
+        queue[documentId]!!.document.data.file = bytes
+        queue.run(documentId)
+    }
+
+    @Transactional
+    fun getState(documentId: String): StatusResponse {
+        val order = queue[documentId]
+        return StatusResponse(
+            documentId = documentId,
+            status = if (order?.document?.data?.status == null) {
+                if (fileRepository.existsBinaryFileByDocumentId(documentId)) Status.SAVED else Status.UNDEFINED
+            } else if (queue.isUploadAvailable(documentId)) {
+                Status.READY_TO_ENQUEUE
+            } else {
+                order.document.data.status
+            }
+        )
+    }
+
+    @Transactional
+    fun getMistakes(id: String) = MistakesResponse(id, mistakeRepository.findAllByDocumentId(id))
+
+    @Transactional
+    fun getFile(id: String): ByteArrayResource? {
+        return fileRepository.findByDocumentId(id)?.bytes?.toList()?.toByteArray().let {
+            if (it == null) null else ByteArrayResource(it)
         }
     }
 
     @Transactional
-    @EventListener
-    @Async
-    fun saveToDatabase(order: OrderedParser) {
-        if (order.document.data.failureType == FailureType.NONE) {
-            fileRepository.save(
-                DocumentBytes(
-                    order.document.id,
-                    order.document.data.file
-                )
+    fun getAccessKey(documentId: String): String {
+        return (
+            queue[documentId]?.document?.accessKey
+                ?: credentialsRepository.findByDocumentId(documentId)?.accessKey
             )
-            mistakeRepository.saveAll(order.documentParser.mistakes.map { it.toDto(order.document.id) })
-            credentialsRepository.save(
-                DocumentCredentials(
-                    order.document.id,
-                    order.document.accessKey,
-                    order.document.password
-                )
-            )
-            queue.remove(order.document.id)
-        }
-    }
-
-    @Transactional
-    fun getState(documentId: String, accessKey: String): Status {
-        val order = queue.getById(documentId)
-        return if (order?.document?.data?.status == null) {
-            if (fileRepository.existsBinaryFileByDocumentId(documentId)) Status.SAVED else Status.UNDEFINED
-        } else if (queue.isUploadAvailable(documentId)) {
-            Status.READY_TO_ENQUEUE
-        } else {
-            order.document.data.status
-        }
-    }
-
-    @Transactional
-    fun getMistakes(id: String) = mistakeRepository.findAllByDocumentId(id)
-
-    @Transactional
-    fun getFile(id: String) = fileRepository.findByDocumentId(id)?.bytes?.toList()?.toByteArray()
-
-    @Transactional
-    fun getAccessKey(documentId: String): String? {
-        return queue.getById(documentId)?.document?.accessKey ?: credentialsRepository.findById(documentId).orElse(
-            DocumentCredentials("", "", "")
-        ).accessKey.let { if (it == "") null else it }
+            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found.")
     }
 
     fun uploaded(accessKey: String, documentId: String): Boolean {
-        return queue.getById(documentId).let {
-            it != null && it.document.accessKey == accessKey &&
-                    !it.document.data.file.contentEquals(ByteArray(0))
-        } || credentialsRepository.findById(documentId).let { it.isPresent && it.get().accessKey == accessKey }
+        return queue[documentId].let {
+            it != null && it.document.accessKey == accessKey && !it.document.data.file.contentEquals(ByteArray(0))
+        } or credentialsRepository.findById(documentId).let {
+            it.isPresent && it.get().accessKey == accessKey
+        }
     }
 
     @Transactional
-    fun find(id: String): DocumentControlPanelResponse? {
-        return if (credentialsRepository.existsById(id)) {
+    fun find(id: String): DocumentControlPanelResponse {
+        if (credentialsRepository.existsById(id)) {
             val mistakes = mistakeRepository.findAllByDocumentId(id)
             val credentials = credentialsRepository.findById(id).get()
-            DocumentControlPanelResponse(id, credentials.accessKey, credentials.password, mistakes)
-        } else null
+            return DocumentControlPanelResponse(id, credentials.accessKey, credentials.password, mistakes)
+        } else {
+            throw ResponseStatusException(HttpStatus.NOT_FOUND)
+        }
     }
 
     @Transactional
-    fun deleteById(id: String) = if (credentialsRepository.existsById(id)) {
-        fileRepository.deleteById(id)
-        credentialsRepository.deleteById(id)
-        mistakeRepository.deleteAllByDocumentId(id)
-    } else null
+    fun delete(id: String) {
+        if (credentialsRepository.existsById(id)) {
+            fileRepository.deleteById(id)
+            credentialsRepository.deleteById(id)
+            mistakeRepository.deleteAllByDocumentId(id)
+        } else {
+            throw ResponseStatusException(HttpStatus.NOT_FOUND)
+        }
+    }
 }

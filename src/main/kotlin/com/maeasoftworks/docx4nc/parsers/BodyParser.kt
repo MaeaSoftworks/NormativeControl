@@ -1,10 +1,10 @@
 package com.maeasoftworks.docx4nc.parsers
 
-import com.maeasoftworks.docx4nc.Rules
 import com.maeasoftworks.docx4nc.apply
 import com.maeasoftworks.docx4nc.enums.MistakeType.*
 import com.maeasoftworks.docx4nc.model.Chapter
 import com.maeasoftworks.docx4nc.model.Picture
+import com.maeasoftworks.docx4nc.model.Rules
 import org.docx4j.TextUtils
 import org.docx4j.wml.P
 import org.docx4j.wml.R
@@ -38,16 +38,16 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
             if (root.isHeader(pos, level)) {
                 val newChapter = Subchapter(
                     pos,
-                    root.mainDocumentPart.content[pos] as P,
+                    root.doc.content[pos] as P,
                     currentChapter,
                     Regex("^(?:\\d\\.?){1,3}")
-                        .find(TextUtils.getText(root.mainDocumentPart.content[pos]))?.value
+                        .find(TextUtils.getText(root.doc.content[pos]))?.value
                         ?.removeSuffix(".")
                         ?.split('.')?.get(level - 1)
                         ?.toInt().also { if (it == null) root.addMistake(TEXT_BODY_SUBHEADER_WAS_EMPTY, pos) },
                     level
                 )
-                newChapter.content.add(root.mainDocumentPart.content[pos])
+                newChapter.content.add(root.doc.content[pos])
                 currentChapter.subchapters.add(newChapter)
                 currentChapter.subchapters.sortBy { it.level }
                 pos = createSubchaptersModel(pos + 1, level + 1, newChapter)
@@ -56,7 +56,7 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
             } else if (root.isHeader(pos, level - 2)) {
                 return -1
             } else {
-                currentChapter.content.add(root.mainDocumentPart.content[pos])
+                currentChapter.content.add(root.doc.content[pos])
                 pos++
             }
         }
@@ -89,8 +89,8 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
                 pictureTitleExpected = false
                 continue
             }
-            val pPr = root.resolver.getEffectivePPr(root.mainDocumentPart.content[p] as P)
-            val paragraph = root.mainDocumentPart.content[p] as P
+            val pPr = root.resolver.getEffectivePPr(root.doc.content[p] as P)
+            val paragraph = root.doc.content[p] as P
             val isEmptyP = TextUtils.getText(paragraph).isBlank()
             commonPFunctions.apply(root, p, pPr, isEmptyP)
             regularPFunctions.apply(root, p, pPr, isEmptyP)

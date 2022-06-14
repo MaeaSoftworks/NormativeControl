@@ -2,11 +2,11 @@ package com.maeasoftworks.docx4nc.parsers
 
 import com.maeasoftworks.docx4nc.PFunction
 import com.maeasoftworks.docx4nc.RFunction
-import com.maeasoftworks.docx4nc.Rules
 import com.maeasoftworks.docx4nc.apply
 import com.maeasoftworks.docx4nc.enums.MistakeType.*
 import com.maeasoftworks.docx4nc.model.Chapter
 import com.maeasoftworks.docx4nc.model.Picture
+import com.maeasoftworks.docx4nc.model.Rules
 import org.docx4j.TextUtils
 import org.docx4j.dml.wordprocessingDrawing.Anchor
 import org.docx4j.math.CTOMath
@@ -16,9 +16,7 @@ import org.docx4j.wml.*
 import javax.xml.bind.JAXBElement
 
 abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentParser) {
-    var pictureTitleExpected: Boolean = false
-    val orderedListMarkers = "абвгежиклмнпрстуфхцшщэюя".toList()
-    val alphabet = "абвгдежзиклмнопрстуфхцчшщыэюя".toList()
+    var pictureTitleExpected = false
     private var listPosition = 0
 
     abstract fun parse()
@@ -46,7 +44,7 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
             handleP(
                 context,
                 chapter.startPos,
-                root.mainDocumentPart.content[chapter.startPos] as P,
+                root.doc.content[chapter.startPos] as P,
                 headerPFunctions,
                 headerRFunctions
             )
@@ -62,7 +60,7 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
         pFunctions: Iterable<PFunction>,
         rFunctions: Iterable<RFunction>?
     ) {
-        when (val something = root.mainDocumentPart.content[p]) {
+        when (val something = root.doc.content[p]) {
             is P -> {
                 handleP(context, p, something, pFunctions, rFunctions)
             }
@@ -121,7 +119,7 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
     }
 
     open fun handlePContent(p: Int, r: Int, context: ChapterParser) {
-        when (val something = (root.mainDocumentPart.content[p] as P).content[r]) {
+        when (val something = (root.doc.content[p] as P).content[r]) {
             is JAXBElement<*> -> when (something.value) {
                 is P.Hyperlink -> context.handleHyperlink(p, r)
                 is CTRel -> unexpectedP(p, something)
@@ -163,14 +161,15 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
             is RunDel -> unexpectedP(p, something)
 
             /*
-            * CommentRangeStart
-            * CommentRangeEnd
+            * Detected:
+            *   CommentRangeStart
+            *   CommentRangeEnd
             * */
         }
     }
 
     open fun handleRContent(p: Int, r: Int, c: Int, context: ChapterParser, pictureContainer: MutableList<Picture>) {
-        when (val something = ((root.mainDocumentPart.content[p] as P).content[r] as R).content[c]) {
+        when (val something = ((root.doc.content[p] as P).content[r] as R).content[c]) {
             is JAXBElement<*> -> when (something.value) {
                 is Drawing -> {
                     pictureTitleExpected = true
@@ -203,8 +202,9 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
                 is R.FootnoteRef,
                 is R.DayLong -> root.addMistake(RUN_UNEXPECTED_CONTENT, p, r, something.declaredType.simpleName)
                 /*
-                * R.LastRenderedPageBreak
-                * Text
+                * Detected:
+                *   R.LastRenderedPageBreak
+                *   Text
                 * */
             }
             is Br -> root.addMistake(TODO_ERROR, p, r)
@@ -223,9 +223,9 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
 
     open fun handleDrawing(p: Int, r: Int, c: Int, container: MutableList<Picture>) {
         val drawing: Drawing = try {
-            (((root.mainDocumentPart.content[p] as P).content[r] as R).content[c] as JAXBElement<*>).value as Drawing
+            (((root.doc.content[p] as P).content[r] as R).content[c] as JAXBElement<*>).value as Drawing
         } catch (e: java.lang.ClassCastException) {
-            (((root.mainDocumentPart.content[p] as P).content[r] as R).content[c] as AlternateContent).choice.first().any.first() as Drawing
+            (((root.doc.content[p] as P).content[r] as R).content[c] as AlternateContent).choice.first().any.first() as Drawing
         }
 
         val picture = Picture(p, r, c, drawing)
@@ -233,7 +233,7 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
             root.addMistake(PICTURE_IS_NOT_INLINED, p, r)
         } else {
             container.add(picture)
-            picture.title = TextUtils.getText(root.mainDocumentPart.content[p + 1] as P).let {
+            picture.title = TextUtils.getText(root.doc.content[p + 1] as P).let {
                 if (it.uppercase().startsWith("РИСУНОК ")) {
                     return@let it
                 } else {
@@ -241,11 +241,11 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
                     return@let null
                 }
             }
-            if (TextUtils.getText(root.mainDocumentPart.content[p - 1] as P).isNotBlank()) {
+            if (TextUtils.getText(root.doc.content[p - 1] as P).isNotBlank()) {
                 root.addMistake(PICTURE_REQUIRED_BLANK_LINE_BEFORE_PICTURE, p, r)
             }
             if (!root.isHeader(p + 2)) {
-                if (TextUtils.getText(root.mainDocumentPart.content[p + 2] as P).isNotBlank()) {
+                if (TextUtils.getText(root.doc.content[p + 2] as P).isNotBlank()) {
                     root.addMistake(PICTURE_REQUIRED_BLANK_LINE_AFTER_PICTURE_TITLE, p, r)
                 }
             }
@@ -257,13 +257,13 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
     }
 
     fun validatePictureTitleStyle(pictureP: Int) {
-        TitleParser(
-            Chapter(pictureP + 1, listOf(root.mainDocumentPart.content[pictureP + 1]).toMutableList()), root
+        PictureTitleParser(
+            Chapter(pictureP + 1, mutableListOf(root.doc.content[pictureP + 1])), root
         ).parse()
     }
 
     fun validateListElement(p: Int) {
-        val pPr = (root.mainDocumentPart.content[p] as P).pPr
+        val pPr = (root.doc.content[p] as P).pPr
         val numberingFormat =
             root.numbering!!.instanceListDefinitions[pPr.numPr.numId.`val`.toString()]!!.abstractListDefinition
         if (pPr.numPr.ilvl.`val` != null && pPr.numPr.ilvl.`val`.toInt() > 1) {
@@ -283,7 +283,7 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
                 }
                 else -> root.addMistake(ORDERED_LIST_INCORRECT_MARKER_FORMAT, p)
             }
-            object : AnonymousParser(Chapter(p, mutableListOf(root.mainDocumentPart.content[p])), root) {
+            object : AnonymousParser(Chapter(p, mutableListOf(root.doc.content[p])), root) {
             }
         } else if (pPr.numPr.ilvl.`val`.toInt() == 1) {
             if (numberingFormat.listLevels["1"]!!.numFmt != NumberFormat.DECIMAL || numberingFormat.listLevels["1"]!!.levelText != "%2)") {
@@ -293,6 +293,9 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
     }
 
     companion object {
+
+        val orderedListMarkers = "абвгежиклмнпрстуфхцшщэюя".toList()
+        val alphabet = "абвгдежзиклмнопрстуфхцчшщыэюя".toList()
 
         val pCommonFunctions = listOf(
             Rules.Default.Common.P::hasNotBackground,

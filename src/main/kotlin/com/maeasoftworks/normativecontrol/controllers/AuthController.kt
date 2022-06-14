@@ -1,5 +1,6 @@
 package com.maeasoftworks.normativecontrol.controllers
 
+import com.maeasoftworks.normativecontrol.components.JwtUtils
 import com.maeasoftworks.normativecontrol.dao.User
 import com.maeasoftworks.normativecontrol.dto.RoleType
 import com.maeasoftworks.normativecontrol.dto.UserDetailsImpl
@@ -10,9 +11,8 @@ import com.maeasoftworks.normativecontrol.dto.response.JwtResponse
 import com.maeasoftworks.normativecontrol.dto.response.TokenRefreshResponse
 import com.maeasoftworks.normativecontrol.repository.UserRepository
 import com.maeasoftworks.normativecontrol.services.RefreshTokenService
-import com.maeasoftworks.normativecontrol.utils.JwtUtils
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression
 import org.springframework.http.HttpStatus
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
@@ -24,7 +24,6 @@ import javax.validation.Valid
 @CrossOrigin
 @RestController
 @RequestMapping("auth")
-@ConditionalOnExpression("\${controllers.api}")
 class AuthController(
     private val authenticationManager: AuthenticationManager,
     private val userRepository: UserRepository,
@@ -33,7 +32,7 @@ class AuthController(
     private val refreshTokenService: RefreshTokenService
 ) {
     @PostMapping("register")
-    // @PreAuthorize("hasRole('DEV')")
+    @PreAuthorize("hasRole('DEV')")
     fun registerUser(@Valid @RequestBody registrationRequest: RegistrationRequest) {
         if (userRepository.existsByEmail(registrationRequest.email)) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Error: Email is already in use!")

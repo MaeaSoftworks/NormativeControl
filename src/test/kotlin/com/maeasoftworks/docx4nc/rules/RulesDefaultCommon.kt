@@ -1,7 +1,7 @@
 package com.maeasoftworks.docx4nc.rules
 
-import com.maeasoftworks.docx4nc.Rules
 import com.maeasoftworks.docx4nc.enums.MistakeType.*
+import com.maeasoftworks.docx4nc.model.Rules
 import org.junit.jupiter.api.Test
 
 open class RulesDefaultCommon : RulesTestBase() {

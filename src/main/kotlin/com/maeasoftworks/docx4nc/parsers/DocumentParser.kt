@@ -1,6 +1,5 @@
 package com.maeasoftworks.docx4nc.parsers
 
-import com.maeasoftworks.docx4nc.HeadersKeywords
 import com.maeasoftworks.docx4nc.enums.ChapterType
 import com.maeasoftworks.docx4nc.enums.ChapterType.*
 import com.maeasoftworks.docx4nc.enums.MistakeType
@@ -27,7 +26,7 @@ import java.math.BigInteger
 
 class DocumentParser(val documentData: DocumentData, private var password: String) {
     private lateinit var mlPackage: WordprocessingMLPackage
-    lateinit var mainDocumentPart: MainDocumentPart
+    lateinit var doc: MainDocumentPart
     lateinit var resolver: Resolver
     private val factory = Context.getWmlObjectFactory()
 
@@ -36,17 +35,17 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
 
     var chapters: MutableList<Chapter> = ArrayList()
     var parsers: MutableList<ChapterParser> = ArrayList()
-    var mistakes: MutableList<MistakeData> = ArrayList()
+    var mistakes: MutableList<MistakeOuter> = ArrayList()
     var tables: MutableList<Table> = ArrayList()
     val pictures: MutableList<Picture> = ArrayList()
 
     private var mistakeId: Long = 0
 
     fun addMistake(type: MistakeType, p: Int? = null, r: Int? = null, description: String? = null) {
-        mistakes.add(MistakeData(mistakeId++, p, r, type, description))
+        mistakes.add(MistakeOuter(mistakeId++, p, r, type, description))
     }
 
-    fun addMistake(mistake: MistakeBody?) {
+    fun addMistake(mistake: MistakeInner?) {
         if (mistake != null) {
             addMistake(mistake.mistakeType, mistake.p, mistake.r, mistake.description)
         }
@@ -55,23 +54,23 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
     fun init() {
         try {
             mlPackage = WordprocessingMLPackage.load(ByteArrayInputStream(documentData.file))
-            mainDocumentPart = mlPackage.mainDocumentPart
-            mainDocumentPart.contents.body
+            doc = mlPackage.mainDocumentPart
+            doc.contents.body
             resolver = Resolver(PropertyResolver(mlPackage))
-            comments = mainDocumentPart.commentsPart
+            comments = doc.commentsPart
             if (comments == null) {
                 comments = CommentsPart().also { it.jaxbElement = factory.createComments() }
-                mainDocumentPart.addTargetPart(comments)
+                doc.addTargetPart(comments)
             }
             mistakeId = comments!!.jaxbElement.comment.size.toLong()
-            numbering = mainDocumentPart.numberingDefinitionsPart
+            numbering = doc.numberingDefinitionsPart
         } catch (e: Docx4JException) {
             documentData.status = Status.ERROR
             documentData.failureType = FailureType.FILE_READING_ERROR
         }
     }
 
-    fun runVerification(): List<MistakeData> {
+    fun runVerification(): List<MistakeOuter> {
         verifyPageSize()
         verifyPageMargins()
         setupChapters()
@@ -109,24 +108,24 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
             }
             val commentRangeEnd = factory.createCommentRangeEnd().also { it.id = BigInteger.valueOf(mistake.mistakeId) }
             if (mistake.p == null) {
-                val paragraph = mainDocumentPart.content[0] as P
+                val paragraph = doc.content[0] as P
                 paragraph.content.add(commentRangeStart)
                 paragraph.content.add(commentRangeEnd)
                 paragraph.content.add(createRunCommentReference(mistake.mistakeId))
             } else if (mistake.r == null) {
                 val paragraph: P = try {
-                    mainDocumentPart.content[mistake.p] as P
+                    doc.content[mistake.p] as P
                 } catch (e: ClassCastException) {
-                    factory.createP().apply { mainDocumentPart.content.add(mistake.p + 1, this) }
+                    factory.createP().apply { doc.content.add(mistake.p + 1, this) }
                 }
                 paragraph.content.add(0, commentRangeStart)
                 paragraph.content.add(commentRangeEnd)
                 paragraph.content.add(createRunCommentReference(mistake.mistakeId))
             } else {
                 val paragraph: P = try {
-                    mainDocumentPart.content[mistake.p] as P
+                    doc.content[mistake.p] as P
                 } catch (e: ClassCastException) {
-                    factory.createP().apply { mainDocumentPart.content.add(mistake.p + 1, this) }
+                    factory.createP().apply { doc.content.add(mistake.p + 1, this) }
                 }
                 paragraph.content.add(if (mistake.r == 0) 0 else mistake.r - 1, commentRangeStart)
                 if (mistake.r == paragraph.content.size - 1) {
@@ -148,7 +147,7 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
     }
 
     fun verifyPageSize() {
-        val pageSize = mainDocumentPart.contents.body.sectPr.pgSz
+        val pageSize = doc.contents.body.sectPr.pgSz
         if (pageSize.w.intValueExact() != 11906) {
             addMistake(PAGE_WIDTH_IS_INCORRECT)
         }
@@ -158,7 +157,7 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
     }
 
     fun verifyPageMargins() {
-        val pageMargins = mainDocumentPart.contents.body.sectPr.pgMar
+        val pageMargins = doc.contents.body.sectPr.pgMar
         if (pageMargins.top.intValueExact() != 1134) {
             addMistake(PAGE_MARGIN_TOP_IS_INCORRECT)
         }
@@ -174,7 +173,7 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
     }
 
     fun findChapters() {
-        val paragraphs = mainDocumentPart.content
+        val paragraphs = doc.content
         var paragraph = 0
         var sectorId = 0
         while (paragraph < paragraphs.size) {
@@ -225,14 +224,14 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
         if (text.split(Regex("\\s+"))[0].matches(Regex("^(?:\\d{1,2}\\.?){1,3}$"))) {
             return BODY
         }
-        for (keys in 0 until HeadersKeywords.keywordsBySector.size) {
-            for (key in HeadersKeywords.keywordsBySector[keys]) {
+        for (keys in 0 until ChapterMarkers.markers.size) {
+            for (key in ChapterMarkers.markers[keys]) {
                 if (text.uppercase().contains(key)) {
                     return ChapterType.values()[keys]
                 }
             }
         }
-        for (keyword in HeadersKeywords.appendix) {
+        for (keyword in ChapterMarkers.appendix) {
             if (text.uppercase().startsWith(keyword)) {
                 return APPENDIX
             }
@@ -304,7 +303,7 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
     }
 
     fun isHeader(paragraph: Int, level: Int? = null): Boolean {
-        val pPr = resolver.getEffectivePPr(mainDocumentPart.content[paragraph] as P)
+        val pPr = resolver.getEffectivePPr(doc.content[paragraph] as P)
         if (pPr.outlineLvl == null) {
             return false
         }
@@ -368,9 +367,11 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
 
     private fun createRunCommentReference(commentId: Long): R {
         return factory.createR().also { run ->
-            run.content.add(factory.createRCommentReference().also {
-                it.id = BigInteger.valueOf(commentId)
-            })
+            run.content.add(
+                factory.createRCommentReference().also {
+                    it.id = BigInteger.valueOf(commentId)
+                }
+            )
         }
     }
 }

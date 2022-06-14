@@ -15,6 +15,9 @@ class Resolver(private val resolver: PropertyResolver) {
     }
 
     fun getEffectiveRPr(r: R): RPr {
-        return rPrs[r] ?: resolver.getEffectiveRPr(r.rPr, pPrs[(r.parent as P).paraId] ?: getEffectivePPr(r.parent as P)).also { rPrs[r] = it }
+        return rPrs[r] ?: resolver.getEffectiveRPr(
+            r.rPr,
+            pPrs[(r.parent as P).paraId] ?: getEffectivePPr(r.parent as P)
+        ).also { rPrs[r] = it }
     }
 }

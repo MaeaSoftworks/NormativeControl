@@ -29,7 +29,7 @@ class StyleTests : ParserTestFactory(StyleTests::class) {
     @Test
     fun `incorrect header style validated properly`() {
         val parser = createParser("very broken text.docx")
-        parser.parsers += SimpleParser(Chapter(0, parser.mainDocumentPart.content), parser)
+        parser.parsers += SimpleParser(Chapter(0, parser.doc.content), parser)
         parser.parsers[0].parse()
         errorAssert(
             parser.mistakes,

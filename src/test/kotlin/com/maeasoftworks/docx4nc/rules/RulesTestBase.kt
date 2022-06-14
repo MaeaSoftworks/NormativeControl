@@ -5,7 +5,7 @@ import ch.qos.logback.classic.Logger
 import com.maeasoftworks.docx4nc.PFunction
 import com.maeasoftworks.docx4nc.RFunction
 import com.maeasoftworks.docx4nc.model.DocumentData
-import com.maeasoftworks.docx4nc.model.MistakeBody
+import com.maeasoftworks.docx4nc.model.MistakeInner
 import com.maeasoftworks.docx4nc.parsers.DocumentParser
 import org.docx4j.TextUtils
 import org.docx4j.openpackaging.exceptions.Docx4JException
@@ -18,27 +18,27 @@ import java.io.IOException
 open class RulesTestBase {
     lateinit var parser: DocumentParser
 
-    fun base(p: Int, wrapper: PFunction, condition: (MistakeBody?) -> Boolean) {
-        val paragraph = parser.mainDocumentPart.content[p] as P
+    fun base(p: Int, wrapper: PFunction, condition: (MistakeInner?) -> Boolean) {
+        val paragraph = parser.doc.content[p] as P
         assert(
             wrapper(
                 p,
                 parser.resolver.getEffectivePPr(paragraph),
                 TextUtils.getText(paragraph).isEmpty(),
-                parser.mainDocumentPart
+                parser.doc
             ).let(condition)
         )
     }
 
-    fun base(p: Int, wrapper: RFunction, condition: (MistakeBody?) -> Boolean) {
-        val paragraph = parser.mainDocumentPart.content[p] as P
+    fun base(p: Int, wrapper: RFunction, condition: (MistakeInner?) -> Boolean) {
+        val paragraph = parser.doc.content[p] as P
         assert(
             wrapper(
                 p,
                 0,
                 parser.resolver.getEffectiveRPr(paragraph.content[0] as R),
                 TextUtils.getText(paragraph).isEmpty(),
-                parser.mainDocumentPart
+                parser.doc
             ).let(condition)
         )
     }

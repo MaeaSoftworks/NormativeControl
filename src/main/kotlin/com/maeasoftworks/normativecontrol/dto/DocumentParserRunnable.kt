@@ -1,24 +1,26 @@
 package com.maeasoftworks.normativecontrol.dto
 
 import org.slf4j.LoggerFactory
-import org.springframework.context.ApplicationEventPublisher
 import java.util.concurrent.atomic.AtomicInteger
 
 class DocumentParserRunnable(
-    private var order: OrderedParser,
+    private var parser: EnqueuedParser,
     private val count: AtomicInteger,
-    private val publisher: ApplicationEventPublisher
+    private val afterParsing: (EnqueuedParser) -> Unit
 ) : Runnable {
-    private val log = LoggerFactory.getLogger(this::class.java)
 
     override fun run() {
         val start = System.currentTimeMillis()
-        order.documentParser.init()
-        order.documentParser.runVerification()
+        parser.documentParser.init()
+        parser.documentParser.runVerification()
         val end = System.currentTimeMillis()
-        log.info("[{}] time taken: {} ms", order.document.id, end - start)
+        log.info("[{}] time taken: {} ms", parser.document.id, end - start)
         count.decrementAndGet()
-        order.document.data.status = Status.READY
-        publisher.publishEvent(order)
+        parser.document.data.status = Status.READY
+        afterParsing(parser)
+    }
+
+    companion object {
+        private val log = LoggerFactory.getLogger(this::class.java)
     }
 }

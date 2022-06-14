@@ -1,6 +1,5 @@
 package com.maeasoftworks.docx4nc.enums
 
-
 enum class MistakeType(val ru: String) {
     // page size
     PAGE_WIDTH_IS_INCORRECT("Некорректная высота страницы"),
@@ -118,4 +117,3 @@ enum class MistakeType(val ru: String) {
     ORDERED_LIST_INCORRECT_MARKER_FORMAT_AT_LEVEL_2("Некорректный формат маркера второго уровня нумерованного списка"),
     ORDERED_LIST_INCORRECT_MARKER_FORMAT("Некорректный формат маркера ненумерованного списка")
 }
-// @formatter:on

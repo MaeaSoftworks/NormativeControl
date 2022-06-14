@@ -1,4 +1,4 @@
-package com.maeasoftworks.normativecontrol.documentation.objects
+package com.maeasoftworks.normativecontrol.dto.documentation.objects
 
 import org.springframework.http.HttpStatus
 

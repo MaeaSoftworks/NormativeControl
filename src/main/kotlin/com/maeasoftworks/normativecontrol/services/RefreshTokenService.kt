@@ -24,12 +24,13 @@ class RefreshTokenService(
     }
 
     fun createRefreshToken(userId: Long): RefreshToken {
-        var refreshToken = RefreshToken()
-        refreshToken.user = userRepository.findById(userId).get()
-        refreshToken.expiryDate = Instant.now().plusMillis(refreshTokenDurationMs)
-        refreshToken.refreshToken = UUID.randomUUID().toString()
-        refreshToken = refreshTokenRepository.save(refreshToken)
-        return refreshToken
+        return refreshTokenRepository.save(
+            RefreshToken(
+                userRepository.findById(userId).get(),
+                UUID.randomUUID().toString(),
+                Instant.now().plusMillis(refreshTokenDurationMs)
+            )
+        )
     }
 
     fun verifyExpiration(token: RefreshToken): RefreshToken {

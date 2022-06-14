@@ -1,7 +1,3 @@
-controllers:
-  docs: true
-  api: true
-
 spring:
   datasource:
     password: maeasoftworks
@@ -24,13 +20,12 @@ spring:
 server:
   port: 8080
 
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,metrics,prometheus
-
 app:
   jwtSecret: K5b4qldMjy
   jwtExpirationMs: 3600000
   jwtRefreshExpirationMs: 2592000000
+
+logging:
+  level:
+    org:
+      docx4j: ERROR

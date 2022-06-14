@@ -13,10 +13,11 @@ class UserDetailsServiceImpl(var userRepository: UserRepository) : UserDetailsSe
     @Transactional
     override fun loadUserByUsername(email: String): UserDetails {
         val user = userRepository.findByEmail(email)
-        if (user.isEmpty)
+        if (user.isEmpty) {
             throw UsernameNotFoundException("User not found")
-        else
+        } else {
             return UserDetailsImpl.build(user.get())
+        }
     }
 
     fun loadUserByEmail(email: String): UserDetails = loadUserByUsername(email)

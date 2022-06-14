@@ -1,14 +1,14 @@
 package com.maeasoftworks.normativecontrol.dto.request
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.maeasoftworks.normativecontrol.documentation.annotations.Documentation
-import com.maeasoftworks.normativecontrol.documentation.annotations.PropertyDocumentation
+import com.maeasoftworks.normativecontrol.dto.documentation.annotations.Documented
+import com.maeasoftworks.normativecontrol.dto.documentation.annotations.DocumentedProperty
 import javax.validation.constraints.NotBlank
 
-@Documentation("docs.entity.TokenRefreshRequest.info")
+@Documented("docs.entity.TokenRefreshRequest.info")
 data class TokenRefreshRequest(
     @field:JsonProperty(value = "refresh-token")
     @NotBlank
-    @PropertyDocumentation("docs.entity.TokenRefreshRequest.prop0")
+    @DocumentedProperty("docs.entity.TokenRefreshRequest.prop0")
     val refreshToken: String
 )

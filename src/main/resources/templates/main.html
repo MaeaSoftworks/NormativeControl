@@ -51,7 +51,8 @@
     <div class="description-block">
         <h2 th:if="${currentMethod != null && isMethod}" th:text="#{docs.info.method.header}">Method</h2>
         <p class="current-section-name" th:if="${currentMethod != null && isMethod}">
-            <span th:class="'method-type method-type-' + ${currentMethod.type}" th:utext="'[' + ${currentMethod.type} + ']'"></span>
+            <span th:class="'method-type method-type-' + ${currentMethod.type}"
+                  th:utext="'[' + ${currentMethod.type} + ']'"></span>
             <span class="method-name" th:utext="${currentMethod.path}"></span>
         </p>
         <h2 th:if="${currentEntity != null && !isMethod}" th:text="#{docs.info.entity.header}">Entity</h2>

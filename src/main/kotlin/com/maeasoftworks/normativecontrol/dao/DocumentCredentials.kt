@@ -5,6 +5,7 @@ import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.Id
 import javax.persistence.Table
+import javax.validation.constraints.NotBlank
 
 @Table
 @Entity
@@ -12,8 +13,11 @@ class DocumentCredentials(
     @Id
     @JsonIgnore
     @Column(name = "document_id")
-    val documentId: String,
+    @NotBlank
+    val documentId: String = "",
     @Column(name = "access_key")
-    val accessKey: String,
-    val password: String
+    @NotBlank
+    val accessKey: String = "",
+    @NotBlank
+    val password: String = ""
 )

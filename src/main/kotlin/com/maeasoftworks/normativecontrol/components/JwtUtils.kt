@@ -1,4 +1,4 @@
-package com.maeasoftworks.normativecontrol.utils
+package com.maeasoftworks.normativecontrol.components
 
 import com.maeasoftworks.normativecontrol.dto.UserDetailsImpl
 import io.jsonwebtoken.*

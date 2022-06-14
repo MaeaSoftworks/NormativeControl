@@ -1,4 +1,4 @@
-package com.maeasoftworks.normativecontrol.documentation.annotations
+package com.maeasoftworks.normativecontrol.dto.documentation.annotations
 
 import org.springframework.http.HttpStatus
 import kotlin.reflect.KClass

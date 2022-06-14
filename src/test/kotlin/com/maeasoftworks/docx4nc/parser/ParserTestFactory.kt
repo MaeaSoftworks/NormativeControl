@@ -4,7 +4,7 @@ import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
 import com.maeasoftworks.docx4nc.enums.MistakeType
 import com.maeasoftworks.docx4nc.model.DocumentData
-import com.maeasoftworks.docx4nc.model.MistakeData
+import com.maeasoftworks.docx4nc.model.MistakeOuter
 import com.maeasoftworks.docx4nc.parsers.DocumentParser
 import org.docx4j.openpackaging.exceptions.Docx4JException
 import org.slf4j.LoggerFactory
@@ -20,7 +20,7 @@ open class ParserTestFactory(testClass: KClass<*>) {
         directory = testClass.simpleName!!.removeSuffix("Tests").lowercase()
     }
 
-    protected fun errorAssert(found: MutableList<MistakeData>, vararg expected: MistakeType) {
+    protected fun errorAssert(found: MutableList<MistakeOuter>, vararg expected: MistakeType) {
         assert(found.size == expected.size) { "Expected: ${expected.size} errors\nFound: ${found.size}" }
         for (i in 0 until found.size) {
             assert(found[i].mistakeType == expected[i]) { "Expected: ${expected[i].name}\nFound: ${found[i].mistakeType.name}" }

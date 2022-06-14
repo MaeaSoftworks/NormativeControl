@@ -1,4 +1,4 @@
-package com.maeasoftworks.normativecontrol.documentation.objects
+package com.maeasoftworks.normativecontrol.dto.documentation.objects
 
 class PropertyInfo(
     var name: String = "",

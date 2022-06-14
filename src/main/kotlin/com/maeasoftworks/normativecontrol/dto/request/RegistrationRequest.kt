@@ -1,18 +1,18 @@
 package com.maeasoftworks.normativecontrol.dto.request
 
-import com.maeasoftworks.normativecontrol.documentation.annotations.Documentation
-import com.maeasoftworks.normativecontrol.documentation.annotations.PropertyDocumentation
+import com.maeasoftworks.normativecontrol.dto.documentation.annotations.Documented
+import com.maeasoftworks.normativecontrol.dto.documentation.annotations.DocumentedProperty
 import javax.validation.constraints.Email
 
-@Documentation("docs.entity.RegistrationRequest.info")
+@Documented("docs.entity.RegistrationRequest.info")
 data class RegistrationRequest(
-    @PropertyDocumentation("docs.entity.RegistrationRequest.prop0")
+    @DocumentedProperty("docs.entity.RegistrationRequest.prop0")
     val username: String,
     @Email
-    @PropertyDocumentation("docs.entity.RegistrationRequest.prop1")
+    @DocumentedProperty("docs.entity.RegistrationRequest.prop1")
     val email: String,
-    @PropertyDocumentation("docs.entity.RegistrationRequest.prop2")
+    @DocumentedProperty("docs.entity.RegistrationRequest.prop2")
     val password: String,
-    @PropertyDocumentation("docs.entity.RegistrationRequest.prop3")
+    @DocumentedProperty("docs.entity.RegistrationRequest.prop3")
     val roles: Set<String>
 )

@@ -1,4 +1,4 @@
-package com.maeasoftworks.normativecontrol.utils
+package com.maeasoftworks.normativecontrol.components
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

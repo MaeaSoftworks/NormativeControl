@@ -2,17 +2,17 @@ package com.maeasoftworks.normativecontrol.dto.response
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.maeasoftworks.normativecontrol.dao.Mistake
-import com.maeasoftworks.normativecontrol.documentation.annotations.Documentation
-import com.maeasoftworks.normativecontrol.documentation.annotations.PropertyDocumentation
+import com.maeasoftworks.normativecontrol.dto.documentation.annotations.Documented
+import com.maeasoftworks.normativecontrol.dto.documentation.annotations.DocumentedProperty
 import java.time.LocalDateTime
 
-@Documentation("docs.entity.MistakesResponse.info")
+@Documented("docs.entity.MistakesResponse.info")
 data class MistakesResponse(
-    @PropertyDocumentation("docs.entity.common.id")
+    @DocumentedProperty("docs.entity.common.id")
     @get:JsonProperty(value = "document-id")
     val documentId: String,
-    @PropertyDocumentation("docs.entity.MistakesResponse.prop0")
+    @DocumentedProperty("docs.entity.MistakesResponse.prop0")
     val errors: List<Mistake>,
-    @PropertyDocumentation("docs.entity.common.time")
+    @DocumentedProperty("docs.entity.common.time")
     val timestamp: LocalDateTime = LocalDateTime.now()
 )

@@ -1,8 +1,6 @@
 package com.maeasoftworks.normativecontrol.controllers
 
-import com.maeasoftworks.normativecontrol.dto.response.QueueResponse
 import com.maeasoftworks.normativecontrol.services.DocumentManager
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
@@ -12,13 +10,11 @@ import java.io.IOException
 @CrossOrigin
 @RestController
 @RequestMapping("queue")
-@ConditionalOnExpression("\${controllers.api}")
 class QueueController(documentManager: DocumentManager) : DocumentCredentialsConfirmedController(documentManager) {
 
     @PostMapping("reserve")
     @ResponseBody
-    fun reserve(@RequestParam("access-key") accessKey: String) =
-        QueueResponse(documentManager.addToQueue(accessKey), accessKey)
+    fun reserve(@RequestParam("access-key") accessKey: String) = documentManager.addToQueue(accessKey)
 
     @PostMapping("enqueue")
     @ResponseStatus(HttpStatus.ACCEPTED)
@@ -39,8 +35,8 @@ class QueueController(documentManager: DocumentManager) : DocumentCredentialsCon
         val bytes: ByteArray = try {
             file.bytes
         } catch (e: IOException) {
-            throw ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Can not process this document")
+            throw ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Cannot process this document")
         }
-        documentManager.appendFile(documentId, accessKey, bytes)
+        enqueue(documentId, bytes)
     }
 }

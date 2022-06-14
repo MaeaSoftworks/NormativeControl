@@ -1,47 +1,62 @@
 package com.maeasoftworks.normativecontrol.services
 
+import com.maeasoftworks.docx4nc.model.FailureType
 import com.maeasoftworks.docx4nc.parsers.DocumentParser
+import com.maeasoftworks.normativecontrol.dao.DocumentBytes
+import com.maeasoftworks.normativecontrol.dao.DocumentCredentials
 import com.maeasoftworks.normativecontrol.dto.Document
 import com.maeasoftworks.normativecontrol.dto.DocumentParserRunnable
-import com.maeasoftworks.normativecontrol.dto.OrderedParser
+import com.maeasoftworks.normativecontrol.dto.EnqueuedParser
 import com.maeasoftworks.normativecontrol.dto.Status
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
-import org.springframework.context.ApplicationEventPublisher
+import com.maeasoftworks.normativecontrol.repository.BinaryFileRepository
+import com.maeasoftworks.normativecontrol.repository.CredentialsRepository
+import com.maeasoftworks.normativecontrol.repository.MistakeRepository
+import com.maeasoftworks.normativecontrol.utils.toDao
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicInteger
 
 @Service
-@ConditionalOnBean(DocumentManager::class)
-class DocumentQueue(private val publisher: ApplicationEventPublisher) {
-    private val documentMap: HashMap<String, OrderedParser> = HashMap()
+class DocumentQueue(
+    private val mistakeRepository: MistakeRepository,
+    private val fileRepository: BinaryFileRepository,
+    private val credentialsRepository: CredentialsRepository
+) {
+    private val queue: HashMap<String, EnqueuedParser> = HashMap()
     private val executor: ExecutorService = Executors.newFixedThreadPool(100)
     var count: AtomicInteger = AtomicInteger(0)
 
     fun put(parser: DocumentParser, document: Document) {
-        documentMap[document.id] = OrderedParser(parser, document)
+        queue[document.id] = EnqueuedParser(parser, document)
         parser.documentData.status = Status.READY_TO_ENQUEUE
     }
 
-    fun runById(documentId: String) {
-        val order = documentMap[documentId]
+    fun run(documentId: String) {
+        val order = queue[documentId]
         if (order != null) {
             count.incrementAndGet()
             order.document.data.status = Status.PROCESSING
-            executor.execute(DocumentParserRunnable(order, count, publisher))
+            executor.execute(DocumentParserRunnable(order, count, ::saveToDatabase))
+        }
+    }
+
+    @Transactional
+    fun saveToDatabase(order: EnqueuedParser) {
+        if (order.document.data.failureType == FailureType.NONE) {
+            fileRepository.save(DocumentBytes(order.document.id, order.document.data.file))
+            mistakeRepository.saveAll(order.documentParser.mistakes.map { it.toDao(order.document.id) })
+            credentialsRepository.save(
+                DocumentCredentials(order.document.id, order.document.accessKey, order.document.password)
+            )
+            queue.remove(order.document.id)
         }
     }
 
     fun isUploadAvailable(documentId: String): Boolean {
-        return documentMap[documentId]?.document?.data?.status == Status.READY_TO_ENQUEUE && count.get() < 100
+        return queue[documentId]?.document?.data?.status == Status.READY_TO_ENQUEUE && count.get() < 100
     }
 
-    fun getById(id: String): OrderedParser? {
-        return documentMap[id]
-    }
-
-    fun remove(id: String) {
-        documentMap.remove(id)
-    }
+    operator fun get(id: String) = queue[id]
 }
