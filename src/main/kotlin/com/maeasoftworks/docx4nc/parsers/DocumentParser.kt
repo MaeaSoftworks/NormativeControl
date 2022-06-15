@@ -101,7 +101,7 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
                 mistake.mistakeId,
                 mistake.mistakeType.ru.let { x ->
                     if (mistake.description != null) {
-                        return@let x + ": ${mistake.description.split('/').let { "найдено: ${it[0]}, ожидалось: ${it[1]}" }}"
+                        return@let x + ": ${mistake.description.split('/').let {if (it.size > 1) "найдено: ${it[0]}, ожидалось: ${it[1]}" else it[0] }}"
                     } else {
                         return@let x
                     }
