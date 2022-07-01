@@ -1,6 +1,6 @@
 package com.maeasoftworks.docx4nc.model
 
-import com.maeasoftworks.normativecontrol.dto.Status
+import com.maeasoftworks.docx4nc.enums.Status
 
 class DocumentData(
     var file: ByteArray = ByteArray(0),

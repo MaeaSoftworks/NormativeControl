@@ -1,9 +1,9 @@
 package com.maeasoftworks.normativecontrol.services
 
+import com.maeasoftworks.docx4nc.enums.Status
 import com.maeasoftworks.docx4nc.model.DocumentData
 import com.maeasoftworks.docx4nc.parsers.DocumentParser
 import com.maeasoftworks.normativecontrol.dto.Document
-import com.maeasoftworks.normativecontrol.dto.Status
 import com.maeasoftworks.normativecontrol.dto.response.DocumentControlPanelResponse
 import com.maeasoftworks.normativecontrol.dto.response.MistakesResponse
 import com.maeasoftworks.normativecontrol.dto.response.QueueResponse
@@ -68,8 +68,12 @@ class DocumentManager(
 
     @Transactional
     fun validateAccessKey(documentId: String, accessKey: String): Boolean {
-        return ((queue[documentId]?.document?.accessKey ?: credentialsRepository.findByDocumentId(documentId)?.accessKey)
-            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found.")) == bCryptPasswordEncoder.encode(accessKey)
+        return ((queue[documentId]?.document?.accessKey
+            ?: credentialsRepository.findByDocumentId(documentId)?.accessKey)
+            ?: throw ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "Document not found."
+            )) == bCryptPasswordEncoder.encode(accessKey)
     }
 
     fun uploaded(accessKey: String, documentId: String): Boolean {

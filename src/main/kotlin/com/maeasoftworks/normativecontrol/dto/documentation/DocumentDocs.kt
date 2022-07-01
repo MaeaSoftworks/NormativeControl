@@ -1,7 +1,7 @@
 package com.maeasoftworks.normativecontrol.dto.documentation
 
+import com.maeasoftworks.docx4nc.enums.Status
 import com.maeasoftworks.normativecontrol.controllers.DocumentController
-import com.maeasoftworks.normativecontrol.dto.Status
 import com.maeasoftworks.normativecontrol.dto.documentation.annotations.Documented
 import com.maeasoftworks.normativecontrol.dto.documentation.annotations.PossibleResponse
 import com.maeasoftworks.normativecontrol.dto.response.MistakesResponse

@@ -16,7 +16,7 @@ const genStar = () => {
     return star;
 };
 
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
     const $el = document.querySelector(".space");
     for (let index = 0; index < 52; index++) {
         $el.append(genStar());

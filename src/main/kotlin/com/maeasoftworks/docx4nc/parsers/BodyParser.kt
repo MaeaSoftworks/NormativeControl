@@ -220,7 +220,8 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
             chapter.startPos + 1,
             null,
             null,
-            Regex("^(?:\\d\\.?){1,3}").find(this@BodyParser.root.texts.getText(chapter.header))?.value?.removeSuffix(".")?.toInt(),
+            Regex("^(?:\\d\\.?){1,3}").find(this@BodyParser.root.texts.getText(chapter.header))?.value?.removeSuffix(".")
+                ?.toInt(),
             1
         )
 

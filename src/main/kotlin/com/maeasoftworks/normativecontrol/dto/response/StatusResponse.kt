@@ -1,7 +1,7 @@
 package com.maeasoftworks.normativecontrol.dto.response
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.maeasoftworks.normativecontrol.dto.Status
+import com.maeasoftworks.docx4nc.enums.Status
 import com.maeasoftworks.normativecontrol.dto.documentation.annotations.Documented
 import com.maeasoftworks.normativecontrol.dto.documentation.annotations.DocumentedProperty
 import java.time.LocalDateTime

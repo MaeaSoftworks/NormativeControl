@@ -1,5 +1,6 @@
 package com.maeasoftworks.normativecontrol.dto
 
+import com.maeasoftworks.docx4nc.enums.Status
 import org.slf4j.LoggerFactory
 import java.util.concurrent.atomic.AtomicInteger
 

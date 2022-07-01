@@ -1,4 +1,4 @@
-package com.maeasoftworks.normativecontrol.dto
+package com.maeasoftworks.docx4nc.enums
 
 enum class Status {
     QUEUE,

@@ -27,8 +27,8 @@ import kotlin.reflect.jvm.javaGetter
 @Component
 class Documentation {
     val methods = createControllerDocs(AuthDocs::class) +
-        createControllerDocs(DocumentDocs::class) +
-        createControllerDocs(QueueDocs::class)
+            createControllerDocs(DocumentDocs::class) +
+            createControllerDocs(QueueDocs::class)
 
     val entities = arrayOf(
         createObjectDocs(FileResponse::class),

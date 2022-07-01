@@ -4,9 +4,9 @@ import com.maeasoftworks.docx4nc.enums.ChapterType
 import com.maeasoftworks.docx4nc.enums.ChapterType.*
 import com.maeasoftworks.docx4nc.enums.MistakeType
 import com.maeasoftworks.docx4nc.enums.MistakeType.*
+import com.maeasoftworks.docx4nc.enums.Status
 import com.maeasoftworks.docx4nc.ignore
 import com.maeasoftworks.docx4nc.model.*
-import com.maeasoftworks.normativecontrol.dto.Status
 import org.docx4j.jaxb.Context
 import org.docx4j.model.PropertyResolver
 import org.docx4j.openpackaging.exceptions.Docx4JException
@@ -101,7 +101,10 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
                 mistake.mistakeId,
                 mistake.mistakeType.ru.let { x ->
                     if (mistake.description != null) {
-                        return@let x + ": ${mistake.description.split('/').let {if (it.size > 1) "найдено: ${it[0]}, ожидалось: ${it[1]}" else it[0] }}"
+                        return@let x + ": ${
+                            mistake.description.split('/')
+                                .let { if (it.size > 1) "найдено: ${it[0]}, ожидалось: ${it[1]}" else it[0] }
+                        }"
                     } else {
                         return@let x
                     }

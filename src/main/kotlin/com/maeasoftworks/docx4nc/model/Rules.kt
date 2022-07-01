@@ -298,17 +298,17 @@ object Rules {
                     val paragraph = m.content[p] as org.docx4j.wml.P
                     val text = TextUtils.getText(paragraph)
                     return if (!isEmpty && (
-                        text.uppercase() == text || (
-                            paragraph.content.all { x ->
-                                if (x is R) {
-                                    val rPr = m.propertyResolver.getEffectiveRPr(x.rPr, pPr)
-                                    rPr.caps != null && rPr.caps.isVal
-                                } else {
-                                    true
-                                }
-                            }
-                            )
-                        )
+                                text.uppercase() == text || (
+                                        paragraph.content.all { x ->
+                                            if (x is R) {
+                                                val rPr = m.propertyResolver.getEffectiveRPr(x.rPr, pPr)
+                                                rPr.caps != null && rPr.caps.isVal
+                                            } else {
+                                                true
+                                            }
+                                        }
+                                        )
+                                )
                     ) {
                         MistakeInner(TEXT_HEADER_BODY_UPPERCASE, p)
                     } else null

@@ -1,5 +1,6 @@
 package com.maeasoftworks.normativecontrol.services
 
+import com.maeasoftworks.docx4nc.enums.Status
 import com.maeasoftworks.docx4nc.model.FailureType
 import com.maeasoftworks.docx4nc.parsers.DocumentParser
 import com.maeasoftworks.normativecontrol.dao.DocumentBytes
@@ -7,7 +8,6 @@ import com.maeasoftworks.normativecontrol.dao.DocumentCredentials
 import com.maeasoftworks.normativecontrol.dto.Document
 import com.maeasoftworks.normativecontrol.dto.DocumentParserRunnable
 import com.maeasoftworks.normativecontrol.dto.EnqueuedParser
-import com.maeasoftworks.normativecontrol.dto.Status
 import com.maeasoftworks.normativecontrol.repository.BinaryFileRepository
 import com.maeasoftworks.normativecontrol.repository.CredentialsRepository
 import com.maeasoftworks.normativecontrol.repository.MistakeRepository
@@ -27,7 +27,7 @@ class DocumentQueue(
     private val bCryptPasswordEncoder: BCryptPasswordEncoder
 ) {
     private val queue: HashMap<String, EnqueuedParser> = HashMap()
-    private val executor: ExecutorService = Executors.newFixedThreadPool(100)
+    private val executor: ExecutorService = Executors.newFixedThreadPool(100) { r -> Thread(r, "DocumentParser") }
     var count: AtomicInteger = AtomicInteger(0)
 
     fun put(parser: DocumentParser, document: Document) {
