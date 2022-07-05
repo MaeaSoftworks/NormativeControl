@@ -2,8 +2,8 @@ package com.maeasoftworks.docx4nc.rules
 
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
-import com.maeasoftworks.docx4nc.PFunction
-import com.maeasoftworks.docx4nc.RFunction
+import com.maeasoftworks.docx4nc.utils.PFunction
+import com.maeasoftworks.docx4nc.utils.RFunction
 import com.maeasoftworks.docx4nc.model.DocumentData
 import com.maeasoftworks.docx4nc.model.MistakeInner
 import com.maeasoftworks.docx4nc.parsers.DocumentParser

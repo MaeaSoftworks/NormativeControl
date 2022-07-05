@@ -5,7 +5,7 @@ import com.maeasoftworks.docx4nc.enums.ChapterType.*
 import com.maeasoftworks.docx4nc.enums.MistakeType
 import com.maeasoftworks.docx4nc.enums.MistakeType.*
 import com.maeasoftworks.docx4nc.enums.Status
-import com.maeasoftworks.docx4nc.ignore
+import com.maeasoftworks.docx4nc.utils.ignore
 import com.maeasoftworks.docx4nc.model.*
 import org.docx4j.jaxb.Context
 import org.docx4j.model.PropertyResolver
