@@ -1,6 +1,7 @@
 package com.maeasoftworks.docxrender
 
 import com.maeasoftworks.docx4nc.parsers.AnonymousParser
+import com.maeasoftworks.docxrender.rendering.RenderLauncher
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File
@@ -10,7 +11,7 @@ val log: Logger = LoggerFactory.getLogger("MainKt")
 const val file = "src/test/resources/general/full test 2"
 
 fun main() {
-    Renderer (
+    RenderLauncher (
         start("$file.docx") {
             init()
             verifyPageSize()
@@ -26,5 +27,5 @@ fun main() {
             }
             return@start this
         }
-    ).render(FileOutputStream(File("$file.html")), 3)
+    ).render(FileOutputStream(File("$file.html")))
 }

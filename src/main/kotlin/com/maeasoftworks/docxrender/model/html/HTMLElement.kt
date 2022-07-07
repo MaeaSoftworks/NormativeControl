@@ -1,16 +1,16 @@
-package com.maeasoftworks.docxrender.html
+package com.maeasoftworks.docxrender.model.html
 
 class HTMLElement(
     val type: String
 ) {
-    private val classes: MutableList<String> = mutableListOf()
+    private var classes: MutableList<String> = mutableListOf()
     var id: String? = null
     val content: StringBuilder = StringBuilder()
     val children: MutableList<HTMLElement> = ArrayList()
-    private val elementStyle: ElementStyle = ElementStyle()
+    var style: Style = Style()
 
     override fun toString(): String {
-        return "<$type${idToString()}${classesToString()}$elementStyle>$content${childrenToString()}</$type>"
+        return "<$type${idToString()}${classesToString()}${styleToString()}>$content${childrenToString()}</$type>"
     }
 
     fun withClass(classname: String): HTMLElement {
@@ -36,7 +36,16 @@ class HTMLElement(
 
     private fun childrenToString(): String {
         return if (children.size > 0) {
-            children.joinToString(" ") { it.toString() }
+            children.joinToString("") { it.toString() }
+        } else {
+            ""
+        }
+    }
+
+    private fun styleToString(): String {
+        return if (style.size > 0) {
+            val s = style.toString()
+            if (s != "") " style='$s'" else ""
         } else {
             ""
         }
@@ -44,8 +53,9 @@ class HTMLElement(
 
     fun duplicate(): HTMLElement {
         return HTMLElement(this@HTMLElement.type).apply {
-            this.classes.addAll(this@HTMLElement.classes)
-            this.id = this@HTMLElement.id.toString()
+            this.classes = this@HTMLElement.classes
+            this.id = this@HTMLElement.id
+            this.style = this@HTMLElement.style
         }
     }
 }

@@ -8,5 +8,4 @@ class NormativeControlApplication
 
 fun main(args: Array<String>) {
     runApplication<NormativeControlApplication>(*args)
-    // (LoggerFactory.getLogger("org.docx4j") as Logger).level = Level.ERROR
 }

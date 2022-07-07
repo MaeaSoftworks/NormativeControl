@@ -1,13 +1,14 @@
-package com.maeasoftworks.docxrender
+package com.maeasoftworks.docxrender.rendering
 
 import com.maeasoftworks.docx4nc.parsers.DocumentParser
-import com.maeasoftworks.docxrender.html.HTMLFile
+import com.maeasoftworks.docxrender.model.PageSettings
+import com.maeasoftworks.docxrender.model.html.HTMLElement
+import com.maeasoftworks.docxrender.model.html.HTMLFile
 import java.io.OutputStream
 
-class Renderer(
+class RenderLauncher(
     val root: DocumentParser
 ) {
-    private val renderers: MutableList<ChapterRenderer> = mutableListOf()
     var html: HTMLFile = HTMLFile(PageSettings().apply {
         val pageSize = root.doc.contents.body.sectPr.pgSz
         this.width = pageSize.w.intValueExact()
@@ -19,19 +20,11 @@ class Renderer(
         this.rightMargin = pageMargins.right.intValueExact()
     })
 
-    init {
-        for (parser in root.parsers) {
-            renderers.add(ChapterRenderer(parser))
-        }
-    }
-
-    fun render(stream: OutputStream, chapter: Int = -1) {
-        if (chapter != -1) {
-            html.content += renderers[chapter].render()
-        } else {
-            for (renderer in renderers) {
-                html.content += renderer.render()
-            }
+    fun render(stream: OutputStream) {
+        val content = Renderer(root).render()
+        html.content.add(content)
+        for (page in html.content[0].children) {
+            page.children.add(0, HTMLElement("div").withClass("page-size"))
         }
         stream.write(html.toString().toByteArray())
     }

@@ -5,6 +5,7 @@ import org.docx4j.wml.P
 import org.docx4j.wml.PPr
 import org.docx4j.wml.R
 import org.docx4j.wml.RPr
+import org.jvnet.jaxb2_commons.ppp.Child
 
 class Resolver(private val resolver: PropertyResolver) {
     private var pPrs: MutableMap<String, PPr> = HashMap()
@@ -17,7 +18,8 @@ class Resolver(private val resolver: PropertyResolver) {
     fun getEffectiveRPr(r: R): RPr {
         return rPrs[r] ?: resolver.getEffectiveRPr(
             r.rPr,
-            pPrs[(r.parent as P).paraId] ?: getEffectivePPr(r.parent as P)
+            pPrs[(if (r.parent is P) r.parent as P else (r.parent as Child).parent as P).paraId]
+                ?: getEffectivePPr(if (r.parent is P) r.parent as P else (r.parent as Child).parent as P)
         ).also { rPrs[r] = it }
     }
 }

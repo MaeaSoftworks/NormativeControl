@@ -1,4 +1,4 @@
-package com.maeasoftworks.docxrender.html
+package com.maeasoftworks.docxrender.model.html
 
 class GlobalStyle {
     private val styles: HashMap<String, Style> = hashMapOf()

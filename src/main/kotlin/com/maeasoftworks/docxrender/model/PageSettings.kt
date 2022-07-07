@@ -1,4 +1,4 @@
-package com.maeasoftworks.docxrender
+package com.maeasoftworks.docxrender.model
 
 class PageSettings {
     var width: Int = 0
