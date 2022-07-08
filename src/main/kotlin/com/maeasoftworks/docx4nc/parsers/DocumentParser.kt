@@ -5,8 +5,8 @@ import com.maeasoftworks.docx4nc.enums.ChapterType.*
 import com.maeasoftworks.docx4nc.enums.MistakeType
 import com.maeasoftworks.docx4nc.enums.MistakeType.*
 import com.maeasoftworks.docx4nc.enums.Status
-import com.maeasoftworks.docx4nc.utils.ignore
 import com.maeasoftworks.docx4nc.model.*
+import com.maeasoftworks.docx4nc.utils.ignore
 import org.docx4j.jaxb.Context
 import org.docx4j.model.PropertyResolver
 import org.docx4j.openpackaging.exceptions.Docx4JException
@@ -22,6 +22,7 @@ import org.docx4j.wml.STDocProtect
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.math.BigInteger
+import java.util.UUID
 
 class DocumentParser(val documentData: DocumentData, private var password: String) {
     val texts = Texts()
@@ -69,7 +70,7 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
         }
     }
 
-    fun runVerification(): List<MistakeOuter> {
+    fun runVerification() {
         verifyPageSize()
         verifyPageMargins()
         setupChapters()
@@ -78,10 +79,12 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
             parser.parse()
         }
         checkPicturesOrder(AnonymousParser(this), 0, true, pictures)
+    }
+
+    fun addCommentsAndSave() {
         addComments()
         lock()
         save()
-        return mistakes
     }
 
     private fun save() {
@@ -354,6 +357,7 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
             comment.author = "normative control"
             comment.content.add(
                 factory.createP().also { p ->
+                    p.paraId = "nc-${UUID.randomUUID()}"
                     p.content.add(
                         factory.createR().also { r ->
                             r.content.add(factory.createText().also { text -> text.value = message })

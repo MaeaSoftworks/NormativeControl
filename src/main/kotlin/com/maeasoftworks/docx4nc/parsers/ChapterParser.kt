@@ -33,7 +33,8 @@ abstract class ChapterParser(val chapter: Chapter, val root: DocumentParser) {
         root.addMistake(DOCUMENT_UNEXPECTED_CONTENT, p)
     }
 
-    fun parse(context: ChapterParser,
+    fun parse(
+        context: ChapterParser,
         headerPFunctions: PFunctions?,
         headerRFunctions: RFunctions?,
         pFunctions: PFunctions,

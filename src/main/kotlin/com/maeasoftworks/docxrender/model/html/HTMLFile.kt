@@ -1,7 +1,7 @@
 package com.maeasoftworks.docxrender.model.html
 
-import com.maeasoftworks.docxrender.PIXELS_IN_POINT
 import com.maeasoftworks.docxrender.model.PageSettings
+import com.maeasoftworks.docxrender.utils.PIXELS_IN_POINT
 
 class HTMLFile(
     settings: PageSettings

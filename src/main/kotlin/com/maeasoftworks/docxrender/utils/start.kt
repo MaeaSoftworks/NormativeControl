@@ -1,4 +1,4 @@
-package com.maeasoftworks.docxrender
+package com.maeasoftworks.docxrender.utils
 
 import com.maeasoftworks.docx4nc.model.DocumentData
 import com.maeasoftworks.docx4nc.parsers.DocumentParser

@@ -27,4 +27,10 @@ class DocumentController(documentManager: DocumentManager) : DocumentCredentials
         @PathVariable("document-id") documentId: String,
         @RequestParam("access-key") accessKey: String
     ) = confirm(documentId, accessKey) { getFile(documentId).toResponse(documentId) }
+
+    @GetMapping("{document-id}/render")
+    fun getRender(
+        @PathVariable("document-id") documentId: String,
+        @RequestParam("access-key") accessKey: String
+    ) = confirm(documentId, accessKey) { getRender(documentId) }
 }

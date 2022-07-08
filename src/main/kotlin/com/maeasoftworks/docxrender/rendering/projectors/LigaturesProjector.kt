@@ -2,7 +2,7 @@ package com.maeasoftworks.docxrender.rendering.projectors
 
 import org.docx4j.w14.STLigatures
 
-object LigaturesProjector: Projector {
+object LigaturesProjector : Projector {
     override fun <T> project(from: T): String? {
         return when (from as STLigatures) {
             STLigatures.NONE -> "none"

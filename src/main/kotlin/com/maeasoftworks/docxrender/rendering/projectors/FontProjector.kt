@@ -2,7 +2,7 @@ package com.maeasoftworks.docxrender.rendering.projectors
 
 import org.docx4j.wml.RFonts
 
-object FontProjector: Projector {
+object FontProjector : Projector {
     override fun <T> project(from: T): String? {
         val fontSet = from as RFonts?
         val fonts = listOfNotNull(fontSet?.ascii, fontSet?.cs, fontSet?.eastAsia, fontSet?.hAnsi)

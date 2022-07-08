@@ -1,10 +1,10 @@
 package com.maeasoftworks.docx4nc.parsers
 
-import com.maeasoftworks.docx4nc.utils.apply
 import com.maeasoftworks.docx4nc.enums.MistakeType.*
 import com.maeasoftworks.docx4nc.model.Chapter
 import com.maeasoftworks.docx4nc.model.Picture
 import com.maeasoftworks.docx4nc.model.Rules
+import com.maeasoftworks.docx4nc.utils.apply
 import org.docx4j.wml.P
 import org.docx4j.wml.R
 

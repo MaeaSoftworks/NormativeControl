@@ -6,6 +6,7 @@ enum class Status {
     PROCESSING,
     ERROR,
     READY,
+    RENDER_ERROR,
     UNDEFINED,
     SAVED
 }

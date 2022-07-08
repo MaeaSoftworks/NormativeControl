@@ -1,10 +1,11 @@
 package com.maeasoftworks.docxrender.rendering
 
 import com.maeasoftworks.docx4nc.parsers.DocumentParser
-import com.maeasoftworks.docxrender.PIXELS_IN_POINT
 import com.maeasoftworks.docxrender.model.html.HTMLElement
-import com.maeasoftworks.docxrender.rendering.converters.*
+import com.maeasoftworks.docxrender.rendering.converters.ColorNameConverter
+import com.maeasoftworks.docxrender.rendering.converters.HexColorConverter
 import com.maeasoftworks.docxrender.rendering.projectors.*
+import com.maeasoftworks.docxrender.utils.PIXELS_IN_POINT
 import org.docx4j.TextUtils
 import org.docx4j.wml.Br
 import org.docx4j.wml.P

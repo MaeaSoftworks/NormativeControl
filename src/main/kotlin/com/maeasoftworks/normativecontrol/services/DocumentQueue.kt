@@ -5,11 +5,13 @@ import com.maeasoftworks.docx4nc.model.FailureType
 import com.maeasoftworks.docx4nc.parsers.DocumentParser
 import com.maeasoftworks.normativecontrol.dao.DocumentBytes
 import com.maeasoftworks.normativecontrol.dao.DocumentCredentials
+import com.maeasoftworks.normativecontrol.dao.DocumentRender
 import com.maeasoftworks.normativecontrol.dto.Document
 import com.maeasoftworks.normativecontrol.dto.DocumentParserRunnable
 import com.maeasoftworks.normativecontrol.dto.EnqueuedParser
 import com.maeasoftworks.normativecontrol.repository.BinaryFileRepository
 import com.maeasoftworks.normativecontrol.repository.CredentialsRepository
+import com.maeasoftworks.normativecontrol.repository.HtmlRepository
 import com.maeasoftworks.normativecontrol.repository.MistakeRepository
 import com.maeasoftworks.normativecontrol.utils.toDao
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
@@ -23,6 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger
 class DocumentQueue(
     private val mistakeRepository: MistakeRepository,
     private val fileRepository: BinaryFileRepository,
+    private val htmlRepository: HtmlRepository,
     private val credentialsRepository: CredentialsRepository,
     private val bCryptPasswordEncoder: BCryptPasswordEncoder
 ) {
@@ -56,6 +59,7 @@ class DocumentQueue(
                     order.document.password
                 )
             )
+            htmlRepository.save(DocumentRender(order.document.id, order.render!!))
             queue.remove(order.document.id)
         }
     }
