@@ -11,7 +11,7 @@ import java.io.FileOutputStream
 val log: Logger = LoggerFactory.getLogger("MainKt")
 const val file = "src/test/resources/general/full test 2"
 
-fun main() {
+fun notMain() {
     RenderLauncher(
         start("$file.docx") {
             init()
