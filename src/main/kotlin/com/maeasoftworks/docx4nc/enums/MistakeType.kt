@@ -87,6 +87,8 @@ enum class MistakeType(val ru: String) {
     TEXT_WHITESPACE_RUN_SPACING("Некорректный межсимвольный интервал пустой строки"),
     TEXT_HEADER_REDUNDANT_DOT("Точка на конце заголовка"),
     TEXT_COMMON_USE_FIRST_LINE_INDENT_INSTEAD_OF_TAB("Используйте отступ первой строки вместо табуляции"),
+    TEXT_HEADER_AUTO_HYPHEN("Не отключен автоматический перенос слов в заголовке"),
+    TEXT_HYPERLINK_WARNING("Найдена гиперссылка. Убедитесь, что есть острая необходимость в ее наличии."),
 
     DOCUMENT_UNEXPECTED_CONTENT("Неопознанный контент на уровне параграфа"),
     PARAGRAPH_UNEXPECTED_CONTENT("Неопознанный контент на уровне рана"),
@@ -115,5 +117,8 @@ enum class MistakeType(val ru: String) {
     LIST_LEVEL_MORE_THAN_2("Уровень вложенности списка больше 2"),
     ORDERED_LIST_INCORRECT_MARKER_FORMAT_AT_LEVEL_1("Некорректный формат маркера первого уровня нумерованного списка"),
     ORDERED_LIST_INCORRECT_MARKER_FORMAT_AT_LEVEL_2("Некорректный формат маркера второго уровня нумерованного списка"),
+    ORDERED_LIST_WRONG_LETTER("Данная буква не должна использоваться как маркер элемента нумерованного списка"),
     ORDERED_LIST_INCORRECT_MARKER_FORMAT("Некорректный формат маркера ненумерованного списка"),
+
+    TEXT_ABANDONED_ABBREVIATION_FOUND("Сокращения \"к-рый\", \"ур-ие\", \"вм.\", \"напр.\", \"м.б.\" запрещены")
 }

@@ -1,4 +1,4 @@
-package com.maeasoftworks.docx4nc.parser
+package com.maeasoftworks.docx4nc
 
 import com.maeasoftworks.docx4nc.enums.ChapterType
 import com.maeasoftworks.docx4nc.enums.ChapterType.*

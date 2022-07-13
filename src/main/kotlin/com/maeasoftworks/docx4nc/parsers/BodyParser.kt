@@ -107,6 +107,9 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
             }
             if (pPr.numPr != null) {
                 validateListElement(p)
+            } else {
+                listPosition = 0
+                currentListStartValue = -1
             }
         }
         for (sub in subchapter.subchapters) {
@@ -191,6 +194,7 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
             Rules.Default.Header.P::emptyLineAfterHeaderExists,
             Rules.Default.Header.P::hasNotDotInEnd,
             Rules.Default.Header.P::firstLineIndentIs1dot25,
+            Rules.Default.Header.P::isAutoHyphenSuppressed
         )
 
         private val regularPFunctions = listOf(

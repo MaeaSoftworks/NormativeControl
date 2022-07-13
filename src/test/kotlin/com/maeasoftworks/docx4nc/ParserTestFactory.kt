@@ -1,4 +1,4 @@
-package com.maeasoftworks.docx4nc.parser
+package com.maeasoftworks.docx4nc
 
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger

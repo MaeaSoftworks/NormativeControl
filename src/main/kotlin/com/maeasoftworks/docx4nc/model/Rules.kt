@@ -155,6 +155,12 @@ object Rules {
                         )
                     } else null
                 }
+
+                fun isAutoHyphenSuppressed(p: Int, pPr: PPr, isEmpty: Boolean, m: MainDocumentPart): MistakeInner? {
+                    return if (pPr.suppressAutoHyphens == null || !pPr.suppressAutoHyphens.isVal) {
+                        MistakeInner(TEXT_HEADER_AUTO_HYPHEN, p)
+                    } else null
+                }
             }
 
             object R {

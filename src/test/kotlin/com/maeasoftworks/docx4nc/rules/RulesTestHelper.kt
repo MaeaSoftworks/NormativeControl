@@ -2,6 +2,7 @@ package com.maeasoftworks.docx4nc.rules
 
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
+import com.maeasoftworks.docx4nc.enums.MistakeType
 import com.maeasoftworks.docx4nc.model.DocumentData
 import com.maeasoftworks.docx4nc.model.MistakeInner
 import com.maeasoftworks.docx4nc.parsers.DocumentParser
@@ -15,10 +16,14 @@ import org.slf4j.LoggerFactory
 import java.io.FileInputStream
 import java.io.IOException
 
-open class RulesTestBase {
+open class RulesTestHelper {
     lateinit var parser: DocumentParser
 
-    fun base(p: Int, wrapper: PFunction, condition: (MistakeInner?) -> Boolean) {
+    init {
+        (LoggerFactory.getLogger("org.docx4j") as Logger).level = Level.ERROR
+    }
+
+    private fun test(p: Int, wrapper: PFunction, condition: (MistakeInner?) -> Boolean) {
         val paragraph = parser.doc.content[p] as P
         assert(
             wrapper(
@@ -30,7 +35,7 @@ open class RulesTestBase {
         )
     }
 
-    fun base(p: Int, wrapper: RFunction, condition: (MistakeInner?) -> Boolean) {
+    private fun test(p: Int, wrapper: RFunction, condition: (MistakeInner?) -> Boolean) {
         val paragraph = parser.doc.content[p] as P
         assert(
             wrapper(
@@ -43,8 +48,23 @@ open class RulesTestBase {
         )
     }
 
+    fun testRule(p: Int, wrapper: PFunction) {
+        test(p, wrapper) { it == null }
+    }
+
+    fun testRule(p: Int, wrapper: RFunction) {
+        test(p, wrapper) { it == null }
+    }
+
+    fun testRule(p: Int, wrapper: PFunction, mistakeType: MistakeType) {
+        test(p, wrapper) { it != null && it.mistakeType == mistakeType }
+    }
+
+    fun testRule(p: Int, wrapper: RFunction, mistakeType: MistakeType) {
+        test(p, wrapper) { it != null && it.mistakeType == mistakeType }
+    }
+
     fun createParser(path: String): DocumentParser {
-        (LoggerFactory.getLogger("org.docx4j") as Logger).level = Level.ERROR
         try {
             val parser =
                 DocumentParser(DocumentData(FileInputStream("src/test/resources/$path.docx").readAllBytes()), "test")

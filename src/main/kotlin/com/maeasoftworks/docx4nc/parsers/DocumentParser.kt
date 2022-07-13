@@ -25,7 +25,7 @@ import java.math.BigInteger
 import java.util.UUID
 
 class DocumentParser(val documentData: DocumentData, private var password: String) {
-    val texts = Texts()
+    val texts = Texts(this)
     lateinit var doc: MainDocumentPart
     lateinit var resolver: Resolver
     private val factory = Context.getWmlObjectFactory()
@@ -41,13 +41,17 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
 
     private var mistakeId: Long = 0
 
-    fun addMistake(type: MistakeType, p: Int? = null, r: Int? = null, description: String? = null) {
+    fun addMistake(type: MistakeType, p: String? = null, r: Int? = null, description: String? = null) {
         mistakes.add(MistakeOuter(mistakeId++, p, r, type, description))
+    }
+
+    fun addMistake(type: MistakeType, p: Int, r: Int? = null, description: String? = null) {
+        mistakes.add(MistakeOuter(mistakeId++, (doc.content[p] as P).paraId, r, type, description))
     }
 
     fun addMistake(mistake: MistakeInner?) {
         if (mistake != null) {
-            addMistake(mistake.mistakeType, mistake.p, mistake.r, mistake.description)
+            addMistake(mistake.mistakeType, (doc.content[mistake.p!!] as P).paraId, mistake.r, mistake.description)
         }
     }
 

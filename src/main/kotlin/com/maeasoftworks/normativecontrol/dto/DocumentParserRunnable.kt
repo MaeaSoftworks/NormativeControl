@@ -16,8 +16,12 @@ class DocumentParserRunnable(
 
     override fun run() {
         val parsingStart = System.currentTimeMillis()
-        parser.documentParser.init()
-        parser.documentParser.runVerification()
+        try {
+            parser.documentParser.init()
+            parser.documentParser.runVerification()
+        } catch (e: Exception) {
+            parser.document.data.status = Status.ERROR
+        }
         val parsingEnd = System.currentTimeMillis()
 
         val stream = ByteArrayOutputStream()
@@ -25,7 +29,6 @@ class DocumentParserRunnable(
         val renderStart = System.currentTimeMillis()
         try {
             RenderLauncher(parser.documentParser).render(stream)
-
         } catch (e: Exception) {
             parser.document.data.status = Status.RENDER_ERROR
         }

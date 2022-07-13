@@ -12,7 +12,9 @@ class Resolver(private val resolver: PropertyResolver) {
     private var rPrs: MutableMap<R, RPr> = HashMap()
 
     fun getEffectivePPr(p: P): PPr {
-        return pPrs[p.paraId] ?: resolver.getEffectivePPr(p.pPr).also { pPrs[p.paraId] = it }
+        return pPrs[p.paraId] ?: resolver.getEffectivePPr(p.pPr)
+            .apply { this.suppressAutoHyphens = p.pPr?.suppressAutoHyphens } // fix lost properties
+            .also { pPrs[p.paraId] = it }
     }
 
     fun getEffectiveRPr(r: R): RPr {

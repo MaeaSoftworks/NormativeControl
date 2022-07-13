@@ -17,7 +17,8 @@ import javax.xml.bind.JAXBElement
 
 abstract class ChapterParser(val chapter: Chapter, val root: DocumentParser) {
     var pictureTitleExpected = false
-    private var listPosition = 0
+    protected var currentListStartValue = -1
+    protected var listPosition = 0
 
     abstract fun parse()
 
@@ -86,6 +87,7 @@ abstract class ChapterParser(val chapter: Chapter, val root: DocumentParser) {
             validateListElement(p)
         } else {
             listPosition = 0
+            currentListStartValue = -1
         }
     }
 
@@ -165,7 +167,9 @@ abstract class ChapterParser(val chapter: Chapter, val root: DocumentParser) {
                     context.handleDrawing(p, r, c, pictureContainer)
                 }
                 is R.Tab -> {
-                    root.addMistake(TEXT_COMMON_USE_FIRST_LINE_INDENT_INSTEAD_OF_TAB, p, r)
+                    if (c == 0) {
+                        root.addMistake(TEXT_COMMON_USE_FIRST_LINE_INDENT_INSTEAD_OF_TAB, p, r)
+                    }
                 }
                 is R.Ptab,
                 is R.YearLong,
@@ -261,29 +265,42 @@ abstract class ChapterParser(val chapter: Chapter, val root: DocumentParser) {
         if (pPr.numPr.ilvl.`val`.toInt() == 0) {
             when (numberingFormat.listLevels["0"]!!.numFmt) {
                 NumberFormat.BULLET -> if (numberingFormat.listLevels["0"]!!.levelText != "–") {
-                    root.addMistake(ORDERED_LIST_INCORRECT_MARKER_FORMAT_AT_LEVEL_1, p, description = "/\"–\" (U+2013)")
+                    root.addMistake(ORDERED_LIST_INCORRECT_MARKER_FORMAT_AT_LEVEL_1, p, description = "\"–\" (U+2013)")
                 }
                 NumberFormat.RUSSIAN_LOWER -> if (numberingFormat.listLevels["0"]!!.levelText != "%1)") {
                     root.addMistake(
                         ORDERED_LIST_INCORRECT_MARKER_FORMAT_AT_LEVEL_1,
                         p,
-                        description = "/\"<RU_LOWER_LETTER>)\""
+                        description = "\"<RU_LOWER_LETTER>)\""
                     )
+                } else {
+                    if (numberingFormat.listLevels["0"]!!.startValue.toInt() == currentListStartValue) {
+                        listPosition++
+                    }
+                    else {
+                        currentListStartValue = numberingFormat.listLevels["0"]!!.startValue.toInt()
+                        listPosition = currentListStartValue
+                    }
+                    if (alphabet[listPosition] !in orderedListMarkers) {
+                        root.addMistake(
+                            ORDERED_LIST_WRONG_LETTER,
+                            p,
+                            description = "Запрещены: \"ё\", \"з\", \"й\", \"о\", \"ч\", \"ъ\", \"ы\", \"ь\", " +
+                                    "найдено: \"${alphabet[listPosition]}\"")
+                    }
                 }
                 else -> root.addMistake(ORDERED_LIST_INCORRECT_MARKER_FORMAT, p)
             }
-            object : AnonymousParser(Chapter(p, mutableListOf(root.doc.content[p])), root) {
-            }
         } else if (pPr.numPr.ilvl.`val`.toInt() == 1) {
             if (numberingFormat.listLevels["1"]!!.numFmt != NumberFormat.DECIMAL || numberingFormat.listLevels["1"]!!.levelText != "%2)") {
-                root.addMistake(ORDERED_LIST_INCORRECT_MARKER_FORMAT_AT_LEVEL_2, p, description = "/\"<DIGIT>)\"")
+                root.addMistake(ORDERED_LIST_INCORRECT_MARKER_FORMAT_AT_LEVEL_2, p, description = "\"<DIGIT>)\"")
             }
         }
     }
 
     companion object {
 
-        val orderedListMarkers = "абвгежиклмнпрстуфхцшщэюя".toList()
+        val orderedListMarkers = "абвгдежиклмнпрстуфхцшщэюя".toList()
         val alphabet = "абвгдежзиклмнопрстуфхцчшщыэюя".toList()
 
         val pCommonFunctions = listOf(
@@ -310,7 +327,8 @@ abstract class ChapterParser(val chapter: Chapter, val root: DocumentParser) {
             Rules.Default.Header.P::justifyIsCenter,
             Rules.Default.Header.P::lineSpacingIsOne,
             Rules.Default.Header.P::emptyLineAfterHeaderExists,
-            Rules.Default.Header.P::hasNotDotInEnd
+            Rules.Default.Header.P::hasNotDotInEnd,
+            Rules.Default.Header.P::isAutoHyphenSuppressed
         )
 
         val regularPFunctions = listOf(
