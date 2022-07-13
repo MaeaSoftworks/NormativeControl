@@ -21,6 +21,7 @@ class DocumentParserRunnable(
             parser.documentParser.runVerification()
         } catch (e: Exception) {
             parser.document.data.status = Status.ERROR
+            return
         }
         val parsingEnd = System.currentTimeMillis()
 

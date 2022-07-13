@@ -13,7 +13,10 @@ class Resolver(private val resolver: PropertyResolver) {
 
     fun getEffectivePPr(p: P): PPr {
         return pPrs[p.paraId] ?: resolver.getEffectivePPr(p.pPr)
-            .apply { this.suppressAutoHyphens = p.pPr?.suppressAutoHyphens } // fix lost properties
+            .apply { // fix lost properties
+                this.suppressAutoHyphens = p.pPr?.suppressAutoHyphens
+                this.parent = p
+            }
             .also { pPrs[p.paraId] = it }
     }
 
@@ -22,6 +25,8 @@ class Resolver(private val resolver: PropertyResolver) {
             r.rPr,
             pPrs[(if (r.parent is P) r.parent as P else (r.parent as Child).parent as P).paraId]
                 ?: getEffectivePPr(if (r.parent is P) r.parent as P else (r.parent as Child).parent as P)
-        ).also { rPrs[r] = it }
+        ).apply {  // fix lost properties
+            this.parent = r
+        }.also { rPrs[r] = it }
     }
 }
