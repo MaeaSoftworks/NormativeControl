@@ -41,17 +41,13 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
 
     private var mistakeId: Long = 0
 
-    fun addMistake(type: MistakeType, p: String? = null, r: Int? = null, description: String? = null) {
+    fun addMistake(type: MistakeType, p: Int? = null, r: Int? = null, description: String? = null) {
         mistakes.add(MistakeOuter(mistakeId++, p, r, type, description))
-    }
-
-    fun addMistake(type: MistakeType, p: Int, r: Int? = null, description: String? = null) {
-        mistakes.add(MistakeOuter(mistakeId++, (doc.content[p] as P).paraId, r, type, description))
     }
 
     fun addMistake(mistake: MistakeInner?) {
         if (mistake != null) {
-            addMistake(mistake.mistakeType, (doc.content[mistake.p!!] as P).paraId, mistake.r, mistake.description)
+            addMistake(mistake.mistakeType, mistake.p, mistake.r, mistake.description)
         }
     }
 
@@ -123,7 +119,7 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
             }
             val commentRangeEnd = factory.createCommentRangeEnd().also { it.id = BigInteger.valueOf(mistake.mistakeId) }
             if (mistake.p == null) {
-                val paragraph = doc.content[0] as P
+                val paragraph = doc.content.first { it is P } as P
                 paragraph.content.add(commentRangeStart)
                 paragraph.content.add(commentRangeEnd)
                 paragraph.content.add(createRunCommentReference(mistake.mistakeId))

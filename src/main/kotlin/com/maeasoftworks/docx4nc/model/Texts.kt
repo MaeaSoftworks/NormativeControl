@@ -12,7 +12,7 @@ class Texts(private val root: DocumentParser) {
     fun getText(p: P): String {
         return pTexts[p.paraId] ?: TextUtils.getText(p).also { pTexts[p.paraId] = it }.apply {
             if (abandonedAbbreviationsRegex.findAll(this).any()) {
-                root.addMistake(MistakeType.TEXT_ABANDONED_ABBREVIATION_FOUND, p.paraId)
+                root.addMistake(MistakeType.TEXT_ABANDONED_ABBREVIATION_FOUND, root.doc.content.indexOfFirst { (it as P).paraId == p.paraId })
             }
         }
     }

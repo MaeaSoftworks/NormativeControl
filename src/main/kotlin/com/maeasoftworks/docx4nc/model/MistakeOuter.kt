@@ -4,11 +4,10 @@ import com.maeasoftworks.docx4nc.enums.MistakeType
 
 class MistakeOuter(
     val mistakeId: Long,
-    val pId: String? = null,
+    val p: Int? = null,
     val r: Int? = null,
     val mistakeType: MistakeType,
-    val description: String? = null,
-    val p: Int? = null
+    val description: String? = null
 ) {
     override fun toString(): String {
         val result = StringBuilder()
