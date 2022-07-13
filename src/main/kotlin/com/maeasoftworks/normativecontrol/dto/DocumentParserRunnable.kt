@@ -1,8 +1,6 @@
 package com.maeasoftworks.normativecontrol.dto
 
-import com.maeasoftworks.docx4nc.enums.MistakeType
 import com.maeasoftworks.docx4nc.enums.Status
-import com.maeasoftworks.docx4nc.model.MistakeOuter
 import com.maeasoftworks.docxrender.rendering.RenderLauncher
 import org.slf4j.LoggerFactory
 import java.io.ByteArrayOutputStream
@@ -21,6 +19,7 @@ class DocumentParserRunnable(
             parser.documentParser.runVerification()
         } catch (e: Exception) {
             parser.document.data.status = Status.ERROR
+            log.error("Oops!", e)
             return
         }
         val parsingEnd = System.currentTimeMillis()
@@ -32,6 +31,7 @@ class DocumentParserRunnable(
             RenderLauncher(parser.documentParser).render(stream)
         } catch (e: Exception) {
             parser.document.data.status = Status.RENDER_ERROR
+            log.error("Wow!", e)
         }
 
         val renderEnd = System.currentTimeMillis()

@@ -200,17 +200,20 @@ abstract class ChapterParser(val chapter: Chapter, val root: DocumentParser) {
                 *   Text
                 * */
             }
-            is Br -> root.addMistake(TODO_ERROR, p, r)
-            is DelText -> root.addMistake(TODO_ERROR, p, r)
+            is DelText -> root.addMistake(RUN_UNEXPECTED_CONTENT, p, r, something::class.simpleName)
             is AlternateContent -> {
                 // todo: is it only first object?
                 if (something.choice.first().any.first() is Drawing) {
                     pictureTitleExpected = true
                     context.handleDrawing(p, r, c, root.pictures)
                 } else {
-                    root.addMistake(TODO_ERROR, p, r)
+                    root.addMistake(RUN_UNEXPECTED_CONTENT, p, r, something::class.simpleName)
                 }
             }
+            /*
+            Detected:
+                Br
+             */
         }
     }
 

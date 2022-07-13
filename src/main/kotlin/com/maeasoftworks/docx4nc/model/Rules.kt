@@ -48,7 +48,6 @@ object Rules {
                         } else null
                     } else if (rPr.rFonts.asciiTheme != null) {
                         val run = rPr.parent as org.docx4j.wml.R
-                        val para = d.resolver.getEffectivePPr(run.parent as org.docx4j.wml.P)
                         val style = if (run.rPr?.rStyle?.`val` == null) d.doc.styleDefinitionsPart.getStyleById("Normal") else d.doc.styleDefinitionsPart.getStyleById(run.rPr.rStyle.`val`)
                         return if (style?.rPr?.rFonts?.ascii != "Times New Roman") {
                             MistakeInner(
@@ -62,7 +61,8 @@ object Rules {
                 }
 
                 fun fontSizeIs14(p: Int, r: Int, rPr: RPr, isEmpty: Boolean, d: DocumentParser): MistakeInner? {
-                    return if (rPr.sz.`val`.toInt() / 2 != 14) {
+                    val run = rPr.parent as org.docx4j.wml.R
+                    return if ((run.rPr?.rStyle == null && d.doc.styleDefinitionsPart.getStyleById("Normal").rPr?.sz?.`val`?.toInt()?.div(2) != 14) && run.rPr?.sz?.`val`?.toInt()?.div(2) != 14 && rPr.sz.`val`.toInt() / 2 != 14) {
                         MistakeInner(
                             if (isEmpty) TEXT_WHITESPACE_INCORRECT_FONT_SIZE else TEXT_COMMON_INCORRECT_FONT_SIZE,
                             p,
