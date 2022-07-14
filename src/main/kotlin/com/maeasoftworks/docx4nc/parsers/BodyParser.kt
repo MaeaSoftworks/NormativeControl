@@ -75,7 +75,7 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
             commonPFunctions.apply(root, subchapter.startPos, subheaderPPr, isEmpty)
             for (r in 0 until subchapter.subheader.content.size) {
                 if (subchapter.subheader.content[r] is R) {
-                    val rPr = root.resolver.getEffectiveRPr(subchapter.subheader.content[r] as R)
+                    val rPr = root.resolver.getBetterEffectiveRPr(subchapter.subheader.content[r] as R)
                     headerRFunctions.apply(root, subchapter.startPos, r, rPr, isEmpty)
                     commonRFunctions.apply(root, subchapter.startPos, r, rPr, isEmpty)
                 } else {
@@ -95,7 +95,7 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
             regularPFunctions.apply(root, p, pPr, isEmptyP)
             for (r in 0 until paragraph.content.size) {
                 if (paragraph.content[r] is R) {
-                    val rPr = root.resolver.getEffectiveRPr(paragraph.content[r] as R)
+                    val rPr = root.resolver.getBetterEffectiveRPr(paragraph.content[r] as R)
                     commonRFunctions.apply(root, p, r, rPr, isEmptyP)
                     regularRFunctions.apply(root, p, r, rPr, isEmptyP)
                     for (c in 0 until (paragraph.content[r] as R).content.size) {
@@ -124,7 +124,7 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
         commonPFunctions.apply(root, chapter.startPos, headerPPr, isEmpty)
         for (r in 0 until chapter.header.content.size) {
             if (chapter.header.content[r] is R) {
-                val rPr = root.resolver.getEffectiveRPr(chapter.header.content[r] as R)
+                val rPr = root.resolver.getBetterEffectiveRPr(chapter.header.content[r] as R)
                 headerRFunctions.apply(root, chapter.startPos, r, rPr, isEmpty)
                 commonRFunctions.apply(root, chapter.startPos, r, rPr, isEmpty)
             } else {

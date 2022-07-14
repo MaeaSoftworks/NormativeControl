@@ -7,13 +7,13 @@ import com.maeasoftworks.docx4nc.model.Rules
 import com.maeasoftworks.docx4nc.utils.PFunctions
 import com.maeasoftworks.docx4nc.utils.RFunctions
 import com.maeasoftworks.docx4nc.utils.apply
+import jakarta.xml.bind.JAXBElement
 import org.docx4j.TextUtils
 import org.docx4j.dml.wordprocessingDrawing.Anchor
 import org.docx4j.math.CTOMath
 import org.docx4j.math.CTOMathPara
 import org.docx4j.mce.AlternateContent
 import org.docx4j.wml.*
-import javax.xml.bind.JAXBElement
 
 abstract class ChapterParser(val chapter: Chapter, val root: DocumentParser) {
     var pictureTitleExpected = false
@@ -93,11 +93,12 @@ abstract class ChapterParser(val chapter: Chapter, val root: DocumentParser) {
 
     open fun parseR(p: Int, r: Int, paragraph: P, rFunctions: RFunctions) {
         if (paragraph.content[r] is R) {
+            val rpr = root.resolver.getBetterEffectiveRPr(paragraph.content[r] as R)
             rFunctions.apply(
                 root,
                 p,
                 r,
-                root.resolver.getEffectiveRPr(paragraph.content[r] as R),
+                rpr,
                 TextUtils.getText(paragraph.content[r]).isBlank()
             )
         } else {

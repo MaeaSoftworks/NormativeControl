@@ -30,7 +30,7 @@ open class RulesTestHelper {
                 p,
                 parser.resolver.getEffectivePPr(paragraph),
                 TextUtils.getText(paragraph).isEmpty(),
-                parser.doc
+                parser
             ).let(condition)
         )
     }
@@ -41,9 +41,9 @@ open class RulesTestHelper {
             wrapper(
                 p,
                 0,
-                parser.resolver.getEffectiveRPr(paragraph.content[0] as R),
+                parser.resolver.getBetterEffectiveRPr(paragraph.content[0] as R),
                 TextUtils.getText(paragraph).isEmpty(),
-                parser.doc
+                parser
             ).let(condition)
         )
     }

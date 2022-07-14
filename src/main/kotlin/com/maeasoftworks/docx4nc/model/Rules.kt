@@ -36,8 +36,8 @@ object Rules {
             }
 
             object R {
-                fun isTimesNewRoman(p: Int, r: Int, rPr: RPr, isEmpty: Boolean, d: DocumentParser): MistakeInner? {
-                    if (rPr.rFonts.ascii != null) {
+                fun isTimesNewRoman(p: Int, r: Int, rPr: RPr?, isEmpty: Boolean, d: DocumentParser): MistakeInner? {
+                    if (rPr!!.rFonts.ascii != null) {
                         return if (rPr.rFonts.ascii != "Times New Roman") {
                             MistakeInner(
                                 if (isEmpty) TEXT_WHITESPACE_FONT else TEXT_COMMON_FONT,
@@ -61,8 +61,7 @@ object Rules {
                 }
 
                 fun fontSizeIs14(p: Int, r: Int, rPr: RPr, isEmpty: Boolean, d: DocumentParser): MistakeInner? {
-                    val run = rPr.parent as org.docx4j.wml.R
-                    return if ((run.rPr?.rStyle == null && d.doc.styleDefinitionsPart.getStyleById("Normal").rPr?.sz?.`val`?.toInt()?.div(2) != 14) && run.rPr?.sz?.`val`?.toInt()?.div(2) != 14 && rPr.sz.`val`.toInt() / 2 != 14) {
+                    return if (rPr.sz.`val`.toInt() / 2 != 14) {
                         MistakeInner(
                             if (isEmpty) TEXT_WHITESPACE_INCORRECT_FONT_SIZE else TEXT_COMMON_INCORRECT_FONT_SIZE,
                             p,

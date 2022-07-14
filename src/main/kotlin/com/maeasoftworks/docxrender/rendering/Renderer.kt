@@ -6,13 +6,13 @@ import com.maeasoftworks.docxrender.rendering.converters.ColorNameConverter
 import com.maeasoftworks.docxrender.rendering.converters.HexColorConverter
 import com.maeasoftworks.docxrender.rendering.projectors.*
 import com.maeasoftworks.docxrender.utils.PIXELS_IN_POINT
+import jakarta.xml.bind.JAXBElement
 import org.docx4j.TextUtils
 import org.docx4j.wml.Br
 import org.docx4j.wml.P
 import org.docx4j.wml.P.Hyperlink
 import org.docx4j.wml.R
 import org.docx4j.wml.Text
-import javax.xml.bind.JAXBElement
 
 class Renderer(
     private val parser: DocumentParser
@@ -83,7 +83,7 @@ class Renderer(
     }
 
     private fun stylizeR(r: R) {
-        val rpr = parser.resolver.getEffectiveRPr(r)
+        val rpr = parser.resolver.getBetterEffectiveRPr(r)
         currentR!!.style += {
             "font-family" to rpr.rFonts with FontProjector or parser.doc.styleDefinitionsPart?.defaultCharacterStyle?.rPr?.rFonts or "Calibri"
             "font-size" to rpr.sz?.`val`?.toInt()?.div(2) with "px"

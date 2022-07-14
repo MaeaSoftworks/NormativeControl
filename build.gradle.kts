@@ -29,8 +29,12 @@ dependencies {
     implementation("org.postgresql:postgresql")
 
     implementation("org.slf4j:slf4j-api:1.7.36")
-    implementation("org.docx4j:docx4j-JAXB-ReferenceImpl:8.3.4")
     implementation("io.jsonwebtoken:jjwt:0.9.1")
+
+    implementation("org.docx4j:docx4j-JAXB-ReferenceImpl:11.4.7")
+    implementation("jakarta.xml.bind:jakarta.xml.bind-api:4.0.0")
+    implementation("jakarta.activation:jakarta.activation-api:2.1.0")
+    implementation("org.glassfish.jaxb:jaxb-runtime:4.0.0")
 
     developmentOnly("org.springframework.boot:spring-boot-starter-actuator")
     developmentOnly("org.springframework.boot:spring-boot-devtools")

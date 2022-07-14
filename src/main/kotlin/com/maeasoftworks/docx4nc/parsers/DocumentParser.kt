@@ -56,7 +56,7 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
             mlPackage = WordprocessingMLPackage.load(ByteArrayInputStream(documentData.file))
             doc = mlPackage.mainDocumentPart
             doc.contents.body
-            resolver = Resolver(PropertyResolver(mlPackage))
+            resolver = Resolver(PropertyResolver(mlPackage), this)
             comments = doc.commentsPart
             if (comments == null) {
                 comments = CommentsPart().also { it.jaxbElement = factory.createComments() }
