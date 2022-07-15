@@ -22,7 +22,7 @@ import org.docx4j.wml.STDocProtect
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.math.BigInteger
-import java.util.UUID
+import java.util.*
 
 class DocumentParser(val documentData: DocumentData, private var password: String) {
     val texts = Texts(this)
@@ -79,6 +79,7 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
             parser.parse()
         }
         checkPicturesOrder(AnonymousParser(this), 0, true, pictures)
+        resolver.printStats()
     }
 
     fun addCommentsAndSave() {

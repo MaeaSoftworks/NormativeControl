@@ -1,6 +1,5 @@
 package com.maeasoftworks.docx4nc
 
-import com.maeasoftworks.docx4nc.enums.MistakeType
 import com.maeasoftworks.docx4nc.enums.MistakeType.*
 import com.maeasoftworks.docx4nc.model.Chapter
 import com.maeasoftworks.docx4nc.parsers.SimpleParser

@@ -37,27 +37,14 @@ object Rules {
 
             object R {
                 fun isTimesNewRoman(p: Int, r: Int, rPr: RPr?, isEmpty: Boolean, d: DocumentParser): MistakeInner? {
-                    if (rPr!!.rFonts.ascii != null) {
-                        return if (rPr.rFonts.ascii != "Times New Roman") {
-                            MistakeInner(
-                                if (isEmpty) TEXT_WHITESPACE_FONT else TEXT_COMMON_FONT,
-                                p,
-                                r,
-                                "${rPr.rFonts.ascii}/Times New Roman"
-                            )
-                        } else null
-                    } else if (rPr.rFonts.asciiTheme != null) {
-                        val run = rPr.parent as org.docx4j.wml.R
-                        val style = if (run.rPr?.rStyle?.`val` == null) d.doc.styleDefinitionsPart.getStyleById("Normal") else d.doc.styleDefinitionsPart.getStyleById(run.rPr.rStyle.`val`)
-                        return if (style?.rPr?.rFonts?.ascii != "Times New Roman") {
-                            MistakeInner(
-                                if (isEmpty) TEXT_WHITESPACE_FONT else TEXT_COMMON_FONT,
-                                p,
-                                r,
-                                "${rPr.rFonts.ascii}/Times New Roman"
-                            )
-                        } else null
-                    } else return null
+                    return if (rPr?.rFonts?.ascii != "Times New Roman") {
+                        MistakeInner(
+                            if (isEmpty) TEXT_WHITESPACE_FONT else TEXT_COMMON_FONT,
+                            p,
+                            r,
+                            "${rPr?.rFonts?.ascii}/Times New Roman"
+                        )
+                    } else null
                 }
 
                 fun fontSizeIs14(p: Int, r: Int, rPr: RPr, isEmpty: Boolean, d: DocumentParser): MistakeInner? {

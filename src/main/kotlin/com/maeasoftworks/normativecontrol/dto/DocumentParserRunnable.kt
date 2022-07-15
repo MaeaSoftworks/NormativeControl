@@ -42,7 +42,11 @@ class DocumentParserRunnable(
 
         parser.render = stream.toString()
         log.info("[{}] total           : {} ms", parser.document.id, savingEnd - parsingStart)
-        log.info("[{}] ├─ parsing      : {} ms", parser.document.id, (savingEnd - savingStart) + (parsingEnd - parsingStart))
+        log.info(
+            "[{}] ├─ parsing      : {} ms",
+            parser.document.id,
+            (savingEnd - savingStart) + (parsingEnd - parsingStart)
+        )
         log.info("[{}] │  ├─ mistakes  : {} ms", parser.document.id, parsingEnd - parsingStart)
         log.info("[{}] │  └─ saving    : {} ms", parser.document.id, savingEnd - savingStart)
         log.info("[{}] └─ render       : {} ms", parser.document.id, renderEnd - renderStart)

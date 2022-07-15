@@ -280,8 +280,7 @@ abstract class ChapterParser(val chapter: Chapter, val root: DocumentParser) {
                 } else {
                     if (numberingFormat.listLevels["0"]!!.startValue.toInt() == currentListStartValue) {
                         listPosition++
-                    }
-                    else {
+                    } else {
                         currentListStartValue = numberingFormat.listLevels["0"]!!.startValue.toInt()
                         listPosition = currentListStartValue
                     }
@@ -290,7 +289,8 @@ abstract class ChapterParser(val chapter: Chapter, val root: DocumentParser) {
                             ORDERED_LIST_WRONG_LETTER,
                             p,
                             description = "Запрещены: \"ё\", \"з\", \"й\", \"о\", \"ч\", \"ъ\", \"ы\", \"ь\", " +
-                                    "найдено: \"${alphabet[listPosition]}\"")
+                                    "найдено: \"${alphabet[listPosition]}\""
+                        )
                     }
                 }
                 else -> root.addMistake(ORDERED_LIST_INCORRECT_MARKER_FORMAT, p)

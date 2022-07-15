@@ -4,7 +4,7 @@ import com.maeasoftworks.docx4nc.enums.MistakeType
 import org.docx4j.wml.P
 import org.junit.jupiter.api.Test
 
-class AbbreviationsTests: ParserTestFactory(AbbreviationsTests::class) {
+class AbbreviationsTests : ParserTestFactory(AbbreviationsTests::class) {
     @Test
     fun `abbreviation found`() {
         val parser = createParser("test.docx")
