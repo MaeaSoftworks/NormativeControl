@@ -35,6 +35,7 @@ dependencies {
     implementation("jakarta.xml.bind:jakarta.xml.bind-api:4.0.0")
     implementation("jakarta.activation:jakarta.activation-api:2.1.0")
     implementation("org.glassfish.jaxb:jaxb-runtime:4.0.0")
+    implementation("javax.xml.bind:jaxb-api:2.4.0-b180830.0359")
 
     developmentOnly("org.springframework.boot:spring-boot-starter-actuator")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
