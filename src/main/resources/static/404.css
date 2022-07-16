@@ -1,13 +1,21 @@
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100;400;700&display=swap');
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    color: #fff;
-    font-family: Montserrat, sans-serif;
+    font-family: 'Ubuntu', sans-serif;
+    user-select: none;
 }
 
 ::-webkit-scrollbar {
     display: none
+}
+
+#canvas {
+    width: 100%;
+    height: 100%;
 }
 
 body {
@@ -21,43 +29,103 @@ body {
     position: relative
 }
 
-.foreground {
+header {
     position: absolute;
-    margin-top: calc(100vh + 40px);
+    color: #fff;
     display: flex;
-    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 40px;
+    padding-left: 140px;
+    padding-right: 140px;
     width: 100%;
-    left: 0;
-    right: 100vw;
-    background-color: rgba(1, 1, 1, .2);
-    box-shadow: 0 0 40px 0 rgba(1, 1, 1, .2);
 }
 
 .logo {
-    color: #fff;
     display: flex;
-    justify-content: center;
-    align-content: center;
     align-items: center;
-    margin-right: 5px
 }
 
 .logo-svg {
-    width: 75px;
-    height: 75px
+    width: 100px;
+    height: 100px;
 }
 
-.header-text {
+.logo-text {
     font-weight: 700;
-    font-size: 16px;
+    font-size: 20px;
     font-family: Montserrat, sans-serif;
     font-style: normal;
     line-height: 140%;
     letter-spacing: .05em;
-    text-align: center;
     display: block;
     pointer-events: none;
-    min-width: 130px
+    min-width: 130px;
+    margin: 20px;
+}
+
+.tip {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.content {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.error-code {
+    font-weight: bold;
+    font-size: 40px;
+    font-family: 'Ubuntu', sans-serif;
+    color: #fff;
+    line-height: 200%;
+    pointer-events: none;
+}
+
+.text {
+    display: flex;
+    flex-direction: column;
+}
+
+.text > span {
+    font-family: 'Ubuntu', sans-serif;
+    color: #fff;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 20px;
+    line-height: 200%;
+    text-align: center;
+    pointer-events: none;
+}
+
+.text > a {
+    color: #fff;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 20px;
+    line-height: 200%;
+    text-align: center;
+    text-decoration: none;
+    z-index: 1000;
+}
+
+.toggle {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.hidden {
+    display: none;
 }
 
 .space, .planets {
@@ -70,76 +138,6 @@ body {
 
 .space {
     background: linear-gradient(135deg, rgb(0, 0, 138), rgb(248, 156, 113));
-}
-
-.pair {
-    position: absolute;
-    left: 5%;
-    top: 20%;
-}
-
-.background-planet {
-    width: 30vh;
-    height: 30vh;
-    background-color: #4778c2;
-    box-shadow: inset 2vh 1vh 0 #426fb4;
-    z-index: -1;
-    border-radius: 50%;
-}
-
-.background-planet:before {
-    content: "";
-    background: #4271b8;
-    border-radius: 50%;
-    width: 5%;
-    height: 5%;
-    display: block;
-    margin: 20% 58%;
-    position: absolute;
-}
-
-.background-planet:after {
-    content: "";
-    background: #3a69af;
-    border-radius: 50%;
-    width: 20%;
-    height: 20%;
-    display: block;
-    margin: 50% 25%;
-    position: absolute;
-}
-
-.background-moon {
-    background: #9e9e9e;
-    width: 5vh;
-    height: 5vh;
-    left: 125%;
-    top: 20%;
-    position: absolute;
-    border-radius: 50%;
-}
-
-.background-moon:before {
-    content: "";
-    background: #949494;
-    border-radius: 100%;
-    width: 20%;
-    height: 20%;
-    display: inline-block;
-    margin: 30% 25%;
-    position: absolute;
-}
-
-.background-star {
-    position: absolute;
-    right: -20vh;
-    bottom: -20vh;
-    width: 60vh;
-    height: 60vh;
-    background-color: #fae20a;
-    box-shadow: 0 0 200px orange;
-    z-index: -1;
-    border-radius: 100%;
 }
 
 .star {
@@ -165,61 +163,4 @@ body {
         transform: scale(1.5);
         box-shadow: 0 0 5px 1px rgba(150, 150, 150, .6)
     }
-}
-
-.error-code {
-    font-weight: bold;
-    font-size: 30px;
-    font-family: Montserrat, sans-serif;
-    color: #fff;
-    line-height: 200%;
-    pointer-events: none;
-}
-
-.text, .text > div {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-content: center;
-    text-align: center;
-    width: 100%;
-}
-
-.text > div > span {
-    font-style: normal;
-    font-weight: 400;
-    font-size: 18px;
-    line-height: 200%;
-    text-align: center;
-    pointer-events: none;
-}
-
-.text > div > a {
-    color: #fff;
-    font-family: Montserrat, sans-serif;
-    font-style: normal;
-    font-weight: 200;
-    font-size: 18px;
-    line-height: 200%;
-    text-align: center;
-    text-decoration: none;
-}
-
-.authors {
-    color: #fff;
-    display: flex;
-    align-content: center;
-    width: 100%;
-    padding-bottom: 10px;
-}
-
-.authors p {
-    font-family: Montserrat, sans-serif;
-    font-style: normal;
-    font-weight: 400;
-    font-size: 16px;
-    line-height: 200%;
-    letter-spacing: .05em;
-    margin: auto;
-    pointer-events: none;
 }

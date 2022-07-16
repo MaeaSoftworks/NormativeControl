@@ -8,48 +8,55 @@
     <meta content="width=device-width,initial-scale=1" name=viewport>
     <link href="https://fonts.googleapis.com" rel="preconnect">
     <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;400;700&display=swap" rel=stylesheet>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains Mono" rel=stylesheet>
+    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
+    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css"/>
     <title>Normative Control API Docs</title>
     <link href="/docs.css" rel="stylesheet" type="text/css">
 </head>
 <body>
 <header>
     <a class="logo" href="/docs">
-        <img alt="normative control" class="logo-img"
-             src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0OTkiIGhlaWdodD0iNDk5IiB2aWV3Qm94PSIwIDAgNDk5IDQ5OSIgZmlsbD0ibm9uZSI+DQogICAgPGcgZmlsdGVyPSJ1cmwoI2ZpbHRlcjBfZl80XzYxKSI+DQogICAgICAgIDxwYXRoIGQ9Ik00MTQuMTQ1IDIwNy4wODRDNDE4LjMxMiAyNTcuMDg0IDQwMS4xNDUgMzQ2LjU4NCAzMTAuNjQ1IDM3Ni41ODRDMjUxLjQwNyAzOTYuMjIxIDE4Ni42NjIgMzAzLjgxNyAyMzcuMTQ1IDI5NC4wODRDMzkwLjE0NSAyNjQuNTg0IDE2OC42NDggMjExLjM2NyAyNDQuNjQ1IDE1Ny4wODRDMjk5LjY0NSAxMTcuNzk4IDQwMy42NDUgODEuMDgzNiA0MTQuMTQ1IDIwNy4wODRaIg0KICAgICAgICAgICAgICBmaWxsPSJ1cmwoI3BhaW50MF9yYWRpYWxfNF82MSkiLz4NCiAgICA8L2c+DQogICAgPHBhdGggZD0iTTMyOCAxNzFMMTcxLjUgMzI3LjUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1vcGFjaXR5PSIwLjQ1IiBzdHJva2Utd2lkdGg9IjYiLz4NCiAgICA8cGF0aCBkPSJNMTcxLjUgMTcxTDMyOCAzMjcuNSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIxMCIvPg0KICAgIDxwYXRoIGQ9Ik0xNTguMDMgMTc4TDE1OC4wMyAzMjAuMDI2IiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjEwIi8+DQogICAgPHBhdGggZD0iTTM0MCAxNzkuNUwzNDAgMzIwLjAyNiIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIxMCIvPg0KICAgIDxjaXJjbGUgY3g9IjM0MCIgY3k9IjM0MSIgcj0iMTgiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMTAiLz4NCiAgICA8Y2lyY2xlIGN4PSIxNTgiIGN5PSIzNDEiIHI9IjE4IiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjEwIi8+DQogICAgPGNpcmNsZSBjeD0iMzQwIiBjeT0iMTU5IiByPSIxOCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIxMCIvPg0KICAgIDxjaXJjbGUgY3g9IjE1OCIgY3k9IjE1OSIgcj0iMTgiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMTAiLz4NCiAgICA8ZGVmcz4NCiAgICAgICAgPGZpbHRlciBpZD0iZmlsdGVyMF9mXzRfNjEiIHg9IjEzOSIgeT0iNDAiIHdpZHRoPSIzNTUuNzE0IiBoZWlnaHQ9IjQxOS4zMTQiIGZpbHRlclVuaXRzPSJ1c2VyU3BhY2VPblVzZSINCiAgICAgICAgICAgICAgICBjb2xvci1pbnRlcnBvbGF0aW9uLWZpbHRlcnM9InNSR0IiPg0KICAgICAgICAgICAgPGZlRmxvb2QgZmxvb2Qtb3BhY2l0eT0iMCIgcmVzdWx0PSJCYWNrZ3JvdW5kSW1hZ2VGaXgiLz4NCiAgICAgICAgICAgIDxmZUJsZW5kIG1vZGU9Im5vcm1hbCIgaW49IlNvdXJjZUdyYXBoaWMiIGluMj0iQmFja2dyb3VuZEltYWdlRml4IiByZXN1bHQ9InNoYXBlIi8+DQogICAgICAgICAgICA8ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI0MCIgcmVzdWx0PSJlZmZlY3QxX2ZvcmVncm91bmRCbHVyXzRfNjEiLz4NCiAgICAgICAgPC9maWx0ZXI+DQogICAgICAgIDxyYWRpYWxHcmFkaWVudCBpZD0icGFpbnQwX3JhZGlhbF80XzYxIiBjeD0iMCIgY3k9IjAiIHI9IjEiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIg0KICAgICAgICAgICAgICAgICAgICAgICAgZ3JhZGllbnRUcmFuc2Zvcm09InRyYW5zbGF0ZSgyMTUuNDIzIDIzOC44OTkpIHJvdGF0ZSgxMy42MzM1KSBzY2FsZSgzMTYuNDk1IDIxNy4xNTUpIj4NCiAgICAgICAgICAgIDxzdG9wIHN0b3AtY29sb3I9IiMwMEFERkYiLz4NCiAgICAgICAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzBBOEVDRCIgc3RvcC1vcGFjaXR5PSIwIi8+DQogICAgICAgIDwvcmFkaWFsR3JhZGllbnQ+DQogICAgPC9kZWZzPg0KPC9zdmc+">
+        <div>
+            <img alt="normative control" class="logo-img"
+                 src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0OTkiIGhlaWdodD0iNDk5IiB2aWV3Qm94PSIwIDAgNDk5IDQ5OSIgZmlsbD0ibm9uZSI+DQogICAgPGcgZmlsdGVyPSJ1cmwoI2ZpbHRlcjBfZl80XzYxKSI+DQogICAgICAgIDxwYXRoIGQ9Ik00MTQuMTQ1IDIwNy4wODRDNDE4LjMxMiAyNTcuMDg0IDQwMS4xNDUgMzQ2LjU4NCAzMTAuNjQ1IDM3Ni41ODRDMjUxLjQwNyAzOTYuMjIxIDE4Ni42NjIgMzAzLjgxNyAyMzcuMTQ1IDI5NC4wODRDMzkwLjE0NSAyNjQuNTg0IDE2OC42NDggMjExLjM2NyAyNDQuNjQ1IDE1Ny4wODRDMjk5LjY0NSAxMTcuNzk4IDQwMy42NDUgODEuMDgzNiA0MTQuMTQ1IDIwNy4wODRaIg0KICAgICAgICAgICAgICBmaWxsPSJ1cmwoI3BhaW50MF9yYWRpYWxfNF82MSkiLz4NCiAgICA8L2c+DQogICAgPHBhdGggZD0iTTMyOCAxNzFMMTcxLjUgMzI3LjUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1vcGFjaXR5PSIwLjQ1IiBzdHJva2Utd2lkdGg9IjYiLz4NCiAgICA8cGF0aCBkPSJNMTcxLjUgMTcxTDMyOCAzMjcuNSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIxMCIvPg0KICAgIDxwYXRoIGQ9Ik0xNTguMDMgMTc4TDE1OC4wMyAzMjAuMDI2IiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjEwIi8+DQogICAgPHBhdGggZD0iTTM0MCAxNzkuNUwzNDAgMzIwLjAyNiIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIxMCIvPg0KICAgIDxjaXJjbGUgY3g9IjM0MCIgY3k9IjM0MSIgcj0iMTgiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMTAiLz4NCiAgICA8Y2lyY2xlIGN4PSIxNTgiIGN5PSIzNDEiIHI9IjE4IiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjEwIi8+DQogICAgPGNpcmNsZSBjeD0iMzQwIiBjeT0iMTU5IiByPSIxOCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIxMCIvPg0KICAgIDxjaXJjbGUgY3g9IjE1OCIgY3k9IjE1OSIgcj0iMTgiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMTAiLz4NCiAgICA8ZGVmcz4NCiAgICAgICAgPGZpbHRlciBpZD0iZmlsdGVyMF9mXzRfNjEiIHg9IjEzOSIgeT0iNDAiIHdpZHRoPSIzNTUuNzE0IiBoZWlnaHQ9IjQxOS4zMTQiIGZpbHRlclVuaXRzPSJ1c2VyU3BhY2VPblVzZSINCiAgICAgICAgICAgICAgICBjb2xvci1pbnRlcnBvbGF0aW9uLWZpbHRlcnM9InNSR0IiPg0KICAgICAgICAgICAgPGZlRmxvb2QgZmxvb2Qtb3BhY2l0eT0iMCIgcmVzdWx0PSJCYWNrZ3JvdW5kSW1hZ2VGaXgiLz4NCiAgICAgICAgICAgIDxmZUJsZW5kIG1vZGU9Im5vcm1hbCIgaW49IlNvdXJjZUdyYXBoaWMiIGluMj0iQmFja2dyb3VuZEltYWdlRml4IiByZXN1bHQ9InNoYXBlIi8+DQogICAgICAgICAgICA8ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI0MCIgcmVzdWx0PSJlZmZlY3QxX2ZvcmVncm91bmRCbHVyXzRfNjEiLz4NCiAgICAgICAgPC9maWx0ZXI+DQogICAgICAgIDxyYWRpYWxHcmFkaWVudCBpZD0icGFpbnQwX3JhZGlhbF80XzYxIiBjeD0iMCIgY3k9IjAiIHI9IjEiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIg0KICAgICAgICAgICAgICAgICAgICAgICAgZ3JhZGllbnRUcmFuc2Zvcm09InRyYW5zbGF0ZSgyMTUuNDIzIDIzOC44OTkpIHJvdGF0ZSgxMy42MzM1KSBzY2FsZSgzMTYuNDk1IDIxNy4xNTUpIj4NCiAgICAgICAgICAgIDxzdG9wIHN0b3AtY29sb3I9IiMwMEFERkYiLz4NCiAgICAgICAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzBBOEVDRCIgc3RvcC1vcGFjaXR5PSIwIi8+DQogICAgICAgIDwvcmFkaWFsR3JhZGllbnQ+DQogICAgPC9kZWZzPg0KPC9zdmc+">
+            <p class=header-text>normative<br>control API</p>
+        </div>
     </a>
-    <p class=header-text>normative<br>control API Docs</p>
-</header>
-<main>
     <div class="methods-list">
-        <h2 th:text="#{docs.methods.title}">API Methods</h2>
-        <div class="scrollable">
-            <th:block th:each="method : ${methods}">
-                <a th:class="'method-link' + (${currentMethod != null && isMethod && method.path == currentMethod.path} ? ' link-active' : '')"
-                   th:href="'docs?section=' + ${method.path}">
-                    <p>
+        <h2 class="subtitle" th:text="#{docs.methods.title}">API Methods</h2>
+        <div class="scrollable-wrapper">
+            <div class="scrollable-list">
+                <th:block th:each="method : ${methods}">
+                    <a th:class="'method-link' + (${currentMethod != null && isMethod && method.path == currentMethod.path} ? ' link-active' : '')"
+                       th:href="'docs?section=' + ${method.path}">
+                        <p>
                         <span th:class="'method-type method-type-' + ${method.type}"
                               th:utext="'[' + ${method.type} + ']'"></span>
-                        <span class="method-name" th:utext="${method.path}"></span>
-                    </p>
-                </a>
-            </th:block>
+                            <span class="method-name" th:utext="${method.path}"></span>
+                        </p>
+                    </a>
+                </th:block>
+            </div>
         </div>
     </div>
     <div class="entities">
-        <h2 th:text="#{docs.entities.title}">API Entities</h2>
-        <div class="scrollable">
-            <th:block th:each="entity : ${entities}">
-                <a th:class="'method-link entity-link' + (${currentEntity != null && !isMethod && entity.name == currentEntity.name} ? ' link-active' : '')"
-                   th:href="'docs?section=' + ${entity.name}">
-                    <p>
-                        <span class="method-name" th:utext="${entity.name}"></span>
-                    </p>
-                </a>
-            </th:block>
+        <h2 class="subtitle" th:text="#{docs.entities.title}">API Entities</h2>
+        <div class="scrollable-wrapper">
+            <div class="scrollable-list">
+                <th:block th:each="entity : ${entities}">
+                    <a th:class="'method-link entity-link' + (${currentEntity != null && !isMethod && entity.name == currentEntity.name} ? ' link-active' : '')"
+                       th:href="'docs?section=' + ${entity.name}">
+                        <p>
+                            <span class="method-name" th:utext="${entity.name}"></span>
+                        </p>
+                    </a>
+                </th:block>
+            </div>
         </div>
     </div>
+</header>
+<main>
     <div class="description-block">
         <h2 th:if="${currentMethod != null && isMethod}" th:text="#{docs.info.method.header}">Method</h2>
         <p class="current-section-name" th:if="${currentMethod != null && isMethod}">
@@ -181,5 +188,9 @@
         </th:block>
     </div>
 </main>
+<script type="text/javascript" src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+<script type="text/javascript" src="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+<script type="text/javascript" th:src="docs.js" src="../static/docs.js"></script>
 </body>
 </html>

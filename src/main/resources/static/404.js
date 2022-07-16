@@ -17,8 +17,30 @@ const genStar = () => {
 };
 
 document.addEventListener("DOMContentLoaded", function () {
+    let ui = document.querySelector(".main");
+
     const $el = document.querySelector(".space");
     for (let index = 0; index < 52; index++) {
         $el.append(genStar());
     }
+    const canvas = document.getElementById("canvas");
+    const starback = new Starback(canvas, {
+        type: 'line',
+        quantity: 20,
+        width: window.screen.availWidth,
+        height: window.screen.availHeight,
+        backgroundColor: '#00000000',
+        randomOpacity: true,
+        frequency: 500,
+        speed: 30,
+        slope: {
+            x: 1,
+            y: 4
+        },
+        starColor: '#fff'
+    })
+
+    document.querySelector(".toggle").onclick = function () {
+        ui.classList.toggle("hidden");
+    };
 })
