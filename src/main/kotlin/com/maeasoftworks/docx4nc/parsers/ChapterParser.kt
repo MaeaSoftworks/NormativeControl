@@ -71,7 +71,7 @@ abstract class ChapterParser(val chapter: Chapter, val root: DocumentParser) {
     }
 
     open fun handleP(context: ChapterParser, p: Int, paragraph: P, pFunctions: PFunctions, rFunctions: RFunctions?) {
-        val pPr = root.resolver.getEffectivePPr(paragraph)
+        val pPr = root.propertiesStorage[paragraph]
         val isEmpty = root.texts.getText(paragraph).isBlank()
         for (r in 0 until paragraph.content.size) {
             if (rFunctions != null) {
@@ -93,7 +93,7 @@ abstract class ChapterParser(val chapter: Chapter, val root: DocumentParser) {
 
     open fun parseR(p: Int, r: Int, paragraph: P, rFunctions: RFunctions) {
         if (paragraph.content[r] is R) {
-            val rpr = root.resolver.getBetterEffectiveRPr(paragraph.content[r] as R)
+            val rpr = root.propertiesStorage[paragraph.content[r] as R]
             rFunctions.apply(
                 root,
                 p,

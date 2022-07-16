@@ -28,7 +28,7 @@ open class RulesTestHelper {
         assert(
             wrapper(
                 p,
-                parser.resolver.getEffectivePPr(paragraph),
+                parser.propertiesStorage[paragraph],
                 TextUtils.getText(paragraph).isEmpty(),
                 parser
             ).let(condition)
@@ -41,7 +41,7 @@ open class RulesTestHelper {
             wrapper(
                 p,
                 0,
-                parser.resolver.getBetterEffectiveRPr(paragraph.content[0] as R),
+                parser.propertiesStorage[paragraph.content[0] as R],
                 TextUtils.getText(paragraph).isEmpty(),
                 parser
             ).let(condition)

@@ -35,7 +35,7 @@ class Renderer(
 
     private var lastPBeforePageBreak: HTMLElement? = null
     private var lastInnerBeforePageBreak: HTMLElement? = null
-    private var alreadyBroke = false
+    private var alreadyBroken = false
 
     fun render(): HTMLElement {
         html.children.add(currentPage!!)
@@ -56,6 +56,9 @@ class Renderer(
         currentPage!!.children.add(currentP!!)
         currentP!!.id = p.paraId
         stylizeP(p)
+        if (p.content.isEmpty()) {
+            currentP!!.children.add(HTMLElement("br", false))
+        }
         for (r in p.content.indices) {
             when (p.content[r]) {
                 is R -> renderR(p.content[r] as R)
@@ -72,7 +75,7 @@ class Renderer(
     }
 
     private fun stylizeP(p: P) {
-        val ppr = parser.resolver.getEffectivePPr(p)
+        val ppr = parser.propertiesStorage[p]
         currentP!!.style += {
             "margin-left" to ppr.ind?.left?.toDouble()?.div(PIXELS_IN_POINT) with "px"
             "margin-right" to ppr.ind?.right?.toDouble()?.div(PIXELS_IN_POINT) with "px"
@@ -80,12 +83,27 @@ class Renderer(
             "text-align" to ppr.jc?.`val` with JustifyProjector
             "background-color" to ppr.shd?.fill.toString() with HexColorConverter
         }
+
+        val rpr = ppr.rPr
+        currentP!!.style += {
+            "font-family" to rpr?.rFonts with FontProjector
+            "font-size" to rpr?.sz?.`val`?.toInt()?.div(2) with "px"
+            "font-style" to rpr?.i?.isVal with ItalicProjector
+            "font-weight" to rpr?.b?.isVal with WeightProjector
+            "color" to rpr?.color?.`val`.toString() with HexColorConverter
+            "background-color" to rpr?.highlight?.`val`.toString() with ColorNameConverter
+            "text-transform" to rpr?.caps?.isVal with CapsProjector
+            "font-variant-caps" to rpr?.smallCaps?.isVal with SmallCapsProjector
+            // todo fix all time null
+            "font-variant-ligatures" to rpr?.ligatures?.`val` with LigaturesProjector
+            "letter-spacing" to rpr?.spacing?.`val`?.toDouble()?.div(PIXELS_IN_POINT) with "px"
+        }
     }
 
     private fun stylizeR(r: R) {
-        val rpr = parser.resolver.getBetterEffectiveRPr(r)
+        val rpr = parser.propertiesStorage[r]
         currentR!!.style += {
-            "font-family" to rpr.rFonts with FontProjector or parser.doc.styleDefinitionsPart?.defaultCharacterStyle?.rPr?.rFonts or "Calibri"
+            "font-family" to rpr.rFonts with FontProjector
             "font-size" to rpr.sz?.`val`?.toInt()?.div(2) with "px"
             "font-style" to rpr.i?.isVal with ItalicProjector
             "font-weight" to rpr.b?.isVal with WeightProjector
@@ -126,7 +144,7 @@ class Renderer(
                     when (c.value) {
                         is Text -> {
                             currentR = HTMLElement("span")
-                            alreadyBroke = false
+                            alreadyBroken = false
                             if (currentP == null) {
                                 currentP = lastPBeforePageBreak ?: newP
                                 lastPBeforePageBreak = null
@@ -150,7 +168,7 @@ class Renderer(
                             stylizeR(r)
                         }
                         is R.LastRenderedPageBreak -> {
-                            if (!alreadyBroke) {
+                            if (!alreadyBroken) {
                                 pageBreak()
                             }
                         }
@@ -168,6 +186,6 @@ class Renderer(
         currentP = null
         currentInner = null
         currentR = null
-        alreadyBroke = true
+        alreadyBroken = true
     }
 }

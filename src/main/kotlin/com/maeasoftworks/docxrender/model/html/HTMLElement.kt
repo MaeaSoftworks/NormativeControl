@@ -1,7 +1,8 @@
 package com.maeasoftworks.docxrender.model.html
 
 class HTMLElement(
-    val type: String
+    val type: String,
+    val hasClosingTag: Boolean = true
 ) {
     private var classes: MutableList<String> = mutableListOf()
     var id: String? = null
@@ -10,7 +11,10 @@ class HTMLElement(
     var style: Style = Style()
 
     override fun toString(): String {
-        return "<$type${idToString()}${classesToString()}${styleToString()}>$content${childrenToString()}</$type>"
+        return if (hasClosingTag)
+            "<$type${idToString()}${classesToString()}${styleToString()}>$content${childrenToString()}</$type>"
+        else
+            "<$type${idToString()}${classesToString()}${styleToString()}>"
     }
 
     fun withClass(classname: String): HTMLElement {

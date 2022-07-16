@@ -6,6 +6,7 @@ import com.maeasoftworks.docx4nc.model.Picture
 import com.maeasoftworks.docx4nc.model.Rules
 import com.maeasoftworks.docx4nc.utils.apply
 import org.docx4j.wml.P
+import org.docx4j.wml.PPr
 import org.docx4j.wml.R
 
 class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter, root) {
@@ -69,33 +70,23 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
 
     private fun parseSubchapter(subchapter: Subchapter) {
         if (subchapter.subheader != null) {
-            val subheaderPPr = root.resolver.getEffectivePPr(subchapter.subheader)
+            val subheaderPPr = root.propertiesStorage[subchapter.subheader]
             val isEmpty = root.texts.getText(subchapter.subheader).isEmpty()
-            headerPFunctions.apply(root, subchapter.startPos, subheaderPPr, isEmpty)
-            commonPFunctions.apply(root, subchapter.startPos, subheaderPPr, isEmpty)
-            for (r in 0 until subchapter.subheader.content.size) {
-                if (subchapter.subheader.content[r] is R) {
-                    val rPr = root.resolver.getBetterEffectiveRPr(subchapter.subheader.content[r] as R)
-                    headerRFunctions.apply(root, subchapter.startPos, r, rPr, isEmpty)
-                    commonRFunctions.apply(root, subchapter.startPos, r, rPr, isEmpty)
-                } else {
-                    handlePContent(subchapter.startPos, r, this)
-                }
-            }
+            parseAnyHeader(subheaderPPr, subchapter.startPos, subchapter.subheader.content, isEmpty)
         }
         for (p in subchapter.startPos + 1 until subchapter.startPos + subchapter.content.size) {
             if (pictureTitleExpected) {
                 pictureTitleExpected = false
                 continue
             }
-            val pPr = root.resolver.getEffectivePPr(root.doc.content[p] as P)
+            val pPr = root.propertiesStorage[root.doc.content[p] as P]
             val paragraph = root.doc.content[p] as P
             val isEmptyP = root.texts.getText(paragraph).isBlank()
             commonPFunctions.apply(root, p, pPr, isEmptyP)
             regularPFunctions.apply(root, p, pPr, isEmptyP)
             for (r in 0 until paragraph.content.size) {
                 if (paragraph.content[r] is R) {
-                    val rPr = root.resolver.getBetterEffectiveRPr(paragraph.content[r] as R)
+                    val rPr = root.propertiesStorage[paragraph.content[r] as R]
                     commonRFunctions.apply(root, p, r, rPr, isEmptyP)
                     regularRFunctions.apply(root, p, r, rPr, isEmptyP)
                     for (c in 0 until (paragraph.content[r] as R).content.size) {
@@ -118,17 +109,21 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
     }
 
     private fun parseHeader() {
-        val headerPPr = root.resolver.getEffectivePPr(chapter.header)
+        val headerPPr = root.propertiesStorage[chapter.header]
         val isEmpty = root.texts.getText(chapter.header).isBlank()
-        headerPFunctions.apply(root, chapter.startPos, headerPPr, isEmpty)
-        commonPFunctions.apply(root, chapter.startPos, headerPPr, isEmpty)
-        for (r in 0 until chapter.header.content.size) {
-            if (chapter.header.content[r] is R) {
-                val rPr = root.resolver.getBetterEffectiveRPr(chapter.header.content[r] as R)
-                headerRFunctions.apply(root, chapter.startPos, r, rPr, isEmpty)
-                commonRFunctions.apply(root, chapter.startPos, r, rPr, isEmpty)
+        parseAnyHeader(headerPPr, chapter.startPos, chapter.header.content, isEmpty)
+    }
+
+    private fun parseAnyHeader(ppr: PPr, startPos: Int, content: List<Any>, isEmpty: Boolean) {
+        headerPFunctions.apply(root, startPos, ppr, isEmpty)
+        commonPFunctions.apply(root, startPos, ppr, isEmpty)
+        for (r in content.indices) {
+            if (content[r] is R) {
+                val rPr = root.propertiesStorage[content[r] as R]
+                headerRFunctions.apply(root, startPos, r, rPr, isEmpty)
+                commonRFunctions.apply(root, startPos, r, rPr, isEmpty)
             } else {
-                handlePContent(chapter.startPos, r, this)
+                handlePContent(startPos, r, this)
             }
         }
     }

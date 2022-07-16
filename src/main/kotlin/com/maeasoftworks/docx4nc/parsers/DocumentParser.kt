@@ -6,7 +6,8 @@ import com.maeasoftworks.docx4nc.enums.MistakeType
 import com.maeasoftworks.docx4nc.enums.MistakeType.*
 import com.maeasoftworks.docx4nc.enums.Status
 import com.maeasoftworks.docx4nc.model.*
-import com.maeasoftworks.docx4nc.utils.ignore
+import com.maeasoftworks.docx4nc.tweaks.PropertiesStorage
+import com.maeasoftworks.docx4nc.utils.doUntilCatch
 import org.docx4j.jaxb.Context
 import org.docx4j.model.PropertyResolver
 import org.docx4j.openpackaging.exceptions.Docx4JException
@@ -27,9 +28,9 @@ import java.util.*
 class DocumentParser(val documentData: DocumentData, private var password: String) {
     val texts = Texts(this)
     lateinit var doc: MainDocumentPart
-    lateinit var resolver: Resolver
+    lateinit var propertiesStorage: PropertiesStorage
     private val factory = Context.getWmlObjectFactory()
-    private lateinit var mlPackage: WordprocessingMLPackage
+    lateinit var mlPackage: WordprocessingMLPackage
 
     var numbering: NumberingDefinitionsPart? = null
     private var comments: CommentsPart? = null
@@ -56,7 +57,7 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
             mlPackage = WordprocessingMLPackage.load(ByteArrayInputStream(documentData.file))
             doc = mlPackage.mainDocumentPart
             doc.contents.body
-            resolver = Resolver(PropertyResolver(mlPackage), this)
+            propertiesStorage = PropertiesStorage(PropertyResolver(mlPackage), this)
             comments = doc.commentsPart
             if (comments == null) {
                 comments = CommentsPart().also { it.jaxbElement = factory.createComments() }
@@ -79,7 +80,6 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
             parser.parse()
         }
         checkPicturesOrder(AnonymousParser(this), 0, true, pictures)
-        resolver.printStats()
     }
 
     fun addCommentsAndSave() {
@@ -258,7 +258,7 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
         types: List<ChapterType?>,
         notFound: MistakeType,
         mismatch: MistakeType
-    ) = ignore<IndexOutOfBoundsException> {
+    ) = doUntilCatch<IndexOutOfBoundsException> {
         if (type !in types) {
             addMistake(notFound)
         } else if (chapters[pos].type != type) {
@@ -277,7 +277,7 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
         verifyChapter(3, INTRODUCTION, t, CHAPTER_INTRODUCTION_NOT_FOUND, CHAPTER_INTRODUCTION_POSITION_MISMATCH)
         verifyChapter(4, BODY, t, CHAPTER_BODY_NOT_FOUND, CHAPTER_BODY_POSITION_MISMATCH)
         var i = 4
-        ignore<IndexOutOfBoundsException> {
+        doUntilCatch<IndexOutOfBoundsException> {
             while (chapters[i].type == BODY) {
                 i++
             }
@@ -313,7 +313,7 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
     }
 
     fun isHeader(paragraph: Int, level: Int? = null): Boolean {
-        val pPr = resolver.getEffectivePPr(doc.content[paragraph] as P)
+        val pPr = propertiesStorage[doc.content[paragraph] as P]
         if (pPr.outlineLvl == null) {
             return false
         }
