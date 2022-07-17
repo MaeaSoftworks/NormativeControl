@@ -4,34 +4,35 @@ import com.maeasoftworks.docx4nc.enums.MistakeType
 
 
 /**
- * Класс, который представляет собой ошибку в документе без айди
+ * Mistake representation without `mistakeId` for internal using.
  *
+ * If you need `mistakeId`, see [MistakeOuter][com.maeasoftworks.docx4nc.model.MistakeOuter]
  * @author prmncr
  */
-class MistakeInner(
+data class MistakeInner(
     /**
-     * Переменная типа MistakeType, представляющая собой ошибку из MistakeType
-     *
+     * Mistake type
+     * @see com.maeasoftworks.docx4nc.enums.MistakeType
      * @author prmncr
      */
     val mistakeType: MistakeType,
 
     /**
-     * Переменная обозначающая параграф
-     *
+     * Index of mistake on p-layer
+     * @see com.maeasoftworks.docx4nc.samples.Philosophy_of_Layers
      * @author prmncr
      */
     val p: Int? = null,
 
     /**
-     * Переменная обозначающая «run»
-     *
+     * Index of mistake on r-layer
+     * @see com.maeasoftworks.docx4nc.samples.Philosophy_of_Layers
      * @author prmncr
      */
     val r: Int? = null,
 
     /**
-     * Является переменной описания ошибки
+     * Mistake description. Unfortunately, in Russian.
      *
      * @author prmncr
      */

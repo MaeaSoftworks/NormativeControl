@@ -4,56 +4,58 @@ import com.maeasoftworks.docx4nc.enums.ChapterType
 import org.docx4j.wml.P
 
 /**
- * Класс Chapter – является классом частей(глав)
- *
+ * Document chapter representation
+ * @param startPos chapter's start position
  * @author prmncr
  */
 open class Chapter(var startPos: Int) : Iterable<Any> {
 
     /**
-     * Тип переменной ChapterType(FRONT_PAGE, ANNOTATION и тд.), которая обозначает тип главы
-     *
+     * Chapter's type.
+     * @see com.maeasoftworks.docx4nc.enums.ChapterType
      * @author prmncr
      */
     lateinit var type: ChapterType
 
     /**
-     * Является параграфом взятым из библиотеки docx4j
-     *
+     * Chapter's header
      * @author prmncr
      */
     lateinit var header: P
 
     /**
-     * Является изменяемым списком в котором хранятся главы
-     *
+     * Chapter's content
      * @author prmncr
      */
     val content: MutableList<Any> = ArrayList()
 
     /**
-     * Переменная типа Boolean, которая сигнализирует о нахождении главы
-     *
+     * Indicates whether the chapter has defined type
      * @author prmncr
      */
     val isChapterDetected: Boolean
         get() = ::type.isInitialized
 
     /**
-     * Переменная типа Boolean, которая сигнализирует о нахождении заголовка
-     *
+     * Indicates whether the chapter has a header
      * @author prmncr
      */
     val hasHeader: Boolean
         get() = ::header.isInitialized
 
+    /**
+     * Create chapter with predefined content
+     * @param startPos chapter's start position
+     * @param content chapter content
+     * @author prmncr
+     */
     constructor(startPos: Int, content: MutableList<Any>) : this(startPos) {
         this.content.addAll(content)
     }
 
     /**
-     * Функция которая добавляет переменные в список content
-     *
+     * Add element to <code>content</code> list
+     * @param item item which will be added
      * @author prmncr
      */
     fun add(item: Any) {
@@ -61,15 +63,15 @@ open class Chapter(var startPos: Int) : Iterable<Any> {
     }
 
     /**
-     * Функция итератора которая «пробегает» по списку content
-     *
+     * <code>content</code> iterator
+     * @return <code>content</code> iterator
      * @author prmncr
      */
     override fun iterator(): Iterator<Any> = content.iterator()
 
     /**
-     * Функция которая позволяет получить любую переменную, имея её айди, из списка content
-     *
+     * Get paragraph by position
+     * @param i paragraph position
      * @author prmncr
      */
     operator fun get(i: Int): Any = content[i]

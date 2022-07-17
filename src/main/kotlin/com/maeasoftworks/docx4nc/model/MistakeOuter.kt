@@ -3,64 +3,52 @@ package com.maeasoftworks.docx4nc.model
 import com.maeasoftworks.docx4nc.enums.MistakeType
 
 /**
- * В этом классе инкапсулированы данные об ошибке, которые будет получать пользователь после
- * успешной обработки его работы (кроме mistakeId).
- *
+ * Mistake representation with `mistakeId` for external using.
  * @author prmncr
  */
-class MistakeOuter(
+data class MistakeOuter(
 
     /**
-     * Уникальный идентификатор ошибки, создаваемый, присваиваемый и используемый классом
-     * DocumentParser.kt. Также выступает как порядковый номер.
-     * В отличии от остальных полей - пользователю не возвращается.
-     *
-     * @see com.maeasoftworks.docx4nc.parsers.DocumentParser.kt
-     *
+     * Mistake ordinal id
      * @author prmncr
      */
     val mistakeId: Long,
 
     /**
-     * Номера параграфа, в котором была допущена ошибка.
-     *
+     * Index of mistake on p-layer
+     * @see com.maeasoftworks.docx4nc.samples.Philosophy_of_Layers
      * @author prmncr
      */
     val p: Int? = null,
 
     /**
-     * Номера прогона параграфа, в котором была допущена ошибка.
-     *
+     * Index of mistake on r-layer
+     * @see com.maeasoftworks.docx4nc.samples.Philosophy_of_Layers
      * @author prmncr
      */
     val r: Int? = null,
 
     /**
-     * Тип допущенной ошибки.
-     *
+     * Mistake type
+     * @see com.maeasoftworks.docx4nc.enums.MistakeType
      * @author prmncr
      */
     val mistakeType: MistakeType,
 
     /**
-     * Описание допущенной ошибки.
+     * Mistake description. Unfortunately, in Russian.
      *
      * @author prmncr
      */
     val description: String? = null
 ) {
     /**
-     * Создаёт строковое представление объекта в формате JSON с помощью StringBuilder и возвращает его.
-     * Пример:
-     * {
-     *      "paragraph-id": 91,
-     *      "run-id": 0,
-     *      "mistake-type": "TEXT_WHITESPACE_INCORRECT_FONT_SIZE",
-     *      "description": "11/14"
-     * }
+     * Pretty string representation of mistake.
      *
-     * @return Строковое представление объекта в виде JSON
+     * Output format: `[p $p r $r] $mistakeType: $description`
      *
+     * Output example: `[p 23 r 3] Некорректный межстрочный интервал текста: найдено: 1, ожидалось: 1.5`
+     * @return string representation of mistake
      * @author prmncr
      */
     override fun toString(): String {

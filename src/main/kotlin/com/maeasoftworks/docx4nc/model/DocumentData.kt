@@ -3,18 +3,27 @@ package com.maeasoftworks.docx4nc.model
 import com.maeasoftworks.docx4nc.enums.Status
 
 /**
- * Является классом информирующем о документе в целом
+ * Document representation
+ * @author prmncr
  */
 class DocumentData(
+    /**
+     * File in <code>ByteArray</code> representation
+     * @author prmncr
+     */
     var file: ByteArray = ByteArray(0),
 
     /**
-     * Переменная которая обозначает статус файла(изначально он имеет статус «в очереди»)
+     * Document status (QUEUE by default)
+     * @see com.maeasoftworks.docx4nc.enums.Status
+     * @author prmncr
      */
     var status: Status = Status.QUEUE,
 
     /**
-     * Переменная означающая ошибку, то есть неверный формат файла
+     * Failure type (NONE by default)
+     * @see com.maeasoftworks.docx4nc.model.FailureType
+     * @author prmncr
      */
     var failureType: FailureType = FailureType.NONE
 )

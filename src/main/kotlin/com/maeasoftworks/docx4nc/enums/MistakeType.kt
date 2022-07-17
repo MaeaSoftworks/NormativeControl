@@ -1,10 +1,10 @@
 package com.maeasoftworks.docx4nc.enums
 
 /**
- * Перечисление всех типов ошибок, которые может выявлять программа
- *
- * @param ru - Название ошибки на русском
- *
+ * Type of mistake
+ * @see com.maeasoftworks.docx4nc.model.MistakeInner
+ * @see com.maeasoftworks.docx4nc.model.MistakeOuter
+ * @param ru Russian translation of mistake cause
  * @author prmncr
  */
 enum class MistakeType(val ru: String) {

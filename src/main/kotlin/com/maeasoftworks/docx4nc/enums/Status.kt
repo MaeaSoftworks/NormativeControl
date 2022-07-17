@@ -1,62 +1,55 @@
 package com.maeasoftworks.docx4nc.enums
 
 /**
- * Список статусов, которые получает документ в процессе обработки.
- * У каждого документа может быть только 1 статус, который будет меняться в процессе работы с ним.
- *
+ * Document processing status. Any document can have 1 status at a time.
+ * @see com.maeasoftworks.docx4nc.model.DocumentData
  * @author prmncr
  */
 enum class Status {
-
-
     /**
-     * Файл готов к постановке в очередь
-     *
+     * Document ready to be queued
      * @author prmncr
      */
     READY_TO_ENQUEUE,
 
     /**
-     * Файл в очереди на обработку
-     *
+     * Document is waiting to be queued
      * @author prmncr
      */
     QUEUE,
 
     /**
-     * Файл обрабатывается
-     *
+     * Document is processing now
      * @author prmncr
      */
     PROCESSING,
 
     /**
-     * Во время обработки документа возникла ошибка
-     *
+     * Document processing failed
      * @author prmncr
      */
     ERROR,
 
     /**
-     * Обработка файла завершена, можно получать результат
-     *
+     * Document processing was successful
      * @author prmncr
      */
     READY,
 
-
+    /**
+     * Document rendering failed but processing was successful
+     * @author prmncr
+     */
     RENDER_ERROR,
 
     /**
-     * Состояние файла неизвестно
-     *
+     * Document status is unknown
      * @author prmncr
      */
     UNDEFINED,
 
     /**
-     * Обработка файла завершена, файл сохранён в базе данных, можно получать результат
-     *
+     * Document processed, saved and ready to give result
      * @author prmncr
      */
     SAVED

@@ -1,76 +1,64 @@
 package com.maeasoftworks.docx4nc.model
 
 /**
- * В этом объекте инициализируются и хранятся списки ключевых слов, используемых для выявления отдельных
- * частей в документе при его обработке.
- *
+ * Storage for keywords which are used to detect chapters type
  * @author prmncr
  */
 object ChapterMarkers {
 
     /**
-     * Список списков ключевых слов, который используется
-     * при обработке документа для выявления в нём отдлельных частей.
-     *
+     * All keywords in 2D list
      * @author prmncr
      */
     val markers: List<List<String>>
 
     /**
-     * Список ключевых слов для определения части документа, в которой содержится титульный лист.
-     *
+     * Keywords for 'Annotation'
      * @author prmncr
      */
     val annotation = listOf("РЕФЕРАТ")
 
     /**
-     * Список ключевых слов для определения части документа, в которой описывается содержание работы.
-     *
+     * Keywords for 'Contents'
      * @author prmncr
      */
     val contents = listOf("СОДЕРЖАНИЕ", "ОГЛАВЛЕНИЕ")
 
     /**
-     * Список ключевых слов для определения части документа, в которой содержится введение.
-     *
+     * Keywords for 'Introduction'
      * @author prmncr
      */
     val introduction = listOf("ВВЕДЕНИЕ")
 
     /**
-     * Список ключевых слов для определения части документа, в которой содержится заключение.
-     *
+     * Keywords for 'Conclusion'
      * @author prmncr
      */
     val conclusion = listOf("ЗАКЛЮЧЕНИЕ")
 
     /**
-     * Список ключевых слов для определения части документа, в которой содержатся ссылки на источники.
-     *
+     * Keywords for 'References'
      * @author prmncr
      */
     val references =
         listOf("БИБЛИОГРАФИЧЕСКИЙ СПИСОК", "СПИСОК ИСПОЛЬЗОВАННОЙ ЛИТЕРАТУРЫ", "СПИСОК ЛИТЕРАТУРЫ", "СПИСОК ИСТОЧНИКОВ")
 
     /**
-     * Список ключевых слов для определения части документа, в которой содержится приложение.
-     *
+     * Keywords for 'Appendix'
      * @author prmncr
      */
     val appendix = listOf("ПРИЛОЖЕНИЕ", "ПРИЛОЖЕНИЯ")
 
     /**
-     * Блок, инициирующий пременную markers, добавляя в неё определённые в объекте ChapterMarkers списки ключевых
-     * слов для разбиения документа на части в следующем порядке:
-     * - front page
-     * - аннотации
-     * - содержание
-     * - введение
-     * - body
-     * - заключение
-     * - ссылки на источники
-     * - приложение
-     *
+     * Initialization for <code>markers</code> list. Filling order:
+     * - Front page mock
+     * - Annotation
+     * - Contents
+     * - Introduction
+     * - Body mock
+     * - Conclusion
+     * - References
+     * - Appendix
      * @author prmncr
      */
     init {
