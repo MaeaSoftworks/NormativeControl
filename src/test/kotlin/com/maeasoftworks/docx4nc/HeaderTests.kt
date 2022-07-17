@@ -1,4 +1,4 @@
-package com.maeasoftworks.docx4nc.parser
+package com.maeasoftworks.docx4nc
 
 import com.maeasoftworks.docx4nc.enums.ChapterType
 import com.maeasoftworks.docx4nc.enums.MistakeType.*
@@ -30,6 +30,7 @@ class HeaderTests : ParserTestFactory(HeaderTests::class) {
             TEXT_COMMON_INCORRECT_FONT_SIZE,
             TEXT_HEADER_ALIGNMENT,
             TEXT_HEADER_LINE_SPACING,
+            TEXT_HEADER_AUTO_HYPHEN,
             WORD_SPELL_ERROR
         )
     }
@@ -64,7 +65,8 @@ class HeaderTests : ParserTestFactory(HeaderTests::class) {
         errorAssert(
             parserBase.mistakes,
             TEXT_HEADER_BODY_ALIGNMENT,
-            TEXT_HEADER_BODY_UPPERCASE
+            TEXT_HEADER_BODY_UPPERCASE,
+            TEXT_HEADER_AUTO_HYPHEN
         )
     }
 }

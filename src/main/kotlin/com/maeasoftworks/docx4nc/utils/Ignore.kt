@@ -1,11 +1,6 @@
 package com.maeasoftworks.docx4nc.utils
 
-/**
- * Выполнить функцию в блоке try/catch
- *
- * @author prmncr
- */
-inline fun <reified E : Exception> ignore(body: () -> Unit) {
+inline fun <reified E : Exception> doUntilCatch(body: () -> Unit) {
     try {
         body()
     } catch (e: Exception) {

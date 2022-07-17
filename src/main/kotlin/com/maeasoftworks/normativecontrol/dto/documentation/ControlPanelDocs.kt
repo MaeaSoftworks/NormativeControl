@@ -9,9 +9,13 @@ import org.springframework.core.io.ByteArrayResource
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 
-sealed class ControlPanelDocs(d: DocumentManager): ControlPanelController(d) {
+sealed class ControlPanelDocs(d: DocumentManager) : ControlPanelController(d) {
     @Documented("docs.method.admin.findById.info")
-    @PossibleResponse(HttpStatus.OK, DocumentControlPanelResponse::class, description = "docs.method.admin.findById.response0")
+    @PossibleResponse(
+        HttpStatus.OK,
+        DocumentControlPanelResponse::class,
+        description = "docs.method.admin.findById.response0"
+    )
     @PossibleResponse(HttpStatus.UNAUTHORIZED, description = "docs.method.common.response.401")
     @PossibleResponse(HttpStatus.NOT_FOUND, description = "docs.method.common.response.404")
     @PossibleResponse(HttpStatus.BAD_REQUEST, description = "docs.method.common.response.400")

@@ -1,67 +1,61 @@
 package com.maeasoftworks.docx4nc.rules
 
-import com.maeasoftworks.docx4nc.enums.MistakeType
+import com.maeasoftworks.docx4nc.enums.MistakeType.*
 import com.maeasoftworks.docx4nc.model.Rules
 import org.junit.jupiter.api.Test
 
-class RulesDefaultHeader : RulesTestBase() {
+class RulesDefaultHeader : RulesTestHelper() {
     init {
         parser = createParser("rules/default/header")
     }
 
     @Test
     fun `justify is center failed`() {
-        base(0, Rules.Default.Header.P::justifyIsCenter) {
-            it != null && it.mistakeType == MistakeType.TEXT_HEADER_ALIGNMENT
-        }
+        testRule(0, Rules.Default.Header.P::justifyIsCenter, TEXT_HEADER_ALIGNMENT)
     }
 
     @Test
     fun `justify is center passed`() {
-        base(1, Rules.Default.Header.P::justifyIsCenter) {
-            it == null
-        }
+        testRule(1, Rules.Default.Header.P::justifyIsCenter)
     }
 
     @Test
     fun `line spacing is one failed`() {
-        base(2, Rules.Default.Header.P::lineSpacingIsOne) {
-            it != null && it.mistakeType == MistakeType.TEXT_HEADER_LINE_SPACING
-        }
+        testRule(2, Rules.Default.Header.P::lineSpacingIsOne, TEXT_HEADER_LINE_SPACING)
     }
 
     @Test
     fun `line spacing is one passed`() {
-        base(3, Rules.Default.Header.P::lineSpacingIsOne) {
-            it == null
-        }
+        testRule(3, Rules.Default.Header.P::lineSpacingIsOne)
     }
 
     @Test
     fun `has not dot in end failed`() {
-        base(4, Rules.Default.Header.P::hasNotDotInEnd) {
-            it != null && it.mistakeType == MistakeType.TEXT_HEADER_REDUNDANT_DOT
-        }
+        testRule(4, Rules.Default.Header.P::hasNotDotInEnd, TEXT_HEADER_REDUNDANT_DOT)
     }
 
     @Test
     fun `has not dot in end passed`() {
-        base(5, Rules.Default.Header.P::hasNotDotInEnd) {
-            it == null
-        }
+        testRule(5, Rules.Default.Header.P::hasNotDotInEnd)
     }
 
     @Test
     fun `empty line after header exists failed`() {
-        base(6, Rules.Default.Header.P::emptyLineAfterHeaderExists) {
-            it != null && it.mistakeType == MistakeType.TEXT_HEADER_EMPTY_LINE_AFTER_HEADER_REQUIRED
-        }
+        testRule(6, Rules.Default.Header.P::emptyLineAfterHeaderExists, TEXT_HEADER_EMPTY_LINE_AFTER_HEADER_REQUIRED)
     }
 
     @Test
     fun `empty line after header exists passed`() {
-        base(7, Rules.Default.Header.P::emptyLineAfterHeaderExists) {
-            it == null
-        }
+        testRule(7, Rules.Default.Header.P::emptyLineAfterHeaderExists)
+    }
+
+    @Test
+    fun `header wrapping failed`() {
+        testRule(10, Rules.Default.Header.P::isAutoHyphenSuppressed, TEXT_HEADER_AUTO_HYPHEN)
+    }
+
+    @Test
+    fun `header wrapping passed`() {
+        testRule(11, Rules.Default.Header.P::isAutoHyphenSuppressed)
     }
 }

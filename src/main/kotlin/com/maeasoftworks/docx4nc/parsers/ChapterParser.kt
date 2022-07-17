@@ -7,17 +7,18 @@ import com.maeasoftworks.docx4nc.model.Rules
 import com.maeasoftworks.docx4nc.utils.PFunctions
 import com.maeasoftworks.docx4nc.utils.RFunctions
 import com.maeasoftworks.docx4nc.utils.apply
+import jakarta.xml.bind.JAXBElement
 import org.docx4j.TextUtils
 import org.docx4j.dml.wordprocessingDrawing.Anchor
 import org.docx4j.math.CTOMath
 import org.docx4j.math.CTOMathPara
 import org.docx4j.mce.AlternateContent
 import org.docx4j.wml.*
-import javax.xml.bind.JAXBElement
 
 abstract class ChapterParser(val chapter: Chapter, val root: DocumentParser) {
     var pictureTitleExpected = false
-    private var listPosition = 0
+    protected var currentListStartValue = -1
+    protected var listPosition = 0
 
     abstract fun parse()
 
@@ -70,7 +71,7 @@ abstract class ChapterParser(val chapter: Chapter, val root: DocumentParser) {
     }
 
     open fun handleP(context: ChapterParser, p: Int, paragraph: P, pFunctions: PFunctions, rFunctions: RFunctions?) {
-        val pPr = root.resolver.getEffectivePPr(paragraph)
+        val pPr = root.propertiesStorage[paragraph]
         val isEmpty = root.texts.getText(paragraph).isBlank()
         for (r in 0 until paragraph.content.size) {
             if (rFunctions != null) {
@@ -86,16 +87,18 @@ abstract class ChapterParser(val chapter: Chapter, val root: DocumentParser) {
             validateListElement(p)
         } else {
             listPosition = 0
+            currentListStartValue = -1
         }
     }
 
     open fun parseR(p: Int, r: Int, paragraph: P, rFunctions: RFunctions) {
         if (paragraph.content[r] is R) {
+            val rpr = root.propertiesStorage[paragraph.content[r] as R]
             rFunctions.apply(
                 root,
                 p,
                 r,
-                root.resolver.getEffectiveRPr(paragraph.content[r] as R),
+                rpr,
                 TextUtils.getText(paragraph.content[r]).isBlank()
             )
         } else {
@@ -165,7 +168,9 @@ abstract class ChapterParser(val chapter: Chapter, val root: DocumentParser) {
                     context.handleDrawing(p, r, c, pictureContainer)
                 }
                 is R.Tab -> {
-                    root.addMistake(TEXT_COMMON_USE_FIRST_LINE_INDENT_INSTEAD_OF_TAB, p, r)
+                    if (c == 0) {
+                        root.addMistake(TEXT_COMMON_USE_FIRST_LINE_INDENT_INSTEAD_OF_TAB, p, r)
+                    }
                 }
                 is R.Ptab,
                 is R.YearLong,
@@ -196,17 +201,20 @@ abstract class ChapterParser(val chapter: Chapter, val root: DocumentParser) {
                 *   Text
                 * */
             }
-            is Br -> root.addMistake(TODO_ERROR, p, r)
-            is DelText -> root.addMistake(TODO_ERROR, p, r)
+            is DelText -> root.addMistake(RUN_UNEXPECTED_CONTENT, p, r, something::class.simpleName)
             is AlternateContent -> {
                 // todo: is it only first object?
                 if (something.choice.first().any.first() is Drawing) {
                     pictureTitleExpected = true
                     context.handleDrawing(p, r, c, root.pictures)
                 } else {
-                    root.addMistake(TODO_ERROR, p, r)
+                    root.addMistake(RUN_UNEXPECTED_CONTENT, p, r, something::class.simpleName)
                 }
             }
+            /*
+            Detected:
+                Br
+             */
         }
     }
 
@@ -261,29 +269,42 @@ abstract class ChapterParser(val chapter: Chapter, val root: DocumentParser) {
         if (pPr.numPr.ilvl.`val`.toInt() == 0) {
             when (numberingFormat.listLevels["0"]!!.numFmt) {
                 NumberFormat.BULLET -> if (numberingFormat.listLevels["0"]!!.levelText != "–") {
-                    root.addMistake(ORDERED_LIST_INCORRECT_MARKER_FORMAT_AT_LEVEL_1, p, description = "/\"–\" (U+2013)")
+                    root.addMistake(ORDERED_LIST_INCORRECT_MARKER_FORMAT_AT_LEVEL_1, p, description = "\"–\" (U+2013)")
                 }
                 NumberFormat.RUSSIAN_LOWER -> if (numberingFormat.listLevels["0"]!!.levelText != "%1)") {
                     root.addMistake(
                         ORDERED_LIST_INCORRECT_MARKER_FORMAT_AT_LEVEL_1,
                         p,
-                        description = "/\"<RU_LOWER_LETTER>)\""
+                        description = "\"<RU_LOWER_LETTER>)\""
                     )
+                } else {
+                    if (numberingFormat.listLevels["0"]!!.startValue.toInt() == currentListStartValue) {
+                        listPosition++
+                    } else {
+                        currentListStartValue = numberingFormat.listLevels["0"]!!.startValue.toInt()
+                        listPosition = currentListStartValue
+                    }
+                    if (alphabet[listPosition] !in orderedListMarkers) {
+                        root.addMistake(
+                            ORDERED_LIST_WRONG_LETTER,
+                            p,
+                            description = "Запрещены: \"ё\", \"з\", \"й\", \"о\", \"ч\", \"ъ\", \"ы\", \"ь\", " +
+                                    "найдено: \"${alphabet[listPosition]}\""
+                        )
+                    }
                 }
                 else -> root.addMistake(ORDERED_LIST_INCORRECT_MARKER_FORMAT, p)
             }
-            object : AnonymousParser(Chapter(p, mutableListOf(root.doc.content[p])), root) {
-            }
         } else if (pPr.numPr.ilvl.`val`.toInt() == 1) {
             if (numberingFormat.listLevels["1"]!!.numFmt != NumberFormat.DECIMAL || numberingFormat.listLevels["1"]!!.levelText != "%2)") {
-                root.addMistake(ORDERED_LIST_INCORRECT_MARKER_FORMAT_AT_LEVEL_2, p, description = "/\"<DIGIT>)\"")
+                root.addMistake(ORDERED_LIST_INCORRECT_MARKER_FORMAT_AT_LEVEL_2, p, description = "\"<DIGIT>)\"")
             }
         }
     }
 
     companion object {
 
-        val orderedListMarkers = "абвгежиклмнпрстуфхцшщэюя".toList()
+        val orderedListMarkers = "абвгдежиклмнпрстуфхцшщэюя".toList()
         val alphabet = "абвгдежзиклмнопрстуфхцчшщыэюя".toList()
 
         val pCommonFunctions = listOf(
@@ -310,7 +331,8 @@ abstract class ChapterParser(val chapter: Chapter, val root: DocumentParser) {
             Rules.Default.Header.P::justifyIsCenter,
             Rules.Default.Header.P::lineSpacingIsOne,
             Rules.Default.Header.P::emptyLineAfterHeaderExists,
-            Rules.Default.Header.P::hasNotDotInEnd
+            Rules.Default.Header.P::hasNotDotInEnd,
+            Rules.Default.Header.P::isAutoHyphenSuppressed
         )
 
         val regularPFunctions = listOf(
