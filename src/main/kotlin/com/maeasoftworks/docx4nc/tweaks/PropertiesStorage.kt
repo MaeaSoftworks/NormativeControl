@@ -7,15 +7,31 @@ import org.docx4j.wml.PPr
 import org.docx4j.wml.R
 import org.docx4j.wml.RPr
 
+/**
+ * Wrapper for [PropertyResolver] that store any property object to prevent second collecting of properties object.
+ * @param resolver default resolver from mlPackage
+ * @param root parser that stores this wrapper
+ * @author prmncr
+ */
 class PropertiesStorage(private val resolver: PropertyResolver, private val root: DocumentParser) {
     private var pPrs: MutableMap<String, PPr> = HashMap()
     private var rPrs: MutableMap<R, RPr> = HashMap()
 
+    /**
+     * Get paragraph's actual properties by `paraId`
+     * @param p paragraph whose properties need to find and store
+     * @return actual properties of paragraph
+     */
     operator fun get(p: P): PPr {
-        return pPrs[p.paraId] ?: resolver.getEffectivePPr(p, root.mlPackage).also { pPrs[p.paraId] = it }
+        return pPrs[p.paraId] ?: resolver.getActualPPr(p, root.mlPackage).also { pPrs[p.paraId] = it }
     }
 
+    /**
+     * Get run's actual properties by run
+     * @param r run whose properties need to find and store
+     * @return actual properties of run
+     */
     operator fun get(r: R): RPr {
-        return rPrs[r] ?: resolver.getEffectiveRPr(r, root.mlPackage).also { rPrs[r] = it }
+        return rPrs[r] ?: resolver.getActualRPr(r, root.mlPackage).also { rPrs[r] = it }
     }
 }

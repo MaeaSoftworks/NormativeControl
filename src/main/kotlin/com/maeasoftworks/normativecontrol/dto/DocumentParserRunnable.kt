@@ -42,8 +42,7 @@ class DocumentParserRunnable(
 
         parser.render = stream.toString()
         log.info("[{}] total           : {} ms", parser.document.id, savingEnd - parsingStart)
-        log.info(
-            "[{}] ├─ parsing      : {} ms",
+        log.info("[{}] ├─ parsing      : {} ms",
             parser.document.id,
             (savingEnd - savingStart) + (parsingEnd - parsingStart)
         )

@@ -10,15 +10,11 @@ import org.docx4j.wml.PPr
 import org.docx4j.wml.R
 
 /**
- * Класс, ответственный за парсинг страниц, которые были определены как Body (т.е. эти страницы не относятся к типу
- * front, annotation, contents, introduction, conclusion, references, appendix)
+ * Parser for body chapter.
  *
- * Как он работает:
- * Парсер разбивает страницу на логические элементы Subchapters, проверяет порядок нумерации заголовков,
- * и если всё нормально - обрабатывает каждую часть по-отдельности
- *
- * @see ChapterMarkers.kt
- *
+ * How it works:
+ * 1. Split chapter to subchapters by headers.
+ * 2. Recursively validate every subchapter.
  * @author prmncr
  */
 class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter, root) {
@@ -26,8 +22,7 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
     private lateinit var innerPictures: MutableList<Picture>
 
     /**
-     * Корневой элемент дерева логических элементов Subchapters
-     *
+     * Root of subchapters model
      * @author prmncr
      */
     private val subchapters = Subchapter()
@@ -47,20 +42,11 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
     }
 
     /**
-     * Метод рекурсивно создаёт дерево логических элементов Subchapters
-     *
-     * Делается проход по параграфам документа.
-     * Если параграф содержит в себе заголовок - создаётся Subchapter, она добавляется в список потомков
-     * текущей Subchapter (на 1й итерации текущая Subchapter - это root), затем сортирует этот список
-     * по уровню вложенности, и метод вызывается рекурсивно
-     *
-     * После возврата из рекурсивного метода содержимое, не являющиеся заголовком, добавляется
-     * в содержимое currentChapter
-     *
-     * @param pPos порядковый номер параграфа, который содержит подглаву, на странице
-     * @param level уровень вложенности текущей подглавы
-     * @param currentChapter объект текущей подглавы
-     *
+     * Creates subchapters model recursively by headers. All non-header paragraphs will be added in subchapter content.
+     * @param pPos p-layer index
+     * @param level nesting level
+     * @param currentChapter current subchapter
+     * @return end position
      * @author prmncr
      */
     private fun createSubchaptersModel(pPos: Int, level: Int, currentChapter: Subchapter): Int {
@@ -98,8 +84,7 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
     }
 
     /**
-     * Заполняет список картинок, вложенных в данную подглаву
-     *
+     * Collects pictures from subchapters recursively
      * @author prmncr
      */
     private fun flatPictures() {
@@ -108,10 +93,8 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
     }
 
     /**
-     * Считывает содержимое страницы в цикле for, при наличии - выделяет Subchapters,
-     * затем обрабатывает и их. Во время обработки добавляет в документ ошибки по мере их нахождения
-     * применяя к параграфам правила для выявления ошибок
-     *
+     * Parses subchapter
+     * @param subchapter subchapter to parse
      * @author prmncr
      */
     private fun parseSubchapter(subchapter: Subchapter) {
@@ -155,8 +138,7 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
     }
 
     /**
-     * Считывает заголовки, имеющиеся на странице, и применяет к ним правила для выявления ошибок
-     *
+     * Style check for headers
      * @author prmncr
      */
     private fun parseHeader() {
@@ -165,6 +147,10 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
         parseAnyHeader(headerPPr, chapter.startPos, chapter.header.content, isEmpty)
     }
 
+    /**
+     * Style check for headers and subheaders
+     * @author prmncr
+     */
     private fun parseAnyHeader(ppr: PPr, startPos: Int, content: List<Any>, isEmpty: Boolean) {
         headerPFunctions.apply(root, startPos, ppr, isEmpty)
         commonPFunctions.apply(root, startPos, ppr, isEmpty)
@@ -179,11 +165,6 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
         }
     }
 
-    /**
-     * Добавляет ошибку о размещени ссылки в недопустимом месте в основной документ
-     *
-     * @author prmncr
-     */
     override fun handleHyperlink(p: Int, r: Int) {
         root.addMistake(TEXT_HYPERLINKS_NOT_ALLOWED_HERE, p, r + 1)
     }
@@ -191,10 +172,9 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
     override fun handleTable(p: Int) {}
 
     /**
-     * Проходится по списку подглав на данной странице и проверяет их на соответствие правилам
-     * (подглавы должны нумероваться в арифметическом порядке,
-     * подглавы не должны быть вложены более 3-х раз)
-     *
+     * Validates subchapter for style rules
+     * @param expectedNum expected header number
+     * @param subchapter subchapter to validate
      * @author prmncr
      */
     private fun validateSubchapters(expectedNum: String, subchapter: Subchapter) {
@@ -216,8 +196,9 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
     }
 
     /**
-     * Метод проверяет, соответствуют ли названия картинок ГОСТ'овскому стандарту
-     *
+     * Searches numbers in picture title
+     * @param title picture title
+     * @return searching result or `null`
      * @author prmncr
      */
     override fun pictureTitleMatcher(title: String): MatchResult? {
@@ -230,34 +211,12 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
         } else null
     }
 
-    /**
-     * Объект, в котором содержатся правила, которым должны соответствовать
-     * - параграфы
-     * - прогоны
-     * - заголовок в прогоне
-     * - заголовок в параграфе
-     * - текст в параграфе
-     * - текст в прогоне
-     *
-     *
-     * @author prmncr
-     */
     companion object {
-        /**
-         * Правила, которым должны соответствовать параграфы
-         *
-         * @author prmncr
-         */
         private val commonPFunctions = listOf(
             Rules.Default.Common.P::hasNotBackground,
             Rules.Default.Common.P::notBordered
         )
 
-        /**
-         * Правила, которым должны соответствовать прогоны
-         *
-         * @author prmncr
-         */
         private val commonRFunctions = listOf(
             Rules.Default.Common.R::isTimesNewRoman,
             Rules.Default.Common.R::fontSizeIs14,
@@ -268,20 +227,10 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
             Rules.Default.Common.R::letterSpacingIs0
         )
 
-        /**
-         * Правила, которым должны соответствовать заголовки в прогоне
-         *
-         * @author prmncr
-         */
         private val headerRFunctions = listOf(
             Rules.Default.Header.R::isBold
         )
 
-        /**
-         * Правила, которым должны соответствовать заголовки в параграфе
-         *
-         * @author prmncr
-         */
         private val headerPFunctions = listOf(
             Rules.Body.Header.P::justifyIsLeft,
             Rules.Body.Header.P::isNotUppercase,
@@ -292,11 +241,6 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
             Rules.Default.Header.P::isAutoHyphenSuppressed
         )
 
-        /**
-         * Правила, которым должен соответствовать текст в параграфе
-         *
-         * @author prmncr
-         */
         private val regularPFunctions = listOf(
             Rules.Default.RegularText.P::leftIndentIs0,
             Rules.Default.RegularText.P::rightIndentIs0,
@@ -305,11 +249,6 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
             Rules.Default.RegularText.P::lineSpacingIsOneAndHalf
         )
 
-        /**
-         * Правила, которым должен соответствовать текст в прогоне
-         *
-         * @author prmncr
-         */
         private val regularRFunctions = listOf(
             Rules.Default.RegularText.R::isNotBold,
             Rules.Default.RegularText.R::isNotCaps,
@@ -318,45 +257,37 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
     }
 
     /**
-     * Класс, инкапсулирующий содержимое логического элемента внутри страницы
-     *
-     * В одной Subchapter должно быть не более трёх Subchapters
-     *
+     * Subchapter representation
      * @author prmncr
      */
     inner class Subchapter(
 
         /**
-         * Номер параграфа на странице, в котором начинается Subchapter
-         *
+         * Subchapter start position in p-layer
          * @author prmncr
          */
         val startPos: Int,
 
         /**
-         * Первый подзаголовок в Subchapter
-         *
+         * Subchapter header
          * @author prmncr
          */
         val subheader: P?,
 
         /**
-         * Родительский объект Subchapter для данного Subchapter
-         *
+         * Subchapter's parent
          * @author prmncr
          */
         private val root: Subchapter?,
 
         /**
-         * Порядковый номер этой Subchapter
-         *
+         * Subchapter position
          * @author prmncr
          */
         val num: Int?,
 
         /**
-         * Уровень вложенности этой Subchapter
-         *
+         * Subchapter nesting level
          * @author prmncr
          */
         val level: Int
@@ -372,11 +303,7 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
         )
 
         /**
-         * Метод для получения всех картинок в Subchapter и её Subchapters
-         *
-         * Метод проходит циклом foreach по каждой Subchapter из поля subchapters, рекурсивно вызывая в каждой Subchapter
-         * самого себя, после чего добавляет в поле pictures своего корневого элемента содержимое своего поля pictures
-         *
+         * Collects pictures from subchapters recursively
          * @author prmncr
          */
         fun flatPictures() {
@@ -387,22 +314,19 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
         }
 
         /**
-         * Список Subchapters этой Subchapter
-         *
+         * Subchapter children
          * @author prmncr
          */
         val subchapters: MutableList<Subchapter> = ArrayList()
 
         /**
-         * Текстовое содержимое этой Subchapter
-         *
+         * Subchapter content
          * @author prmncr
          */
         val content: MutableList<Any> = ArrayList()
 
         /**
-         * Картинки этой Subchapter
-         *
+         * Subchapter pictures
          * @author prmncr
          */
         var pictures: MutableList<Picture> = ArrayList()

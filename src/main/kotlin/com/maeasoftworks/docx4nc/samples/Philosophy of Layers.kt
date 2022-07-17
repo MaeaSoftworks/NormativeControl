@@ -1,5 +1,3 @@
-@file:Suppress("unused")
-
 package com.maeasoftworks.docx4nc.samples
 
 /**

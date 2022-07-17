@@ -3,7 +3,7 @@ package com.maeasoftworks.docx4nc.parsers
 import com.maeasoftworks.docx4nc.model.Chapter
 
 /**
- * Класс, используемый для создания парсеров во время работы, без создания специального классса-парсера
+ * Class for creating anonymous objects of parser in code
  *
  * @author prmncr
  */

@@ -41,7 +41,6 @@ dependencies {
     developmentOnly("org.springframework.boot:spring-boot-devtools")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    implementation(kotlin("script-runtime"))
 }
 
 tasks.withType<KotlinCompile> {
