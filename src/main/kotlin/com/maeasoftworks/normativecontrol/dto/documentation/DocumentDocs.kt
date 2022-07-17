@@ -42,11 +42,22 @@ sealed class DocumentDocs(d: DocumentManager) : DocumentController(d) {
     @PossibleResponse(HttpStatus.NOT_FOUND, description = "docs.method.common.response.404")
     @PossibleResponse(HttpStatus.FORBIDDEN, description = "docs.method.common.response.403")
     @PossibleResponse(HttpStatus.BAD_REQUEST, description = "docs.method.common.response.400")
-    @PossibleResponse(HttpStatus.UNPROCESSABLE_ENTITY, description = "docs.method.common.response.422")
     abstract override fun getRawFile(
         @Documented("docs.method.common.args.id")
         documentId: String,
         @Documented("docs.method.common.args.key")
         accessKey: String
     ): ResponseEntity<ByteArrayResource?>
+
+    @Documented("docs.method.getRender.info")
+    @PossibleResponse(HttpStatus.OK, String::class, "docs.method.getRender.response0")
+    @PossibleResponse(HttpStatus.NOT_FOUND, description = "docs.method.common.response.404")
+    @PossibleResponse(HttpStatus.FORBIDDEN, description = "docs.method.common.response.403")
+    @PossibleResponse(HttpStatus.BAD_REQUEST, description = "docs.method.common.response.400")
+    abstract override fun getRender(
+        @Documented("docs.method.common.args.id")
+        documentId: String,
+        @Documented("docs.method.common.args.key")
+        accessKey: String
+    ): String?
 }

@@ -1,12 +1,12 @@
 package com.maeasoftworks.docx4nc.parsers
 
-import com.maeasoftworks.docx4nc.PFunction
-import com.maeasoftworks.docx4nc.RFunction
-import com.maeasoftworks.docx4nc.apply
 import com.maeasoftworks.docx4nc.enums.MistakeType.*
 import com.maeasoftworks.docx4nc.model.Chapter
 import com.maeasoftworks.docx4nc.model.Picture
 import com.maeasoftworks.docx4nc.model.Rules
+import com.maeasoftworks.docx4nc.utils.PFunctions
+import com.maeasoftworks.docx4nc.utils.RFunctions
+import com.maeasoftworks.docx4nc.utils.apply
 import org.docx4j.TextUtils
 import org.docx4j.dml.wordprocessingDrawing.Anchor
 import org.docx4j.math.CTOMath
@@ -15,7 +15,7 @@ import org.docx4j.mce.AlternateContent
 import org.docx4j.wml.*
 import javax.xml.bind.JAXBElement
 
-abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentParser) {
+abstract class ChapterParser(val chapter: Chapter, val root: DocumentParser) {
     var pictureTitleExpected = false
     private var listPosition = 0
 
@@ -35,10 +35,10 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
 
     fun parse(
         context: ChapterParser,
-        headerPFunctions: Iterable<PFunction>?,
-        headerRFunctions: Iterable<RFunction>?,
-        pFunctions: Iterable<PFunction>,
-        rFunctions: Iterable<RFunction>?
+        headerPFunctions: PFunctions?,
+        headerRFunctions: RFunctions?,
+        pFunctions: PFunctions,
+        rFunctions: RFunctions?
     ) {
         if (headerPFunctions != null && headerRFunctions != null) {
             handleP(
@@ -54,12 +54,7 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
         }
     }
 
-    private fun handleContent(
-        p: Int,
-        context: ChapterParser,
-        pFunctions: Iterable<PFunction>,
-        rFunctions: Iterable<RFunction>?
-    ) {
+    private fun handleContent(p: Int, context: ChapterParser, pFunctions: PFunctions, rFunctions: RFunctions?) {
         when (val something = root.doc.content[p]) {
             is P -> {
                 handleP(context, p, something, pFunctions, rFunctions)
@@ -74,13 +69,7 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
         }
     }
 
-    open fun handleP(
-        context: ChapterParser,
-        p: Int,
-        paragraph: P,
-        pFunctions: Iterable<PFunction>,
-        rFunctions: Iterable<RFunction>?
-    ) {
+    open fun handleP(context: ChapterParser, p: Int, paragraph: P, pFunctions: PFunctions, rFunctions: RFunctions?) {
         val pPr = root.resolver.getEffectivePPr(paragraph)
         val isEmpty = root.texts.getText(paragraph).isBlank()
         for (r in 0 until paragraph.content.size) {
@@ -91,7 +80,7 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
         context.parseP(p, pPr, isEmpty, pFunctions)
     }
 
-    open fun parseP(p: Int, pPr: PPr, isEmpty: Boolean, pFunctions: Iterable<PFunction>) {
+    open fun parseP(p: Int, pPr: PPr, isEmpty: Boolean, pFunctions: PFunctions) {
         pFunctions.apply(root, p, pPr, isEmpty)
         if (pPr.numPr != null && pPr.numPr.numId.`val`.toInt() != 0) {
             validateListElement(p)
@@ -100,7 +89,7 @@ abstract class ChapterParser(protected val chapter: Chapter, val root: DocumentP
         }
     }
 
-    open fun parseR(p: Int, r: Int, paragraph: P, rFunctions: Iterable<RFunction>) {
+    open fun parseR(p: Int, r: Int, paragraph: P, rFunctions: RFunctions) {
         if (paragraph.content[r] is R) {
             rFunctions.apply(
                 root,

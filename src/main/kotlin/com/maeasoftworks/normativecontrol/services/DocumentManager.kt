@@ -10,6 +10,7 @@ import com.maeasoftworks.normativecontrol.dto.response.QueueResponse
 import com.maeasoftworks.normativecontrol.dto.response.StatusResponse
 import com.maeasoftworks.normativecontrol.repository.BinaryFileRepository
 import com.maeasoftworks.normativecontrol.repository.CredentialsRepository
+import com.maeasoftworks.normativecontrol.repository.HtmlRepository
 import com.maeasoftworks.normativecontrol.repository.MistakeRepository
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.http.HttpStatus
@@ -24,6 +25,7 @@ class DocumentManager(
     private val queue: DocumentQueue,
     private val mistakeRepository: MistakeRepository,
     private val fileRepository: BinaryFileRepository,
+    private val htmlRepository: HtmlRepository,
     private val credentialsRepository: CredentialsRepository,
     private val bCryptPasswordEncoder: BCryptPasswordEncoder
 ) {
@@ -65,6 +67,9 @@ class DocumentManager(
             if (it == null) null else ByteArrayResource(it)
         }
     }
+
+    @Transactional
+    fun getRender(id: String): String? = htmlRepository.findByDocumentId(id)?.html
 
     @Transactional
     fun validateAccessKey(documentId: String, accessKey: String): Boolean {

@@ -19,4 +19,7 @@ class ControlPanelController(private val documentManager: DocumentManager) {
 
     @GetMapping("download/{document-id}")
     fun download(@PathVariable("document-id") id: String) = documentManager.getFile(id).toResponse(id)
+
+    @GetMapping("render/{document-id}")
+    fun getRender(@PathVariable("document-id") id: String) = documentManager.getRender(id)
 }

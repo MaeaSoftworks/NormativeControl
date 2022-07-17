@@ -1,5 +1,12 @@
 package com.maeasoftworks.docx4nc.enums
 
+/**
+ * Type of mistake
+ * @see com.maeasoftworks.docx4nc.model.MistakeInner
+ * @see com.maeasoftworks.docx4nc.model.MistakeOuter
+ * @param ru Russian translation of mistake cause
+ * @author prmncr
+ */
 enum class MistakeType(val ru: String) {
     // page size
     PAGE_WIDTH_IS_INCORRECT("Некорректная высота страницы"),
@@ -115,5 +122,5 @@ enum class MistakeType(val ru: String) {
     LIST_LEVEL_MORE_THAN_2("Уровень вложенности списка больше 2"),
     ORDERED_LIST_INCORRECT_MARKER_FORMAT_AT_LEVEL_1("Некорректный формат маркера первого уровня нумерованного списка"),
     ORDERED_LIST_INCORRECT_MARKER_FORMAT_AT_LEVEL_2("Некорректный формат маркера второго уровня нумерованного списка"),
-    ORDERED_LIST_INCORRECT_MARKER_FORMAT("Некорректный формат маркера ненумерованного списка")
+    ORDERED_LIST_INCORRECT_MARKER_FORMAT("Некорректный формат маркера ненумерованного списка"),
 }

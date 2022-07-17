@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.maeasoftworks.docx4nc.enums.MistakeType
 import com.maeasoftworks.normativecontrol.dao.Mistake
 import com.maeasoftworks.normativecontrol.dto.documentation.AuthDocs
+import com.maeasoftworks.normativecontrol.dto.documentation.ControlPanelDocs
 import com.maeasoftworks.normativecontrol.dto.documentation.DocumentDocs
 import com.maeasoftworks.normativecontrol.dto.documentation.QueueDocs
 import com.maeasoftworks.normativecontrol.dto.documentation.annotations.BodyParam
@@ -27,8 +28,10 @@ import kotlin.reflect.jvm.javaGetter
 @Component
 class Documentation {
     val methods = createControllerDocs(AuthDocs::class) +
+            createControllerDocs(ControlPanelDocs::class) +
             createControllerDocs(DocumentDocs::class) +
             createControllerDocs(QueueDocs::class)
+
 
     val entities = arrayOf(
         createObjectDocs(FileResponse::class),
@@ -40,7 +43,8 @@ class Documentation {
         createObjectDocs(LoginRequest::class),
         createObjectDocs(JwtResponse::class),
         createObjectDocs(TokenRefreshRequest::class),
-        createObjectDocs(TokenRefreshResponse::class)
+        createObjectDocs(TokenRefreshResponse::class),
+        createObjectDocs(DocumentControlPanelResponse::class)
     )
 
     fun enumToList(clazz: KClass<*>, translatable: Boolean = false): List<String> {

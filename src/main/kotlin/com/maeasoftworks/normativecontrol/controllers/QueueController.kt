@@ -23,7 +23,7 @@ class QueueController(documentManager: DocumentManager) : DocumentCredentialsCon
         @RequestParam("access-key") accessKey: String,
         @RequestParam("file") file: MultipartFile
     ) = confirm(documentId, accessKey) {
-        if (documentManager.uploaded(accessKey, documentId)) {
+        if (uploaded(accessKey, documentId)) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "File already uploaded")
         }
         if (file.originalFilename == null || file.originalFilename == "") {
