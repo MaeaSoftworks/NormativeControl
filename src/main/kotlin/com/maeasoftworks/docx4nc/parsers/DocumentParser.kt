@@ -24,11 +24,47 @@ import java.io.ByteArrayOutputStream
 import java.math.BigInteger
 import java.util.UUID
 
+/**
+ * Класс, ответственный за парсинг всего документа и делегирование задач на парсинг отдельных
+ * частей более специализированным парсерам
+ *
+ * @author prmncr
+ */
 class DocumentParser(val documentData: DocumentData, private var password: String) {
+
+    /**
+     * Буффер для текстового содержимого документа
+     *
+     * @author prmncr
+     */
     val texts = Texts()
+
+    /**
+     * Объект, хранящий в себе содержимое документа
+     *
+     * @author prmncr
+     */
     lateinit var doc: MainDocumentPart
+
+    /**
+     * Объект для получения свойств параграфов и ранов
+     *
+     * @author prmncr
+     */
     lateinit var resolver: Resolver
+
+    /**
+     * Объект, позволяющий создавать сущности, которые можно включить в doc
+     *
+     * @author prmncr
+     */
     private val factory = Context.getWmlObjectFactory()
+
+    /**
+     * Объект, позволяющий перевести файл .docx в объект, и получить из него содержимое
+     *
+     * @author prmncr
+     */
     private lateinit var mlPackage: WordprocessingMLPackage
 
     var numbering: NumberingDefinitionsPart? = null
@@ -41,16 +77,51 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
 
     private var mistakeId: Long = 0
 
+    /**
+     * Метод добавляет ошибку в документ
+     *
+     * На основе полученных аргументов конструирует объект типа MistakeOuter и добавляет
+     * её в список ошибок документа mistakes
+     *
+     * @param type тип ошибки, объект из перечисления MistakeType
+     * @param p параграф, в котором найдена ошибка
+     * @param r прогон, в котором найдена ошибка
+     * @param description текстовое описание ошибки вида "найдено X ожидалось Y"
+     *
+     * @author prmncr
+     */
     fun addMistake(type: MistakeType, p: Int? = null, r: Int? = null, description: String? = null) {
         mistakes.add(MistakeOuter(mistakeId++, p, r, type, description))
     }
 
+    /**
+     * Метод получает MistakeInner и используя её данные вызывает addMistake,
+     * с помощью которого она преобразуется в MistakeOuter И добавляется в список ошибок документа
+     *
+     * @param type тип ошибки, объект из перечисления MistakeType
+     * @param p параграф, в котором найдена ошибка
+     * @param r прогон, в котором найдена ошибка
+     * @param description текстовое описание ошибки вида "найдено X ожидалось Y"
+     *
+     * @author prmncr
+     */
     fun addMistake(mistake: MistakeInner?) {
         if (mistake != null) {
             addMistake(mistake.mistakeType, mistake.p, mistake.r, mistake.description)
         }
     }
 
+    /**
+     * Метод инициирует поля и выполняет прочие действия, необходимые для нормальной эксплуатации
+     * созданного объекта:
+     * - Создаёт объект на основе .docx файла для доступа к его содержимому
+     * - Получает из него текстовое содержимое документа
+     * - Получает буфер для записи комментариев, в который будут заноситься текстовые представления ошибок
+     * - Получает Id последней внесённой в документ ошибки
+     * - Получает нумерацию страниц документа
+     *
+     * @author prmncr
+     */
     fun init() {
         try {
             mlPackage = WordprocessingMLPackage.load(ByteArrayInputStream(documentData.file))
@@ -70,6 +141,18 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
         }
     }
 
+    /**
+     * Метод, ответственный за организацию поиска ошибок в документе
+     *
+     * Он делает:
+     * - Поиск ошибок в размере страниц
+     * - Поиск ошибок в отступах
+     * - Определение глав и поиск ошибок в них
+     * - Создаёт парсеры для разных типов страниц и поочерёдно активирует их
+     * - Проверяет очерёдность картинок в документе
+     *
+     * @author prmncr
+     */
     fun runVerification() {
         verifyPageSize()
         verifyPageMargins()
@@ -81,22 +164,50 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
         checkPicturesOrder(AnonymousParser(this), 0, true, pictures)
     }
 
+    /**
+     * Метод добавляет комментарии с текстом ошибок в документ, запрещает дальнейшее его изменение без пароля,
+     * и сохраняет всё это
+     *
+     * @author prmncr
+     */
     fun addCommentsAndSave() {
         addComments()
         lock()
         save()
     }
 
+    /**
+     * Сохраняет изменения, внесённые в содержимое документа в его объекте, в сам документ
+     *
+     * @author prmncr
+     */
     private fun save() {
         val stream = ByteArrayOutputStream()
         mlPackage.save(stream)
         documentData.file = stream.toByteArray()
     }
 
+    /**
+     * Запрещает изменения документа без ввода пароля
+     *
+     * @author prmncr
+     */
     private fun lock() {
         ProtectDocument(mlPackage).restrictEditing(STDocProtect.READ_ONLY, password)
     }
 
+    /**
+     * Добавляет в документ комментарии с текстом ошибок и привязкой их к параграфам и прогонам
+     *
+     * Берёт список ошибок, сортирует его по номеру параграфа и по номеру прогона по-возрастанию, реверсирует его,
+     * получая список по-убыванию, затем проходится по нему циклом for-each, на основе каждой ошибки создаёт
+     * комментарий
+     * - Если у ошибки нет параграфа - комментарий добавляется в начале документа без привязки к параграфу или прогону
+     * - Если у ошибки нет прогона - комментарий привязывается к параграфу
+     * - Если у ошибки есть параграф и прогон - комментарий привязывается к параграфу и прогону
+     *
+     * @author prmncr
+     */
     private fun addComments() {
         val errors = mistakes.asIterable().sortedWith(compareBy({ it.p }, { it.r })).reversed().toList()
         for (mistake in errors) {
@@ -150,6 +261,17 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
         }
     }
 
+    /**
+     * Производит установку глав:
+     * - Находит главы в документе, разбивая документ на части с помощью заголовков
+     * - Определяет тип каждой главы и удаляет из списка на обработку пустые (заголовок есть, содержимого нет),
+     * при этом добавляя соответствующие ошибки в документ
+     * - Проверяет, что главы идут в правильном порядке, указанном ГОСТ'ом:
+     * (frontPage, annotation, contents, introduction, body, conclusion, references, appendix)
+     * - Проверяет, что главы body идут в правильном порядке
+     *
+     * @author prmncr
+     */
     fun setupChapters() {
         findChapters()
         detectChapters()
@@ -157,6 +279,12 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
         verifyBody()
     }
 
+    /**
+     * Проверяет ширину и высоту страницы
+     * Если ширина и/или высота не соответствуют необходимым - добавляет соотв. ошибку в документ
+     *
+     * @author prmncr
+     */
     fun verifyPageSize() {
         val pageSize = doc.contents.body.sectPr.pgSz
         if (pageSize.w.intValueExact() != 11906) {
@@ -167,6 +295,13 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
         }
     }
 
+    /**
+     * Проверяет отступы на странице на соответствие ГОСТ'ам
+     * В случае нахождения несоответствия отступа слева, справа, сверху или снизу - добавляет соответствующую
+     * ошибку в документ
+     *
+     * @author prmncr
+     */
     fun verifyPageMargins() {
         val pageMargins = doc.contents.body.sectPr.pgMar
         if (pageMargins.top.intValueExact() != 1134) {
@@ -183,6 +318,13 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
         }
     }
 
+    /**
+     * Находит главы в документе, ориентируясь по заголовкам
+     *
+     * Если под заголовком нет содержимого - такая глава удаляется из списка рассматриваемых глав
+     *
+     * @author prmncr
+     */
     fun findChapters() {
         val paragraphs = doc.content
         var paragraph = 0
@@ -206,6 +348,13 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
         }
     }
 
+    /**
+     * Определяет тип каждой главы, присваеивает ей его, и удаляет из списка на обработку пустые
+     * (заголовок есть, содержимого нет) главы (кроме тех, чей тип был определён как frontpage),
+     * при этом добавляя соответствующие ошибки в документ
+     *
+     * @author prmncr
+     */
     fun detectChapters() {
         val emptyChapters = ArrayList<Int>()
         for (chapter in 0 until chapters.size) {
@@ -231,6 +380,14 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
         }
     }
 
+    /**
+     * Определяет тип каждой главы по переданным параметрам
+     *
+     * @param text текстовое содержимое главы
+     * @param startPos место, в котором в документе начинается данная глава
+     *
+     * @author prmncr
+     */
     private fun detectNodeType(text: String, startPos: Int): ChapterType {
         if (text.split(Regex("\\s+"))[0].matches(Regex("^(?:\\d{1,2}\\.?){1,3}$"))) {
             return BODY
@@ -251,6 +408,17 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
         return UNDEFINED
     }
 
+    /**
+     * Проверяет, что глава стоит на нужном месте и имеет нужный тип и порядок
+     *
+     * @param pos позиция, на которой находится начало главы
+     * @param type тип главы
+     * @param types типы всех глав в документе
+     * @param notFound ошибка, которую надо добавить, если глава не будет найдена по адресу
+     * @param mismatch ошибка, которую надо добавить, если глава будет иметь неверный тип
+     *
+     * @author prmncr
+     */
     private fun verifyChapter(
         pos: Int,
         type: ChapterType,
@@ -265,6 +433,12 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
         }
     }
 
+    /**
+     * Содержит порядок, в котором должны располагаться главы в документе, какой тип они должны иметь, и осуществляет
+     * проверку по этим параметрам и добавление ошибок
+     *
+     * @author prmncr
+     */
     fun verifyChapters() {
         val t = chapters.map { it.type }
         if (chapters.size == 0) {
@@ -286,6 +460,11 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
         verifyChapter(i + 2, APPENDIX, t, CHAPTER_APPENDIX_NOT_FOUND, CHAPTER_APPENDIX_POSITION_MISMATCH)
     }
 
+    /**
+     * Добавляет нужный парсер на каждый тип главы, присутствующий в документе
+     *
+     * @author prmncr
+     */
     fun createParsers() {
         for (chapter in chapters) {
             when (chapter.type) {
@@ -302,6 +481,11 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
         }
     }
 
+    /**
+     * Проверяет, что главы в body идут в верном порядке
+     *
+     * @author prmncr
+     */
     private fun verifyBody() {
         var i = 0
         chapters.filter { it.type == BODY }.forEach {
@@ -311,6 +495,14 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
         }
     }
 
+    /**
+     * Проверяет, содержит ли параграф в себе заголовок
+     *
+     * @param paragraph номер параграфа
+     * @param level уровень вложенности параграфа
+     *
+     * @author prmncr
+     */
     fun isHeader(paragraph: Int, level: Int? = null): Boolean {
         val pPr = resolver.getEffectivePPr(doc.content[paragraph] as P)
         if (pPr.outlineLvl == null) {
@@ -323,6 +515,16 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
         }
     }
 
+    /**
+     * Проверяет, идут ли картинки по порядку
+     *
+     * @param context парсер для обработки картинок
+     * @param level уровень вложенности картинки
+     * @param useInnerIndexer использовать индексацию внутри главы или по документу?
+     * @param container коллекция объектов картинок
+     *
+     * @author prmncr
+     */
     fun checkPicturesOrder(
         context: ChapterParser,
         level: Int,
@@ -351,6 +553,14 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
         }
     }
 
+    /**
+     * Создаёт комментарий
+     *
+     * @param commentId порядковый номер комментарий
+     * @param message текст комментария
+     *
+     * @author prmncr
+     */
     private fun createComment(commentId: Long, message: String): Comments.Comment {
         return factory.createCommentsComment().also { comment ->
             comment.id = BigInteger.valueOf(commentId)
@@ -375,6 +585,13 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
         }
     }
 
+    /**
+     * Создаёт ссылку на комментарий, привязанную к прогону
+     *
+     * @param commentId порядковый номер комментарий
+     *
+     * @author prmncr
+     */
     private fun createRunCommentReference(commentId: Long): R {
         return factory.createR().also { run ->
             run.content.add(

@@ -1,5 +1,12 @@
 package com.maeasoftworks.docx4nc.enums
 
+/**
+ * Перечисление всех типов ошибок, которые может выявлять программа
+ *
+ * @param ru - Название ошибки на русском
+ *
+ * @author prmncr
+ */
 enum class MistakeType(val ru: String) {
     // page size
     PAGE_WIDTH_IS_INCORRECT("Некорректная высота страницы"),
