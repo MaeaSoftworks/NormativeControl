@@ -157,7 +157,7 @@ object Rules {
                 }
 
                 fun isAutoHyphenSuppressed(p: Int, pPr: PPr, isEmpty: Boolean, d: DocumentParser): MistakeInner? {
-                    return if (pPr.suppressAutoHyphens == null || !pPr.suppressAutoHyphens.isVal) {
+                    return if ((pPr.suppressAutoHyphens == null || !pPr.suppressAutoHyphens.isVal) && d.autoHyphenation == true) {
                         MistakeInner(TEXT_HEADER_AUTO_HYPHEN, p)
                     } else null
                 }

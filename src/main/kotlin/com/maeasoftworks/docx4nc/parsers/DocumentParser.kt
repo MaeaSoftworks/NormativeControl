@@ -39,18 +39,9 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
     var parsers: MutableList<ChapterParser> = ArrayList()
     var mistakes: MutableList<MistakeOuter> = ArrayList()
     val pictures: MutableList<Picture> = ArrayList()
+    var autoHyphenation: Boolean? = null
 
     private var mistakeId: Long = 0
-
-    fun addMistake(type: MistakeType, p: Int? = null, r: Int? = null, description: String? = null) {
-        mistakes.add(MistakeOuter(mistakeId++, p, r, type, description))
-    }
-
-    fun addMistake(mistake: MistakeInner?) {
-        if (mistake != null) {
-            addMistake(mistake.mistakeType, mistake.p, mistake.r, mistake.description)
-        }
-    }
 
     fun init() {
         try {
@@ -63,11 +54,22 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
                 comments = CommentsPart().also { it.jaxbElement = factory.createComments() }
                 doc.addTargetPart(comments)
             }
+            autoHyphenation = mlPackage.mainDocumentPart.documentSettingsPart.jaxbElement.autoHyphenation?.isVal
             mistakeId = comments!!.jaxbElement.comment.size.toLong()
             numbering = doc.numberingDefinitionsPart
         } catch (e: Docx4JException) {
             documentData.status = Status.ERROR
             documentData.failureType = FailureType.FILE_READING_ERROR
+        }
+    }
+
+    fun addMistake(type: MistakeType, p: Int? = null, r: Int? = null, description: String? = null) {
+        mistakes.add(MistakeOuter(mistakeId++, p, r, type, description))
+    }
+
+    fun addMistake(mistake: MistakeInner?) {
+        if (mistake != null) {
+            addMistake(mistake.mistakeType, mistake.p, mistake.r, mistake.description)
         }
     }
 
