@@ -1,6 +1,7 @@
 package com.maeasoftworks.docxrender.model.html
 
 import com.maeasoftworks.docxrender.model.PageSettings
+import com.maeasoftworks.docxrender.rendering.projectors.AutoHyphenProjector
 import com.maeasoftworks.docxrender.utils.PIXELS_IN_POINT
 
 class HTMLFile(
@@ -23,14 +24,15 @@ class HTMLFile(
             "padding-left" to settings.leftMargin / PIXELS_IN_POINT with "px"
             "padding-bottom" to settings.bottomMargin / PIXELS_IN_POINT with "px"
             "padding-right" to settings.rightMargin / PIXELS_IN_POINT with "px"
+            "hyphens" to settings.autoHyphen with AutoHyphenProjector
         }
         style[".page-size"] = {
             "position" set "absolute"
             "box-shadow" set "inset 0px 0px 0px 1px blue"
             "box-sizing" set "border-box"
             "z-index" set "-10"
-            "width" to settings.width / PIXELS_IN_POINT - settings.leftMargin / PIXELS_IN_POINT - settings.rightMargin / PIXELS_IN_POINT with "px"
-            "height" to settings.height / PIXELS_IN_POINT - settings.topMargin / PIXELS_IN_POINT - settings.bottomMargin / PIXELS_IN_POINT with "px"
+            "width" to (settings.width - settings.leftMargin - settings.rightMargin) / PIXELS_IN_POINT with "px"
+            "height" to (settings.height - settings.topMargin - settings.bottomMargin) / PIXELS_IN_POINT with "px"
         }
     }
 

@@ -1,18 +1,17 @@
 package com.maeasoftworks.docxrender.rendering
 
 import com.maeasoftworks.docx4nc.parsers.DocumentParser
+import com.maeasoftworks.docxrender.model.RenderingMode
 import com.maeasoftworks.docxrender.model.html.HTMLElement
 import com.maeasoftworks.docxrender.rendering.converters.ColorNameConverter
 import com.maeasoftworks.docxrender.rendering.converters.HexColorConverter
 import com.maeasoftworks.docxrender.rendering.projectors.*
 import com.maeasoftworks.docxrender.utils.PIXELS_IN_POINT
+import com.maeasoftworks.docxrender.utils.POINTS_IN_LINES
 import jakarta.xml.bind.JAXBElement
 import org.docx4j.TextUtils
-import org.docx4j.wml.Br
-import org.docx4j.wml.P
+import org.docx4j.wml.*
 import org.docx4j.wml.P.Hyperlink
-import org.docx4j.wml.R
-import org.docx4j.wml.Text
 
 class Renderer(
     private val parser: DocumentParser
@@ -79,13 +78,22 @@ class Renderer(
         currentP!!.style += {
             "margin-left" to ppr.ind?.left?.toDouble()?.div(PIXELS_IN_POINT) with "px"
             "margin-right" to ppr.ind?.right?.toDouble()?.div(PIXELS_IN_POINT) with "px"
+            "margin-bottom" to ppr.spacing?.after?.toDouble()?.div(PIXELS_IN_POINT) with "px"
+            "margin-top" to ppr.spacing?.before?.toDouble()?.div(PIXELS_IN_POINT) with "px"
+            "line-height" set ppr.spacing?.line?.toDouble()?.div(POINTS_IN_LINES).toString()
             "text-indent" to ppr.ind?.firstLine?.toDouble()?.div(PIXELS_IN_POINT) with "px"
             "text-align" to ppr.jc?.`val` with JustifyProjector
             "background-color" to ppr.shd?.fill.toString() with HexColorConverter
+            "hyphen" to !(ppr.suppressAutoHyphens?.isVal ?: false) with AutoHyphenProjector
         }
+        stylizeFromRPr(ppr.rPr, RenderingMode.P)
+    }
 
-        val rpr = ppr.rPr
-        currentP!!.style += {
+    private fun stylizeR(r: R) = stylizeFromRPr(parser.propertiesStorage[r], RenderingMode.R)
+
+    private fun stylizeFromRPr(rpr: RPrAbstract?, mode: RenderingMode) {
+        val target = if (mode == RenderingMode.P) currentP else currentR
+        target!!.style += {
             "font-family" to rpr?.rFonts with FontProjector
             "font-size" to rpr?.sz?.`val`?.toInt()?.div(2) with "px"
             "font-style" to rpr?.i?.isVal with ItalicProjector
@@ -97,23 +105,6 @@ class Renderer(
             // todo fix all time null
             "font-variant-ligatures" to rpr?.ligatures?.`val` with LigaturesProjector
             "letter-spacing" to rpr?.spacing?.`val`?.toDouble()?.div(PIXELS_IN_POINT) with "px"
-        }
-    }
-
-    private fun stylizeR(r: R) {
-        val rpr = parser.propertiesStorage[r]
-        currentR!!.style += {
-            "font-family" to rpr.rFonts with FontProjector
-            "font-size" to rpr.sz?.`val`?.toInt()?.div(2) with "px"
-            "font-style" to rpr.i?.isVal with ItalicProjector
-            "font-weight" to rpr.b?.isVal with WeightProjector
-            "color" to rpr.color?.`val`.toString() with HexColorConverter
-            "background-color" to rpr.highlight?.`val`.toString() with ColorNameConverter
-            "text-transform" to rpr.caps?.isVal with CapsProjector
-            "font-variant-caps" to rpr.smallCaps?.isVal with SmallCapsProjector
-            // todo fix all time null
-            "font-variant-ligatures" to rpr.ligatures?.`val` with LigaturesProjector
-            "letter-spacing" to rpr.spacing?.`val`?.toDouble()?.div(PIXELS_IN_POINT) with "px"
         }
     }
 

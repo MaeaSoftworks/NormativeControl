@@ -15,9 +15,7 @@ class Style {
      */
     infix fun String.to(value: Any?): Rule<*>? {
         if (value != null) {
-            val r = Rule(this, value)
-            rules.add(r)
-            return r
+            return Rule(this, value)
         }
         return null
     }
@@ -26,8 +24,8 @@ class Style {
      * Creates Rule using <code>String</code> as property name and <code>value</code> as value. Ends method chain.
      * @param value property value
      */
-    infix fun String.set(value: Any) {
-        if (value != "null") {
+    infix fun String.set(value: Any?) {
+        if (value != null && value != "null") {
             val r = Rule(this, value)
             rules.add(r)
             r.isCompleted = true
@@ -42,70 +40,36 @@ class Style {
         if (this != null) {
             this.dimension = dimension
             this.isCompleted = true
+            rules.add(this)
         }
     }
 
     /**
-     * Converts rule value to HTML analog. Doesn't end method chain.
+     * Converts rule value to HTML analog. Ends method chain.
      * @param projector projector object which will convert
      */
-    infix fun Rule<*>?.with(projector: Projector): Rule<*>? {
+    infix fun Rule<*>?.with(projector: Projector) {
         if (this != null) {
-            this.projector = projector
             val p = projector.project(this.rawValue)
             this.value = p
-            if (p != null) {
-                this.isCompleted = true
-                return this
-            }
-            this.isCompleted = false
-            return this
+            this.isCompleted = true
+            rules.add(this)
         }
-        return null
     }
 
     /**
-     * Converts String value to final view analog. Doesn't end method chain.
+     * Converts String value to final view analog. Ends method chain.
      * @param converter converter object which will convert
      */
-    infix fun Rule<*>?.with(converter: Converter): Rule<*>? {
+    infix fun Rule<*>?.with(converter: Converter) {
         if (this != null) {
             val c = converter.convert(this.rawValue as String?)
             this.value = c
+            this.isCompleted = true
             if (c != null) {
-                this.isCompleted = true
-            }
-            return this
-        }
-        return null
-    }
-
-    infix fun <T> T.with(projector: Projector): String? {
-        return projector.project(this)
-    }
-
-    infix fun <T> Rule<*>?.or(value: T): Rule<*>? {
-        if (this?.value != null || this?.value != "") {
-            this?.isCompleted = true
-            return this
-        } else {
-            if (value == null) {
-                this.isCompleted = false
-                return this
-            } else {
-                this.value = this.projector?.project(value)
-                this.isCompleted = true
+                rules.add(this)
             }
         }
-        return this
-    }
-
-    infix fun Rule<*>?.or(value: String): Rule<*>? {
-        if (this?.value == null || this.value == "") {
-            this?.value = value
-            this?.isCompleted = true
-        }
-        return this
     }
 
     operator fun plusAssign(function: Style.() -> Unit) {

@@ -7,4 +7,5 @@ class PageSettings {
     var topMargin: Int = 0
     var rightMargin: Int = 0
     var bottomMargin: Int = 0
+    var autoHyphen: Boolean? = null
 }

@@ -18,6 +18,7 @@ class RenderLauncher(
         this.leftMargin = pageMargins.left.intValueExact()
         this.bottomMargin = pageMargins.bottom.intValueExact()
         this.rightMargin = pageMargins.right.intValueExact()
+        this.autoHyphen = root.autoHyphenation
     })
 
     fun render(stream: OutputStream) {
