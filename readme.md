@@ -1,7 +1,6 @@
 # Normative Control
-REST API application for UrFU Normative Control service
-
-Powered by [Spring Boot](https://spring.io/) & [docx4j](https://www.docx4java.org/trac/docx4j).
+Normative Control service
+# [![Tellurium](tellurium/src/main/resources/tellurium.svg)](tellurium) + [![Polonium](polonium/src/main/resources/polonium.svg)](polonium) + [![Livermorium](livermorium/src/main/resources/livermorium.svg)](livermorium) = ![Normative Control](Normative Control.svg)
 
 Written using [Kotlin](https://kotlinlang.org/) by Mæa Softworks with ❤
 ### Links

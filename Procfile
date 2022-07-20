@@ -1,1 +1,1 @@
-web: java -jar -Dspring.profiles.active=heroku -Dport=$PORT -Ddatabase_user=$DB_USER -Ddatabase_password=$DB_PASSWORD -Ddatabase_url=$DB_URL -Djwt_secret=$JWT build/libs/NormativeControl-1.0.jar
+web: java -jar -Dspring.profiles.active=heroku -Dport=$PORT -Ddatabase_user=$DB_USER -Ddatabase_password=$DB_PASSWORD -Ddatabase_url=$DB_URL -Djwt_secret=$JWT tellurium/build/libs/tellurium-1.0.jar
