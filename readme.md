@@ -1,6 +1,6 @@
 # Normative Control
 Normative Control service
-# [![Tellurium](tellurium/src/main/resources/tellurium.svg)](tellurium) + [![Polonium](polonium/src/main/resources/polonium.svg)](polonium) + [![Livermorium](livermorium/src/main/resources/livermorium.svg)](livermorium) = ![Normative Control](Normative Control.svg)
+# [![Tellurium](tellurium/src/main/resources/tellurium.svg)](tellurium) + [![Polonium](polonium/src/main/resources/polonium.svg)](polonium) + [![Livermorium](livermorium/src/main/resources/livermorium.svg)](livermorium) = ![Normative Control](normative-control.svg)
 
 Written using [Kotlin](https://kotlinlang.org/) by Mæa Softworks with ❤
 ### Links
