@@ -8,7 +8,7 @@ plugins {
 }
 
 application {
-    mainClass.set("com.maeasoftworks.tellurium.NormativeControlApplication")
+    mainClass.set("com.maeasoftworks.tellurium.NormativeControlApplicationKt")
 }
 
 java.sourceCompatibility = JavaVersion.VERSION_17
