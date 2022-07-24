@@ -1,6 +1,6 @@
 plugins {
     id("java-library")
-    kotlin("jvm") version "1.7.0"
+    kotlin("jvm")
 }
 
 java.sourceCompatibility = JavaVersion.VERSION_17
