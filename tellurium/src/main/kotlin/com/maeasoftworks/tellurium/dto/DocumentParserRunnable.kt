@@ -18,7 +18,7 @@ class DocumentParserRunnable(
             parser.documentParser.init()
             parser.documentParser.runVerification()
         } catch (e: Exception) {
-            parser.document.data.status = Status.ERROR
+            parser.documentDTO.data.status = Status.ERROR
             log.error("Oops!", e)
             return
         }
@@ -30,7 +30,7 @@ class DocumentParserRunnable(
         try {
             RenderLauncher(parser.documentParser).render(stream)
         } catch (e: Exception) {
-            parser.document.data.status = Status.RENDER_ERROR
+            parser.documentDTO.data.status = Status.RENDER_ERROR
             log.error("Wow!", e)
         }
 
@@ -41,17 +41,17 @@ class DocumentParserRunnable(
         val savingEnd = System.currentTimeMillis()
 
         parser.render = stream.toString()
-        log.info("[{}] total           : {} ms", parser.document.id, savingEnd - parsingStart)
+        log.info("[{}] total           : {} ms", parser.documentDTO.id, savingEnd - parsingStart)
         log.info("[{}] ├─ parsing      : {} ms",
-            parser.document.id,
+            parser.documentDTO.id,
             (savingEnd - savingStart) + (parsingEnd - parsingStart)
         )
-        log.info("[{}] │  ├─ mistakes  : {} ms", parser.document.id, parsingEnd - parsingStart)
-        log.info("[{}] │  └─ saving    : {} ms", parser.document.id, savingEnd - savingStart)
-        log.info("[{}] └─ render       : {} ms", parser.document.id, renderEnd - renderStart)
+        log.info("[{}] │  ├─ mistakes  : {} ms", parser.documentDTO.id, parsingEnd - parsingStart)
+        log.info("[{}] │  └─ saving    : {} ms", parser.documentDTO.id, savingEnd - savingStart)
+        log.info("[{}] └─ render       : {} ms", parser.documentDTO.id, renderEnd - renderStart)
         count.decrementAndGet()
-        if (parser.document.data.status != Status.RENDER_ERROR) {
-            parser.document.data.status = Status.READY
+        if (parser.documentDTO.data.status != Status.RENDER_ERROR) {
+            parser.documentDTO.data.status = Status.READY
         }
         afterParsing(parser)
     }

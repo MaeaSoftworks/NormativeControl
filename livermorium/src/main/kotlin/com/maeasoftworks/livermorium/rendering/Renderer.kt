@@ -8,10 +8,10 @@ import com.maeasoftworks.livermorium.rendering.converters.HexColorConverter
 import com.maeasoftworks.livermorium.rendering.projectors.*
 import com.maeasoftworks.livermorium.utils.PIXELS_IN_POINT
 import com.maeasoftworks.livermorium.utils.POINTS_IN_LINES
+import jakarta.xml.bind.JAXBElement
 import org.docx4j.TextUtils
 import org.docx4j.wml.*
 import org.docx4j.wml.P.Hyperlink
-import javax.xml.bind.JAXBElement
 
 class Renderer(
     private val parser: DocumentParser

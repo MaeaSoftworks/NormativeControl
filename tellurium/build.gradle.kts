@@ -14,26 +14,41 @@ application {
 java.sourceCompatibility = JavaVersion.VERSION_17
 
 dependencies {
+    // kotlin
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    implementation("org.jetbrains.kotlin:kotlin-reflect")
+
+    // subprojects
     implementation(project(":polonium"))
     implementation(project(":livermorium"))
 
+    // logging
+    implementation("org.slf4j:slf4j-api:2.0.0-alpha7")
+
+    // spring
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-security")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
+    // database
     implementation("org.postgresql:postgresql")
 
-    implementation("org.slf4j:slf4j-api:1.7.36")
+    // docx4j
+    implementation("org.glassfish.jaxb:jaxb-runtime:4.0.0")
+    implementation("jakarta.xml.bind:jakarta.xml.bind-api:4.0.0")
+    implementation("jakarta.activation:jakarta.activation-api:2.1.0")
+
+    // utils
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("io.jsonwebtoken:jjwt:0.9.1")
 
+    // devtools
     developmentOnly("org.springframework.boot:spring-boot-starter-actuator")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
 
+    // testing
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 

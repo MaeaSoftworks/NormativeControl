@@ -12,7 +12,7 @@ data class MistakesResponse(
     @get:JsonProperty(value = "document-id")
     val documentId: String,
     @DocumentedProperty("docs.entity.MistakesResponse.prop0")
-    val errors: List<Mistake>,
+    val mistakes: List<Mistake>,
     @DocumentedProperty("docs.entity.common.time")
     val timestamp: LocalDateTime = LocalDateTime.now()
 )

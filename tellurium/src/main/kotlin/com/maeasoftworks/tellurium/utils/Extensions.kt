@@ -8,8 +8,15 @@ import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import java.time.LocalDateTime
 
-fun MistakeOuter.toDao(documentId: String): Mistake {
-    return Mistake(documentId, this.mistakeId, this.p, this.r, this.mistakeType, this.description)
+val MistakeOuter.dao: Mistake
+get() {
+    return Mistake(
+        this.mistakeId,
+        this.p,
+        this.r,
+        this.mistakeType,
+        this.description
+    )
 }
 
 @Suppress("UNCHECKED_CAST")

@@ -5,7 +5,7 @@ import com.maeasoftworks.livermorium.utils.start
 import java.io.File
 import java.io.FileOutputStream
 
-const val file = "src/test/resources/general/full test 2"
+const val file = "polonium/src/test/resources/general/full test 2"
 
 fun main() {
     RenderLauncher(

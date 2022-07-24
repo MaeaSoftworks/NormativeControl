@@ -3,17 +3,12 @@ package com.maeasoftworks.tellurium.services
 import com.maeasoftworks.polonium.enums.Status
 import com.maeasoftworks.polonium.model.FailureType
 import com.maeasoftworks.polonium.parsers.DocumentParser
-import com.maeasoftworks.tellurium.dao.DocumentBytes
-import com.maeasoftworks.tellurium.dao.DocumentCredentials
-import com.maeasoftworks.tellurium.dao.DocumentRender
-import com.maeasoftworks.tellurium.dto.Document
+import com.maeasoftworks.tellurium.dao.Document
+import com.maeasoftworks.tellurium.dto.DocumentDTO
 import com.maeasoftworks.tellurium.dto.DocumentParserRunnable
 import com.maeasoftworks.tellurium.dto.EnqueuedParser
-import com.maeasoftworks.tellurium.repository.BinaryFileRepository
-import com.maeasoftworks.tellurium.repository.CredentialsRepository
-import com.maeasoftworks.tellurium.repository.HtmlRepository
-import com.maeasoftworks.tellurium.repository.MistakeRepository
-import com.maeasoftworks.tellurium.utils.toDao
+import com.maeasoftworks.tellurium.repository.*
+import com.maeasoftworks.tellurium.utils.dao
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -23,18 +18,15 @@ import java.util.concurrent.atomic.AtomicInteger
 
 @Service
 class DocumentQueue(
-    private val mistakeRepository: MistakeRepository,
-    private val fileRepository: BinaryFileRepository,
-    private val htmlRepository: HtmlRepository,
-    private val credentialsRepository: CredentialsRepository,
+    private val documentsRepository: DocumentsRepository,
     private val bCryptPasswordEncoder: BCryptPasswordEncoder
 ) {
     private val queue: HashMap<String, EnqueuedParser> = HashMap()
     private val executor: ExecutorService = Executors.newFixedThreadPool(100) { r -> Thread(r, "DocumentParser") }
     var count: AtomicInteger = AtomicInteger(0)
 
-    fun put(parser: DocumentParser, document: Document) {
-        queue[document.id] = EnqueuedParser(parser, document)
+    fun put(parser: DocumentParser, documentDTO: DocumentDTO) {
+        queue[documentDTO.id] = EnqueuedParser(parser, documentDTO)
         parser.documentData.status = Status.READY_TO_ENQUEUE
     }
 
@@ -42,30 +34,30 @@ class DocumentQueue(
         val order = queue[documentId]
         if (order != null) {
             count.incrementAndGet()
-            order.document.data.status = Status.PROCESSING
+            order.documentDTO.data.status = Status.PROCESSING
             executor.execute(DocumentParserRunnable(order, count, ::saveToDatabase))
         }
     }
 
     @Transactional
     fun saveToDatabase(order: EnqueuedParser) {
-        if (order.document.data.failureType == FailureType.NONE) {
-            fileRepository.save(DocumentBytes(order.document.id, order.document.data.file))
-            mistakeRepository.saveAll(order.documentParser.mistakes.map { it.toDao(order.document.id) })
-            credentialsRepository.save(
-                DocumentCredentials(
-                    order.document.id,
-                    bCryptPasswordEncoder.encode(order.document.accessKey),
-                    order.document.password
+        if (order.documentDTO.data.failureType == FailureType.NONE) {
+            documentsRepository.save(
+                Document(
+                    order.documentDTO.id,
+                    bCryptPasswordEncoder.encode(order.documentDTO.accessKey),
+                    order.documentDTO.password,
+                    order.documentDTO.data.file,
+                    order.render,
+                    order.documentParser.mistakes.map { it.dao }
                 )
             )
-            htmlRepository.save(DocumentRender(order.document.id, order.render!!))
-            queue.remove(order.document.id)
+            queue.remove(order.documentDTO.id)
         }
     }
 
     fun isUploadAvailable(documentId: String): Boolean {
-        return queue[documentId]?.document?.data?.status == Status.READY_TO_ENQUEUE && count.get() < 100
+        return queue[documentId]?.documentDTO?.data?.status == Status.READY_TO_ENQUEUE && count.get() < 100
     }
 
     operator fun get(id: String) = queue[id]

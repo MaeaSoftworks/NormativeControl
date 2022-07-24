@@ -3,15 +3,12 @@ package com.maeasoftworks.tellurium.services
 import com.maeasoftworks.polonium.enums.Status
 import com.maeasoftworks.polonium.model.DocumentData
 import com.maeasoftworks.polonium.parsers.DocumentParser
-import com.maeasoftworks.tellurium.dto.Document
+import com.maeasoftworks.tellurium.dto.DocumentDTO
 import com.maeasoftworks.tellurium.dto.response.DocumentControlPanelResponse
 import com.maeasoftworks.tellurium.dto.response.MistakesResponse
 import com.maeasoftworks.tellurium.dto.response.QueueResponse
 import com.maeasoftworks.tellurium.dto.response.StatusResponse
-import com.maeasoftworks.tellurium.repository.BinaryFileRepository
-import com.maeasoftworks.tellurium.repository.CredentialsRepository
-import com.maeasoftworks.tellurium.repository.HtmlRepository
-import com.maeasoftworks.tellurium.repository.MistakeRepository
+import com.maeasoftworks.tellurium.repository.*
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
@@ -23,23 +20,20 @@ import java.util.*
 @Service
 class DocumentManager(
     private val queue: DocumentQueue,
-    private val mistakeRepository: MistakeRepository,
-    private val fileRepository: BinaryFileRepository,
-    private val htmlRepository: HtmlRepository,
-    private val credentialsRepository: CredentialsRepository,
+    private val documentsRepository: DocumentsRepository,
     private val bCryptPasswordEncoder: BCryptPasswordEncoder
 ) {
-    fun createParser(document: Document) = DocumentParser(document.data, document.password)
+    fun createParser(documentDTO: DocumentDTO) = DocumentParser(documentDTO.data, documentDTO.password)
 
     fun addToQueue(accessKey: String): QueueResponse {
         val id = UUID.randomUUID().toString().filterNot { it == '-' }
-        val document = Document(id, accessKey, DocumentData(), UUID.randomUUID().toString().filterNot { it == '-' })
-        queue.put(createParser(document), document)
+        val documentDTO = DocumentDTO(id, accessKey, DocumentData(), UUID.randomUUID().toString().filterNot { it == '-' })
+        queue.put(createParser(documentDTO), documentDTO)
         return QueueResponse(id, accessKey)
     }
 
     fun enqueue(documentId: String, bytes: ByteArray) {
-        queue[documentId]!!.document.data.file = bytes
+        queue[documentId]!!.documentDTO.data.file = bytes
         queue.run(documentId)
     }
 
@@ -48,33 +42,33 @@ class DocumentManager(
         val order = queue[documentId]
         return StatusResponse(
             documentId = documentId,
-            status = if (order?.document?.data?.status == null) {
-                if (fileRepository.existsBinaryFileByDocumentId(documentId)) Status.SAVED else Status.UNDEFINED
+            status = if (order?.documentDTO?.data?.status == null) {
+                if (documentsRepository.existDocxByDocumentId(documentId)) Status.SAVED else Status.UNDEFINED
             } else if (queue.isUploadAvailable(documentId)) {
                 Status.READY_TO_ENQUEUE
             } else {
-                order.document.data.status
+                order.documentDTO.data.status
             }
         )
     }
 
     @Transactional
-    fun getMistakes(id: String) = MistakesResponse(id, mistakeRepository.findAllByDocumentId(id))
+    fun getMistakes(id: String) = MistakesResponse(id, documentsRepository.findMistakesByDocumentId(id))
 
     @Transactional
     fun getFile(id: String): ByteArrayResource? {
-        return fileRepository.findByDocumentId(id)?.bytes?.toList()?.toByteArray().let {
+        return documentsRepository.findDocxByDocumentId(id)?.bytes?.toList()?.toByteArray().let {
             if (it == null) null else ByteArrayResource(it)
         }
     }
 
     @Transactional
-    fun getRender(id: String): String? = htmlRepository.findByDocumentId(id)?.html
+    fun getRender(id: String): String? = documentsRepository.findHtmlByDocumentId(id)?.html
 
     @Transactional
     fun validateAccessKey(documentId: String, accessKey: String): Boolean {
-        return ((queue[documentId]?.document?.accessKey
-            ?: credentialsRepository.findByDocumentId(documentId)?.accessKey)
+        return ((queue[documentId]?.documentDTO?.accessKey
+            ?: documentsRepository.findCredentialsByDocumentId(documentId)?.accessKey)
             ?: throw ResponseStatusException(
                 HttpStatus.NOT_FOUND,
                 "Document not found."
@@ -83,18 +77,16 @@ class DocumentManager(
 
     fun uploaded(accessKey: String, documentId: String): Boolean {
         return queue[documentId].let {
-            it != null && it.document.accessKey == accessKey && !it.document.data.file.contentEquals(ByteArray(0))
-        } or credentialsRepository.findById(documentId).let {
-            it.isPresent && it.get().accessKey == accessKey
-        }
+            it != null && it.documentDTO.accessKey == accessKey && !it.documentDTO.data.file.contentEquals(ByteArray(0))
+        } or (documentsRepository.findCredentialsByDocumentId(documentId)?.accessKey == accessKey)
     }
 
     @Transactional
     fun find(id: String): DocumentControlPanelResponse {
-        if (credentialsRepository.existsById(id)) {
-            val mistakes = mistakeRepository.findAllByDocumentId(id)
-            val credentials = credentialsRepository.findById(id).get()
-            return DocumentControlPanelResponse(id, credentials.accessKey, credentials.password, mistakes)
+        if (documentsRepository.existsById(id)) {
+            val mistakes = documentsRepository.findMistakesByDocumentId(id)
+            val credentials = documentsRepository.findCredentialsByDocumentId(id)
+            return DocumentControlPanelResponse(id, credentials!!.accessKey, credentials.password, mistakes)
         } else {
             throw ResponseStatusException(HttpStatus.NOT_FOUND)
         }
@@ -102,10 +94,8 @@ class DocumentManager(
 
     @Transactional
     fun delete(id: String) {
-        if (credentialsRepository.existsById(id)) {
-            fileRepository.deleteById(id)
-            credentialsRepository.deleteById(id)
-            mistakeRepository.deleteAllByDocumentId(id)
+        if (documentsRepository.existsById(id)) {
+            documentsRepository.deleteById(id)
         } else {
             throw ResponseStatusException(HttpStatus.NOT_FOUND)
         }
