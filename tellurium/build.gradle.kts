@@ -23,7 +23,7 @@ dependencies {
     implementation(project(":livermorium"))
 
     // logging
-    implementation("org.slf4j:slf4j-api:2.0.0-alpha7")
+    implementation("org.slf4j:slf4j-api:1.7.36")
 
     // spring
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
@@ -43,6 +43,7 @@ dependencies {
     // utils
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("io.jsonwebtoken:jjwt:0.9.1")
+    implementation("javax.xml.bind:jaxb-api:2.4.0-b180830.0359")
 
     // devtools
     developmentOnly("org.springframework.boot:spring-boot-starter-actuator")
