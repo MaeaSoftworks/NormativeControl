@@ -7,13 +7,13 @@ import com.maeasoftworks.polonium.model.Rules
 import com.maeasoftworks.polonium.utils.PFunctions
 import com.maeasoftworks.polonium.utils.RFunctions
 import com.maeasoftworks.polonium.utils.apply
-import jakarta.xml.bind.JAXBElement
 import org.docx4j.TextUtils
 import org.docx4j.dml.wordprocessingDrawing.Anchor
 import org.docx4j.math.CTOMath
 import org.docx4j.math.CTOMathPara
 import org.docx4j.mce.AlternateContent
 import org.docx4j.wml.*
+import javax.xml.bind.JAXBElement
 
 abstract class ChapterParser(val chapter: Chapter, val root: DocumentParser) {
     var pictureTitleExpected = false
