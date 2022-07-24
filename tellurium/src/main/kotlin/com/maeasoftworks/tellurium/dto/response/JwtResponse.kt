@@ -2,32 +2,25 @@ package com.maeasoftworks.tellurium.dto.response
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.maeasoftworks.tellurium.dto.documentation.annotations.Documented
-import com.maeasoftworks.tellurium.dto.documentation.annotations.DocumentedProperty
+import com.maeasoftworks.tellurium.documentation.Documentation
 
-@Documented("docs.entity.JwtResponse.info")
+@Documentation
 data class JwtResponse(
-    @DocumentedProperty("docs.entity.JwtResponse.prop0")
-    @field:JsonProperty(value = "access-token")
+    @get:JsonProperty(value = "access-token")
     val accessToken: String,
 
-    @DocumentedProperty("docs.entity.JwtResponse.prop1")
-    @field:JsonProperty(value = "refresh-token")
+    @get:JsonProperty(value = "refresh-token")
     val refreshToken: String,
 
-    @field:JsonIgnore
+    @get:JsonIgnore
     val id: Long,
 
-    @DocumentedProperty("docs.entity.JwtResponse.prop2")
     val username: String,
 
-    @DocumentedProperty("docs.entity.JwtResponse.prop3")
     val email: String?,
 
-    @DocumentedProperty("docs.entity.JwtResponse.prop4")
     val roles: List<String>,
 
-    @DocumentedProperty("docs.entity.JwtResponse.prop5")
-    @field:JsonProperty(value = "token-type")
+    @get:JsonProperty(value = "token-type")
     val tokenType: String = "Bearer"
 )

@@ -1,6 +1,6 @@
-package com.maeasoftworks.tellurium.dto.documentation.objects
+package com.maeasoftworks.tellurium.documentation
 
-class MethodInfo(
+class Mapping(
     var root: String = "",
     var path: String = "",
     var type: String = "",

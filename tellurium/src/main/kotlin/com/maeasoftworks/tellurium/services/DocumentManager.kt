@@ -8,7 +8,7 @@ import com.maeasoftworks.tellurium.dto.response.DocumentControlPanelResponse
 import com.maeasoftworks.tellurium.dto.response.MistakesResponse
 import com.maeasoftworks.tellurium.dto.response.QueueResponse
 import com.maeasoftworks.tellurium.dto.response.StatusResponse
-import com.maeasoftworks.tellurium.repository.*
+import com.maeasoftworks.tellurium.repository.DocumentsRepository
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
@@ -27,7 +27,8 @@ class DocumentManager(
 
     fun addToQueue(accessKey: String): QueueResponse {
         val id = UUID.randomUUID().toString().filterNot { it == '-' }
-        val documentDTO = DocumentDTO(id, accessKey, DocumentData(), UUID.randomUUID().toString().filterNot { it == '-' })
+        val documentDTO =
+            DocumentDTO(id, accessKey, DocumentData(), UUID.randomUUID().toString().filterNot { it == '-' })
         queue.put(createParser(documentDTO), documentDTO)
         return QueueResponse(id, accessKey)
     }

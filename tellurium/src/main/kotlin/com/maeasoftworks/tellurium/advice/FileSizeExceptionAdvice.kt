@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.multipart.MaxUploadSizeExceededException
 
 @ControllerAdvice
-internal class FileSizeExceptionAdvice {
+class FileSizeExceptionAdvice {
     @ExceptionHandler(MaxUploadSizeExceededException::class)
     @ResponseBody
     @ResponseStatus(HttpStatus.BAD_REQUEST)

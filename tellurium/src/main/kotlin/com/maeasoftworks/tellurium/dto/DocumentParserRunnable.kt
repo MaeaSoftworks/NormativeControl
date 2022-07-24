@@ -1,7 +1,7 @@
 package com.maeasoftworks.tellurium.dto
 
-import com.maeasoftworks.polonium.enums.Status
 import com.maeasoftworks.livermorium.rendering.RenderLauncher
+import com.maeasoftworks.polonium.enums.Status
 import org.slf4j.LoggerFactory
 import java.io.ByteArrayOutputStream
 import java.util.concurrent.atomic.AtomicInteger
@@ -42,7 +42,8 @@ class DocumentParserRunnable(
 
         parser.render = stream.toString()
         log.info("[{}] total           : {} ms", parser.documentDTO.id, savingEnd - parsingStart)
-        log.info("[{}] ├─ parsing      : {} ms",
+        log.info(
+            "[{}] ├─ parsing      : {} ms",
             parser.documentDTO.id,
             (savingEnd - savingStart) + (parsingEnd - parsingStart)
         )

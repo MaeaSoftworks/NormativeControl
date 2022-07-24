@@ -1,4 +1,4 @@
-package com.maeasoftworks.tellurium.dto.documentation.objects
+package com.maeasoftworks.tellurium.documentation
 
 class Parameter(
     var name: String? = null,

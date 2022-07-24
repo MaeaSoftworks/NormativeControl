@@ -7,7 +7,7 @@ import com.maeasoftworks.tellurium.dao.Document
 import com.maeasoftworks.tellurium.dto.DocumentDTO
 import com.maeasoftworks.tellurium.dto.DocumentParserRunnable
 import com.maeasoftworks.tellurium.dto.EnqueuedParser
-import com.maeasoftworks.tellurium.repository.*
+import com.maeasoftworks.tellurium.repository.DocumentsRepository
 import com.maeasoftworks.tellurium.utils.dao
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service

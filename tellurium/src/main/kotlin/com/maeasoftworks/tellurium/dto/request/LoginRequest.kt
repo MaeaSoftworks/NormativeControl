@@ -1,15 +1,12 @@
 package com.maeasoftworks.tellurium.dto.request
 
-import com.maeasoftworks.tellurium.dto.documentation.annotations.Documented
-import com.maeasoftworks.tellurium.dto.documentation.annotations.DocumentedProperty
+import com.maeasoftworks.tellurium.documentation.Documentation
 import javax.validation.constraints.NotBlank
 
-@Documented("docs.entity.LoginRequest.info")
+@Documentation
 data class LoginRequest(
     @NotBlank
-    @DocumentedProperty("docs.entity.LoginRequest.prop0")
     val email: String,
     @NotBlank
-    @DocumentedProperty("docs.entity.LoginRequest.prop1")
     val password: String
 )

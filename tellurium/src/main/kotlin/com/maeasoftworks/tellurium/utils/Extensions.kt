@@ -9,15 +9,15 @@ import org.springframework.http.ResponseEntity
 import java.time.LocalDateTime
 
 val MistakeOuter.dao: Mistake
-get() {
-    return Mistake(
-        this.mistakeId,
-        this.p,
-        this.r,
-        this.mistakeType,
-        this.description
-    )
-}
+    get() {
+        return Mistake(
+            this.mistakeId,
+            this.p,
+            this.r,
+            this.mistakeType,
+            this.description
+        )
+    }
 
 @Suppress("UNCHECKED_CAST")
 fun ByteArrayResource?.toResponse(documentId: String): ResponseEntity<ByteArrayResource?> {

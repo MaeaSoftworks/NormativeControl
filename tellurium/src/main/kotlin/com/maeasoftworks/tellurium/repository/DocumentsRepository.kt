@@ -4,8 +4,11 @@ import com.maeasoftworks.tellurium.dao.*
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 
-interface DocumentsRepository: JpaRepository<Document, String> {
-    @Query("select d.document_id, d.access_key, d.file_password from documents d where d.document_id = ?1", nativeQuery = true)
+interface DocumentsRepository : JpaRepository<Document, String> {
+    @Query(
+        "select d.document_id, d.access_key, d.file_password from documents d where d.document_id = ?1",
+        nativeQuery = true
+    )
     fun findCredentialsByDocumentId(documentId: String): DocumentCredentials?
 
     @Query("select d.document_id, d.docx from documents d where d.document_id = ?1", nativeQuery = true)

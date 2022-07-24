@@ -9,8 +9,8 @@
     <link href="https://fonts.googleapis.com" rel="preconnect">
     <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains Mono" rel=stylesheet>
-    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
-    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css"/>
+    <link href="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css" rel="stylesheet" type="text/css"/>
+    <link href="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css" rel="stylesheet" type="text/css"/>
     <title>Normative Control API Docs</title>
     <link href="/docs.css" rel="stylesheet" type="text/css">
 </head>
@@ -127,12 +127,11 @@
                         <th:block th:each="response, state : ${currentMethod.responses}">
                             <li class="response">
                                 <p>
-                                    <span class="response-code"
-                                          th:style="'color: ' + (${response.httpStatus.value() >= 500} ? 'red' : (${response.httpStatus.value() >= 400} ? 'orange' : (${response.httpStatus.value() >= 300} ? 'yellow' : (${response.httpStatus.value() >= 200} ? 'green' : 'gray'))))"
-                                          th:utext="${response.httpStatus.value()}"></span>
-                                    <span th:if="${response.type != 'Unit'}">+</span>
-                                    <code class="response-type" th:if="${response.type != 'Unit'}"
-                                          th:utext="${response.type + (response.type == 'String' ? ' [JSON]' : '')}"></code>&#160;&#8212;&#160;
+                                    <span th:class="'response-code code' + #{${response.httpStatus}}"
+                                          th:utext="#{${response.httpStatus}}"></span>
+                                    <span th:if="#{${response.type}} != ''">+</span>
+                                    <code class="response-type" th:if="#{${response.type}} != ''"
+                                          th:utext="#{${response.type}}"></code>&#160;&#8212;&#160;
                                     <span class="response-description" th:utext="#{${response.description}}"></span><br
                                         th:if="${response.body != ''}">
                                     <span class="response-body" th:if="${response.body != ''}"
@@ -188,9 +187,9 @@
         </th:block>
     </div>
 </main>
-<script type="text/javascript" src="//code.jquery.com/jquery-1.11.0.min.js"></script>
-<script type="text/javascript" src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
-<script type="text/javascript" src="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
-<script type="text/javascript" th:src="docs.js" src="../static/docs.js"></script>
+<script src="//code.jquery.com/jquery-1.11.0.min.js" type="text/javascript"></script>
+<script src="//code.jquery.com/jquery-migrate-1.2.1.min.js" type="text/javascript"></script>
+<script src="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js" type="text/javascript"></script>
+<script src="../static/docs.js" th:src="docs.js" type="text/javascript"></script>
 </body>
 </html>

@@ -1,6 +1,6 @@
-package com.maeasoftworks.tellurium.dto.documentation.objects
+package com.maeasoftworks.tellurium.documentation
 
-class PropertyInfo(
+class Property(
     var name: String = "",
     var type: String = "",
     var description: String = "",

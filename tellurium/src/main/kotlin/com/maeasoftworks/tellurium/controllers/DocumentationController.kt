@@ -1,6 +1,6 @@
 package com.maeasoftworks.tellurium.controllers
 
-import com.maeasoftworks.tellurium.components.Documentation
+import com.maeasoftworks.tellurium.documentation.DocumentationCreator
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.CrossOrigin
@@ -11,17 +11,17 @@ import org.springframework.web.bind.annotation.RequestParam
 @Controller
 @CrossOrigin
 @RequestMapping("docs")
-class DocumentationController(private val documentation: Documentation) {
+class DocumentationController(private val documentationCreator: DocumentationCreator) {
     @GetMapping
     fun mainPage(@RequestParam("section", required = false) section: String?, model: Model): String {
-        model.addAttribute("methods", documentation.methods)
-        model.addAttribute("entities", documentation.entities)
-        if (section != null && "/" in section && documentation.methods.any { it.path == section }) {
+        model.addAttribute("methods", documentationCreator.controllers)
+        model.addAttribute("entities", documentationCreator.entities)
+        if (section != null && "/" in section && documentationCreator.controllers.any { it.path == section }) {
             model.addAttribute("isMethod", true)
-            model.addAttribute("currentMethod", documentation.methods.first { it.path == section })
-        } else if (section in documentation.entities.map { it.name }) {
+            model.addAttribute("currentMethod", documentationCreator.controllers.first { it.path == section })
+        } else if (section in documentationCreator.entities.map { it.name }) {
             model.addAttribute("isMethod", false)
-            model.addAttribute("currentEntity", documentation.entities.first { it.name == section })
+            model.addAttribute("currentEntity", documentationCreator.entities.first { it.name == section })
         }
         return "main"
     }

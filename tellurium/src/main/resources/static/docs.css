@@ -265,3 +265,23 @@ code {
     width: 100%;
     align-items: center;
 }
+
+.code1 {
+    color: gray;
+}
+
+.code2 {
+    color: green;
+}
+
+.code3 {
+    color: yellow;
+}
+
+.code4 {
+    color: orange;
+}
+
+.code5 {
+    color: red;
+}
