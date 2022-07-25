@@ -27,7 +27,6 @@ class Document(
     @Column(columnDefinition = "text")
     var html: String? = null,
 
-    @Convert(converter = MistakesSerializer::class)
     @Column(columnDefinition = "text")
-    var mistakes: List<Mistake>? = null
+    var mistakes: String
 )

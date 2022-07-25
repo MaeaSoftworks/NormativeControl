@@ -11,15 +11,15 @@ interface DocumentsRepository : JpaRepository<Document, String> {
     )
     fun findCredentialsByDocumentId(documentId: String): DocumentCredentials?
 
-    @Query("select d.document_id, d.docx from documents d where d.document_id = ?1", nativeQuery = true)
+    @Query("select d.document_id, (lo_get(d.docx)) as bytes from documents d where d.document_id = ?1", nativeQuery = true)
     fun findDocxByDocumentId(documentId: String): DocumentDocx?
 
-    @Query("select (select d.docx from documents d where d.document_id = ?1) is null", nativeQuery = true)
+    @Query("select (select d.docx from documents d where d.document_id = ?1) is not null", nativeQuery = true)
     fun existDocxByDocumentId(documentId: String): Boolean
 
-    @Query("select d.document_id, d.docx from documents d where d.document_id = ?1", nativeQuery = true)
+    @Query("select d.document_id, d.html from documents d where d.document_id = ?1", nativeQuery = true)
     fun findHtmlByDocumentId(documentId: String): DocumentHtml?
 
     @Query("select d.mistakes from documents d where d.document_id = ?1", nativeQuery = true)
-    fun findMistakesByDocumentId(documentId: String): List<Mistake>
+    fun findMistakesByDocumentId(documentId: String): String
 }

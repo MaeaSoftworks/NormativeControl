@@ -7,10 +7,6 @@ plugins {
     kotlin("plugin.jpa") version "1.7.0"
 }
 
-application {
-    mainClass.set("com.maeasoftworks.tellurium.NormativeControlApplicationKt")
-}
-
 java.sourceCompatibility = JavaVersion.VERSION_17
 
 dependencies {
