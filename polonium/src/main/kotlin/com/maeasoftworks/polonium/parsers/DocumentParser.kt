@@ -204,7 +204,7 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
             chapters[sectorId].add(paragraphs[paragraph])
             paragraph++
         }
-        if (!chapters[0].hasHeader && chapters[0].content.size == 0) {
+        if (chapters[0].hasNotHeader && chapters[0].content.size == 0) {
             chapters.removeAt(0)
         }
     }
@@ -213,7 +213,7 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
         val emptyChapters = ArrayList<Int>()
         for (chapter in 0 until chapters.size) {
             if (chapters[chapter][0] is P) {
-                if (!chapters[chapter].hasHeader) {
+                if (chapters[chapter].hasNotHeader) {
                     chapters[chapter].type = FRONT_PAGE
                     continue
                 }

@@ -7,7 +7,7 @@ import com.maeasoftworks.polonium.parsers.DocumentParser
 import java.io.OutputStream
 
 class RenderLauncher(
-    val root: DocumentParser
+    private val root: DocumentParser
 ) {
     var html: HTMLFile = HTMLFile(PageSettings().apply {
         val pageSize = root.doc.contents.body.sectPr.pgSz

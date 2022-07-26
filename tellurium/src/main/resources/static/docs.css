@@ -1,5 +1,8 @@
+/*noinspection CssUnknownTarget*/
 @import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap');
+/*noinspection CssUnknownTarget*/
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100;400;700&display=swap');
+/*noinspection CssUnknownTarget*/
 @import url('https://fonts.googleapis.com/css2?family=JetBrains Mono&display=swap');
 
 :root {
@@ -131,11 +134,13 @@ main {
     text-align: center;
 }
 
+/*noinspection ALL*/
 .item-wrapper {
     border-radius: 5px;
     padding: 0 5px;
 }
 
+/*noinspection ALL*/
 .item-wrapper:hover {
     background-color: #252525;
 }
@@ -147,6 +152,7 @@ main {
     column-gap: 10px;
 }
 
+/*noinspection ALL*/
 .method-type {
     font-weight: bold;
     min-width: 50px;
@@ -154,18 +160,22 @@ main {
     text-align: center;
 }
 
+/*noinspection ALL*/
 .method-type-GET {
     color: green;
 }
 
+/*noinspection ALL*/
 .method-type-POST {
     color: orange;
 }
 
+/*noinspection ALL*/
 .method-type-PATCH {
     color: #7777ff;
 }
 
+/*noinspection ALL*/
 .method-type-PUT {
     color: yellow;
 }
@@ -222,24 +232,29 @@ code {
     padding: 5px;
 }
 
+/*noinspection ALL*/
 .response-code {
     font-weight: bold;
 }
 
+/*noinspection ALL*/
 .url {
     font-size: 16px;
     margin: 5px;
     grid-column: span 2;
 }
 
+/*noinspection ALL*/
 .link-active {
     background-color: #191919;
 }
 
+/*noinspection ALL*/
 .var {
     color: #7777ff;
 }
 
+/*noinspection ALL*/
 .doc-link {
     text-decoration: underline;
 }
@@ -261,22 +276,27 @@ code {
     align-items: center;
 }
 
+/*noinspection ALL*/
 .code1 {
     color: gray;
 }
 
+/*noinspection ALL*/
 .code2 {
     color: green;
 }
 
+/*noinspection ALL*/
 .code3 {
     color: yellow;
 }
 
+/*noinspection ALL*/
 .code4 {
     color: orange;
 }
 
+/*noinspection ALL*/
 .code5 {
     color: red;
 }

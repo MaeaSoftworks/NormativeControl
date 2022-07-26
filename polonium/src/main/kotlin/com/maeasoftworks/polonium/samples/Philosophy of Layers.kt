@@ -1,7 +1,9 @@
+@file:Suppress("unused")
+
 package com.maeasoftworks.polonium.samples
 
 /**
- * Kotlin analogue for Java source code
+ * Kotlin analog for Java source code
  */
 private interface ContentAccessor<T> {
     val content: MutableList<T>

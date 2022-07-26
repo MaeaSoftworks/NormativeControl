@@ -22,25 +22,25 @@ object ChapterMarkers {
      * Keywords for 'Contents'
      * @author prmncr
      */
-    val contents = listOf("СОДЕРЖАНИЕ", "ОГЛАВЛЕНИЕ")
+    private val contents = listOf("СОДЕРЖАНИЕ", "ОГЛАВЛЕНИЕ")
 
     /**
      * Keywords for 'Introduction'
      * @author prmncr
      */
-    val introduction = listOf("ВВЕДЕНИЕ")
+    private val introduction = listOf("ВВЕДЕНИЕ")
 
     /**
      * Keywords for 'Conclusion'
      * @author prmncr
      */
-    val conclusion = listOf("ЗАКЛЮЧЕНИЕ")
+    private val conclusion = listOf("ЗАКЛЮЧЕНИЕ")
 
     /**
      * Keywords for 'References'
      * @author prmncr
      */
-    val references =
+    private val references =
         listOf("БИБЛИОГРАФИЧЕСКИЙ СПИСОК", "СПИСОК ИСПОЛЬЗОВАННОЙ ЛИТЕРАТУРЫ", "СПИСОК ЛИТЕРАТУРЫ", "СПИСОК ИСТОЧНИКОВ")
 
     /**

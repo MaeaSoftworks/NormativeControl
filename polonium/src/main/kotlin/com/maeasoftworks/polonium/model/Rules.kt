@@ -322,18 +322,4 @@ object Rules {
             }
         }
     }
-
-    object List {
-        object P {
-            fun justifyIsCenter(p: Int, pPr: PPr, isEmpty: Boolean, d: DocumentParser): MistakeInner? {
-                return if (pPr.jc == null || pPr.jc.`val` != JcEnumeration.CENTER) {
-                    MistakeInner(
-                        if (isEmpty) TEXT_WHITESPACE_AFTER_HEADER_ALIGNMENT else PICTURE_TITLE_NOT_CENTERED,
-                        p,
-                        description = "${pPr.jc.`val`}/${JcEnumeration.CENTER}"
-                    )
-                } else null
-            }
-        }
-    }
 }

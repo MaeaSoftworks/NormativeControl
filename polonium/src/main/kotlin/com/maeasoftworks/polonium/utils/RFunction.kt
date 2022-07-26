@@ -5,6 +5,6 @@ import com.maeasoftworks.polonium.parsers.DocumentParser
 import org.docx4j.wml.RPr
 
 /**
- * Alias for signature of run checking functions in [Rules][com.maeasoftworks.docx4nc.model.Rules]
+ * Alias for signature of run checking functions in [Rules][com.maeasoftworks.polonium.model.Rules]
  */
 typealias RFunction = (Int, Int, RPr, Boolean, DocumentParser) -> MistakeInner?

@@ -1,10 +1,6 @@
 server:
   port: ${PORT}
 
-controllers:
-  docs: true
-  api: true
-
 spring:
   datasource:
     password: ${database_password}

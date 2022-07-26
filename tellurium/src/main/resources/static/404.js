@@ -24,7 +24,8 @@ document.addEventListener("DOMContentLoaded", function () {
         $el.append(genStar());
     }
     const canvas = document.getElementById("canvas");
-    const starback = new Starback(canvas, {
+    // noinspection JSUnresolvedFunction
+    new Starback(canvas, {
         type: 'line',
         quantity: 20,
         width: window.screen.availWidth,

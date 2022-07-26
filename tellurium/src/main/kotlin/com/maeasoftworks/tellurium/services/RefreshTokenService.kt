@@ -44,6 +44,7 @@ class RefreshTokenService(
         return token
     }
 
+    @Suppress("unused")
     @Transactional
     fun deleteByUserId(userId: Long): Int {
         return refreshTokenRepository.deleteByUser(userRepository.findById(userId).get())

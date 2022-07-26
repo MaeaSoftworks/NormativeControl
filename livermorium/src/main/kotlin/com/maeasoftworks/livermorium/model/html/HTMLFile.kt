@@ -8,7 +8,7 @@ class HTMLFile(
     settings: PageSettings
 ) {
     var content: MutableList<HTMLElement> = mutableListOf()
-    val style: GlobalStyle = GlobalStyle()
+    private val style: GlobalStyle = GlobalStyle()
 
     init {
         style["*"] = {

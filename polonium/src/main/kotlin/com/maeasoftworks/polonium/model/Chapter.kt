@@ -40,8 +40,8 @@ open class Chapter(var startPos: Int) : Iterable<Any> {
      * Indicates whether the chapter has a header
      * @author prmncr
      */
-    val hasHeader: Boolean
-        get() = ::header.isInitialized
+    val hasNotHeader: Boolean
+        get() = !::header.isInitialized
 
     /**
      * Create chapter with predefined content

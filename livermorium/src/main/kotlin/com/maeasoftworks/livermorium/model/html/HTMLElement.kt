@@ -2,7 +2,7 @@ package com.maeasoftworks.livermorium.model.html
 
 class HTMLElement(
     val type: String,
-    val hasClosingTag: Boolean = true
+    private val hasClosingTag: Boolean = true
 ) {
     private var classes: MutableList<String> = mutableListOf()
     var id: String? = null

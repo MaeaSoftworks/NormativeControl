@@ -36,6 +36,18 @@ class Renderer(
     private var lastInnerBeforePageBreak: HTMLElement? = null
     private var alreadyBroken = false
 
+    private fun refreshCurrentP() {
+        if (currentP == null) {
+            currentP = lastPBeforePageBreak ?: newP
+            lastPBeforePageBreak = null
+            if (currentPage == null) {
+                currentPage = newPage
+                html.children.add(currentPage!!)
+            }
+            currentPage!!.children.add(currentP!!)
+        }
+    }
+
     fun render(): HTMLElement {
         html.children.add(currentPage!!)
         for (p in parser.doc.content.indices) {
@@ -110,15 +122,7 @@ class Renderer(
 
     private fun renderHyperlink(h: Hyperlink) {
         currentInner = HTMLElement("a")
-        if (currentP == null) {
-            currentP = lastPBeforePageBreak ?: newP
-            lastPBeforePageBreak = null
-            if (currentPage == null) {
-                currentPage = newPage
-                html.children.add(currentPage!!)
-            }
-            currentPage!!.children.add(currentP!!)
-        }
+        refreshCurrentP()
         currentP!!.children.add(currentInner!!)
         for (r in h.content.indices) {
             when (h.content[r]) {
@@ -136,15 +140,7 @@ class Renderer(
                         is Text -> {
                             currentR = HTMLElement("span")
                             alreadyBroken = false
-                            if (currentP == null) {
-                                currentP = lastPBeforePageBreak ?: newP
-                                lastPBeforePageBreak = null
-                                if (currentPage == null) {
-                                    currentPage = newPage
-                                    html.children.add(currentPage!!)
-                                }
-                                currentPage!!.children.add(currentP!!)
-                            }
+                            refreshCurrentP()
                             if (isInner) {
                                 if (currentInner == null) {
                                     currentInner = lastInnerBeforePageBreak ?: newInner

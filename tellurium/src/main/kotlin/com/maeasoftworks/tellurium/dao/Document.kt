@@ -5,6 +5,7 @@ import com.maeasoftworks.tellurium.dto.response.Mistake
 import javax.persistence.*
 import javax.validation.constraints.NotBlank
 
+@Suppress("unused")
 @Entity
 @Table(name = "documents")
 class Document(
