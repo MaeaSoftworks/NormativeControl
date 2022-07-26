@@ -6,7 +6,7 @@ import javax.persistence.AttributeConverter
 import javax.persistence.Converter
 
 @Converter
-class MistakesSerializer: AttributeConverter<List<Mistake>, String> {
+class MistakesSerializer : AttributeConverter<List<Mistake>, String> {
     override fun convertToDatabaseColumn(attribute: List<Mistake>): String {
         val result = StringBuilder()
         for (m in attribute) {

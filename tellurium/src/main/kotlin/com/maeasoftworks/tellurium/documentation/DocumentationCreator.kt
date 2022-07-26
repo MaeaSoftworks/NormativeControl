@@ -22,7 +22,7 @@ class DocumentationCreator(
     private val messageSource: MessageSource,
     controllersClasses: Controllers,
     entitiesClasses: Entities
-    ) {
+) {
     final val controllers: List<Mapping>
     final val entities: List<Entity>
 

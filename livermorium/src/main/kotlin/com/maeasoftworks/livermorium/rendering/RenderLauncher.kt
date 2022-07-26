@@ -1,9 +1,9 @@
 package com.maeasoftworks.livermorium.rendering
 
-import com.maeasoftworks.polonium.parsers.DocumentParser
 import com.maeasoftworks.livermorium.model.PageSettings
 import com.maeasoftworks.livermorium.model.html.HTMLElement
 import com.maeasoftworks.livermorium.model.html.HTMLFile
+import com.maeasoftworks.polonium.parsers.DocumentParser
 import java.io.OutputStream
 
 class RenderLauncher(

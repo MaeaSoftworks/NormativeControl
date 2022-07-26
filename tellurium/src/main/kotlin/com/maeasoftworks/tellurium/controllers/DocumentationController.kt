@@ -12,6 +12,6 @@ class DocumentationController {
     @GetMapping("mistakes")
     @ResponseBody
     fun getMistakes(): Map<String, String> {
-        return MistakeType.values().associate {it.name to it.ru}
+        return MistakeType.values().associate { it.name to it.ru }
     }
 }

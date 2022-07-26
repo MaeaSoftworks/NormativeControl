@@ -3,7 +3,6 @@ package com.maeasoftworks.tellurium.services
 import com.maeasoftworks.polonium.enums.Status
 import com.maeasoftworks.polonium.model.DocumentData
 import com.maeasoftworks.polonium.parsers.DocumentParser
-import com.maeasoftworks.tellurium.dto.response.Mistake
 import com.maeasoftworks.tellurium.dto.DocumentDTO
 import com.maeasoftworks.tellurium.dto.response.DocumentControlPanelResponse
 import com.maeasoftworks.tellurium.dto.response.MistakesResponse

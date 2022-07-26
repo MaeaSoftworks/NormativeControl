@@ -10,11 +10,15 @@ import org.junit.jupiter.api.Test
 class ChapterTests : ParserTestFactory(ChapterTests::class) {
 
     private fun chapterAssert(found: MutableList<Chapter>, vararg expected: ChapterType) {
-        Assertions.assertTrue(found.size == expected.size,
-            "Expected: ${expected.size} chapters\nFound: ${found.size}")
+        Assertions.assertTrue(
+            found.size == expected.size,
+            "Expected: ${expected.size} chapters\nFound: ${found.size}"
+        )
         for (i in 0 until found.size) {
-            Assertions.assertTrue(found[i].type == expected[i],
-                "Expected: ${expected[i].name}\nFound: ${found[i].type.name}")
+            Assertions.assertTrue(
+                found[i].type == expected[i],
+                "Expected: ${expected[i].name}\nFound: ${found[i].type.name}"
+            )
         }
     }
 

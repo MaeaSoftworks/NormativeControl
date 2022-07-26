@@ -1,6 +1,5 @@
 package com.maeasoftworks.livermorium.rendering
 
-import com.maeasoftworks.polonium.parsers.DocumentParser
 import com.maeasoftworks.livermorium.model.RenderingMode
 import com.maeasoftworks.livermorium.model.html.HTMLElement
 import com.maeasoftworks.livermorium.rendering.converters.ColorNameConverter
@@ -8,6 +7,7 @@ import com.maeasoftworks.livermorium.rendering.converters.HexColorConverter
 import com.maeasoftworks.livermorium.rendering.projectors.*
 import com.maeasoftworks.livermorium.utils.PIXELS_IN_POINT
 import com.maeasoftworks.livermorium.utils.POINTS_IN_LINES
+import com.maeasoftworks.polonium.parsers.DocumentParser
 import jakarta.xml.bind.JAXBElement
 import org.docx4j.TextUtils
 import org.docx4j.wml.*
