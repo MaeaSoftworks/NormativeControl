@@ -108,16 +108,16 @@ class DocumentationCreator(
                     param.type = getFullType(fParam.type.classifier as KClass<*>)
                     if (fParam.annotations.any { it is RequestBody }) {
                         bodyParams += param
-                        param.name =
-                            (fParam.annotations.firstOrNull { it is RequestParam } as RequestParam?)?.value.let { if (it != null && it != "") it else param.name }
+                        param.name = (fParam.annotations.firstOrNull { it is RequestParam } as RequestParam?)
+                            ?.value.let { if (it != null && it != "") it else param.name }
                     } else if (fParam.annotations.any { it is PathVariable }) {
                         pathParams += param
-                        param.name =
-                            (fParam.annotations.firstOrNull { it is PathVariable } as PathVariable?)?.value.let { if (it != null && it != "") it else param.name }
+                        param.name = (fParam.annotations.firstOrNull { it is PathVariable } as PathVariable?)
+                            ?.value.let { if (it != null && it != "") it else param.name }
                     } else {
                         queryParams += param
-                        param.name =
-                            (fParam.annotations.firstOrNull { it is RequestParam } as RequestParam?)?.value.let { if (it != null && it != "") it else param.name }
+                        param.name = (fParam.annotations.firstOrNull { it is RequestParam } as RequestParam?)
+                            ?.value.let { if (it != null && it != "") it else param.name }
                     }
                 }
             }

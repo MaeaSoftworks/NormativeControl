@@ -1,9 +1,6 @@
 package com.maeasoftworks.tellurium.configs
 
-import com.maeasoftworks.tellurium.controllers.AuthController
-import com.maeasoftworks.tellurium.controllers.ControlPanelController
-import com.maeasoftworks.tellurium.controllers.DocumentController
-import com.maeasoftworks.tellurium.controllers.QueueController
+import com.maeasoftworks.tellurium.controllers.*
 import com.maeasoftworks.tellurium.documentation.Controllers
 import com.maeasoftworks.tellurium.documentation.Entities
 import com.maeasoftworks.tellurium.dto.request.LoginRequest
@@ -21,7 +18,8 @@ class DocumentationConfig {
             AuthController::class,
             ControlPanelController::class,
             DocumentController::class,
-            QueueController::class
+            QueueController::class,
+            DocumentationController::class
         )
     }
 
