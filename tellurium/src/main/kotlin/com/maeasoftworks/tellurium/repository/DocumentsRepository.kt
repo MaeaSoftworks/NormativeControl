@@ -20,6 +20,32 @@ interface DocumentsRepository : JpaRepository<Document, String> {
     @Query("select d.document_id, d.html from documents d where d.document_id = ?1", nativeQuery = true)
     fun findHtmlByDocumentId(documentId: String): DocumentHtml?
 
-    @Query("select d.mistakes from documents d where d.document_id = ?1", nativeQuery = true)
-    fun findMistakesByDocumentId(documentId: String): String
+    @Query(
+        """ 
+        select 
+            mistake[1] as mistakeId,
+            mistake[2] as paragraphId,
+            mistake[3] as runId,
+            mistake[4] as mistakeType,
+            mistake[5] as mistakeDescription
+        from (
+            select regexp_split_to_array(agg.mis, ';') 
+            from (
+                select replace(replace(replace(translate(cast(dm as text), '()', ''), '""', '%'), '"', ''), '%', '"')
+                as mis
+                from (
+                    select unnest(string_to_array(d.mistakes, '~'))
+                    as mistake
+                    from documents d
+                    where d.document_id = ?1)
+                as dm
+                offset 1
+            ) 
+            as agg
+        )
+        as dt(mistake)
+        """,
+        nativeQuery = true
+    )
+    fun findMistakesByDocumentId(documentId: String): List<IMistake>
 }

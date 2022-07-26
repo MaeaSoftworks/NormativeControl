@@ -1,9 +1,7 @@
 package com.maeasoftworks.tellurium.dto.response
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.maeasoftworks.tellurium.documentation.Documentation
 
-@Documentation
 data class TokenRefreshResponse(
     @get:JsonProperty(value = "access-token")
     val accessToken: String,

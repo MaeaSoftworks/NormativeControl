@@ -1,7 +1,7 @@
 package com.maeasoftworks.tellurium.utils
 
 import com.maeasoftworks.polonium.model.MistakeOuter
-import com.maeasoftworks.tellurium.dao.Mistake
+import com.maeasoftworks.tellurium.dto.response.Mistake
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
@@ -19,7 +19,6 @@ val MistakeOuter.dao: Mistake
         )
     }
 
-@Suppress("UNCHECKED_CAST")
 fun ByteArrayResource?.toResponse(documentId: String): ResponseEntity<ByteArrayResource?> {
     return ResponseEntity.ok().headers(
         HttpHeaders().also {

@@ -40,7 +40,6 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("io.jsonwebtoken:jjwt:0.9.1")
     implementation("javax.xml.bind:jaxb-api:2.4.0-b180830.0359")
-    implementation("org.reflections:reflections:0.10.2")
 
     // devtools
     developmentOnly("org.springframework.boot:spring-boot-starter-actuator")

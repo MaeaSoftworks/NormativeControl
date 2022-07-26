@@ -2,9 +2,7 @@ package com.maeasoftworks.tellurium.dto.response
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.maeasoftworks.tellurium.documentation.Documentation
 
-@Documentation
 data class JwtResponse(
     @get:JsonProperty(value = "access-token")
     val accessToken: String,

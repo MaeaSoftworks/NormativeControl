@@ -1,6 +1,5 @@
 package com.maeasoftworks.tellurium.controllers
 
-import com.maeasoftworks.tellurium.documentation.Documentation
 import com.maeasoftworks.tellurium.services.DocumentManager
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
@@ -11,7 +10,6 @@ import java.io.IOException
 @CrossOrigin
 @RestController
 @RequestMapping("queue")
-@Documentation
 class QueueController(documentManager: DocumentManager) : DocumentCredentialsConfirmedController(documentManager) {
 
     @PostMapping("reserve")

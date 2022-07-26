@@ -1,6 +1,5 @@
 package com.maeasoftworks.tellurium.controllers
 
-import com.maeasoftworks.tellurium.documentation.Documentation
 import com.maeasoftworks.tellurium.services.DocumentManager
 import com.maeasoftworks.tellurium.utils.toResponse
 import org.springframework.web.bind.annotation.*
@@ -8,7 +7,6 @@ import org.springframework.web.bind.annotation.*
 @CrossOrigin
 @RestController
 @RequestMapping("control-panel")
-@Documentation
 class ControlPanelController(private val documentManager: DocumentManager) {
 
     @GetMapping("find-by-id")

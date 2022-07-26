@@ -2,22 +2,16 @@ package com.maeasoftworks.tellurium.dao
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.maeasoftworks.polonium.enums.MistakeType
-import com.maeasoftworks.tellurium.documentation.Documentation
 
-@Documentation
-class Mistake(
+interface IMistake {
     @get:JsonProperty(value = "mistake-id")
-    var mistakeId: Long = 0,
-
+    var mistakeId: Long
     @get:JsonProperty(value = "paragraph-id")
-    val paragraphId: Int?,
-
+    var paragraphId: Int?
     @get:JsonProperty(value = "run-id")
-    val runId: Int?,
-
+    var runId: Int?
     @get:JsonProperty(value = "mistake-type")
-    val mistakeType: MistakeType,
-
+    var mistakeType: MistakeType
     @get:JsonProperty(value = "description")
-    val mistakeDescription: String? = null
-)
+    var mistakeDescription: String?
+}

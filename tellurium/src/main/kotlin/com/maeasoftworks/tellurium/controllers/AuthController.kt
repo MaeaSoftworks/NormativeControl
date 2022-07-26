@@ -4,7 +4,6 @@ import com.maeasoftworks.tellurium.components.JwtUtils
 import com.maeasoftworks.tellurium.dao.User
 import com.maeasoftworks.tellurium.dto.RoleType
 import com.maeasoftworks.tellurium.dto.UserDetailsImpl
-import com.maeasoftworks.tellurium.documentation.Documentation
 import com.maeasoftworks.tellurium.dto.request.LoginRequest
 import com.maeasoftworks.tellurium.dto.request.RegistrationRequest
 import com.maeasoftworks.tellurium.dto.request.TokenRefreshRequest
@@ -25,7 +24,6 @@ import javax.validation.Valid
 @CrossOrigin
 @RestController
 @RequestMapping("auth")
-@Documentation
 class AuthController(
     private val authenticationManager: AuthenticationManager,
     private val userRepository: UserRepository,

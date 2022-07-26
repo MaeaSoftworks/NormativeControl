@@ -3,7 +3,7 @@ package com.maeasoftworks.tellurium.services
 import com.maeasoftworks.polonium.enums.Status
 import com.maeasoftworks.polonium.model.DocumentData
 import com.maeasoftworks.polonium.parsers.DocumentParser
-import com.maeasoftworks.tellurium.dao.MistakesSerializer
+import com.maeasoftworks.tellurium.dto.response.Mistake
 import com.maeasoftworks.tellurium.dto.DocumentDTO
 import com.maeasoftworks.tellurium.dto.response.DocumentControlPanelResponse
 import com.maeasoftworks.tellurium.dto.response.MistakesResponse
@@ -22,8 +22,7 @@ import java.util.*
 class DocumentManager(
     private val queue: DocumentQueue,
     private val documentsRepository: DocumentsRepository,
-    private val bCryptPasswordEncoder: BCryptPasswordEncoder,
-    private val mistakesSerializer: MistakesSerializer
+    private val bCryptPasswordEncoder: BCryptPasswordEncoder
 ) {
     fun createParser(documentDTO: DocumentDTO) = DocumentParser(documentDTO.data, documentDTO.password)
 
@@ -56,9 +55,7 @@ class DocumentManager(
     }
 
     @Transactional
-    fun getMistakes(id: String) = MistakesResponse(
-        id,
-        mistakesSerializer.convertToEntityAttribute(documentsRepository.findMistakesByDocumentId(id)))
+    fun getMistakes(id: String) = MistakesResponse(id, documentsRepository.findMistakesByDocumentId(id))
 
     @Transactional
     fun getFile(id: String): ByteArrayResource? {
@@ -89,7 +86,7 @@ class DocumentManager(
     @Transactional
     fun find(id: String): DocumentControlPanelResponse {
         if (documentsRepository.existsById(id)) {
-            val mistakes = mistakesSerializer.convertToEntityAttribute(documentsRepository.findMistakesByDocumentId(id))
+            val mistakes = documentsRepository.findMistakesByDocumentId(id)
             val credentials = documentsRepository.findCredentialsByDocumentId(id)
             return DocumentControlPanelResponse(id, credentials!!.accessKey, credentials.password, mistakes)
         } else {

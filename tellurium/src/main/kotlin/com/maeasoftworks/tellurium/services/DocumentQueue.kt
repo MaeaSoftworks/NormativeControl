@@ -4,7 +4,6 @@ import com.maeasoftworks.polonium.enums.Status
 import com.maeasoftworks.polonium.model.FailureType
 import com.maeasoftworks.polonium.parsers.DocumentParser
 import com.maeasoftworks.tellurium.dao.Document
-import com.maeasoftworks.tellurium.dao.MistakesSerializer
 import com.maeasoftworks.tellurium.dto.DocumentDTO
 import com.maeasoftworks.tellurium.dto.DocumentParserRunnable
 import com.maeasoftworks.tellurium.dto.EnqueuedParser
@@ -20,8 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger
 @Service
 class DocumentQueue(
     private val documentsRepository: DocumentsRepository,
-    private val bCryptPasswordEncoder: BCryptPasswordEncoder,
-    private val mistakesSerializer: MistakesSerializer
+    private val bCryptPasswordEncoder: BCryptPasswordEncoder
 ) {
     private val queue: HashMap<String, EnqueuedParser> = HashMap()
     private val executor: ExecutorService = Executors.newFixedThreadPool(100) { r -> Thread(r, "DocumentParser") }
@@ -51,7 +49,7 @@ class DocumentQueue(
                     order.documentDTO.password,
                     order.documentDTO.data.file,
                     order.render,
-                    mistakesSerializer.convertToDatabaseColumn(order.documentParser.mistakes.map { it.dao })
+                    order.documentParser.mistakes.map { it.dao }
                 )
             )
             queue.remove(order.documentDTO.id)

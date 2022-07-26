@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.maeasoftworks.polonium.enums.MistakeType
 import com.maeasoftworks.polonium.utils.doUntilCatch
-import org.reflections.Reflections
 import org.springframework.context.MessageSource
 import org.springframework.context.NoSuchMessageException
 import org.springframework.context.i18n.LocaleContextHolder
@@ -19,29 +18,20 @@ import kotlin.reflect.jvm.javaGetter
 
 
 @Component
-class DocumentationCreator(private val messageSource: MessageSource) {
+class DocumentationCreator(
+    private val messageSource: MessageSource,
+    controllersClasses: Controllers,
+    entitiesClasses: Entities
+    ) {
     final val controllers: List<Mapping>
     final val entities: List<Entity>
 
     init {
-        val reflections = Reflections("com.maeasoftworks.tellurium")
-        val set = reflections.getTypesAnnotatedWith(Documentation::class.java).toMutableList()
-
-        val c = set.filter {
-            it.annotations.any { annotation ->
-                annotation is RestController
-            }
-        }
-
-        val e = set.filter {
-            it.annotations.all { annotation ->
-                annotation !is RestController
-            }
-        }
-
-        controllers =
-            c.map { createControllerDocs(it.kotlin) }.flatten().sortedWith(compareBy({ it.root }, { it.path }))
-        entities = e.map { createObjectDocs(it.kotlin) }
+        controllers = controllersClasses.controllers
+            .map { createControllerDocs(it) }
+            .flatten()
+            .sortedWith(compareBy({ it.root }, { it.path }))
+        entities = entitiesClasses.entities.map { createObjectDocs(it) }
     }
 
     fun enumToList(clazz: KClass<*>, translatable: Boolean = false): List<String> {
