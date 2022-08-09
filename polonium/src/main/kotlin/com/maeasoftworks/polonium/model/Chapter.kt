@@ -54,15 +54,6 @@ open class Chapter(var startPos: Int) : Iterable<Any> {
     }
 
     /**
-     * Add element to <code>content</code> list
-     * @param item item which will be added
-     * @author prmncr
-     */
-    fun add(item: Any) {
-        content.add(item)
-    }
-
-    /**
      * <code>content</code> iterator
      * @return <code>content</code> iterator
      * @author prmncr
@@ -75,4 +66,13 @@ open class Chapter(var startPos: Int) : Iterable<Any> {
      * @author prmncr
      */
     operator fun get(i: Int): Any = content[i]
+
+    /**
+     * Add element to <code>content</code> list
+     * @param item item which will be added
+     * @author prmncr
+     */
+    fun add(item: Any) {
+        content.add(item)
+    }
 }

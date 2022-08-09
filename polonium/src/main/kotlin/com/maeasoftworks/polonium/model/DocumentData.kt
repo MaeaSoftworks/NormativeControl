@@ -1,29 +1,17 @@
 package com.maeasoftworks.polonium.model
 
+import com.maeasoftworks.polonium.enums.FailureType
 import com.maeasoftworks.polonium.enums.Status
 
 /**
  * Document representation
+ * @param file file in `ByteArray` representation
+ * @param status document status (`QUEUE` by default)
+ * @param failureType failure type (`NONE` by default)
  * @author prmncr
  */
 class DocumentData(
-    /**
-     * File in <code>ByteArray</code> representation
-     * @author prmncr
-     */
     var file: ByteArray = ByteArray(0),
-
-    /**
-     * Document status (QUEUE by default)
-     * @see com.maeasoftworks.polonium.enums.Status
-     * @author prmncr
-     */
     var status: Status = Status.QUEUE,
-
-    /**
-     * Failure type (NONE by default)
-     * @see com.maeasoftworks.polonium.model.FailureType
-     * @author prmncr
-     */
     var failureType: FailureType = FailureType.NONE
 )

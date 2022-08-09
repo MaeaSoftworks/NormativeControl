@@ -1,7 +1,7 @@
 package com.maeasoftworks.tellurium.services
 
 import com.maeasoftworks.polonium.enums.Status
-import com.maeasoftworks.polonium.model.FailureType
+import com.maeasoftworks.polonium.enums.FailureType
 import com.maeasoftworks.polonium.parsers.DocumentParser
 import com.maeasoftworks.tellurium.dao.Document
 import com.maeasoftworks.tellurium.dto.DocumentDTO

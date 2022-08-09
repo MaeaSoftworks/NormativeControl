@@ -1,4 +1,4 @@
-package com.maeasoftworks.polonium.model
+package com.maeasoftworks.polonium.enums
 
 /**
  * Failure types

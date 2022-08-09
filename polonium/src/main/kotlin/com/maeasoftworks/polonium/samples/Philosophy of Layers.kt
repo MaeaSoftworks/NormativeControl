@@ -3,7 +3,7 @@
 package com.maeasoftworks.polonium.samples
 
 /**
- * Kotlin analog for Java source code
+ * Kotlin equivalent for Java source code
  */
 private interface ContentAccessor<T> {
     val content: MutableList<T>
@@ -14,6 +14,7 @@ private interface ContentAccessor<T> {
  *
  * Each document can be represented as collection of elements (most often paragraphs, but there may be some other elements)
  * which in Maea Softworks is named as "p-layer" (from "paragraph layer").
+ * @see PSample
  */
 private class DocumentSample : ContentAccessor<PSample> {
     /**
@@ -25,6 +26,7 @@ private class DocumentSample : ContentAccessor<PSample> {
 /**
  * Also, most of the elements in p-layer can be represented as collection of order below elements (mostly runs)
  * which we named as "r-layer" (from "run layer" respectively).
+ * @see RSample
  */
 private class PSample : ContentAccessor<RSample> {
     /**
@@ -35,6 +37,7 @@ private class PSample : ContentAccessor<RSample> {
 
 /**
  * And finally, elements in r-layer can also be collections. This is called the "c-layer" ("content layer").
+ * @see CSample
  */
 private class RSample : ContentAccessor<CSample> {
     /**

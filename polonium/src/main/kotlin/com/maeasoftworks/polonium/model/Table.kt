@@ -3,11 +3,11 @@ package com.maeasoftworks.polonium.model
 import org.docx4j.wml.Tbl
 
 /**
- * Класс, содержащий данные о таблице в документе
+ * docx4j table wrapper
  *
- * @constructor
- * @param p Номер параграфа, в котором находится таблица
- * @param table Объект таблицы
+ * @constructor creates Table by p-index and `Tbl`
+ * @param p table's paragraph pointer
+ * @param table table
  *
  * @author prmncr
  */

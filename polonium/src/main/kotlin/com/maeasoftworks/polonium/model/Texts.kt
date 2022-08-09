@@ -5,6 +5,10 @@ import com.maeasoftworks.polonium.parsers.DocumentParser
 import org.docx4j.TextUtils
 import org.docx4j.wml.P
 
+/**
+ * `TextUtils.getText` caching algorithm with spellcheck
+ * @param root parser
+ */
 class Texts(private val root: DocumentParser) {
     private var pTexts: MutableMap<String, String> = HashMap()
     private var abandonedAbbreviationsRegex =

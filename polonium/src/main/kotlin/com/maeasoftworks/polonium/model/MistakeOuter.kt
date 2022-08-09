@@ -4,42 +4,19 @@ import com.maeasoftworks.polonium.enums.MistakeType
 
 /**
  * Mistake representation with `mistakeId` for external using.
+ * @param mistakeId mistake ordinal id
+ * @param p index of mistake on p-layer
+ * @param r index of mistake on r-layer
+ * @param mistakeType mistake type
+ * @param description mistake description in Russian
+ * @see com.maeasoftworks.polonium.samples.DocumentSample
  * @author prmncr
  */
 data class MistakeOuter(
-
-    /**
-     * Mistake ordinal id
-     * @author prmncr
-     */
     val mistakeId: Long,
-
-    /**
-     * Index of mistake on p-layer
-     * @see com.maeasoftworks.polonium.samples.DocumentSample
-     * @author prmncr
-     */
     val p: Int? = null,
-
-    /**
-     * Index of mistake on r-layer
-     * @see com.maeasoftworks.polonium.samples.DocumentSample
-     * @author prmncr
-     */
     val r: Int? = null,
-
-    /**
-     * Mistake type
-     * @see com.maeasoftworks.polonium.enums.MistakeType
-     * @author prmncr
-     */
     val mistakeType: MistakeType,
-
-    /**
-     * Mistake description. Unfortunately, in Russian.
-     *
-     * @author prmncr
-     */
     val description: String? = null
 ) {
     /**

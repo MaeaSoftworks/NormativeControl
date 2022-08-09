@@ -2,6 +2,7 @@ package com.maeasoftworks.polonium.parsers
 
 import com.maeasoftworks.polonium.enums.ChapterType
 import com.maeasoftworks.polonium.enums.ChapterType.*
+import com.maeasoftworks.polonium.enums.FailureType
 import com.maeasoftworks.polonium.enums.MistakeType
 import com.maeasoftworks.polonium.enums.MistakeType.*
 import com.maeasoftworks.polonium.enums.Status

@@ -267,7 +267,7 @@ abstract class ChapterParser(val chapter: Chapter, val root: DocumentParser) {
             root.addMistake(LIST_LEVEL_MORE_THAN_2, p)
         }
         if (pPr.numPr.ilvl.`val`.toInt() == 0) {
-            when (numberingFormat.listLevels["0"]!!.numFmt) {
+            when (numberingFormat.listLevels["0"]?.numFmt) {
                 NumberFormat.BULLET -> if (numberingFormat.listLevels["0"]!!.levelText != "–") {
                     root.addMistake(ORDERED_LIST_INCORRECT_MARKER_FORMAT_AT_LEVEL_1, p, description = "\"–\" (U+2013)")
                 }
