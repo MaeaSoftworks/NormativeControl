@@ -1,56 +1,51 @@
 package com.maeasoftworks.polonium.model
 
+
 /**
  * Storage for keywords which are used to detect chapters type
- * @author prmncr
+ *
+ * todo: try to make markers more independent of keywords or remove hardcoded keywords
  */
 object ChapterMarkers {
 
     /**
      * All keywords in 2D list
-     * @author prmncr
      */
     val markers: List<List<String>>
 
     /**
      * Keywords for 'Annotation'
-     * @author prmncr
      */
     val annotation = listOf("РЕФЕРАТ")
 
     /**
      * Keywords for 'Contents'
-     * @author prmncr
      */
     private val contents = listOf("СОДЕРЖАНИЕ", "ОГЛАВЛЕНИЕ")
 
     /**
      * Keywords for 'Introduction'
-     * @author prmncr
      */
     private val introduction = listOf("ВВЕДЕНИЕ")
 
     /**
      * Keywords for 'Conclusion'
-     * @author prmncr
      */
     private val conclusion = listOf("ЗАКЛЮЧЕНИЕ")
 
     /**
      * Keywords for 'References'
-     * @author prmncr
      */
     private val references =
         listOf("БИБЛИОГРАФИЧЕСКИЙ СПИСОК", "СПИСОК ИСПОЛЬЗОВАННОЙ ЛИТЕРАТУРЫ", "СПИСОК ЛИТЕРАТУРЫ", "СПИСОК ИСТОЧНИКОВ")
 
     /**
      * Keywords for 'Appendix'
-     * @author prmncr
      */
     val appendix = listOf("ПРИЛОЖЕНИЕ", "ПРИЛОЖЕНИЯ")
 
     /**
-     * Initialization for <code>markers</code> list. Filling order:
+     * Initialization for `markers` list. Filling order:
      * - Front page mock
      * - Annotation
      * - Contents
@@ -59,7 +54,6 @@ object ChapterMarkers {
      * - Conclusion
      * - References
      * - Appendix
-     * @author prmncr
      */
     init {
         markers = listOf(

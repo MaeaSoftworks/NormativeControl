@@ -15,25 +15,48 @@ import org.docx4j.math.CTOMathPara
 import org.docx4j.mce.AlternateContent
 import org.docx4j.wml.*
 
+/**
+ * Abstract class for chapters' parsers.
+ *
+ * Default workflow:
+ * - `parse()` called externally;
+ * - `parse()` calls `parse(ChapterParser, PFunctions?, RFunctions?, PFunctions, RFunctions?)` with necessary
+ * lists of rules;
+ * - `parse(...)` iterates in paragraphs & runs:
+ *     - starts style checking on simple paragraphs & runs;
+ *     - calls handlers for other content types.
+ *
+ * How to use:
+ * - inherit from this class;
+ * - override `parse()` to `parse(ChapterParser, PFunctions?, RFunctions?, PFunctions, RFunctions?)` call with necessary
+ * lists of rules or any other logic if necessary;
+ * - if you use default `parse(...)`, override opened `handle*(...)` functions, otherwise, create your custom logic.
+ * @param chapter chapter that will be parsed
+ * @param root document parser
+ */
 abstract class ChapterParser(val chapter: Chapter, val root: DocumentParser) {
+    //todo: maybe it's possible to create special class for it?
     var pictureTitleExpected = false
     protected var currentListStartValue = -1
     protected var listPosition = 0
 
+    /**
+     * Entry point for parser, will be called externally
+     */
     abstract fun parse()
 
-    open fun handleHyperlink(p: Int, r: Int) {
-        root.addMistake(DOCUMENT_UNEXPECTED_CONTENT, p, r)
-    }
+    //region document
 
-    open fun handleTable(p: Int) {
-        root.addMistake(DOCUMENT_UNEXPECTED_CONTENT, p)
-    }
-
-    open fun handleContents(p: Int) {
-        root.addMistake(DOCUMENT_UNEXPECTED_CONTENT, p)
-    }
-
+    /**
+     * Internal entry point for parser.
+     *
+     * By default, this function is called from entry point and starts iteration in chapter's paragraphs.
+     * @param context instance of parser in which this function is called (used to call handlers)
+     * @param headerPFunctions rules for header paragraph
+     * @param headerRFunctions rules for header run
+     * @param pFunctions rules for paragraphs in chapter
+     * @param rFunctions rules for runs in chapter
+     */
     fun parse(
         context: ChapterParser,
         headerPFunctions: PFunctions?,
@@ -51,11 +74,18 @@ abstract class ChapterParser(val chapter: Chapter, val root: DocumentParser) {
             )
         }
         for (p in chapter.startPos + 1 until chapter.startPos + chapter.content.size) {
-            handleContent(p, context, pFunctions, rFunctions)
+            handleDocumentContent(p, context, pFunctions, rFunctions)
         }
     }
 
-    private fun handleContent(p: Int, context: ChapterParser, pFunctions: PFunctions, rFunctions: RFunctions?) {
+    /**
+     * Detects document content type
+     * @param p index on p-layer
+     * @param context instance of parser in which this function is called (used to call handlers)
+     * @param pFunctions rules for paragraphs in chapter
+     * @param rFunctions rules for runs in chapter
+     */
+    private fun handleDocumentContent(p: Int, context: ChapterParser, pFunctions: PFunctions, rFunctions: RFunctions?) {
         when (val something = root.doc.content[p]) {
             is P -> {
                 handleP(context, p, something, pFunctions, rFunctions)
@@ -70,6 +100,18 @@ abstract class ChapterParser(val chapter: Chapter, val root: DocumentParser) {
         }
     }
 
+    //endregion document
+
+    //region paragraphs
+
+    /**
+     * Starts iteration in paragraph
+     * @param context instance of parser in which this function is called (used to call handlers)
+     * @param p index on p-layer
+     * @param paragraph paragraph instance
+     * @param pFunctions rules for paragraphs in chapter
+     * @param rFunctions rules for runs in chapter
+     */
     open fun handleP(context: ChapterParser, p: Int, paragraph: P, pFunctions: PFunctions, rFunctions: RFunctions?) {
         val pPr = root.propertiesStorage[paragraph]
         val isEmpty = root.texts.getText(paragraph).isBlank()
@@ -81,6 +123,13 @@ abstract class ChapterParser(val chapter: Chapter, val root: DocumentParser) {
         context.parseP(p, pPr, isEmpty, pFunctions)
     }
 
+    /**
+     * Starts style checking for paragraph
+     * @param p index on p-layer
+     * @param pPr paragraph properties
+     * @param isEmpty indicates whether the text is empty
+     * @param pFunctions rules for paragraphs in chapter
+     */
     open fun parseP(p: Int, pPr: PPr, isEmpty: Boolean, pFunctions: PFunctions) {
         pFunctions.apply(root, p, pPr, isEmpty)
         if (pPr.numPr != null && pPr.numPr.numId.`val`.toInt() != 0) {
@@ -91,25 +140,12 @@ abstract class ChapterParser(val chapter: Chapter, val root: DocumentParser) {
         }
     }
 
-    open fun parseR(p: Int, r: Int, paragraph: P, rFunctions: RFunctions) {
-        if (paragraph.content[r] is R) {
-            val rpr = root.propertiesStorage[paragraph.content[r] as R]
-            rFunctions.apply(
-                root,
-                p,
-                r,
-                rpr,
-                TextUtils.getText(paragraph.content[r]).isBlank()
-            )
-        } else {
-            handlePContent(p, r, this)
-        }
-    }
-
-    private fun unexpectedP(p: Int, something: Any) {
-        root.addMistake(PARAGRAPH_UNEXPECTED_CONTENT, p, description = something::class.simpleName!!)
-    }
-
+    /**
+     * Detects paragraph content type
+     * @param p index on p-layer
+     * @param r index on r-layer
+     * @param context instance of parser in which this function is called (used to call handlers)
+     */
     open fun handlePContent(p: Int, r: Int, context: ChapterParser) {
         when (val something = (root.doc.content[p] as P).content[r]) {
             is JAXBElement<*> -> when (something.value) {
@@ -153,13 +189,47 @@ abstract class ChapterParser(val chapter: Chapter, val root: DocumentParser) {
             is RunDel -> unexpectedP(p, something)
 
             /*
-            * Detected:
-            *   CommentRangeStart
-            *   CommentRangeEnd
-            * */
+             * Detected:
+             *   CommentRangeStart
+             *   CommentRangeEnd
+             */
         }
     }
 
+    //endregion paragraphs
+
+    //region runs
+
+    /**
+     * Starts style checking for paragraph
+     * @param p index on p-layer
+     * @param r index on r-layer
+     * @param paragraph paragraph instance
+     * @param rFunctions rules for runs in chapter
+     */
+    open fun parseR(p: Int, r: Int, paragraph: P, rFunctions: RFunctions) {
+        if (paragraph.content[r] is R) {
+            val rpr = root.propertiesStorage[paragraph.content[r] as R]
+            rFunctions.apply(
+                root,
+                p,
+                r,
+                rpr,
+                TextUtils.getText(paragraph.content[r]).isBlank()
+            )
+        } else {
+            handlePContent(p, r, this)
+        }
+    }
+
+    /**
+     * Detects paragraph content type
+     * @param p index on p-layer
+     * @param r index on r-layer
+     * @param c index on c-layer
+     * @param context instance of parser in which this function is called (used to call handlers)
+     * @param pictureContainer list that contains pictures
+     */
     open fun handleRContent(p: Int, r: Int, c: Int, context: ChapterParser, pictureContainer: MutableList<Picture>) {
         when (val something = ((root.doc.content[p] as P).content[r] as R).content[c]) {
             is JAXBElement<*> -> when (something.value) {
@@ -196,14 +266,14 @@ abstract class ChapterParser(val chapter: Chapter, val root: DocumentParser) {
                 is R.FootnoteRef,
                 is R.DayLong -> root.addMistake(RUN_UNEXPECTED_CONTENT, p, r, something.declaredType.simpleName)
                 /*
-                * Detected:
-                *   R.LastRenderedPageBreak
-                *   Text
-                * */
+                 * Detected:
+                 *   R.LastRenderedPageBreak
+                 *   Text
+                 */
             }
             is DelText -> root.addMistake(RUN_UNEXPECTED_CONTENT, p, r, something::class.simpleName)
             is AlternateContent -> {
-                // todo: is it only first object?
+                //todo: is it only first object?
                 if (something.choice.first().any.first() is Drawing) {
                     pictureTitleExpected = true
                     context.handleDrawing(p, r, c, root.pictures)
@@ -212,10 +282,26 @@ abstract class ChapterParser(val chapter: Chapter, val root: DocumentParser) {
                 }
             }
             /*
-            Detected:
-                Br
+             * Detected:
+             *   Br
              */
         }
+    }
+
+    //endregion runs
+
+    //region handlers
+
+    open fun handleHyperlink(p: Int, r: Int) {
+        root.addMistake(DOCUMENT_UNEXPECTED_CONTENT, p, r)
+    }
+
+    open fun handleTable(p: Int) {
+        root.addMistake(DOCUMENT_UNEXPECTED_CONTENT, p)
+    }
+
+    open fun handleContents(p: Int) {
+        root.addMistake(DOCUMENT_UNEXPECTED_CONTENT, p)
     }
 
     open fun handleDrawing(p: Int, r: Int, c: Int, container: MutableList<Picture>) {
@@ -249,6 +335,10 @@ abstract class ChapterParser(val chapter: Chapter, val root: DocumentParser) {
         }
     }
 
+    //endregion handlers
+
+    //region pictures
+
     open fun pictureTitleMatcher(title: String): MatchResult? {
         return Regex("РИСУНОК (\\d+)").find(title.uppercase())
     }
@@ -259,6 +349,10 @@ abstract class ChapterParser(val chapter: Chapter, val root: DocumentParser) {
         ).parse()
     }
 
+    //endregion pictures
+
+    //region lists
+
     fun validateListElement(p: Int) {
         val pPr = (root.doc.content[p] as P).pPr
         val numberingFormat =
@@ -267,6 +361,7 @@ abstract class ChapterParser(val chapter: Chapter, val root: DocumentParser) {
             root.addMistake(LIST_LEVEL_MORE_THAN_2, p)
         }
         if (pPr.numPr.ilvl.`val`.toInt() == 0) {
+            //todo add support to custom multilevel lists
             when (numberingFormat.listLevels["0"]?.numFmt) {
                 NumberFormat.BULLET -> if (numberingFormat.listLevels["0"]!!.levelText != "–") {
                     root.addMistake(ORDERED_LIST_INCORRECT_MARKER_FORMAT_AT_LEVEL_1, p, description = "\"–\" (U+2013)")
@@ -302,8 +397,14 @@ abstract class ChapterParser(val chapter: Chapter, val root: DocumentParser) {
         }
     }
 
-    companion object {
+    //endregion lists
 
+    private fun unexpectedP(p: Int, something: Any) {
+        root.addMistake(PARAGRAPH_UNEXPECTED_CONTENT, p, description = something::class.simpleName!!)
+    }
+
+    companion object {
+        //todo: maybe char array?
         val orderedListMarkers = "абвгдежиклмнпрстуфхцшщэюя".toList()
         val alphabet = "абвгдежзиклмнопрстуфхцчшщыэюя".toList()
 

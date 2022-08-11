@@ -2,10 +2,11 @@ package com.maeasoftworks.polonium.enums
 
 /**
  * Type of mistake
+ *
+ * todo: move translations to tellurium/src/main/resources/i18n
  * @see com.maeasoftworks.polonium.model.MistakeInner
  * @see com.maeasoftworks.polonium.model.MistakeOuter
  * @param ru Russian translation of mistake cause
- * @author prmncr
  */
 enum class MistakeType(val ru: String) {
     // page size

@@ -12,6 +12,17 @@ import org.docx4j.wml.RPr
 import kotlin.math.abs
 import kotlin.math.floor
 
+/**
+ * Set of rules for all cases.
+ *
+ * One function - one rule.
+ *
+ * Every function's signature for paragraph rule must be equal to
+ * [PFunction][com.maeasoftworks.polonium.utils.PFunction]
+ * or
+ * [RFunction][com.maeasoftworks.polonium.utils.RFunction]
+ * for run rule.
+ */
 object Rules {
     object Default {
         object Common {
@@ -303,18 +314,14 @@ object Rules {
                 fun isNotUppercase(p: Int, pPr: PPr, isEmpty: Boolean, d: DocumentParser): MistakeInner? {
                     val paragraph = d.doc.content[p] as org.docx4j.wml.P
                     val text = TextUtils.getText(paragraph)
-                    return if (!isEmpty && (
-                                text.uppercase() == text || (
-                                        paragraph.content.all { x ->
-                                            if (x is R) {
-                                                val rPr = d.doc.propertyResolver.getEffectiveRPr(x.rPr, pPr)
-                                                rPr.caps != null && rPr.caps.isVal
-                                            } else {
-                                                true
-                                            }
-                                        }
-                                        )
-                                )
+                    return if (!isEmpty && (text.uppercase() == text || (paragraph.content.all { x ->
+                            if (x is R) {
+                                val rPr = d.doc.propertyResolver.getEffectiveRPr(x.rPr, pPr)
+                                rPr.caps != null && rPr.caps.isVal
+                            } else {
+                                true
+                            }
+                    }))
                     ) {
                         MistakeInner(TEXT_HEADER_BODY_UPPERCASE, p)
                     } else null

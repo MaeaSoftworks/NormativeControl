@@ -23,7 +23,6 @@ import org.docx4j.wml.RPr
  * @param p paragraph whose properties need to find
  * @param mlPackage package which contains paragraph
  * @return actual PPr. Warning: it's live object. Clone before editing!
- * @author prmncr
  */
 fun PropertyResolver.getActualPPr(p: P, mlPackage: WordprocessingMLPackage): PPr {
     return PPr().also {
@@ -54,7 +53,6 @@ fun PropertyResolver.getActualPPr(p: P, mlPackage: WordprocessingMLPackage): PPr
  * @param r run whose properties need to find
  * @param mlPackage package which contains run
  * @return actual RPr. Warning: it's live object. Clone before editing!
- * @author prmncr
  */
 fun PropertyResolver.getActualRPr(r: R, mlPackage: WordprocessingMLPackage): RPr {
     return RPr().also {

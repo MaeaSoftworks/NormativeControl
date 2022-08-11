@@ -9,8 +9,6 @@ import com.maeasoftworks.polonium.enums.MistakeType
  * @param r index of mistake on r-layer
  * @param mistakeType mistake type
  * @param description mistake description in Russian
- * @see com.maeasoftworks.polonium.samples.DocumentSample
- * @author prmncr
  */
 data class MistakeOuter(
     val mistakeId: Long,
@@ -26,7 +24,6 @@ data class MistakeOuter(
      *
      * Output example: `[p 23 r 3] Некорректный межстрочный интервал текста: найдено: 1, ожидалось: 1.5`
      * @return string representation of mistake
-     * @author prmncr
      */
     override fun toString(): String {
         val result = StringBuilder()

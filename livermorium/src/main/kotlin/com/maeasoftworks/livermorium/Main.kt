@@ -10,7 +10,6 @@ const val file = "polonium/src/test/resources/general/full test 2"
 fun main() {
     RenderLauncher(
         start("$file.docx") {
-            init()
             runVerification()
             return@start this
         }

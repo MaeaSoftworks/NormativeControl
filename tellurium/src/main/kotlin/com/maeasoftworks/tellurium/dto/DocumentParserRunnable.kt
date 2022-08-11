@@ -15,7 +15,6 @@ class DocumentParserRunnable(
     override fun run() {
         val parsingStart = System.currentTimeMillis()
         try {
-            parser.documentParser.init()
             parser.documentParser.runVerification()
         } catch (e: Exception) {
             parser.documentDTO.data.status = Status.ERROR

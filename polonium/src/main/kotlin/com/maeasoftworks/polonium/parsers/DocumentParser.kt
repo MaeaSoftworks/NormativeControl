@@ -2,7 +2,7 @@ package com.maeasoftworks.polonium.parsers
 
 import com.maeasoftworks.polonium.enums.ChapterType
 import com.maeasoftworks.polonium.enums.ChapterType.*
-import com.maeasoftworks.polonium.enums.FailureType
+import com.maeasoftworks.polonium.enums.FailureCause
 import com.maeasoftworks.polonium.enums.MistakeType
 import com.maeasoftworks.polonium.enums.MistakeType.*
 import com.maeasoftworks.polonium.enums.Status
@@ -26,43 +26,48 @@ import java.io.ByteArrayOutputStream
 import java.math.BigInteger
 import java.util.*
 
+/**
+ * Main parser class, parses entire document
+ * @param documentData file and file status
+ * @param password password which will be applied to file
+ */
 class DocumentParser(val documentData: DocumentData, private var password: String) {
     val texts = Texts(this)
-    lateinit var doc: MainDocumentPart
-    lateinit var propertiesStorage: PropertiesStorage
-    private val factory = Context.getWmlObjectFactory()
-    lateinit var mlPackage: WordprocessingMLPackage
 
-    var numbering: NumberingDefinitionsPart? = null
-    private var comments: CommentsPart? = null
+    val mlPackage: WordprocessingMLPackage by lazy {
+        try {
+            WordprocessingMLPackage.load(ByteArrayInputStream(documentData.file))
+        } catch (e: Docx4JException) {
+            documentData.status = Status.ERROR
+            documentData.failureCause = FailureCause.FILE_READING_ERROR
+            throw e
+        }
+    }
+
+    val doc: MainDocumentPart by lazy { mlPackage.mainDocumentPart }
+
+    val propertiesStorage: PropertiesStorage by lazy { PropertiesStorage(PropertyResolver(mlPackage), this) }
+
+    val autoHyphenation: Boolean? by lazy { doc.documentSettingsPart.jaxbElement.autoHyphenation?.isVal }
+
+    val numbering: NumberingDefinitionsPart? by lazy { doc.numberingDefinitionsPart }
+
+    private val comments: CommentsPart? by lazy {
+        (doc.commentsPart ?: CommentsPart().also {
+            it.jaxbElement = factory.createComments()
+            doc.addTargetPart(it)
+        }).also {
+            mistakeId = it.jaxbElement.comment.size.toLong()
+        }
+    }
 
     var chapters: MutableList<Chapter> = ArrayList()
     var parsers: MutableList<ChapterParser> = ArrayList()
     var mistakes: MutableList<MistakeOuter> = ArrayList()
     val pictures: MutableList<Picture> = ArrayList()
-    var autoHyphenation: Boolean? = null
 
+    private val factory = Context.getWmlObjectFactory()
     private var mistakeId: Long = 0
-
-    fun init() {
-        try {
-            mlPackage = WordprocessingMLPackage.load(ByteArrayInputStream(documentData.file))
-            doc = mlPackage.mainDocumentPart
-            doc.contents.body
-            propertiesStorage = PropertiesStorage(PropertyResolver(mlPackage), this)
-            comments = doc.commentsPart
-            if (comments == null) {
-                comments = CommentsPart().also { it.jaxbElement = factory.createComments() }
-                doc.addTargetPart(comments)
-            }
-            autoHyphenation = mlPackage.mainDocumentPart.documentSettingsPart.jaxbElement.autoHyphenation?.isVal
-            mistakeId = comments!!.jaxbElement.comment.size.toLong()
-            numbering = doc.numberingDefinitionsPart
-        } catch (e: Docx4JException) {
-            documentData.status = Status.ERROR
-            documentData.failureType = FailureType.FILE_READING_ERROR
-        }
-    }
 
     fun addMistake(type: MistakeType, p: Int? = null, r: Int? = null, description: String? = null) {
         mistakes.add(MistakeOuter(mistakeId++, p, r, type, description))
@@ -124,9 +129,9 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
             val commentRangeEnd = factory.createCommentRangeEnd().also { it.id = BigInteger.valueOf(mistake.mistakeId) }
             if (mistake.p == null) {
                 val paragraph = doc.content.first { it is P } as P
-                paragraph.content.add(commentRangeStart)
-                paragraph.content.add(commentRangeEnd)
-                paragraph.content.add(createRunCommentReference(mistake.mistakeId))
+                paragraph.content += commentRangeStart
+                paragraph.content += commentRangeEnd
+                paragraph.content += createRunCommentReference(mistake.mistakeId)
             } else if (mistake.r == null) {
                 val paragraph: P = try {
                     doc.content[mistake.p] as P
@@ -134,8 +139,8 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
                     factory.createP().apply { doc.content.add(mistake.p + 1, this) }
                 }
                 paragraph.content.add(0, commentRangeStart)
-                paragraph.content.add(commentRangeEnd)
-                paragraph.content.add(createRunCommentReference(mistake.mistakeId))
+                paragraph.content += commentRangeEnd
+                paragraph.content += createRunCommentReference(mistake.mistakeId)
             } else {
                 val paragraph: P = try {
                     doc.content[mistake.p] as P
@@ -144,8 +149,8 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
                 }
                 paragraph.content.add(if (mistake.r == 0) 0 else mistake.r - 1, commentRangeStart)
                 if (mistake.r == paragraph.content.size - 1) {
-                    paragraph.content.add(commentRangeEnd)
-                    paragraph.content.add(createRunCommentReference(mistake.mistakeId))
+                    paragraph.content += commentRangeEnd
+                    paragraph.content += createRunCommentReference(mistake.mistakeId)
                 } else {
                     paragraph.content.add(mistake.r + 1, commentRangeEnd)
                     paragraph.content.add(mistake.r + 2, createRunCommentReference(mistake.mistakeId))

@@ -8,10 +8,11 @@ import org.docx4j.wml.R
 import org.docx4j.wml.RPr
 
 /**
- * Wrapper for [PropertyResolver] that store any property object to prevent second collecting of properties object.
+ * Wrapper for [PropertyResolver] that store all property objects to prevent repeated initialization of properties object.
+ *
+ * todo: try to add unique id for R in document to cache them
  * @param resolver default resolver from mlPackage
  * @param root parser that stores this wrapper
- * @author prmncr
  */
 class PropertiesStorage(private val resolver: PropertyResolver, private val root: DocumentParser) {
     private var pPrs: MutableMap<String, PPr> = HashMap()

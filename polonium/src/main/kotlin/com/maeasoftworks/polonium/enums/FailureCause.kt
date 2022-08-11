@@ -1,10 +1,6 @@
 package com.maeasoftworks.polonium.enums
 
-/**
- * Failure types
- * @author prmncr
- */
-enum class FailureType {
+enum class FailureCause {
     NONE,
     FILE_READING_ERROR
 }

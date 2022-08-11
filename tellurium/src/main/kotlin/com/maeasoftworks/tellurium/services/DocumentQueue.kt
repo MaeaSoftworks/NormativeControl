@@ -1,7 +1,7 @@
 package com.maeasoftworks.tellurium.services
 
 import com.maeasoftworks.polonium.enums.Status
-import com.maeasoftworks.polonium.enums.FailureType
+import com.maeasoftworks.polonium.enums.FailureCause
 import com.maeasoftworks.polonium.parsers.DocumentParser
 import com.maeasoftworks.tellurium.dao.Document
 import com.maeasoftworks.tellurium.dto.DocumentDTO
@@ -41,7 +41,7 @@ class DocumentQueue(
 
     @Transactional
     fun saveToDatabase(order: EnqueuedParser) {
-        if (order.documentDTO.data.failureType == FailureType.NONE) {
+        if (order.documentDTO.data.failureCause == FailureCause.NONE) {
             documentsRepository.save(
                 Document(
                     order.documentDTO.id,

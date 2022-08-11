@@ -12,10 +12,9 @@ import org.docx4j.wml.R
 /**
  * Parser for body chapter.
  *
- * How it works:
+ * Workflow:
  * 1. Split chapter to subchapters by headers.
  * 2. Recursively validate every subchapter.
- * @author prmncr
  */
 class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter, root) {
     private var isPicturesOrderedInSubchapters: Boolean? = false
@@ -23,15 +22,14 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
 
     /**
      * Root of subchapters model
-     * @author prmncr
      */
-    private val subchapters = Subchapter()
+    private val treeRoot = Subchapter()
 
     override fun parse() {
-        createSubchaptersModel(chapter.startPos + 1, 2, subchapters)
-        validateSubchapters(subchapters.num.toString(), subchapters)
+        createSubchaptersModel(chapter.startPos + 1, 2, treeRoot)
+        validateSubchapters(treeRoot.num.toString(), treeRoot)
         parseHeader()
-        parseSubchapter(subchapters)
+        parseSubchapter(treeRoot)
         flatPictures()
         root.checkPicturesOrder(
             this,
@@ -42,12 +40,11 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
     }
 
     /**
-     * Creates subchapters model recursively by headers. All non-header paragraphs will be added in subchapter content.
+     * Creates subchapters model by headers recursively. All non-header paragraphs will be added in subchapter content.
      * @param pPos p-layer index
      * @param level nesting level
      * @param currentChapter current subchapter
      * @return end position
-     * @author prmncr
      */
     private fun createSubchaptersModel(pPos: Int, level: Int, currentChapter: Subchapter): Int {
         var pos = pPos
@@ -84,19 +81,13 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
     }
 
     /**
-     * Collects pictures from subchapters recursively
-     * @author prmncr
+     * Collect pictures from subchapters recursively
      */
     private fun flatPictures() {
-        subchapters.flatPictures()
-        innerPictures = subchapters.pictures
+        treeRoot.flatPictures()
+        innerPictures = treeRoot.pictures
     }
 
-    /**
-     * Parses subchapter
-     * @param subchapter subchapter to parse
-     * @author prmncr
-     */
     private fun parseSubchapter(subchapter: Subchapter) {
         if (subchapter.subheader != null) {
             val subheaderPPr = root.propertiesStorage[subchapter.subheader]
@@ -139,7 +130,6 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
 
     /**
      * Style check for headers
-     * @author prmncr
      */
     private fun parseHeader() {
         val headerPPr = root.propertiesStorage[chapter.header]
@@ -149,7 +139,6 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
 
     /**
      * Style check for headers and subheaders
-     * @author prmncr
      */
     private fun parseAnyHeader(ppr: PPr, startPos: Int, content: List<Any>, isEmpty: Boolean) {
         headerPFunctions.apply(root, startPos, ppr, isEmpty)
@@ -169,13 +158,14 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
         root.addMistake(TEXT_HYPERLINKS_NOT_ALLOWED_HERE, p, r + 1)
     }
 
-    override fun handleTable(p: Int) {}
+    override fun handleTable(p: Int) {
+        //todo add handler
+    }
 
     /**
      * Validates subchapter for style rules
      * @param expectedNum expected header number
      * @param subchapter subchapter to validate
-     * @author prmncr
      */
     private fun validateSubchapters(expectedNum: String, subchapter: Subchapter) {
         for (sub in 0 until subchapter.subchapters.size) {
@@ -199,7 +189,6 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
      * Searches numbers in picture title
      * @param title picture title
      * @return searching result or `null`
-     * @author prmncr
      */
     override fun pictureTitleMatcher(title: String): MatchResult? {
         return if (Regex("РИСУНОК (\\d+)").matches(title.uppercase())) {
@@ -257,46 +246,28 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
     }
 
     /**
-     * Subchapter representation
-     * @author prmncr
+     * @param startPos subchapter's start position in p-layer
+     * @param subheader subchapter's header
+     * @param parent subchapter's parent
+     * @param num subchapter position in parent
+     * @param level subchapter nesting level
      */
     inner class Subchapter(
-
-        /**
-         * Subchapter start position in p-layer
-         * @author prmncr
-         */
         val startPos: Int,
-
-        /**
-         * Subchapter header
-         * @author prmncr
-         */
         val subheader: P?,
-
-        /**
-         * Subchapter's parent
-         * @author prmncr
-         */
-        private val root: Subchapter?,
-
-        /**
-         * Subchapter position
-         * @author prmncr
-         */
+        private val parent: Subchapter?,
         val num: Int?,
-
-        /**
-         * Subchapter nesting level
-         * @author prmncr
-         */
         val level: Int
     ) {
+        val subchapters: MutableList<Subchapter> = ArrayList()
+        val content: MutableList<Any> = ArrayList()
+        var pictures: MutableList<Picture> = ArrayList()
 
         constructor() : this(
             chapter.startPos + 1,
             null,
             null,
+            //todo: wrong working regex need fix
             Regex("^(?:\\d\\.?){1,3}").find(this@BodyParser.root.texts.getText(chapter.header))?.value?.removeSuffix(".")
                 ?.toInt(),
             1
@@ -304,31 +275,12 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
 
         /**
          * Collects pictures from subchapters recursively
-         * @author prmncr
          */
         fun flatPictures() {
             for (subchapter in subchapters) {
                 subchapter.flatPictures()
             }
-            root?.pictures?.addAll(pictures)
+            parent?.pictures?.addAll(pictures)
         }
-
-        /**
-         * Subchapter children
-         * @author prmncr
-         */
-        val subchapters: MutableList<Subchapter> = ArrayList()
-
-        /**
-         * Subchapter content
-         * @author prmncr
-         */
-        val content: MutableList<Any> = ArrayList()
-
-        /**
-         * Subchapter pictures
-         * @author prmncr
-         */
-        var pictures: MutableList<Picture> = ArrayList()
     }
 }
