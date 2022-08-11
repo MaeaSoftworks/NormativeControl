@@ -1,4 +1,4 @@
-package com.maeasoftworks.livermorium.model.html
+package com.maeasoftworks.livermorium.model.css
 
 data class Rule<T>(val property: String, var rawValue: T) {
     var dimension: String? = null

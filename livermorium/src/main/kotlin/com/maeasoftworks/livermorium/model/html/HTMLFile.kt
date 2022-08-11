@@ -1,12 +1,15 @@
 package com.maeasoftworks.livermorium.model.html
 
 import com.maeasoftworks.livermorium.model.PageSettings
+import com.maeasoftworks.livermorium.model.css.GlobalStyle
 import com.maeasoftworks.livermorium.rendering.projectors.AutoHyphenProjector
 import com.maeasoftworks.livermorium.utils.PIXELS_IN_POINT
 
-class HTMLFile(
-    settings: PageSettings
-) {
+/**
+ * Main HTML object that represents entire DOM
+ * @param settings document settings
+ */
+class HTMLFile(settings: PageSettings) {
     var content: MutableList<HTMLElement> = mutableListOf()
     private val style: GlobalStyle = GlobalStyle()
 

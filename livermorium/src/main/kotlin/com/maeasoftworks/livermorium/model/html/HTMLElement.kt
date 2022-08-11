@@ -1,5 +1,12 @@
 package com.maeasoftworks.livermorium.model.html
 
+import com.maeasoftworks.livermorium.model.css.Style
+
+/**
+ * Basic DOM element
+ * @param type element type
+ * @param hasClosingTag marks that element need to have closing tag
+ */
 class HTMLElement(
     val type: String,
     private val hasClosingTag: Boolean = true
@@ -10,52 +17,40 @@ class HTMLElement(
     val children: MutableList<HTMLElement> = ArrayList()
     var style: Style = Style()
 
+    private val classesString: String
+        get() = if (classes.size > 0) " class='${classes.joinToString(" ")}'" else ""
+
+    private val idString: String
+        get() = if (id != null) " id='$id'" else ""
+
+    private val childrenString: String
+        get() = if (children.size > 0) children.joinToString("") { it.toString() } else ""
+
+
+    private val styleString: String
+        get() = if (style.size > 0) style.toString().let { if (it != "") " style='$it'" else "" } else ""
+
     override fun toString(): String {
         return if (hasClosingTag)
-            "<$type${idToString()}${classesToString()}${styleToString()}>$content${childrenToString()}</$type>"
+            "<$type$idString$classesString$styleString>$content$childrenString</$type>"
         else
-            "<$type${idToString()}${classesToString()}${styleToString()}>"
+            "<$type$idString$classesString$styleString>"
     }
 
+    /**
+     * Adds class to this element
+     *
+     * Example usage: `HTMLElement("div").withClass("example-class")`
+     * @param classname class that will be added
+     * @return element with class from parameter
+     */
     fun withClass(classname: String): HTMLElement {
         classes.add(classname)
         return this
     }
 
-    private fun classesToString(): String {
-        return if (classes.size > 0) {
-            " class='${classes.joinToString(" ")}'"
-        } else {
-            ""
-        }
-    }
-
-    private fun idToString(): String {
-        return if (id != null) {
-            " id='$id'"
-        } else {
-            ""
-        }
-    }
-
-    private fun childrenToString(): String {
-        return if (children.size > 0) {
-            children.joinToString("") { it.toString() }
-        } else {
-            ""
-        }
-    }
-
-    private fun styleToString(): String {
-        return if (style.size > 0) {
-            val s = style.toString()
-            if (s != "") " style='$s'" else ""
-        } else {
-            ""
-        }
-    }
-
     fun duplicate(): HTMLElement {
+        //todo: create style deep copy on page break instead of copy by link
         return HTMLElement(this@HTMLElement.type).apply {
             this.classes = this@HTMLElement.classes
             this.id = this@HTMLElement.id

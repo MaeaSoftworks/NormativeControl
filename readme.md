@@ -1,5 +1,5 @@
 # Normative Control
-![Normative Control](normative-control.svg)
+![Normative Control](resources/normative-control.svg)
 
 Normative Control service
 

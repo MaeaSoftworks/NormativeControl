@@ -1,6 +1,5 @@
 package com.maeasoftworks.livermorium.rendering
 
-import com.maeasoftworks.livermorium.model.RenderingMode
 import com.maeasoftworks.livermorium.model.html.HTMLElement
 import com.maeasoftworks.livermorium.rendering.converters.ColorNameConverter
 import com.maeasoftworks.livermorium.rendering.converters.HexColorConverter
@@ -13,6 +12,10 @@ import org.docx4j.TextUtils
 import org.docx4j.wml.*
 import org.docx4j.wml.P.Hyperlink
 
+/**
+ * Rendering main class
+ * @param parser initialized document parser
+ */
 class Renderer(
     private val parser: DocumentParser
 ) {
@@ -36,6 +39,23 @@ class Renderer(
     private var lastInnerBeforePageBreak: HTMLElement? = null
     private var alreadyBroken = false
 
+    /**
+     * Rendering entry point. Starts iteration on paragraphs.
+     * @return rendered DOM in object representation
+     */
+    fun render(): HTMLElement {
+        html.children.add(currentPage!!)
+        for (p in parser.doc.content.indices) {
+            when (parser.doc.content[p]) {
+                is P -> renderP(parser.doc.content[p] as P)
+            }
+        }
+        return html
+    }
+
+    /**
+     * Function to refresh current paragraph & page after page break
+     */
     private fun refreshCurrentP() {
         if (currentP == null) {
             currentP = lastPBeforePageBreak ?: newP
@@ -48,16 +68,10 @@ class Renderer(
         }
     }
 
-    fun render(): HTMLElement {
-        html.children.add(currentPage!!)
-        for (p in parser.doc.content.indices) {
-            when (parser.doc.content[p]) {
-                is P -> renderP(parser.doc.content[p] as P)
-            }
-        }
-        return html
-    }
-
+    /**
+     * Detects document's content type and invokes renderers for this type
+     * @param p paragraph
+     */
     private fun renderP(p: P) {
         currentP = newP
         if (currentPage == null) {
@@ -85,6 +99,10 @@ class Renderer(
         }
     }
 
+    /**
+     * Creates CSS style for paragraph
+     * @param p paragraph
+     */
     private fun stylizeP(p: P) {
         val ppr = parser.propertiesStorage[p]
         currentP!!.style += {
@@ -98,14 +116,22 @@ class Renderer(
             "background-color" to ppr.shd?.fill.toString() with HexColorConverter
             "hyphen" to !(ppr.suppressAutoHyphens?.isVal ?: false) with AutoHyphenProjector
         }
-        stylizeFromRPr(ppr.rPr, RenderingMode.P)
+        stylizeFromRPr(ppr.rPr)
     }
 
-    private fun stylizeR(r: R) = stylizeFromRPr(parser.propertiesStorage[r], RenderingMode.R)
+    /**
+     * Creates CSS style for run
+     * @param r run
+     */
+    private fun stylizeR(r: R) = stylizeFromRPr(parser.propertiesStorage[r])
 
-    private fun stylizeFromRPr(rpr: RPrAbstract?, mode: RenderingMode) {
-        val target = if (mode == RenderingMode.P) currentP else currentR
-        target!!.style += {
+    /**
+     * Adds CSS style for paragraph by run style or creates CSS style for run
+     * @param rpr run style
+     */
+    private fun stylizeFromRPr(rpr: RPrAbstract?) {
+        val target = if (rpr is ParaRPr) currentP!! else currentR!!
+        target.style += {
             "font-family" to rpr?.rFonts with FontProjector
             "font-size" to rpr?.sz?.`val`?.toInt()?.div(2) with "px"
             "font-style" to rpr?.i?.isVal with ItalicProjector
@@ -114,8 +140,7 @@ class Renderer(
             "background-color" to rpr?.highlight?.`val`.toString() with ColorNameConverter
             "text-transform" to rpr?.caps?.isVal with CapsProjector
             "font-variant-caps" to rpr?.smallCaps?.isVal with SmallCapsProjector
-            // todo fix all time null
-            "font-variant-ligatures" to rpr?.ligatures?.`val` with LigaturesProjector
+            "font-variant-ligatures" to rpr?.ligatures?.`val` with LigaturesProjector //todo: fix all time null
             "letter-spacing" to rpr?.spacing?.`val`?.toDouble()?.div(PIXELS_IN_POINT) with "px"
         }
     }
@@ -132,6 +157,10 @@ class Renderer(
         isInner = false
     }
 
+    /**
+     * Detects paragraph's content type and invokes renderers for this type
+     * @param r run
+     */
     private fun renderR(r: R) {
         for (c in r.content) {
             when (c) {
@@ -166,6 +195,9 @@ class Renderer(
         }
     }
 
+    /**
+     * Ends current page and creates new page
+     */
     private fun pageBreak() {
         lastPBeforePageBreak = currentP?.duplicate()
         lastInnerBeforePageBreak = currentInner?.duplicate()

@@ -1,4 +1,4 @@
-package com.maeasoftworks.livermorium.model.html
+package com.maeasoftworks.livermorium.model.css
 
 class GlobalStyle {
     private val styles: HashMap<String, Style> = hashMapOf()
