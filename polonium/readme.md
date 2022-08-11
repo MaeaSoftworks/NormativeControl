@@ -4,6 +4,8 @@
 
 Mistake search library for Normative Control
 
+Powered by [docx4j](https://www.docx4java.org/trac/docx4j)
+
 # Quick Guide
 
 ## Layers
@@ -45,5 +47,3 @@ private class CSample {
     val content: Any? = null
 }
 ```
-
-Powered by [docx4j](https://www.docx4java.org/trac/docx4j)

@@ -8,13 +8,17 @@ import com.maeasoftworks.livermorium.model.css.properties.*
  * Main HTML object that represents entire DOM
  * @param settings document settings
  */
-class HTMLFile(settings: PageSettings) {
+class HTMLFile(private val settings: PageSettings) {
     var content: MutableList<HTMLElement> = mutableListOf()
     private val style: GlobalStyle = GlobalStyle()
     private val contentString: String
         get() = content.joinToString("") { it.toString() }
 
     init {
+        createDefaultStyles()
+    }
+
+    private fun createDefaultStyles() {
         style += {
             "*" += {
                 BoxShadow set "inset 0px 0px 0px 0.5px red"

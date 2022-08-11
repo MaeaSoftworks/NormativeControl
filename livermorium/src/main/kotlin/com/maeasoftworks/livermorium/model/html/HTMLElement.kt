@@ -51,13 +51,13 @@ class HTMLElement(
     }
 
     fun duplicate(): HTMLElement {
-        //todo: create style deep copy on page break instead of copy by link
+        //todo: fix ability to edit styles of element of previous page on new page
         return HTMLElement(this@HTMLElement.type).apply {
             this.classes = this@HTMLElement.classes
             this.id = this@HTMLElement.id
             this.style = Style().also { style ->
                 for (rule in style.rules) {
-                    style.rules.add(Rule(rule.property + "", rule.value + "", rule.dimension + ""))
+                    style.rules.add(Rule(rule.property + "", rule.value + "", rule.measure + ""))
                 }
             }
         }
