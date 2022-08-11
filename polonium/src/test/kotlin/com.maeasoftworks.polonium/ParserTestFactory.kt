@@ -28,8 +28,8 @@ open class ParserTestFactory(testClass: KClass<*>) {
     }
 
     protected fun createParser(filename: String, useFullPath: Boolean = false): DocumentParser {
-        try {
-            val parser = DocumentParser(
+        return try {
+             DocumentParser(
                 DocumentData(
                     FileInputStream(
                         if (useFullPath) {
@@ -41,8 +41,6 @@ open class ParserTestFactory(testClass: KClass<*>) {
                 ),
                 "test"
             )
-            parser.init()
-            return parser
         } catch (e: IOException) {
             println(e.message)
             throw RuntimeException("Parser cannot be initialized!")

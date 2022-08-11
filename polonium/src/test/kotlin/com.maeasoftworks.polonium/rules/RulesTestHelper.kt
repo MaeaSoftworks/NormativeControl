@@ -59,10 +59,7 @@ open class RulesTestHelper {
 
     fun createParser(path: String): DocumentParser {
         try {
-            val parser =
-                DocumentParser(DocumentData(FileInputStream("src/test/resources/$path.docx").readAllBytes()), "test")
-            parser.init()
-            return parser
+            return DocumentParser(DocumentData(FileInputStream("src/test/resources/$path.docx").readAllBytes()), "test")
         } catch (e: IOException) {
             println(e.message)
             throw RuntimeException("Parser cannot be initialized!")
