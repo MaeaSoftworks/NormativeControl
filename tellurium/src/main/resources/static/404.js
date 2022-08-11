@@ -1,3 +1,7 @@
+function toggleUi() {
+    document.querySelector(".main").classList.toggle("hidden");
+}
+
 const genRandomNumber = (min, max) => {
     return Math.random() * (max - min) + min;
 };
@@ -17,8 +21,6 @@ const genStar = () => {
 };
 
 document.addEventListener("DOMContentLoaded", function () {
-    let ui = document.querySelector(".main");
-
     const $el = document.querySelector(".space");
     for (let index = 0; index < 52; index++) {
         $el.append(genStar());
@@ -40,8 +42,4 @@ document.addEventListener("DOMContentLoaded", function () {
         },
         starColor: '#fff'
     });
-
-    document.querySelector(".toggle").onclick = function () {
-        ui.classList.toggle("hidden");
-    };
 })
