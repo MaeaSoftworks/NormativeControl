@@ -1,15 +1,5 @@
 package com.maeasoftworks.livermorium.model.css
 
-data class Rule<T>(val property: String, var rawValue: T) {
-    var dimension: String? = null
-    var value: String? = null
-    var isCompleted = false
-
-    override fun toString(): String {
-        return if (isCompleted) "$property:${value ?: rawValue}${dimensionToString()}" else ""
-    }
-
-    private fun dimensionToString(): String {
-        return dimension ?: ""
-    }
+data class Rule(val property: String, var value: String?, val dimension: String? = null) {
+    fun serialize() = if (value != null) "$property:$value${dimension ?: ""}" else null
 }

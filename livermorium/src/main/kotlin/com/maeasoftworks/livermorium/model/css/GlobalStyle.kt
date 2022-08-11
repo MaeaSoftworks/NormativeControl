@@ -7,10 +7,14 @@ class GlobalStyle {
         return styles[selector] ?: throw NullPointerException()
     }
 
-    operator fun set(selector: String, value: Style.() -> Unit) {
+    operator fun plusAssign(function: GlobalStyle.() -> Unit) {
+        function(this)
+    }
+
+    operator fun String.plusAssign(function: Style.() -> Unit) {
         val s = Style()
-        styles[selector] = s
-        value(s)
+        styles[this] = s
+        function(s)
     }
 
     override fun toString(): String {

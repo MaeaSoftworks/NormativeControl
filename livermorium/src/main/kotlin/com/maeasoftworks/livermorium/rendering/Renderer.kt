@@ -1,11 +1,9 @@
 package com.maeasoftworks.livermorium.rendering
 
+import com.maeasoftworks.livermorium.model.css.properties.*
+import com.maeasoftworks.livermorium.model.css.properties.Color
+import com.maeasoftworks.livermorium.model.css.properties.FontFamily
 import com.maeasoftworks.livermorium.model.html.HTMLElement
-import com.maeasoftworks.livermorium.rendering.converters.ColorNameConverter
-import com.maeasoftworks.livermorium.rendering.converters.HexColorConverter
-import com.maeasoftworks.livermorium.rendering.projectors.*
-import com.maeasoftworks.livermorium.utils.PIXELS_IN_POINT
-import com.maeasoftworks.livermorium.utils.POINTS_IN_LINES
 import com.maeasoftworks.polonium.parsers.DocumentParser
 import jakarta.xml.bind.JAXBElement
 import org.docx4j.TextUtils
@@ -106,15 +104,15 @@ class Renderer(
     private fun stylizeP(p: P) {
         val ppr = parser.propertiesStorage[p]
         currentP!!.style += {
-            "margin-left" to ppr.ind?.left?.toDouble()?.div(PIXELS_IN_POINT) with "px"
-            "margin-right" to ppr.ind?.right?.toDouble()?.div(PIXELS_IN_POINT) with "px"
-            "margin-bottom" to ppr.spacing?.after?.toDouble()?.div(PIXELS_IN_POINT) with "px"
-            "margin-top" to ppr.spacing?.before?.toDouble()?.div(PIXELS_IN_POINT) with "px"
-            "line-height" set ppr.spacing?.line?.toDouble()?.div(POINTS_IN_LINES).toString()
-            "text-indent" to ppr.ind?.firstLine?.toDouble()?.div(PIXELS_IN_POINT) with "px"
-            "text-align" to ppr.jc?.`val` with JustifyProjector
-            "background-color" to ppr.shd?.fill.toString() with HexColorConverter
-            "hyphen" to !(ppr.suppressAutoHyphens?.isVal ?: false) with AutoHyphenProjector
+            MarginLeft set ppr.ind?.left
+            MarginRight set ppr.ind?.right
+            MarginBottom set ppr.spacing?.after
+            MarginTop set ppr.spacing?.before
+            LineHeight set ppr.spacing?.line
+            TextIndent set ppr.ind?.firstLine
+            TextAlign set ppr.jc?.`val`
+            BackgroundColor set ppr.shd?.fill
+            Hyphens set !(ppr.suppressAutoHyphens?.isVal ?: false)
         }
         stylizeFromRPr(ppr.rPr)
     }
@@ -130,18 +128,17 @@ class Renderer(
      * @param rpr run style
      */
     private fun stylizeFromRPr(rpr: RPrAbstract?) {
-        val target = if (rpr is ParaRPr) currentP!! else currentR!!
-        target.style += {
-            "font-family" to rpr?.rFonts with FontProjector
-            "font-size" to rpr?.sz?.`val`?.toInt()?.div(2) with "px"
-            "font-style" to rpr?.i?.isVal with ItalicProjector
-            "font-weight" to rpr?.b?.isVal with WeightProjector
-            "color" to rpr?.color?.`val`.toString() with HexColorConverter
-            "background-color" to rpr?.highlight?.`val`.toString() with ColorNameConverter
-            "text-transform" to rpr?.caps?.isVal with CapsProjector
-            "font-variant-caps" to rpr?.smallCaps?.isVal with SmallCapsProjector
-            "font-variant-ligatures" to rpr?.ligatures?.`val` with LigaturesProjector //todo: fix all time null
-            "letter-spacing" to rpr?.spacing?.`val`?.toDouble()?.div(PIXELS_IN_POINT) with "px"
+        (if (rpr is ParaRPr?) currentP else currentR)!!.style += {
+            FontFamily set rpr?.rFonts
+            FontSize set rpr?.sz?.`val`
+            FontStyle set rpr?.i?.isVal
+            FontWeight set rpr?.b?.isVal
+            Color set rpr?.color?.`val`
+            BackgroundColor set rpr?.highlight?.`val`
+            TextTransform set rpr?.caps?.isVal
+            FontVariantCaps set rpr?.smallCaps?.isVal
+            FontVariantLigatures set rpr?.ligatures?.`val`
+            LetterSpacing set rpr?.spacing?.`val`
         }
     }
 
@@ -183,6 +180,7 @@ class Renderer(
                             currentR!!.content.append(TextUtils.getText(c))
                             stylizeR(r)
                         }
+
                         is R.LastRenderedPageBreak -> {
                             if (!alreadyBroken) {
                                 pageBreak()
@@ -190,6 +188,7 @@ class Renderer(
                         }
                     }
                 }
+
                 is Br -> pageBreak()
             }
         }

@@ -1,5 +1,6 @@
 package com.maeasoftworks.livermorium.model.html
 
+import com.maeasoftworks.livermorium.model.css.Rule
 import com.maeasoftworks.livermorium.model.css.Style
 
 /**
@@ -54,7 +55,11 @@ class HTMLElement(
         return HTMLElement(this@HTMLElement.type).apply {
             this.classes = this@HTMLElement.classes
             this.id = this@HTMLElement.id
-            this.style = this@HTMLElement.style
+            this.style = Style().also { style ->
+                for (rule in style.rules) {
+                    style.rules.add(Rule(rule.property + "", rule.value + "", rule.dimension + ""))
+                }
+            }
         }
     }
 }
