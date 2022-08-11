@@ -1,7 +1,8 @@
-package com.maeasoftworks.tellurium.dto
+package com.maeasoftworks.tellurium.components
 
 import com.maeasoftworks.livermorium.rendering.RenderLauncher
 import com.maeasoftworks.polonium.enums.Status
+import com.maeasoftworks.tellurium.dto.EnqueuedParser
 import org.slf4j.LoggerFactory
 import java.io.ByteArrayOutputStream
 import java.util.concurrent.atomic.AtomicInteger
@@ -18,7 +19,7 @@ class DocumentParserRunnable(
             parser.documentParser.runVerification()
         } catch (e: Exception) {
             parser.documentDTO.data.status = Status.ERROR
-            log.error("Oops!", e)
+            log.error("Polonium! What are you doing? / Parsing error.", e)
             return
         }
         val parsingEnd = System.currentTimeMillis()
@@ -30,7 +31,7 @@ class DocumentParserRunnable(
             RenderLauncher(parser.documentParser).render(stream)
         } catch (e: Exception) {
             parser.documentDTO.data.status = Status.RENDER_ERROR
-            log.error("Wow!", e)
+            log.error("Livermorium was disintegrated! / Rendering error.", e)
         }
 
         val renderEnd = System.currentTimeMillis()
@@ -46,9 +47,9 @@ class DocumentParserRunnable(
             parser.documentDTO.id,
             (savingEnd - savingStart) + (parsingEnd - parsingStart)
         )
-        log.info("[{}] │  ├─ mistakes  : {} ms", parser.documentDTO.id, parsingEnd - parsingStart)
+        log.info("[{}] │  ├─ checking  : {} ms", parser.documentDTO.id, parsingEnd - parsingStart)
         log.info("[{}] │  └─ saving    : {} ms", parser.documentDTO.id, savingEnd - savingStart)
-        log.info("[{}] └─ render       : {} ms", parser.documentDTO.id, renderEnd - renderStart)
+        log.info("[{}] └─ rendering    : {} ms", parser.documentDTO.id, renderEnd - renderStart)
         count.decrementAndGet()
         if (parser.documentDTO.data.status != Status.RENDER_ERROR) {
             parser.documentDTO.data.status = Status.READY

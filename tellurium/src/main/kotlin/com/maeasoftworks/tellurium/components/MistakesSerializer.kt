@@ -1,10 +1,17 @@
-package com.maeasoftworks.tellurium.dao
+package com.maeasoftworks.tellurium.components
 
 import com.maeasoftworks.polonium.enums.MistakeType
 import com.maeasoftworks.tellurium.dto.response.Mistake
 import javax.persistence.AttributeConverter
 import javax.persistence.Converter
 
+/**
+ * Serializer for mistakes list in O(n).
+ *
+ * Format:
+ * `~$mistakeId;$paragraphId;$runId;$mistakeType;$description`
+ * todo: remove this class: change format or add mistakes table
+ */
 @Converter
 class MistakesSerializer : AttributeConverter<List<Mistake>, String> {
     override fun convertToDatabaseColumn(attribute: List<Mistake>): String {
@@ -49,11 +56,13 @@ class MistakesSerializer : AttributeConverter<List<Mistake>, String> {
                         currentProperty = 0
                     }
                 }
+
                 ';' -> {
                     when (currentProperty) {
                         0 -> currentMistake.mistakeId = currentSequence.toString().toLong()
                         1 -> if (currentSequence.isNotBlank()) currentMistake.paragraphId =
                             currentSequence.toString().toInt()
+
                         2 -> if (currentSequence.isNotBlank()) currentMistake.runId = currentSequence.toString().toInt()
                         3 -> currentMistake.mistakeType = MistakeType.valueOf(currentSequence.toString())
                         4 -> currentMistake.mistakeDescription = currentSequence.toString()
@@ -61,6 +70,7 @@ class MistakesSerializer : AttributeConverter<List<Mistake>, String> {
                     currentSequence.clear()
                     currentProperty++
                 }
+
                 else -> currentSequence.append(dbData[pos])
             }
         }

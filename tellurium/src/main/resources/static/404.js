@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", function () {
             y: 4
         },
         starColor: '#fff'
-    })
+    });
 
     document.querySelector(".toggle").onclick = function () {
         ui.classList.toggle("hidden");

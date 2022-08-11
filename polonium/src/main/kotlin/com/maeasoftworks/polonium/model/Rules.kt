@@ -321,7 +321,7 @@ object Rules {
                             } else {
                                 true
                             }
-                    }))
+                        }))
                     ) {
                         MistakeInner(TEXT_HEADER_BODY_UPPERCASE, p)
                     } else null

@@ -90,12 +90,15 @@ abstract class ChapterParser(val chapter: Chapter, val root: DocumentParser) {
             is P -> {
                 handleP(context, p, something, pFunctions, rFunctions)
             }
+
             is SdtBlock -> {
                 context.handleContents(p)
             }
+
             is Tbl -> {
                 context.handleTable(p)
             }
+
             else -> root.addMistake(DOCUMENT_UNEXPECTED_CONTENT, p, description = something::class.simpleName!!)
         }
     }
@@ -157,26 +160,32 @@ abstract class ChapterParser(val chapter: Chapter, val root: DocumentParser) {
                             is CTMoveBookmark -> unexpectedP(p, something)
                         }
                     }
+
                     is CTMoveToRangeEnd -> unexpectedP(p, something)
                     is CTTrackChange -> when (something.value) {
                         is RunTrackChange -> unexpectedP(p, something)
                     }
+
                     is CTMoveFromRangeEnd -> unexpectedP(p, something)
                 }
+
                 is ContentAccessor -> when (something.value) {
                     is CTSimpleField,
                     is CTSmartTagRun,
                     is CTCustomXmlRun -> unexpectedP(p, something)
                 }
+
                 is CTPerm -> when (something.value) {
                     is RangePermissionStart -> unexpectedP(p, something)
                 }
+
                 is CTOMathPara,
                 is CTOMath,
                 is SdtRun,
                 is P.Bdo,
                 is P.Dir -> unexpectedP(p, something)
             }
+
             is ProofErr -> {
                 if (something.type == "gramStart") {
                     root.addMistake(WORD_GRAMMATICAL_ERROR, p, r + 1)
@@ -184,6 +193,7 @@ abstract class ChapterParser(val chapter: Chapter, val root: DocumentParser) {
                     root.addMistake(WORD_SPELL_ERROR, p, r + 1)
                 }
             }
+
             is Br,
             is RunIns,
             is RunDel -> unexpectedP(p, something)
@@ -237,11 +247,13 @@ abstract class ChapterParser(val chapter: Chapter, val root: DocumentParser) {
                     pictureTitleExpected = true
                     context.handleDrawing(p, r, c, pictureContainer)
                 }
+
                 is R.Tab -> {
                     if (c == 0) {
                         root.addMistake(TEXT_COMMON_USE_FIRST_LINE_INDENT_INSTEAD_OF_TAB, p, r)
                     }
                 }
+
                 is R.Ptab,
                 is R.YearLong,
                 is R.DayShort,
@@ -271,6 +283,7 @@ abstract class ChapterParser(val chapter: Chapter, val root: DocumentParser) {
                  *   Text
                  */
             }
+
             is DelText -> root.addMistake(RUN_UNEXPECTED_CONTENT, p, r, something::class.simpleName)
             is AlternateContent -> {
                 //todo: is it only first object?
@@ -366,6 +379,7 @@ abstract class ChapterParser(val chapter: Chapter, val root: DocumentParser) {
                 NumberFormat.BULLET -> if (numberingFormat.listLevels["0"]!!.levelText != "–") {
                     root.addMistake(ORDERED_LIST_INCORRECT_MARKER_FORMAT_AT_LEVEL_1, p, description = "\"–\" (U+2013)")
                 }
+
                 NumberFormat.RUSSIAN_LOWER -> if (numberingFormat.listLevels["0"]!!.levelText != "%1)") {
                     root.addMistake(
                         ORDERED_LIST_INCORRECT_MARKER_FORMAT_AT_LEVEL_1,
@@ -388,6 +402,7 @@ abstract class ChapterParser(val chapter: Chapter, val root: DocumentParser) {
                         )
                     }
                 }
+
                 else -> root.addMistake(ORDERED_LIST_INCORRECT_MARKER_FORMAT, p)
             }
         } else if (pPr.numPr.ilvl.`val`.toInt() == 1) {

@@ -11,7 +11,5 @@ import org.springframework.web.bind.annotation.RestController
 class DocumentationController {
     @GetMapping("mistakes")
     @ResponseBody
-    fun getMistakes(): Map<String, String> {
-        return MistakeType.values().associate { it.name to it.ru }
-    }
+    fun getMistakes() = MistakeType.values().associate { it.name to it.ru }
 }

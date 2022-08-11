@@ -14,23 +14,31 @@ class DocumentController(documentManager: DocumentManager) : DocumentCredentials
     fun getStatus(
         @PathVariable("document-id") documentId: String,
         @RequestParam("access-key") accessKey: String
-    ) = confirm(documentId, accessKey) { getState(documentId) }
+    ) = confirm(documentId, accessKey) {
+        getState(documentId)
+    }
 
     @GetMapping("{document-id}/mistakes")
     fun getMistakes(
         @PathVariable("document-id") documentId: String,
         @RequestParam("access-key") accessKey: String
-    ) = confirm(documentId, accessKey) { getMistakes(documentId) }
+    ) = confirm(documentId, accessKey) {
+        getMistakes(documentId)
+    }
 
     @GetMapping("{document-id}/raw-file")
     fun getRawFile(
         @PathVariable("document-id") documentId: String,
         @RequestParam("access-key") accessKey: String
-    ) = confirm(documentId, accessKey) { getFile(documentId).toResponse(documentId) }
+    ) = confirm(documentId, accessKey) {
+        getFile(documentId).toResponse(documentId)
+    }
 
     @GetMapping("{document-id}/render")
     fun getRender(
         @PathVariable("document-id") documentId: String,
         @RequestParam("access-key") accessKey: String
-    ) = confirm(documentId, accessKey) { getRender(documentId) }
+    ) = confirm(documentId, accessKey) {
+        getRender(documentId)
+    }
 }

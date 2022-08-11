@@ -16,7 +16,6 @@ import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.jvm.javaGetter
 
-
 @Component
 class DocumentationCreator(
     private val messageSource: MessageSource,
@@ -65,22 +64,27 @@ class DocumentationCreator(
                             info.type = "GET"
                             info.path = mapping.value[0]
                         }
+
                         is PostMapping -> {
                             info.type = "POST"
                             info.path = mapping.value[0]
                         }
+
                         is PatchMapping -> {
                             info.type = "PATCH"
                             info.path = mapping.value[0]
                         }
+
                         is PutMapping -> {
                             info.type = "PUT"
                             info.path = mapping.value[0]
                         }
+
                         is DeleteMapping -> {
                             info.type = "DELETE"
                             info.path = mapping.value[0]
                         }
+
                         is RequestMapping -> {
                             info.type = mapping.method[0].name
                             info.path = mapping.value[0]

@@ -11,19 +11,21 @@
     --main-white: #F2F2F2;
     --main-gray: #D3D3D3;
     --main-green: #55DC8B;
-    color-scheme: dark;
+    color-scheme: dark
+}
+
+*, body {
+    margin: 0
 }
 
 * {
-    margin: 0;
     padding: 0;
     box-sizing: border-box;
-    line-height: 200%;
+    line-height: 200%
 }
 
 body {
-    margin: 0;
-    font-family: 'Ubuntu', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    font-family: "Ubuntu", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     display: flex;
@@ -31,272 +33,241 @@ body {
     background-color: #292929;
     width: 100vw;
     height: 100vh;
-    position: relative;
+    position: relative
 }
 
 ul li {
     list-style: disc;
     margin-left: 15px;
     margin-top: 5px;
-    margin-bottom: 5px;
+    margin-bottom: 5px
 }
 
-a, .a:visited, .a:active, .a:hover, .a:focus {
+.a:active, .a:focus, .a:hover, .a:visited, a {
     font-size: 14px;
     color: var(--main-white);
-    text-decoration: none;
+    text-decoration: none
+}
+
+header, pre {
+    color: var(--main-white)
 }
 
 header {
     background-color: var(--main-dark);
-    color: var(--main-white);
     display: grid;
-    grid-template: "l m"
-                   "l e"
-                   / auto auto;
-    padding: 40px 140px 20px 140px;
-    flex-direction: row;
+    grid-template: "l m""l e"/auto auto;
+    padding: 40px 140px 20px;
+    flex-direction: row
 }
 
 pre {
-    font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-    font-size: 14px;
-    color: var(--main-white);
+    font-family: "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+    font-size: 14px
 }
 
 .text-span {
     display: inline-block;
-    margin-left: -3px;
+    margin-left: -3px
 }
 
 .logo {
     min-height: 100px;
     grid-area: l;
-    font-family: 'Montserrat', sans-serif;
+    font-family: "Montserrat", sans-serif
 }
 
 .logo > div {
     color: #fff;
     display: flex;
-    align-items: center;
+    align-items: center
 }
 
 .logo-img {
     width: 100px;
-    height: 100px;
+    height: 100px
 }
 
 .header-text {
     font-size: 20px;
-    font-weight: bold;
-    letter-spacing: 0.05em;
+    font-weight: 700;
+    letter-spacing: .05em;
     line-height: 140%;
     margin: 20px;
-    min-width: 120px;
+    min-width: 120px
 }
 
 main {
     height: calc(100% - 160px);
     display: grid;
-    grid-template-columns: 1fr 2fr;
+    grid-template-columns: 1fr 2fr
 }
 
 .list {
     overflow-block: auto;
-    overflow-y: auto;
+    overflow-y: auto
 }
 
-.methods-list {
+.entities, .methods-list {
     display: flex;
     flex-direction: column;
-    align-items: center;
-}
-
-.entities {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    align-items: center
 }
 
 .subtitle {
-    min-width: 150px;
+    min-width: 150px
 }
 
-.item-link {
-    text-align: center;
+.entities .item-name, .item-link {
+    text-align: center
 }
 
 .item-name {
-    text-align: left;
+    text-align: left
 }
 
-.entities .item-name {
-    text-align: center;
-}
-
-/*noinspection ALL*/
-.item-wrapper {
+.item-wrapper, code {
     border-radius: 5px;
-    padding: 0 5px;
+    padding: 0 5px
 }
 
-/*noinspection ALL*/
 .item-wrapper:hover {
-    background-color: #252525;
+    background-color: #252525
 }
 
 .methods-list .item-link p {
     margin: auto;
     display: grid;
     grid-template-columns: auto 1fr;
-    column-gap: 10px;
+    column-gap: 10px
 }
 
-/*noinspection ALL*/
 .method-type {
-    font-weight: bold;
+    font-weight: 700;
     min-width: 50px;
     display: inline-block;
-    text-align: center;
+    text-align: center
 }
 
-/*noinspection ALL*/
 .method-type-GET {
-    color: green;
+    color: green
 }
 
-/*noinspection ALL*/
 .method-type-POST {
-    color: orange;
+    color: orange
 }
 
-/*noinspection ALL*/
 .method-type-PATCH {
-    color: #7777ff;
+    color: #77f
 }
 
-/*noinspection ALL*/
 .method-type-PUT {
-    color: yellow;
+    color: #ff0
 }
 
 .description-block {
     overflow: hidden;
     display: grid;
     grid-template-rows: 50px 50px auto;
-    height: 100%;
+    height: 100%
+}
+
+h2, h3 {
+    font-weight: 700
 }
 
 h2 {
-    color: var(--main-white);
-    font-size: 18px;
-    font-weight: bold;
-    text-align: center;
-    margin: 10px;
-    height: 30px;
+    height: 30px
 }
 
 h3 {
-    color: var(--main-white);
     font-size: 15px;
-    font-weight: bold;
     margin: 20px;
-    display: inline-block;
+    display: inline-block
 }
 
 code {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: "JetBrains Mono", monospace;
     font-size: inherit;
-    border-radius: 5px;
     padding: 5px;
-    background-color: #404040;
+    background-color: #404040
 }
 
-.current-section-name {
+.current-section-name, h2 {
     text-align: center;
     margin: 10px;
-    font-size: 18px;
+    font-size: 18px
+}
+
+.content, h2, h3 {
+    color: var(--main-white)
 }
 
 .content {
     padding: 10px;
-    color: var(--main-white);
-    font-size: 14px;
+    font-size: 14px
 }
 
-.parameter, .response {
-    padding: 5px;
+.description ul li, .parameter, .response {
+    padding: 5px
 }
 
-.description ul li {
-    padding: 5px;
-}
-
-/*noinspection ALL*/
 .response-code {
-    font-weight: bold;
+    font-weight: 700
 }
 
-/*noinspection ALL*/
 .url {
     font-size: 16px;
     margin: 5px;
-    grid-column: span 2;
+    grid-column: span 2
 }
 
-/*noinspection ALL*/
 .link-active {
-    background-color: #191919;
+    background-color: #191919
 }
 
-/*noinspection ALL*/
 .var {
-    color: #7777ff;
+    color: #77f
 }
 
-/*noinspection ALL*/
 .doc-link {
-    text-decoration: underline;
+    text-decoration: underline
+}
+
+.scrollable, .selected-empty {
+    display: flex;
+    align-items: center
 }
 
 .selected-empty {
-    display: flex;
     justify-content: center;
-    align-items: center;
     height: 100%;
-    grid-row: span 3;
+    grid-row: span 3
 }
 
 .scrollable {
     overflow-block: auto;
     overflow-y: auto;
-    display: flex;
     flex-direction: column;
-    width: 100%;
-    align-items: center;
+    width: 100%
 }
 
-/*noinspection ALL*/
 .code1 {
-    color: gray;
+    color: gray
 }
 
-/*noinspection ALL*/
 .code2 {
-    color: green;
+    color: green
 }
 
-/*noinspection ALL*/
 .code3 {
-    color: yellow;
+    color: #ff0
 }
 
-/*noinspection ALL*/
 .code4 {
-    color: orange;
+    color: orange
 }
 
-/*noinspection ALL*/
 .code5 {
-    color: red;
+    color: red
 }

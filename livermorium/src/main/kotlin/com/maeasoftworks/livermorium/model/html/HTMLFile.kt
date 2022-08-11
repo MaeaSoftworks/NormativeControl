@@ -1,7 +1,7 @@
 package com.maeasoftworks.livermorium.model.html
 
 import com.maeasoftworks.livermorium.model.PageSettings
-import com.maeasoftworks.livermorium.model.css.*
+import com.maeasoftworks.livermorium.model.css.GlobalStyle
 import com.maeasoftworks.livermorium.model.css.properties.*
 
 /**

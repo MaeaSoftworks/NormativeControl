@@ -1,11 +1,11 @@
 package com.maeasoftworks.tellurium.services
 
-import com.maeasoftworks.polonium.enums.Status
 import com.maeasoftworks.polonium.enums.FailureCause
+import com.maeasoftworks.polonium.enums.Status
 import com.maeasoftworks.polonium.parsers.DocumentParser
+import com.maeasoftworks.tellurium.components.DocumentParserRunnable
 import com.maeasoftworks.tellurium.dao.Document
 import com.maeasoftworks.tellurium.dto.DocumentDTO
-import com.maeasoftworks.tellurium.dto.DocumentParserRunnable
 import com.maeasoftworks.tellurium.dto.EnqueuedParser
 import com.maeasoftworks.tellurium.repository.DocumentsRepository
 import com.maeasoftworks.tellurium.utils.dao

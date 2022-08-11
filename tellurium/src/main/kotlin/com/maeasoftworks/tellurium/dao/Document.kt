@@ -1,6 +1,7 @@
 package com.maeasoftworks.tellurium.dao
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.maeasoftworks.tellurium.components.MistakesSerializer
 import com.maeasoftworks.tellurium.dto.response.Mistake
 import javax.persistence.*
 import javax.validation.constraints.NotBlank
