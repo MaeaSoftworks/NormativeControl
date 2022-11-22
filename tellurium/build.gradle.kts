@@ -19,7 +19,7 @@ dependencies {
     implementation(project(":livermorium"))
 
     // logging
-    implementation("org.slf4j:slf4j-api:1.7.36")
+    implementation("org.slf4j:slf4j-api:2.0.4")
 
     // spring
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
@@ -35,11 +35,11 @@ dependencies {
     implementation("org.glassfish.jaxb:jaxb-runtime:4.0.0")
     implementation("jakarta.xml.bind:jakarta.xml.bind-api:4.0.0")
     implementation("jakarta.activation:jakarta.activation-api:2.1.0")
+    implementation("javax.xml.bind:jaxb-api:2.4.0-b180830.0359")
 
     // utils
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("io.jsonwebtoken:jjwt:0.9.1")
-    implementation("javax.xml.bind:jaxb-api:2.4.0-b180830.0359")
 
     // devtools
     developmentOnly("org.springframework.boot:spring-boot-starter-actuator")

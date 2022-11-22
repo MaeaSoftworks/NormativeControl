@@ -424,45 +424,45 @@ abstract class ChapterParser(val chapter: Chapter, val root: DocumentParser) {
         val alphabet = "абвгдежзиклмнопрстуфхцчшщыэюя".toList()
 
         val pCommonFunctions = listOf(
-            Rules.Default.Common.P::hasNotBackground,
-            Rules.Default.Common.P::notBordered
+            Rules.Default.Common.P.hasNotBackground,
+            Rules.Default.Common.P.notBordered
         )
 
         val rCommonFunctions = listOf(
-            Rules.Default.Common.R::isTimesNewRoman,
-            Rules.Default.Common.R::fontSizeIs14,
-            Rules.Default.Common.R::notItalic,
-            Rules.Default.Common.R::notCrossedOut,
-            Rules.Default.Common.R::notHighlighted,
-            Rules.Default.Common.R::isBlack,
-            Rules.Default.Common.R::letterSpacingIs0
+            Rules.Default.Common.R.isTimesNewRoman,
+            Rules.Default.Common.R.fontSizeIs14,
+            Rules.Default.Common.R.notItalic,
+            Rules.Default.Common.R.notCrossedOut,
+            Rules.Default.Common.R.notHighlighted,
+            Rules.Default.Common.R.isBlack,
+            Rules.Default.Common.R.letterSpacingIs0
         )
 
         val headerRFunctions = listOf(
-            Rules.Default.Header.R::isBold,
-            Rules.Default.Header.R::isUppercase
+            Rules.Default.Header.R.isBold,
+            Rules.Default.Header.R.isUppercase
         )
 
         val headerPFunctions = listOf(
-            Rules.Default.Header.P::justifyIsCenter,
-            Rules.Default.Header.P::lineSpacingIsOne,
-            Rules.Default.Header.P::emptyLineAfterHeaderExists,
-            Rules.Default.Header.P::hasNotDotInEnd,
-            Rules.Default.Header.P::isAutoHyphenSuppressed
+            Rules.Default.Header.P.justifyIsCenter,
+            Rules.Default.Header.P.lineSpacingIsOne,
+            Rules.Default.Header.P.emptyLineAfterHeaderExists,
+            Rules.Default.Header.P.hasNotDotInEnd,
+            Rules.Default.Header.P.isAutoHyphenSuppressed
         )
 
         val regularPFunctions = listOf(
-            Rules.Default.RegularText.P::leftIndentIs0,
-            Rules.Default.RegularText.P::rightIndentIs0,
-            Rules.Default.RegularText.P::firstLineIndentIs1dot25,
-            Rules.Default.RegularText.P::justifyIsBoth,
-            Rules.Default.RegularText.P::lineSpacingIsOneAndHalf
+            Rules.Default.RegularText.P.leftIndentIs0,
+            Rules.Default.RegularText.P.rightIndentIs0,
+            Rules.Default.RegularText.P.firstLineIndentIs1dot25,
+            Rules.Default.RegularText.P.justifyIsBoth,
+            Rules.Default.RegularText.P.lineSpacingIsOneAndHalf
         )
 
         val regularRFunctions = listOf(
-            Rules.Default.RegularText.R::isNotBold,
-            Rules.Default.RegularText.R::isNotCaps,
-            Rules.Default.RegularText.R::isUnderline
+            Rules.Default.RegularText.R.isNotBold,
+            Rules.Default.RegularText.R.isNotCaps,
+            Rules.Default.RegularText.R.isUnderline
         )
     }
 }

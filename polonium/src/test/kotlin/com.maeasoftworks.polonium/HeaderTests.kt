@@ -28,10 +28,8 @@ class HeaderTests : ParserTestFactory(HeaderTests::class) {
             TEXT_HEADER_NOT_UPPERCASE,
             TEXT_COMMON_FONT,
             TEXT_COMMON_INCORRECT_FONT_SIZE,
-            TEXT_HEADER_ALIGNMENT,
-            TEXT_HEADER_LINE_SPACING,
-            TEXT_HEADER_AUTO_HYPHEN,
-            WORD_SPELL_ERROR
+            TEXT_COMMON_TEXT_COLOR,
+            TEXT_HEADER_ALIGNMENT
         )
     }
 
@@ -65,8 +63,7 @@ class HeaderTests : ParserTestFactory(HeaderTests::class) {
         errorAssert(
             parserBase.mistakes,
             TEXT_HEADER_BODY_ALIGNMENT,
-            TEXT_HEADER_BODY_UPPERCASE,
-            TEXT_HEADER_AUTO_HYPHEN
+            TEXT_HEADER_BODY_UPPERCASE
         )
     }
 }

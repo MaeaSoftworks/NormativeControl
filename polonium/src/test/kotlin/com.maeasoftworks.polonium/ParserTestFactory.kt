@@ -18,10 +18,10 @@ open class ParserTestFactory(testClass: KClass<*>) {
     }
 
     protected fun errorAssert(found: MutableList<MistakeOuter>, vararg expected: MistakeType) {
-        Assertions.assertTrue(found.size == expected.size, "Expected: ${expected.size} errors\nFound: ${found.size}")
+        Assertions.assertEquals(expected.size, found.size, "Expected: ${expected.size} errors\nFound: ${found.size}")
         for (i in 0 until found.size) {
-            Assertions.assertTrue(
-                found[i].mistakeType == expected[i],
+            Assertions.assertEquals(
+                expected[i], found[i].mistakeType,
                 "Expected: ${expected[i].name}\nFound: ${found[i].mistakeType.name}"
             )
         }

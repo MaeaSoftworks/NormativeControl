@@ -7,4 +7,4 @@ import org.docx4j.wml.RPr
 /**
  * Alias for signature of run checking functions in [Rules][com.maeasoftworks.polonium.model.Rules]
  */
-typealias RFunction = (Int, Int, RPr, Boolean, DocumentParser) -> MistakeInner?
+typealias RFunction = (p: Int, r: Int, rPr: RPr, isEmpty: Boolean, d: DocumentParser) -> MistakeInner?

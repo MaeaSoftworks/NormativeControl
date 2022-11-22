@@ -44,7 +44,11 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
         }
     }
 
-    val doc: MainDocumentPart by lazy { mlPackage.mainDocumentPart }
+    val doc: MainDocumentPart by lazy {
+        val result = mlPackage.mainDocumentPart
+        result.styleDefinitionsPart.jaxbElement
+        result
+    }
 
     val propertiesStorage: PropertiesStorage by lazy { PropertiesStorage(PropertyResolver(mlPackage), this) }
 

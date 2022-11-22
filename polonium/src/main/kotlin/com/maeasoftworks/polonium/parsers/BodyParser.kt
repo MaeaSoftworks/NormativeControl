@@ -202,46 +202,46 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
 
     companion object {
         private val commonPFunctions = listOf(
-            Rules.Default.Common.P::hasNotBackground,
-            Rules.Default.Common.P::notBordered
+            Rules.Default.Common.P.hasNotBackground,
+            Rules.Default.Common.P.notBordered
         )
 
         private val commonRFunctions = listOf(
-            Rules.Default.Common.R::isTimesNewRoman,
-            Rules.Default.Common.R::fontSizeIs14,
-            Rules.Default.Common.R::notItalic,
-            Rules.Default.Common.R::notCrossedOut,
-            Rules.Default.Common.R::notHighlighted,
-            Rules.Default.Common.R::isBlack,
-            Rules.Default.Common.R::letterSpacingIs0
+            Rules.Default.Common.R.isTimesNewRoman,
+            Rules.Default.Common.R.fontSizeIs14,
+            Rules.Default.Common.R.notItalic,
+            Rules.Default.Common.R.notCrossedOut,
+            Rules.Default.Common.R.notHighlighted,
+            Rules.Default.Common.R.isBlack,
+            Rules.Default.Common.R.letterSpacingIs0
         )
 
         private val headerRFunctions = listOf(
-            Rules.Default.Header.R::isBold
+            Rules.Default.Header.R.isBold
         )
 
         private val headerPFunctions = listOf(
-            Rules.Body.Header.P::justifyIsLeft,
-            Rules.Body.Header.P::isNotUppercase,
-            Rules.Default.Header.P::lineSpacingIsOne,
-            Rules.Default.Header.P::emptyLineAfterHeaderExists,
-            Rules.Default.Header.P::hasNotDotInEnd,
-            Rules.Default.Header.P::firstLineIndentIs1dot25,
-            Rules.Default.Header.P::isAutoHyphenSuppressed
+            Rules.Body.Header.P.justifyIsLeft,
+            Rules.Body.Header.P.isNotUppercase,
+            Rules.Default.Header.P.lineSpacingIsOne,
+            Rules.Default.Header.P.emptyLineAfterHeaderExists,
+            Rules.Default.Header.P.hasNotDotInEnd,
+            Rules.Default.Header.P.firstLineIndentIs1dot25,
+            Rules.Default.Header.P.isAutoHyphenSuppressed
         )
 
         private val regularPFunctions = listOf(
-            Rules.Default.RegularText.P::leftIndentIs0,
-            Rules.Default.RegularText.P::rightIndentIs0,
-            Rules.Default.RegularText.P::firstLineIndentIs1dot25,
-            Rules.Default.RegularText.P::justifyIsBoth,
-            Rules.Default.RegularText.P::lineSpacingIsOneAndHalf
+            Rules.Default.RegularText.P.leftIndentIs0,
+            Rules.Default.RegularText.P.rightIndentIs0,
+            Rules.Default.RegularText.P.firstLineIndentIs1dot25,
+            Rules.Default.RegularText.P.justifyIsBoth,
+            Rules.Default.RegularText.P.lineSpacingIsOneAndHalf
         )
 
         private val regularRFunctions = listOf(
-            Rules.Default.RegularText.R::isNotBold,
-            Rules.Default.RegularText.R::isNotCaps,
-            Rules.Default.RegularText.R::isUnderline
+            Rules.Default.RegularText.R.isNotBold,
+            Rules.Default.RegularText.R.isNotCaps,
+            Rules.Default.RegularText.R.isUnderline
         )
     }
 
