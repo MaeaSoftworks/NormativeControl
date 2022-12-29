@@ -57,10 +57,12 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
     val numbering: NumberingDefinitionsPart? by lazy { doc.numberingDefinitionsPart }
 
     private val comments: CommentsPart? by lazy {
-        (doc.commentsPart ?: CommentsPart().also {
-            it.jaxbElement = factory.createComments()
-            doc.addTargetPart(it)
-        }).also {
+        (
+            doc.commentsPart ?: CommentsPart().also {
+                it.jaxbElement = factory.createComments()
+                doc.addTargetPart(it)
+            }
+            ).also {
             mistakeId = it.jaxbElement.comment.size.toLong()
         }
     }
@@ -118,8 +120,8 @@ class DocumentParser(val documentData: DocumentData, private var password: Strin
                 mistake.mistakeType.ru.let { x ->
                     if (mistake.description != null) {
                         return@let x + ": ${
-                            mistake.description.split('/')
-                                .let { if (it.size > 1) "найдено: ${it[0]}, ожидалось: ${it[1]}" else it[0] }
+                        mistake.description.split('/')
+                            .let { if (it.size > 1) "найдено: ${it[0]}, ожидалось: ${it[1]}" else it[0] }
                         }"
                     } else {
                         return@let x

@@ -19,7 +19,8 @@ class Texts(private val root: DocumentParser) {
             if (abandonedAbbreviationsRegex.findAll(this).any()) {
                 root.addMistake(
                     MistakeType.TEXT_ABANDONED_ABBREVIATION_FOUND,
-                    root.doc.content.indexOfFirst { it is P && it.paraId == p.paraId })
+                    root.doc.content.indexOfFirst { it is P && it.paraId == p.paraId }
+                )
             }
         }
     }

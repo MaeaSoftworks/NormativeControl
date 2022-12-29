@@ -159,7 +159,7 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
     }
 
     override fun handleTable(p: Int) {
-        //todo add handler
+        // todo add handler
     }
 
     /**
@@ -267,7 +267,7 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
             chapter.startPos + 1,
             null,
             null,
-            //todo: wrong working regex need fix
+            // todo: wrong working regex need fix
             Regex("^(?:\\d\\.?){1,3}").find(this@BodyParser.root.texts.getText(chapter.header))?.value?.removeSuffix(".")
                 ?.toInt(),
             1

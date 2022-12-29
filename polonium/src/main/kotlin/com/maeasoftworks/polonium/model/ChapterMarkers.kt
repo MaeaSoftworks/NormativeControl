@@ -1,6 +1,5 @@
 package com.maeasoftworks.polonium.model
 
-
 /**
  * Storage for keywords which are used to detect chapters type
  *
@@ -64,7 +63,7 @@ object ChapterMarkers {
             ArrayList(), // body
             conclusion,
             references,
-            appendix,
+            appendix
         )
     }
 }

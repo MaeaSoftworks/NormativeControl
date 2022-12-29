@@ -32,8 +32,11 @@ class AuthController(
     private val refreshTokenService: RefreshTokenService
 ) {
     @PostMapping("register")
-    @PreAuthorize("hasRole('DEV')")
-    fun registerUser(@Valid @RequestBody registrationRequest: RegistrationRequest) {
+    @PreAuthorize("hasRole('ADMIN')")
+    fun registerUser(
+        @Valid @RequestBody
+        registrationRequest: RegistrationRequest
+    ) {
         if (userRepository.existsByEmail(registrationRequest.email)) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Error: Email is already in use!")
         }
@@ -56,10 +59,11 @@ class AuthController(
 
     @PostMapping("login")
     @ResponseBody
-    fun authenticateUser(@Valid @RequestBody loginRequest: LoginRequest): JwtResponse {
-        val authentication = authenticationManager.authenticate(
-            UsernamePasswordAuthenticationToken(loginRequest.email, loginRequest.password)
-        )
+    fun authenticateUser(
+        @Valid @RequestBody
+        loginRequest: LoginRequest
+    ): JwtResponse {
+        val authentication = authenticationManager.authenticate(UsernamePasswordAuthenticationToken(loginRequest.email, loginRequest.password))
         SecurityContextHolder.getContext().authentication = authentication
         return (authentication.principal as UserDetailsImpl).let {
             JwtResponse(

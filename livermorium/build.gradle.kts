@@ -10,8 +10,8 @@ dependencies {
     implementation(project(":polonium"))
 
     // logging
-    implementation("ch.qos.logback:logback-classic:1.3.0-alpha16")
-    implementation("org.slf4j:slf4j-api:2.0.0-alpha7")
+    implementation("ch.qos.logback:logback-classic:1.4.5")
+    implementation("org.slf4j:slf4j-api:2.0.5")
 
     // docx4j
     implementation("org.docx4j:docx4j-JAXB-ReferenceImpl:11.4.7")
@@ -20,7 +20,7 @@ dependencies {
     implementation("jakarta.activation:jakarta.activation-api:2.1.0")
 
     // testing
-    testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.9.0")
 }
 
 tasks.getByName<Test>("test") {

@@ -13,17 +13,19 @@ import java.io.OutputStream
 class RenderLauncher(
     private val root: DocumentParser
 ) {
-    var html: HTMLFile = HTMLFile(PageSettings().apply {
-        val pageSize = root.doc.contents.body.sectPr.pgSz
-        width = pageSize.w.intValueExact()
-        height = pageSize.h.intValueExact()
-        val pageMargins = root.doc.contents.body.sectPr.pgMar
-        topMargin = pageMargins.top.intValueExact()
-        leftMargin = pageMargins.left.intValueExact()
-        bottomMargin = pageMargins.bottom.intValueExact()
-        rightMargin = pageMargins.right.intValueExact()
-        autoHyphen = root.autoHyphenation
-    })
+    var html: HTMLFile = HTMLFile(
+        PageSettings().apply {
+            val pageSize = root.doc.contents.body.sectPr.pgSz
+            width = pageSize.w.intValueExact()
+            height = pageSize.h.intValueExact()
+            val pageMargins = root.doc.contents.body.sectPr.pgMar
+            topMargin = pageMargins.top.intValueExact()
+            leftMargin = pageMargins.left.intValueExact()
+            bottomMargin = pageMargins.bottom.intValueExact()
+            rightMargin = pageMargins.right.intValueExact()
+            autoHyphen = root.autoHyphenation
+        }
+    )
 
     /**
      * Starts rendering

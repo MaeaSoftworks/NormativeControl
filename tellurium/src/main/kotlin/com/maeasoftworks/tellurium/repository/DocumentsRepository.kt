@@ -23,7 +23,7 @@ interface DocumentsRepository : JpaRepository<Document, String> {
     @Query("select d.document_id, d.html from documents d where d.document_id = ?1", nativeQuery = true)
     fun findHtmlByDocumentId(documentId: String): DocumentHtml?
 
-    //todo: remove this query: change format or add mistakes table
+    // todo: remove this query: change format or add mistakes table
     @Query(
         """ 
         select 

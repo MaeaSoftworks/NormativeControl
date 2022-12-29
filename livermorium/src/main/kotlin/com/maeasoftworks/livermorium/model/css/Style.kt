@@ -16,7 +16,7 @@ class Style {
      */
     infix fun Property.set(value: Any?) {
         if (value != null && value != "null") {
-            @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN") //docx4j uses BigInteger from Java
+            @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN") // docx4j uses BigInteger from Java
             rules.add(
                 Rule(
                     this.toString(),
@@ -53,8 +53,9 @@ class Style {
         val result = StringBuilder()
         for (rule in rules) {
             val r = rule.serialize()
-            if (r != null)
+            if (r != null) {
                 result.append(r).append(";")
+            }
         }
 
         return result.toString()

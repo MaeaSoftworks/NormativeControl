@@ -21,7 +21,8 @@ open class ParserTestFactory(testClass: KClass<*>) {
         Assertions.assertEquals(expected.size, found.size, "Expected: ${expected.size} errors\nFound: ${found.size}")
         for (i in 0 until found.size) {
             Assertions.assertEquals(
-                expected[i], found[i].mistakeType,
+                expected[i],
+                found[i].mistakeType,
                 "Expected: ${expected[i].name}\nFound: ${found[i].mistakeType.name}"
             )
         }
@@ -29,7 +30,7 @@ open class ParserTestFactory(testClass: KClass<*>) {
 
     protected fun createParser(filename: String, useFullPath: Boolean = false): DocumentParser {
         return try {
-             DocumentParser(
+            DocumentParser(
                 DocumentData(
                     FileInputStream(
                         if (useFullPath) {

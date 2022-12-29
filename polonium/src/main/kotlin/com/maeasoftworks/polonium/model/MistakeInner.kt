@@ -2,7 +2,6 @@ package com.maeasoftworks.polonium.model
 
 import com.maeasoftworks.polonium.enums.MistakeType
 
-
 /**
  * Mistake representation without `mistakeId` for internal using.
  *

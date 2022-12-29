@@ -68,12 +68,16 @@ class DocumentManager(
 
     @Transactional
     fun validateAccessKey(documentId: String, accessKey: String): Boolean {
-        return ((queue[documentId]?.documentDTO?.accessKey
-            ?: documentsRepository.findCredentialsByDocumentId(documentId)?.accessKey)
-            ?: throw ResponseStatusException(
-                HttpStatus.NOT_FOUND,
-                "Document not found."
-            )) == bCryptPasswordEncoder.encode(accessKey)
+        return (
+            (
+                queue[documentId]?.documentDTO?.accessKey
+                    ?: documentsRepository.findCredentialsByDocumentId(documentId)?.accessKey
+                )
+                ?: throw ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "Document not found."
+                )
+            ) == bCryptPasswordEncoder.encode(accessKey)
     }
 
     fun uploaded(accessKey: String, documentId: String): Boolean {

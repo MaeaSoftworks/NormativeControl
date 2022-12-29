@@ -35,7 +35,7 @@ import org.docx4j.wml.*
  * @param root document parser
  */
 abstract class ChapterParser(val chapter: Chapter, val root: DocumentParser) {
-    //todo: maybe it's possible to create special class for it?
+    // todo: maybe it's possible to create special class for it?
     var pictureTitleExpected = false
     protected var currentListStartValue = -1
     protected var listPosition = 0
@@ -286,7 +286,7 @@ abstract class ChapterParser(val chapter: Chapter, val root: DocumentParser) {
 
             is DelText -> root.addMistake(RUN_UNEXPECTED_CONTENT, p, r, something::class.simpleName)
             is AlternateContent -> {
-                //todo: is it only first object?
+                // todo: is it only first object?
                 if (something.choice.first().any.first() is Drawing) {
                     pictureTitleExpected = true
                     context.handleDrawing(p, r, c, root.pictures)
@@ -358,7 +358,8 @@ abstract class ChapterParser(val chapter: Chapter, val root: DocumentParser) {
 
     fun validatePictureTitleStyle(pictureP: Int) {
         PictureTitleParser(
-            Chapter(pictureP + 1, mutableListOf(root.doc.content[pictureP + 1])), root
+            Chapter(pictureP + 1, mutableListOf(root.doc.content[pictureP + 1])),
+            root
         ).parse()
     }
 
@@ -374,7 +375,7 @@ abstract class ChapterParser(val chapter: Chapter, val root: DocumentParser) {
             root.addMistake(LIST_LEVEL_MORE_THAN_2, p)
         }
         if (pPr.numPr.ilvl.`val`.toInt() == 0) {
-            //todo add support to custom multilevel lists
+            // todo add support to custom multilevel lists
             when (numberingFormat.listLevels["0"]?.numFmt) {
                 NumberFormat.BULLET -> if (numberingFormat.listLevels["0"]!!.levelText != "–") {
                     root.addMistake(ORDERED_LIST_INCORRECT_MARKER_FORMAT_AT_LEVEL_1, p, description = "\"–\" (U+2013)")
@@ -398,7 +399,7 @@ abstract class ChapterParser(val chapter: Chapter, val root: DocumentParser) {
                             ORDERED_LIST_WRONG_LETTER,
                             p,
                             description = "Запрещены: \"ё\", \"з\", \"й\", \"о\", \"ч\", \"ъ\", \"ы\", \"ь\", " +
-                                    "найдено: \"${alphabet[listPosition]}\""
+                                "найдено: \"${alphabet[listPosition]}\""
                         )
                     }
                 }
@@ -419,7 +420,7 @@ abstract class ChapterParser(val chapter: Chapter, val root: DocumentParser) {
     }
 
     companion object {
-        //todo: maybe char array?
+        // todo: maybe char array?
         val orderedListMarkers = "абвгдежиклмнпрстуфхцшщэюя".toList()
         val alphabet = "абвгдежзиклмнопрстуфхцчшщыэюя".toList()
 
