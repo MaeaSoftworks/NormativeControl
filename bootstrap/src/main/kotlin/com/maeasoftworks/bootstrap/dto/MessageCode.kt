@@ -1,4 +1,4 @@
-package com.maeasoftworks.server.dao
+package com.maeasoftworks.bootstrap.dto
 
 enum class MessageCode(code: Int) {
     INFO(10),

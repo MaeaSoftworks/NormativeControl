@@ -1,12 +1,12 @@
-package com.maeasoftworks.server.senders
+package com.maeasoftworks.bootstrap
 
-import com.maeasoftworks.server.extensoins.convertAndSend
+import com.maeasoftworks.bootstrap.extensions.convertAndSend
 import org.springframework.amqp.core.Queue
 import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.stereotype.Component
 
 @Component
-class ResultSender(
+class MessageSender(
     private val template: RabbitTemplate,
     private val resultsQueue: Queue
 ) {

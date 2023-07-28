@@ -1,4 +1,4 @@
-package com.maeasoftworks.server.dao
+package com.maeasoftworks.bootstrap.dto
 
 data class Message(
     val id: String,

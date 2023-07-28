@@ -1,6 +1,6 @@
-package com.maeasoftworks.server.configs
+package com.maeasoftworks.bootstrap.configurations
 
-object Shared {
+object ValueStorage {
     private var isSet = false
     var bucket: String = ""
         set(value) {

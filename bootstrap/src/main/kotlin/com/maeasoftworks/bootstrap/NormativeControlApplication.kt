@@ -1,4 +1,4 @@
-package com.maeasoftworks.server
+package com.maeasoftworks.bootstrap
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication

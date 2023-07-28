@@ -1,10 +1,9 @@
-package com.maeasoftworks.server.components
+package com.maeasoftworks.bootstrap.model
 
+import com.maeasoftworks.bootstrap.configurations.ValueStorage
+import com.maeasoftworks.bootstrap.dto.MessageCode
 import com.maeasoftworks.core.parsers.DocumentParser
 import com.maeasoftworks.rendering.RenderLauncher
-import com.maeasoftworks.server.configs.Shared
-import com.maeasoftworks.server.dao.MessageCode
-import com.maeasoftworks.server.dao.ParserCallback
 import io.minio.GetObjectArgs
 import io.minio.MinioClient
 import java.io.ByteArrayInputStream
@@ -38,7 +37,7 @@ class Runner(
     }
 
     private fun getFile(): ByteArrayInputStream {
-        (minioClient.getObject(GetObjectArgs.builder().bucket(Shared.bucket).`object`("$documentId.docx").build()) as InputStream)
+        (minioClient.getObject(GetObjectArgs.builder().bucket(ValueStorage.bucket).`object`("$documentId.docx").build()) as InputStream)
             .use { inputStream ->
                 val buff = ByteArray(1000)
                 var bytesRead: Int

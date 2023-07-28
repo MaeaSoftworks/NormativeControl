@@ -3,7 +3,7 @@ plugins {
     kotlin("jvm")
 }
 
-java.sourceCompatibility = JavaVersion.VERSION_17
+java.sourceCompatibility = JavaVersion.VERSION_19
 
 dependencies {
     implementation(project(":core"))

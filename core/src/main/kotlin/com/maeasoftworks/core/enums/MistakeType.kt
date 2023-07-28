@@ -3,7 +3,7 @@ package com.maeasoftworks.core.enums
 /**
  * Type of mistake
  *
- * todo: move translations to server/src/main/resources/i18n
+ * todo: move translations to bootstrap/src/main/resources/i18n
  * @see com.maeasoftworks.core.model.MistakeInner
  * @see com.maeasoftworks.core.model.MistakeOuter
  * @param ru Russian translation of mistake cause

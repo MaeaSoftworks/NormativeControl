@@ -1,4 +1,4 @@
-package com.maeasoftworks.server.configs
+package com.maeasoftworks.bootstrap.configurations
 
 import io.minio.MinioClient
 import jakarta.annotation.PostConstruct
@@ -30,6 +30,6 @@ class MinIOConfiguration {
 
     @PostConstruct
     fun postConstruct() {
-        Shared.bucket = bucket
+        ValueStorage.bucket = bucket
     }
 }

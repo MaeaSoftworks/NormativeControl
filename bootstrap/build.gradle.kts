@@ -11,19 +11,16 @@ plugins {
 java.sourceCompatibility = JavaVersion.VERSION_19
 
 application {
-    mainClass.set("com.maeasoftworks.server.NormativeControlApplicationKt")
+    mainClass.set("com.maeasoftworks.bootstrap.NormativeControlApplicationKt")
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    implementation("org.jetbrains.kotlin:kotlin-reflect")
-
     implementation(project(":core"))
     implementation(project(":rendering"))
-
-    implementation("org.springframework.boot:spring-boot-starter-amqp")
     implementation("io.minio:minio:8.5.2")
-
+    implementation("org.jetbrains.kotlin:kotlin-reflect")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    implementation("org.springframework.boot:spring-boot-starter-amqp")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 
