@@ -1,4 +1,4 @@
-rootProject.name = "NormativeControl"
-include("polonium")
-include("livermorium")
-include("tellurium")
+rootProject.name = "normative-control-core"
+include("core")
+include("rendering")
+include("server")

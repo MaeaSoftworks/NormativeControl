@@ -1,0 +1,19 @@
+spring:
+  rabbitmq:
+    host: localhost
+    username: maea
+    password: maeanc
+
+server:
+  port: 8081
+
+minio:
+  endpoint: http://localhost:9000
+  bucket: normative-control
+  login: maeasoftworks
+  password: maeasoftworks
+
+logging:
+  level:
+    org:
+      docx4j: ERROR
