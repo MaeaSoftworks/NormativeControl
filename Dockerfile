@@ -4,13 +4,13 @@ RUN mkdir -p /app/build
 ENV GRADLE_USER_HOME /home/gradle/cache
 COPY build.gradle.kts /app/build
 WORKDIR /app/build
-RUN gradlew clean build
+RUN gradle clean build
 
 FROM eclipse-temurin:20-jdk-alpine AS build
 COPY --from=cache /home/gradle/cache /home/gradle/.gradle
 WORKDIR /app/build
 COPY / ./
-RUN gradlew bootJar
+RUN gradle bootJar
 
 FROM eclipse-temurin:20-jdk-alpine
 RUN addgroup -S instance && adduser -S maea -G instance
