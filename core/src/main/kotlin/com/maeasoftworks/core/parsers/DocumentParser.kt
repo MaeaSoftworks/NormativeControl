@@ -89,15 +89,9 @@ class DocumentParser(private val byteArrayStream: ByteArrayInputStream) {
         checkPicturesOrder(AnonymousParser(this), 0, true, pictures)
     }
 
-    fun addCommentsAndSave(): ByteArrayOutputStream {
+    fun writeResult(stream: ByteArrayOutputStream) {
         addComments()
-        return save()
-    }
-
-    private fun save(): ByteArrayOutputStream {
-        val stream = ByteArrayOutputStream()
         mlPackage.save(stream)
-        return stream
     }
 
     private fun addComments() {
