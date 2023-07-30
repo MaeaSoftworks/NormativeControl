@@ -2,6 +2,7 @@ package com.maeasoftworks.bootstrap.model
 
 import com.maeasoftworks.bootstrap.configurations.ValueStorage
 import com.maeasoftworks.bootstrap.dto.MessageCode
+import com.maeasoftworks.bootstrap.extensions.Functions.retry
 import com.maeasoftworks.core.parsers.DocumentParser
 import com.maeasoftworks.rendering.RenderLauncher
 import io.minio.GetObjectArgs
@@ -22,8 +23,7 @@ class Runner(
     override fun run() {
         try {
             val tags = mutableMapOf<String, String>()
-            val file = getFile(tags)
-
+            val file = retry (5, 5, { it != null }, { getFile(tags)} )
             val parser = DocumentParser(file)
             parser.runVerification()
 
