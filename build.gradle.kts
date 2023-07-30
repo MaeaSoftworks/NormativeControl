@@ -20,6 +20,7 @@ java.sourceCompatibility = JavaVersion.VERSION_19
 java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(20))
+        vendor.set(JvmVendorSpec.ADOPTIUM)
     }
 }
 
