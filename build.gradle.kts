@@ -13,6 +13,7 @@ plugins {
     id("org.springframework.boot") version "3.1.2"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
     id("org.jetbrains.kotlin.plugin.spring") version "1.9.0"
+    id("org.gradle.toolchains.foojay-resolver-convention") version("0.4.0")
 }
 
 java.sourceCompatibility = JavaVersion.VERSION_19
