@@ -1,18 +1,18 @@
-FROM gradle:8.1.1-jdk17-alpine as cache
-RUN mkdir -p /home/gradle/cache_home
+FROM eclipse-temurin:20-jdk-alpine as cache
+RUN mkdir -p /home/gradle/cache
 RUN mkdir -p /app/build
 ENV GRADLE_USER_HOME /home/gradle/cache
 COPY build.gradle.kts /app/build
 WORKDIR /app/build
-RUN gradle clean build
+RUN .gradlew clean build -x test -i --stacktrace
 
-FROM gradle:8.1.1-jdk17-alpine AS build
+FROM eclipse-temurin:20-jdk-alpine AS build
 COPY --from=cache /home/gradle/cache /home/gradle/.gradle
 WORKDIR /app/build
 COPY / ./
-RUN gradle bootJar
+RUN .gradlew bootJar
 
-FROM eclipse-temurin:20-jdk-alpine
+FROM eclipse-temurin:20-jre-alpine
 RUN addgroup -S instance && adduser -S maea -G instance
 USER maea
 

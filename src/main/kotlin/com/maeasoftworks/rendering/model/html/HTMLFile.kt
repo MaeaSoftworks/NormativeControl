@@ -3,6 +3,8 @@ package com.maeasoftworks.rendering.model.html
 import com.maeasoftworks.rendering.model.PageSettings
 import com.maeasoftworks.rendering.model.css.GlobalStyle
 import com.maeasoftworks.rendering.model.css.properties.*
+import com.maeasoftworks.rendering.model.css.properties.BoxShadow
+import com.maeasoftworks.rendering.model.css.properties.BoxSizing
 
 /**
  * Main HTML object that represents entire DOM

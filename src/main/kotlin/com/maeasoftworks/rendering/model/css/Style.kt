@@ -1,6 +1,7 @@
 package com.maeasoftworks.rendering.model.css
 
 import com.maeasoftworks.rendering.model.css.properties.Property
+import java.lang.Number
 
 /**
  * Representation of CSS style (contains [Rule]s and is contained in every [HTMLElement][com.maeasoftworks.rendering.model.html.HTMLElement])
@@ -21,7 +22,7 @@ class Style {
                 Rule(
                     this.toString(),
                     this.converter?.invoke(
-                        if (value is java.lang.Number && this.coefficient != null) {
+                        if (value is Number && this.coefficient != null) {
                             when (this.coefficient) {
                                 is Double -> value.doubleValue() / this.coefficient
                                 is Int -> value.intValue() / this.coefficient
