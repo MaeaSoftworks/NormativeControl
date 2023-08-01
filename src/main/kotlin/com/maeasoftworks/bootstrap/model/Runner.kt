@@ -23,7 +23,7 @@ class Runner(
     override fun run() {
         try {
             val tags = mutableMapOf<String, String>()
-            val file = retry (5, 5, { it != null }, { getFile(tags)} )
+            val file = retry (5, 5, this::class, { it != null }, { getFile(tags) })
             val parser = DocumentParser(file)
             parser.runVerification()
 

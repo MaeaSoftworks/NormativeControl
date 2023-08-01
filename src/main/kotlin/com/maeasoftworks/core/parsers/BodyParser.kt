@@ -6,7 +6,6 @@ import com.maeasoftworks.core.model.Picture
 import com.maeasoftworks.core.model.Rules
 import com.maeasoftworks.core.utils.apply
 import org.docx4j.wml.P
-import org.docx4j.wml.PPr
 import org.docx4j.wml.R
 
 /**
@@ -52,7 +51,7 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
             if (pos == -1) {
                 return -1
             }
-            if (root.isHeader(pos, level)) {
+            if (root.isHeaderOfLevel(pos, level)) {
                 val newChapter = Subchapter(
                     pos,
                     root.doc.content[pos] as P,
@@ -68,9 +67,9 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
                 currentChapter.subchapters.add(newChapter)
                 currentChapter.subchapters.sortBy { it.level }
                 pos = createSubchaptersModel(pos + 1, level + 1, newChapter)
-            } else if (root.isHeader(pos, level - 1)) {
+            } else if (root.isHeaderOfLevel(pos, level - 1)) {
                 return pos
-            } else if (root.isHeader(pos, level - 2)) {
+            } else if (root.isHeaderOfLevel(pos, level - 2)) {
                 return -1
             } else {
                 currentChapter.content.add(root.doc.content[pos])
@@ -90,34 +89,33 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
 
     private fun parseSubchapter(subchapter: Subchapter) {
         if (subchapter.subheader != null) {
-            val subheaderPPr = root.propertiesStorage[subchapter.subheader]
             val isEmpty = root.texts.getText(subchapter.subheader).isEmpty()
-            parseAnyHeader(subheaderPPr, subchapter.startPos, subchapter.subheader.content, isEmpty)
+            parseAnyHeader(subchapter.subheader, subchapter.startPos, subchapter.subheader.content, isEmpty)
         }
-        for (p in subchapter.startPos + 1 until subchapter.startPos + subchapter.content.size) {
+        for (pPos in subchapter.startPos + 1 until subchapter.startPos + subchapter.content.size) {
             if (pictureTitleExpected) {
                 pictureTitleExpected = false
                 continue
             }
-            val pPr = root.propertiesStorage[root.doc.content[p] as P]
-            val paragraph = root.doc.content[p] as P
+            val p = root.doc.content[pPos] as P
+            val paragraph = root.doc.content[pPos] as P
             val isEmptyP = root.texts.getText(paragraph).isBlank()
-            commonPFunctions.apply(root, p, pPr, isEmptyP)
-            regularPFunctions.apply(root, p, pPr, isEmptyP)
-            for (r in 0 until paragraph.content.size) {
-                if (paragraph.content[r] is R) {
-                    val rPr = root.propertiesStorage[paragraph.content[r] as R]
-                    commonRFunctions.apply(root, p, r, rPr, isEmptyP)
-                    regularRFunctions.apply(root, p, r, rPr, isEmptyP)
-                    for (c in 0 until (paragraph.content[r] as R).content.size) {
-                        handleRContent(p, r, c, this, subchapter.pictures)
+            commonPFunctions.apply(root, pPos, p, isEmptyP)
+            regularPFunctions.apply(root, pPos, p, isEmptyP)
+            for (rPos in 0 until paragraph.content.size) {
+                if (paragraph.content[rPos] is R) {
+                    val r = paragraph.content[rPos] as R
+                    commonRFunctions.apply(root, pPos, rPos, r, isEmptyP)
+                    regularRFunctions.apply(root, pPos, rPos, r, isEmptyP)
+                    for (c in 0 until (paragraph.content[rPos] as R).content.size) {
+                        handleRContent(pPos, rPos, c, this, subchapter.pictures)
                     }
                 } else {
-                    handlePContent(p, r, this)
+                    handlePContent(pPos, rPos, this)
                 }
             }
-            if (pPr.numPr != null) {
-                validateListElement(p)
+            if (root.resolver.getActualProperty(p) { numPr } != null) {
+                validateListElement(pPos, p)
             } else {
                 listPosition = 0
                 currentListStartValue = -1
@@ -132,24 +130,23 @@ class BodyParser(chapter: Chapter, root: DocumentParser) : ChapterParser(chapter
      * Style check for headers
      */
     private fun parseHeader() {
-        val headerPPr = root.propertiesStorage[chapter.header]
         val isEmpty = root.texts.getText(chapter.header).isBlank()
-        parseAnyHeader(headerPPr, chapter.startPos, chapter.header.content, isEmpty)
+        parseAnyHeader(chapter.header, chapter.startPos, chapter.header.content, isEmpty)
     }
 
     /**
      * Style check for headers and subheaders
      */
-    private fun parseAnyHeader(ppr: PPr, startPos: Int, content: List<Any>, isEmpty: Boolean) {
-        headerPFunctions.apply(root, startPos, ppr, isEmpty)
-        commonPFunctions.apply(root, startPos, ppr, isEmpty)
-        for (r in content.indices) {
-            if (content[r] is R) {
-                val rPr = root.propertiesStorage[content[r] as R]
-                headerRFunctions.apply(root, startPos, r, rPr, isEmpty)
-                commonRFunctions.apply(root, startPos, r, rPr, isEmpty)
+    private fun parseAnyHeader(p: P, startPos: Int, content: List<Any>, isEmpty: Boolean) {
+        headerPFunctions.apply(root, startPos, p, isEmpty)
+        commonPFunctions.apply(root, startPos, p, isEmpty)
+        for (rPos in content.indices) {
+            val r = content[rPos]
+            if (r is R) {
+                headerRFunctions.apply(root, startPos, rPos, r, isEmpty)
+                commonRFunctions.apply(root, startPos, rPos, r, isEmpty)
             } else {
-                handlePContent(startPos, r, this)
+                handlePContent(startPos, rPos, this)
             }
         }
     }

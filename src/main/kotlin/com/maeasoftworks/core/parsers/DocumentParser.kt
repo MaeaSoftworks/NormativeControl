@@ -5,10 +5,9 @@ import com.maeasoftworks.core.enums.ChapterType.*
 import com.maeasoftworks.core.enums.MistakeType
 import com.maeasoftworks.core.enums.MistakeType.*
 import com.maeasoftworks.core.model.*
-import com.maeasoftworks.core.tweaks.PropertiesStorage
+import com.maeasoftworks.core.tweaks.PropertyResolver
 import com.maeasoftworks.core.utils.doUntilCatch
 import org.docx4j.jaxb.Context
-import org.docx4j.model.PropertyResolver
 import org.docx4j.openpackaging.exceptions.Docx4JException
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage
 import org.docx4j.openpackaging.parts.WordprocessingML.CommentsPart
@@ -43,21 +42,17 @@ class DocumentParser(private val byteArrayStream: ByteArrayInputStream) {
         result
     }
 
-    val propertiesStorage: PropertiesStorage by lazy { PropertiesStorage(PropertyResolver(mlPackage), this) }
+    val resolver: PropertyResolver by lazy { PropertyResolver(mlPackage) }
 
     val autoHyphenation: Boolean? by lazy { doc.documentSettingsPart.jaxbElement.autoHyphenation?.isVal }
 
     val numbering: NumberingDefinitionsPart? by lazy { doc.numberingDefinitionsPart }
 
     private val comments: CommentsPart? by lazy {
-        (
-                doc.commentsPart ?: CommentsPart().also {
-                    it.jaxbElement = factory.createComments()
-                    doc.addTargetPart(it)
-                }
-                ).also {
-                mistakeId = it.jaxbElement.comment.size.toLong()
-            }
+        (doc.commentsPart ?: CommentsPart().also {
+            it.jaxbElement = factory.createComments()
+            doc.addTargetPart(it)
+        }).also { mistakeId = it.jaxbElement.comment.size.toLong() }
     }
 
     var chapters: MutableList<Chapter> = ArrayList()
@@ -185,7 +180,7 @@ class DocumentParser(private val byteArrayStream: ByteArrayInputStream) {
         var paragraph = 0
         var sectorId = 0
         while (paragraph < paragraphs.size) {
-            if (paragraphs[paragraph] is P && isHeader(paragraph, 1)) {
+            if (paragraphs[paragraph] is P && isHeaderOfLevel(paragraph, 1)) {
                 sectorId++
                 for (i in chapters.size..sectorId) {
                     chapters.add(Chapter(paragraph))
@@ -308,15 +303,12 @@ class DocumentParser(private val byteArrayStream: ByteArrayInputStream) {
         }
     }
 
-    fun isHeader(paragraph: Int, level: Int? = null): Boolean {
-        val pPr = propertiesStorage[doc.content[paragraph] as P]
-        if (pPr.outlineLvl == null) {
-            return false
-        }
+    fun isHeaderOfLevel(paragraph: Int, level: Int? = null): Boolean {
+        val lvl = resolver.getActualProperty((doc.content[paragraph] as P)) { outlineLvl } ?: return false
         return if (level != null) {
-            pPr.outlineLvl.`val`.toInt() == level - 1
+            lvl.`val`.toInt() == level - 1
         } else {
-            pPr.outlineLvl.`val` != null
+            lvl.`val` != null
         }
     }
 

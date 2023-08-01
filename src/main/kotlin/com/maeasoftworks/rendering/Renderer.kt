@@ -102,43 +102,36 @@ class Renderer(
      * @param p paragraph
      */
     private fun stylizeP(p: P) {
-        val ppr = parser.propertiesStorage[p]
         currentP!!.style += {
-            MarginLeft set ppr.ind?.left
-            MarginRight set ppr.ind?.right
-            MarginBottom set ppr.spacing?.after
-            MarginTop set ppr.spacing?.before
-            LineHeight set ppr.spacing?.line
-            TextIndent set ppr.ind?.firstLine
-            TextAlign set ppr.jc?.`val`
-            BackgroundColor set ppr.shd?.fill
-            Hyphens set !(ppr.suppressAutoHyphens?.isVal ?: false)
+            MarginLeft set parser.resolver.getActualProperty(p) { ind?.left }
+            MarginRight set parser.resolver.getActualProperty(p) { ind?.right }
+            MarginBottom set parser.resolver.getActualProperty(p) { spacing?.after }
+            MarginTop set parser.resolver.getActualProperty(p) { spacing?.before }
+            LineHeight set parser.resolver.getActualProperty(p) { spacing?.line }
+            TextIndent set parser.resolver.getActualProperty(p) { ind?.firstLine }
+            TextAlign set parser.resolver.getActualProperty(p) { jc?.`val` }
+            BackgroundColor set parser.resolver.getActualProperty(p) { shd?.fill }
+            Hyphens set !(parser.resolver.getActualProperty(p) {suppressAutoHyphens?.isVal } ?: false)
         }
-        stylizeFromRPr(ppr.rPr)
     }
 
     /**
      * Creates CSS style for run
      * @param r run
      */
-    private fun stylizeR(r: R) = stylizeFromRPr(parser.propertiesStorage[r])
+    private fun stylizeR(r: R) {
 
-    /**
-     * Adds CSS style for paragraph by run style or creates CSS style for run
-     * @param rpr run style
-     */
-    private fun stylizeFromRPr(rpr: RPrAbstract?) {
-        (if (rpr is ParaRPr?) currentP else currentR)!!.style += {
-            FontFamily set rpr?.rFonts
-            FontSize set rpr?.sz?.`val`
-            FontStyle set rpr?.i?.isVal
-            FontWeight set rpr?.b?.isVal
-            Color set rpr?.color?.`val`
-            BackgroundColor set rpr?.highlight?.`val`
-            TextTransform set rpr?.caps?.isVal
-            FontVariantCaps set rpr?.smallCaps?.isVal
-            FontVariantLigatures set rpr?.ligatures?.`val`
-            LetterSpacing set rpr?.spacing?.`val`
+        currentR!!.style += {
+            FontFamily set parser.resolver.getActualProperty(r) { rFonts }
+            FontSize set parser.resolver.getActualProperty(r) { sz?.`val` }
+            FontStyle set parser.resolver.getActualProperty(r) { i?.isVal }
+            FontWeight set parser.resolver.getActualProperty(r) { b?.isVal }
+            Color set parser.resolver.getActualProperty(r) { color?.`val` }
+            BackgroundColor set parser.resolver.getActualProperty(r) { highlight?.`val` }
+            TextTransform set parser.resolver.getActualProperty(r) { caps?.isVal }
+            FontVariantCaps set parser.resolver.getActualProperty(r) { smallCaps?.isVal }
+            FontVariantLigatures set parser.resolver.getActualProperty(r) { ligatures?.`val` }
+            LetterSpacing set parser.resolver.getActualProperty(r) { spacing?.`val` }
         }
     }
 

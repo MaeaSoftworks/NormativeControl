@@ -3,11 +3,11 @@ package com.maeasoftworks.bootstrap.extensions
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.Duration
+import kotlin.reflect.KClass
 
 object Functions {
-    val logger: Logger = LoggerFactory.getLogger(this::class.java)
-
-    inline fun <T> retry(maxRetries: Int, timeoutSeconds: Long, predicate: (T?) -> Boolean, action: () -> T): T {
+    inline fun <T> retry(maxRetries: Int, timeoutSeconds: Long, caller: KClass<*>, predicate: (T?) -> Boolean, action: () -> T): T {
+        val logger: Logger = LoggerFactory.getLogger(caller.java)
         var count = 0
         var result: T?
         do {

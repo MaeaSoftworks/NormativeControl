@@ -110,33 +110,33 @@ abstract class ChapterParser(val chapter: Chapter, val root: DocumentParser) {
     /**
      * Starts iteration in paragraph
      * @param context instance of parser in which this function is called (used to call handlers)
-     * @param p index on p-layer
-     * @param paragraph paragraph instance
+     * @param pPos index on p-layer
+     * @param p paragraph instance
      * @param pFunctions rules for paragraphs in chapter
      * @param rFunctions rules for runs in chapter
      */
-    open fun handleP(context: ChapterParser, p: Int, paragraph: P, pFunctions: PFunctions, rFunctions: RFunctions?) {
-        val pPr = root.propertiesStorage[paragraph]
-        val isEmpty = root.texts.getText(paragraph).isBlank()
-        for (r in 0 until paragraph.content.size) {
+    open fun handleP(context: ChapterParser, pPos: Int, p: P, pFunctions: PFunctions, rFunctions: RFunctions?) {
+        val isEmpty = root.texts.getText(p).isBlank()
+        for (r in 0 until p.content.size) {
             if (rFunctions != null) {
-                context.parseR(p, r, paragraph, rFunctions)
+                context.parseR(pPos, r, p, rFunctions)
             }
         }
-        context.parseP(p, pPr, isEmpty, pFunctions)
+        context.parseP(pPos, p, isEmpty, pFunctions)
     }
 
     /**
      * Starts style checking for paragraph
-     * @param p index on p-layer
-     * @param pPr paragraph properties
+     * @param pPos index on p-layer
+     * @param p paragraph
      * @param isEmpty indicates whether the text is empty
      * @param pFunctions rules for paragraphs in chapter
      */
-    open fun parseP(p: Int, pPr: PPr, isEmpty: Boolean, pFunctions: PFunctions) {
-        pFunctions.apply(root, p, pPr, isEmpty)
-        if (pPr.numPr != null && pPr.numPr.numId.`val`.toInt() != 0) {
-            validateListElement(p)
+    open fun parseP(pPos: Int, p: P, isEmpty: Boolean, pFunctions: PFunctions) {
+        pFunctions.apply(root, pPos, p, isEmpty)
+        val numPr = root.resolver.getActualProperty(p) { numPr }
+        if (numPr != null && numPr.numId.`val`.toInt() != 0) {
+            validateListElement(pPos, p)
         } else {
             listPosition = 0
             currentListStartValue = -1
@@ -212,23 +212,17 @@ abstract class ChapterParser(val chapter: Chapter, val root: DocumentParser) {
 
     /**
      * Starts style checking for paragraph
-     * @param p index on p-layer
-     * @param r index on r-layer
-     * @param paragraph paragraph instance
+     * @param pPos index on p-layer
+     * @param rPos index on r-layer
+     * @param p paragraph instance
      * @param rFunctions rules for runs in chapter
      */
-    open fun parseR(p: Int, r: Int, paragraph: P, rFunctions: RFunctions) {
-        if (paragraph.content[r] is R) {
-            val rpr = root.propertiesStorage[paragraph.content[r] as R]
-            rFunctions.apply(
-                root,
-                p,
-                r,
-                rpr,
-                TextUtils.getText(paragraph.content[r]).isBlank()
-            )
+    open fun parseR(pPos: Int, rPos: Int, p: P, rFunctions: RFunctions) {
+        val r = p.content[rPos]
+        if (r is R) {
+            rFunctions.apply(root, pPos, rPos, r, TextUtils.getText(r).isBlank())
         } else {
-            handlePContent(p, r, this)
+            handlePContent(pPos, rPos, this)
         }
     }
 
@@ -340,7 +334,7 @@ abstract class ChapterParser(val chapter: Chapter, val root: DocumentParser) {
             if (root.texts.getText(root.doc.content[p - 1] as P).isNotBlank()) {
                 root.addMistake(PICTURE_REQUIRED_BLANK_LINE_BEFORE_PICTURE, p, r)
             }
-            if (!root.isHeader(p + 2)) {
+            if (!root.isHeaderOfLevel(p + 2)) {
                 if (root.texts.getText(root.doc.content[p + 2] as P).isNotBlank()) {
                     root.addMistake(PICTURE_REQUIRED_BLANK_LINE_AFTER_PICTURE_TITLE, p, r)
                 }
@@ -367,26 +361,21 @@ abstract class ChapterParser(val chapter: Chapter, val root: DocumentParser) {
 
     //region lists
 
-    fun validateListElement(p: Int) {
-        val pPr = (root.doc.content[p] as P).pPr
-        val numberingFormat =
-            root.numbering!!.instanceListDefinitions[pPr.numPr.numId.`val`.toString()]!!.abstractListDefinition
-        if (pPr.numPr.ilvl.`val` != null && pPr.numPr.ilvl.`val`.toInt() > 1) {
-            root.addMistake(LIST_LEVEL_MORE_THAN_2, p)
+    fun validateListElement(pPos: Int, p: P) {
+        val numFormat = root.resolver.getActualProperty(p) { numPr }
+        val numberingFormat = root.numbering!!.instanceListDefinitions[numFormat?.numId?.`val`.toString()]!!.abstractListDefinition
+        if (numFormat?.ilvl?.`val` != null && numFormat.ilvl.`val`.toInt() > 1) {
+            root.addMistake(LIST_LEVEL_MORE_THAN_2, pPos)
         }
-        if (pPr.numPr.ilvl.`val`.toInt() == 0) {
+        if (numFormat?.ilvl?.`val` != null && numFormat.ilvl.`val`.toInt() == 0) {
             // todo add support to custom multilevel lists
             when (numberingFormat.listLevels["0"]?.numFmt) {
                 NumberFormat.BULLET -> if (numberingFormat.listLevels["0"]!!.levelText != "–") {
-                    root.addMistake(ORDERED_LIST_INCORRECT_MARKER_FORMAT_AT_LEVEL_1, p, description = "\"–\" (U+2013)")
+                    root.addMistake(ORDERED_LIST_INCORRECT_MARKER_FORMAT_AT_LEVEL_1, pPos, description = "\"–\" (U+2013)")
                 }
 
                 NumberFormat.RUSSIAN_LOWER -> if (numberingFormat.listLevels["0"]!!.levelText != "%1)") {
-                    root.addMistake(
-                        ORDERED_LIST_INCORRECT_MARKER_FORMAT_AT_LEVEL_1,
-                        p,
-                        description = "\"<RU_LOWER_LETTER>)\""
-                    )
+                    root.addMistake(ORDERED_LIST_INCORRECT_MARKER_FORMAT_AT_LEVEL_1, pPos, description = "\"<RU_LOWER_LETTER>)\"")
                 } else {
                     if (numberingFormat.listLevels["0"]!!.startValue.toInt() == currentListStartValue) {
                         listPosition++
@@ -397,18 +386,16 @@ abstract class ChapterParser(val chapter: Chapter, val root: DocumentParser) {
                     if (alphabet[listPosition] !in orderedListMarkers) {
                         root.addMistake(
                             ORDERED_LIST_WRONG_LETTER,
-                            p,
-                            description = "Запрещены: \"ё\", \"з\", \"й\", \"о\", \"ч\", \"ъ\", \"ы\", \"ь\", " +
-                                    "найдено: \"${alphabet[listPosition]}\""
+                            pPos,
+                            description = "Запрещены: \"ё\", \"з\", \"й\", \"о\", \"ч\", \"ъ\", \"ы\", \"ь\", найдено: \"${alphabet[listPosition]}\""
                         )
                     }
                 }
-
-                else -> root.addMistake(ORDERED_LIST_INCORRECT_MARKER_FORMAT, p)
+                else -> root.addMistake(ORDERED_LIST_INCORRECT_MARKER_FORMAT, pPos)
             }
-        } else if (pPr.numPr.ilvl.`val`.toInt() == 1) {
+        } else if (numFormat?.ilvl?.`val` != null && numFormat.ilvl.`val`.toInt() == 1) {
             if (numberingFormat.listLevels["1"]!!.numFmt != NumberFormat.DECIMAL || numberingFormat.listLevels["1"]!!.levelText != "%2)") {
-                root.addMistake(ORDERED_LIST_INCORRECT_MARKER_FORMAT_AT_LEVEL_2, p, description = "\"<DIGIT>)\"")
+                root.addMistake(ORDERED_LIST_INCORRECT_MARKER_FORMAT_AT_LEVEL_2, pPos, description = "\"<DIGIT>)\"")
             }
         }
     }
