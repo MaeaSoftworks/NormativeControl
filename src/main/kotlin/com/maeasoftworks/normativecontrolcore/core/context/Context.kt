@@ -1,11 +1,11 @@
 package com.maeasoftworks.normativecontrolcore.core.context
 
-import com.maeasoftworks.normativecontrolcore.core.model.CaptureType
+import com.maeasoftworks.normativecontrolcore.core.enums.CaptureType
 import com.maeasoftworks.normativecontrolcore.core.model.ChapterMarkers
 import com.maeasoftworks.normativecontrolcore.core.model.Mistake
 import com.maeasoftworks.normativecontrolcore.core.parsers.chapters.ChapterParser
 import com.maeasoftworks.normativecontrolcore.core.parsers.chapters.FrontPageParser
-import com.maeasoftworks.normativecontrolcore.core.tweaks.PropertyResolver
+import com.maeasoftworks.normativecontrolcore.core.utils.PropertyResolver
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage
 import org.docx4j.openpackaging.parts.WordprocessingML.CommentsPart
 import org.docx4j.wml.*

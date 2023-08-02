@@ -3,13 +3,7 @@ package com.maeasoftworks.normativecontrolcore.rendering.model.html
 import com.maeasoftworks.normativecontrolcore.rendering.model.PageSettings
 import com.maeasoftworks.normativecontrolcore.rendering.model.css.GlobalStyle
 import com.maeasoftworks.normativecontrolcore.rendering.model.css.properties.*
-import com.maeasoftworks.normativecontrolcore.rendering.model.css.properties.BoxShadow
-import com.maeasoftworks.normativecontrolcore.rendering.model.css.properties.BoxSizing
 
-/**
- * Main HTML object that represents entire DOM
- * @param settings document settings
- */
 class HTMLFile(private val settings: PageSettings) {
     var content: MutableList<HTMLElement> = mutableListOf()
     private val style: GlobalStyle = GlobalStyle()

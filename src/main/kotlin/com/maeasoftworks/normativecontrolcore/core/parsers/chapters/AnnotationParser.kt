@@ -4,7 +4,7 @@ import com.maeasoftworks.normativecontrolcore.core.context.Context
 import org.docx4j.wml.P
 import org.docx4j.wml.R
 
-object AnnotationParser : ChapterParser {
+data object AnnotationParser : ChapterParser {
     override fun parsePHeader(p: P, context: Context) {
         TODO("Not yet implemented")
     }

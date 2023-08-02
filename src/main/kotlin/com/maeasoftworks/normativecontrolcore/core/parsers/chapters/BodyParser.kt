@@ -11,7 +11,7 @@ import org.docx4j.wml.R
  * 1. Split chapter to subchapters by headers.
  * 2. Recursively validate every subchapter.
  */
-object BodyParser : ChapterParser {
+data object BodyParser : ChapterParser {
     /*
     private var isPicturesOrderedInSubchapters: Boolean? = false
     private lateinit var innerPictures: MutableList<Picture>

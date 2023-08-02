@@ -28,16 +28,6 @@ object ChapterMarkers {
 
     const val APPENDIX_NAME = "ПРИЛОЖЕНИЕ"
 
-    val previousOf = mapOf(
-        AnnotationParser to listOf(FrontPageParser),
-        ContentsParser to listOf(AnnotationParser),
-        IntroductionParser to listOf(ContentsParser),
-        BodyParser to listOf(BodyParser, IntroductionParser),
-        ConclusionParser to listOf(BodyParser),
-        ReferencesParser to listOf(ConclusionParser),
-        AppendixParser to listOf(AppendixParser, ReferencesParser)
-    )
-
     val nextOf = mapOf(
         FrontPageParser to listOf(AnnotationParser),
         AnnotationParser to listOf(ContentsParser),

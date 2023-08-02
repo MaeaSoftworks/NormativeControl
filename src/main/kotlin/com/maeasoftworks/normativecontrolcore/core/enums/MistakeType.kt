@@ -1,13 +1,5 @@
 package com.maeasoftworks.normativecontrolcore.core.enums
 
-/**
- * Type of mistake
- *
- * todo: move translations to bootstrap/src/main/resources/i18n
- * @see com.maeasoftworks.core.model.Mistake
- * @see com.maeasoftworks.core.model.MistakeOuter
- * @param ru Russian translation of mistake cause
- */
 enum class MistakeType(val ru: String) {
     // page size
     PAGE_WIDTH_IS_INCORRECT("Некорректная высота страницы"),

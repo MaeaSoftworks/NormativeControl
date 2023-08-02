@@ -1,11 +1,13 @@
 package com.maeasoftworks.normativecontrolcore.core.model
 
 import com.maeasoftworks.normativecontrolcore.core.context.Context
+import com.maeasoftworks.normativecontrolcore.core.enums.CaptureType
 import com.maeasoftworks.normativecontrolcore.core.enums.MistakeType
 import com.maeasoftworks.normativecontrolcore.core.parsers.chapters.AppendixParser
 import com.maeasoftworks.normativecontrolcore.core.parsers.chapters.BodyParser
 import com.maeasoftworks.normativecontrolcore.core.parsers.chapters.ChapterParser
 import com.maeasoftworks.normativecontrolcore.core.parsers.chapters.UndefinedChapter
+import com.maeasoftworks.normativecontrolcore.core.utils.getPropertyValue
 import org.docx4j.TextUtils
 import org.docx4j.wml.P
 
@@ -17,7 +19,7 @@ object DocumentChildParsers {
     }
 
     private fun parseP(p: P, context: Context) {
-        val lvl = context.resolver.getActualProperty(p) { outlineLvl }
+        val lvl = p.getPropertyValue(context.resolver) { outlineLvl }
         if (lvl?.`val` != null) {
             //p is chapter header
             detectChapterByHeader(p, context, lvl.`val`.intValueExact())

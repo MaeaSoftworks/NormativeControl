@@ -1,19 +1,17 @@
 package com.maeasoftworks.normativecontrolcore.rendering
 
 import com.maeasoftworks.normativecontrolcore.core.parsers.DocumentParser
+import com.maeasoftworks.normativecontrolcore.core.utils.getPropertyValue
 import com.maeasoftworks.normativecontrolcore.rendering.model.css.properties.*
-import com.maeasoftworks.normativecontrolcore.rendering.model.css.properties.Color
-import com.maeasoftworks.normativecontrolcore.rendering.model.css.properties.FontFamily
 import com.maeasoftworks.normativecontrolcore.rendering.model.html.HTMLElement
 import jakarta.xml.bind.JAXBElement
 import org.docx4j.TextUtils
-import org.docx4j.wml.*
+import org.docx4j.wml.Br
+import org.docx4j.wml.P
 import org.docx4j.wml.P.Hyperlink
+import org.docx4j.wml.R
+import org.docx4j.wml.Text
 
-/**
- * Rendering main class
- * @param parser initialized document parser
- */
 class Renderer(
     private val parser: DocumentParser
 ) {
@@ -23,6 +21,7 @@ class Renderer(
     private var currentP: HTMLElement? = HTMLElement("p")
     private var currentR: HTMLElement? = HTMLElement("span")
     private var currentInner: HTMLElement? = null
+    private val resolver = parser.resolver
 
     private val newPage: HTMLElement
         get() = HTMLElement("div").withClass("page")
@@ -37,10 +36,6 @@ class Renderer(
     private var lastInnerBeforePageBreak: HTMLElement? = null
     private var alreadyBroken = false
 
-    /**
-     * Rendering entry point. Starts iteration on paragraphs.
-     * @return rendered DOM in object representation
-     */
     fun render(): HTMLElement {
         html.children.add(currentPage!!)
         for (p in parser.doc.content.indices) {
@@ -51,9 +46,6 @@ class Renderer(
         return html
     }
 
-    /**
-     * Function to refresh current paragraph & page after page break
-     */
     private fun refreshCurrentP() {
         if (currentP == null) {
             currentP = lastPBeforePageBreak ?: newP
@@ -66,10 +58,6 @@ class Renderer(
         }
     }
 
-    /**
-     * Detects document's content type and invokes renderers for this type
-     * @param p paragraph
-     */
     private fun renderP(p: P) {
         currentP = newP
         if (currentPage == null) {
@@ -97,41 +85,32 @@ class Renderer(
         }
     }
 
-    /**
-     * Creates CSS style for paragraph
-     * @param p paragraph
-     */
     private fun stylizeP(p: P) {
         currentP!!.style += {
-            MarginLeft set parser.resolver.getActualProperty(p) { ind?.left?.toDouble() }
-            MarginRight set parser.resolver.getActualProperty(p) { ind?.right?.toDouble() }
-            MarginBottom set parser.resolver.getActualProperty(p) { spacing?.after?.toDouble() }
-            MarginTop set parser.resolver.getActualProperty(p) { spacing?.before?.toDouble() }
-            LineHeight set parser.resolver.getActualProperty(p) { spacing?.line?.toDouble() }
-            TextIndent set parser.resolver.getActualProperty(p) { ind?.firstLine?.toDouble() }
-            TextAlign set parser.resolver.getActualProperty(p) { jc?.`val` }
-            BackgroundColor set parser.resolver.getActualProperty(p) { shd?.fill }
-            Hyphens set !(parser.resolver.getActualProperty(p) {suppressAutoHyphens?.isVal } ?: false)
+            MarginLeft set p.getPropertyValue(resolver) { ind?.left?.toDouble() }
+            MarginRight set p.getPropertyValue(resolver) { ind?.right?.toDouble() }
+            MarginBottom set p.getPropertyValue(resolver) { spacing?.after?.toDouble() }
+            MarginTop set p.getPropertyValue(resolver) { spacing?.before?.toDouble() }
+            LineHeight set p.getPropertyValue(resolver) { spacing?.line?.toDouble() }
+            TextIndent set p.getPropertyValue(resolver) { ind?.firstLine?.toDouble() }
+            TextAlign set p.getPropertyValue(resolver) { jc?.`val` }
+            BackgroundColor set p.getPropertyValue(resolver) { shd?.fill }
+            Hyphens set !(p.getPropertyValue(resolver) { suppressAutoHyphens?.isVal } ?: false)
         }
     }
 
-    /**
-     * Creates CSS style for run
-     * @param r run
-     */
     private fun stylizeR(r: R) {
-
         currentR!!.style += {
-            FontFamily set parser.resolver.getActualProperty(r) { rFonts?.ascii }
-            FontSize set parser.resolver.getActualProperty(r) { sz?.`val`?.toInt() }
-            FontStyle set parser.resolver.getActualProperty(r) { i?.isVal }
-            FontWeight set parser.resolver.getActualProperty(r) { b?.isVal }
-            Color set parser.resolver.getActualProperty(r) { color?.`val` }
-            BackgroundColor set parser.resolver.getActualProperty(r) { highlight?.`val` }
-            TextTransform set parser.resolver.getActualProperty(r) { caps?.isVal }
-            FontVariantCaps set parser.resolver.getActualProperty(r) { smallCaps?.isVal }
-            FontVariantLigatures set parser.resolver.getActualProperty(r) { ligatures?.`val` }
-            LetterSpacing set parser.resolver.getActualProperty(r) { spacing?.`val`?.toDouble() }
+            FontFamily set r.getPropertyValue(resolver) { rFonts?.ascii }
+            FontSize set r.getPropertyValue(resolver) { sz?.`val`?.toInt() }
+            FontStyle set r.getPropertyValue(resolver) { i?.isVal }
+            FontWeight set r.getPropertyValue(resolver) { b?.isVal }
+            Color set r.getPropertyValue(resolver) { color?.`val` }
+            BackgroundColor set r.getPropertyValue(resolver) { highlight?.`val` }
+            TextTransform set r.getPropertyValue(resolver) { caps?.isVal }
+            FontVariantCaps set r.getPropertyValue(resolver) { smallCaps?.isVal }
+            FontVariantLigatures set r.getPropertyValue(resolver) { ligatures?.`val` }
+            LetterSpacing set r.getPropertyValue(resolver) { spacing?.`val`?.toDouble() }
         }
     }
 
@@ -147,10 +126,6 @@ class Renderer(
         isInner = false
     }
 
-    /**
-     * Detects paragraph's content type and invokes renderers for this type
-     * @param r run
-     */
     private fun renderR(r: R) {
         for (c in r.content) {
             when (c) {
@@ -187,9 +162,6 @@ class Renderer(
         }
     }
 
-    /**
-     * Ends current page and creates new page
-     */
     private fun pageBreak() {
         lastPBeforePageBreak = currentP?.duplicate()
         lastInnerBeforePageBreak = currentInner?.duplicate()

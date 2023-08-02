@@ -1,25 +1,17 @@
 package com.maeasoftworks.normativecontrolcore.core.model
 
+import com.maeasoftworks.normativecontrolcore.core.enums.CaptureType
 import com.maeasoftworks.normativecontrolcore.core.enums.MistakeType.*
-import com.maeasoftworks.normativecontrolcore.core.model.CaptureType.*
-import com.maeasoftworks.normativecontrolcore.core.utils.*
+import com.maeasoftworks.normativecontrolcore.core.utils.PFunction
+import com.maeasoftworks.normativecontrolcore.core.utils.PFunctionFactory
+import com.maeasoftworks.normativecontrolcore.core.utils.createRFunction
+import com.maeasoftworks.normativecontrolcore.core.utils.getPropertyValue
 import org.docx4j.TextUtils
 import org.docx4j.wml.JcEnumeration
 import org.docx4j.wml.R
 import kotlin.math.abs
 import kotlin.math.floor
 
-/**
- * Set of rules for all cases.
- *
- * One function - one rule.
- *
- * Every function's signature for paragraph rule must be equal to
- * [PFunction][com.maeasoftworks.core.utils.PFunction]
- * or
- * [RFunction][com.maeasoftworks.core.utils.RFunction]
- * for run rule.
- */
 object Rules {
     object Default {
         object Common {
@@ -190,7 +182,7 @@ object Rules {
         object RegularText {
             object P {
                 val justifyIsBoth: PFunction = { _, p, isEmpty, d ->
-                    val jc = d.resolver.getActualProperty(p) { jc }
+                    val jc = p.getPropertyValue(d.resolver) { jc }
                     if (jc == null || jc.`val` != JcEnumeration.BOTH) {
                         Mistake(
                             if (isEmpty) TEXT_WHITESPACE_ALIGNMENT else TEXT_REGULAR_INCORRECT_ALIGNMENT,
@@ -202,7 +194,7 @@ object Rules {
                 }
 
                 val lineSpacingIsOneAndHalf: PFunction = { _, p, isEmpty, d ->
-                    val s = d.resolver.getActualProperty(p) { spacing }
+                    val s = p.getPropertyValue(d.resolver) { spacing }
                     if (s != null && s.line != null) {
                         if (s.lineRule.value() == "auto" && s.line.toDouble() != 360.0) {
                             Mistake(
@@ -231,8 +223,8 @@ object Rules {
                 )
 
                 val leftIndentIs0: PFunction = { _, p, _, d ->
-                    val n = d.resolver.getActualProperty(p) { numPr }
-                    val i = d.resolver.getActualProperty(p) { ind }
+                    val n = p.getPropertyValue(d.resolver) { numPr }
+                    val i = p.getPropertyValue(d.resolver) { ind }
 
                     if (n != null && i != null && i.left != null && i.left.toDouble() != 0.0) {
                         Mistake(
@@ -327,7 +319,7 @@ object Rules {
                     val paragraph = d.doc.content[pPos] as org.docx4j.wml.P
                     val text = TextUtils.getText(paragraph)
                     if (!isEmpty && (text.uppercase() == text ||
-                                paragraph.content.all { if (it is R) d.resolver.getActualProperty(it) { caps }.let { caps -> caps != null && caps.isVal } else false })
+                                paragraph.content.all { if (it is R) it.getPropertyValue(d.resolver) { caps }.let { caps -> caps != null && caps.isVal } else false })
                     ) {
                         Mistake(TEXT_HEADER_BODY_UPPERCASE, CaptureType.P)
                     } else null

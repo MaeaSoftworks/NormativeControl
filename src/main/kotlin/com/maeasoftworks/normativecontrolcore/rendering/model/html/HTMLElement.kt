@@ -3,11 +3,6 @@ package com.maeasoftworks.normativecontrolcore.rendering.model.html
 import com.maeasoftworks.normativecontrolcore.rendering.model.css.Rule
 import com.maeasoftworks.normativecontrolcore.rendering.model.css.Style
 
-/**
- * Basic DOM element
- * @param type element type
- * @param hasClosingTag marks that element need to have closing tag
- */
 class HTMLElement(
     val type: String,
     private val hasClosingTag: Boolean = true
@@ -38,13 +33,6 @@ class HTMLElement(
         }
     }
 
-    /**
-     * Adds class to this element
-     *
-     * Example usage: `HTMLElement("div").withClass("example-class")`
-     * @param classname class that will be added
-     * @return element with class from parameter
-     */
     fun withClass(classname: String): HTMLElement {
         classes.add(classname)
         return this

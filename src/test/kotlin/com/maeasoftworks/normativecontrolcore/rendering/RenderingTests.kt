@@ -1,12 +1,12 @@
-package com.maeasoftworks.rendering
+package com.maeasoftworks.normativecontrolcore.rendering
 
-import com.maeasoftworks.core.ParserTestFactory
+import com.maeasoftworks.normativecontrolcore.core.ParserTestFactory
 import com.maeasoftworks.normativecontrolcore.rendering.RenderLauncher
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayOutputStream
 import java.io.FileOutputStream
 
-class RenderingTests: ParserTestFactory(RenderingTests::class) {
+class RenderingTests : ParserTestFactory(RenderingTests::class) {
     @Test
     fun `sample test`() {
         val parser = createParser("full test.docx")

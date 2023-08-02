@@ -6,10 +6,6 @@ import com.maeasoftworks.normativecontrolcore.rendering.model.html.HTMLElement
 import com.maeasoftworks.normativecontrolcore.rendering.model.html.HTMLFile
 import java.io.OutputStream
 
-/**
- * Livermorium entry point class
- * @param root initialized document parser
- */
 class RenderLauncher(
     private val root: DocumentParser
 ) {
@@ -27,10 +23,6 @@ class RenderLauncher(
         }
     )
 
-    /**
-     * Starts rendering
-     * @param stream stream to write html document
-     */
     fun render(stream: OutputStream) {
         val content = Renderer(root).render()
         html.content.add(content)

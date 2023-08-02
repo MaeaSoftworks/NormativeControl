@@ -1,28 +1,20 @@
-package com.maeasoftworks.normativecontrolcore.core.tweaks
+package com.maeasoftworks.normativecontrolcore.core.utils
 
-import org.docx4j.model.PropertyResolver
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage
 import org.docx4j.openpackaging.parts.WordprocessingML.StyleDefinitionsPart
 import org.docx4j.wml.*
 
 class PropertyResolver(mlPackage: WordprocessingMLPackage) {
     val styleDefinitionsPart: StyleDefinitionsPart = mlPackage.mainDocumentPart.styleDefinitionsPart
-    private val resolver = PropertyResolver(mlPackage)
-    val dPPr: PPr = resolver.documentDefaultPPr
-    val dRPr: RPr = resolver.documentDefaultRPr
+    val dPPr: PPr
+    val dRPr: RPr
 
-    /**
-     * Fixed & optimized analog for [PropertyResolver.getEffectivePPr].
-     * Returns last not null property value of [path] in priority:
-     *
-     * 1. Document default paragraph properties.
-     * 2. Default paragraph style.
-     * 3. `<style name>` PPr.
-     * 4. Paragraph PPr.
-     *
-     * @param path property in lambda expression
-     * @return property value
-     */
+    init {
+        val docx4jResolver = org.docx4j.model.PropertyResolver(mlPackage)
+        dPPr = docx4jResolver.documentDefaultPPr
+        dRPr = docx4jResolver.documentDefaultRPr
+    }
+
     inline fun <T> getActualProperty(p: P, path: PPr.() -> T?): T? {
         return p.pPr?.path()
             ?: styleDefinitionsPart.getStyleById(p.pPr?.pStyle?.`val`)?.pPr?.path()

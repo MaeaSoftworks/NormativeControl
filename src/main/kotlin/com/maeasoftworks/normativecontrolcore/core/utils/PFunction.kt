@@ -5,9 +5,6 @@ import com.maeasoftworks.normativecontrolcore.core.parsers.DocumentParser
 import org.docx4j.wml.P
 import org.docx4j.wml.PPr
 
-/**
- * Alias for signature of paragraph checking functions in [Rules][com.maeasoftworks.core.model.Rules]
- */
 typealias PFunction = (pPos: Int, p: P, isEmpty: Boolean, d: DocumentParser) -> Mistake?
 
 object PFunctionFactory {
@@ -19,7 +16,7 @@ object PFunctionFactory {
                  p: P,
                  isEmpty: Boolean,
                  d: DocumentParser ->
-            body(pPos, p, isEmpty, d, d.resolver.getActualProperty(p, path))
+            body(pPos, p, isEmpty, d, p.getPropertyValue(d.resolver, path))
         }
     }
 
@@ -32,7 +29,7 @@ object PFunctionFactory {
                  p: P,
                  isEmpty: Boolean,
                  d: DocumentParser ->
-            body(pPos, p, isEmpty, d, d.resolver.getActualProperty(p, path1), d.resolver.getActualProperty(p, path2))
+            body(pPos, p, isEmpty, d, p.getPropertyValue(d.resolver, path1), p.getPropertyValue(d.resolver, path2))
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.maeasoftworks.core
+package com.maeasoftworks.normativecontrolcore.core
 
 import com.maeasoftworks.normativecontrolcore.core.parsers.DocumentParser
 import org.docx4j.openpackaging.exceptions.Docx4JException

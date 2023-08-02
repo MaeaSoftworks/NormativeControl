@@ -23,7 +23,11 @@ object TextAlign : Property<JcEnumeration>(
 object Hyphens : Property<Boolean?>(converter = { if (it == true) "auto" else "none" })
 
 object TextTransform : Property<Boolean?>(
-    converter = { if (it == null) null else { if (it) "uppercase" else null } }
+    converter = {
+        if (it == null) null else {
+            if (it) "uppercase" else null
+        }
+    }
 )
 
 object LetterSpacing : DoubleProperty("px", coefficient = PIXELS_IN_POINT)
