@@ -18,7 +18,7 @@ plugins {
 java.sourceCompatibility = JavaVersion.VERSION_19
 
 application {
-    mainClass.set("com.maeasoftworks.bootstrap.NormativeControlApplicationKt")
+    mainClass.set("com.maeasoftworks.normativecontrolcore.bootstrap.NormativeControlApplicationKt")
 }
 
 dependencies {

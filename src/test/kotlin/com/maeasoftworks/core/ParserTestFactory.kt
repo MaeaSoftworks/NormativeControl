@@ -1,10 +1,7 @@
 package com.maeasoftworks.core
 
-import com.maeasoftworks.core.enums.MistakeType
-import com.maeasoftworks.core.model.MistakeOuter
-import com.maeasoftworks.core.parsers.DocumentParser
+import com.maeasoftworks.normativecontrolcore.core.parsers.DocumentParser
 import org.docx4j.openpackaging.exceptions.Docx4JException
-import org.junit.jupiter.api.Assertions
 import java.io.ByteArrayInputStream
 import java.io.FileInputStream
 import java.io.IOException
@@ -15,17 +12,6 @@ open class ParserTestFactory(testClass: KClass<*>) {
 
     init {
         directory = testClass.simpleName!!.removeSuffix("Tests").lowercase()
-    }
-
-    protected fun errorAssert(found: MutableList<MistakeOuter>, vararg expected: MistakeType) {
-        Assertions.assertEquals(expected.size, found.size, "Expected: ${expected.size} errors\nFound: ${found.size}")
-        for (i in 0 until found.size) {
-            Assertions.assertEquals(
-                expected[i],
-                found[i].mistakeType,
-                "Expected: ${expected[i].name}\nFound: ${found[i].mistakeType.name}"
-            )
-        }
     }
 
     protected fun createParser(filename: String, useFullPath: Boolean = false): DocumentParser {
