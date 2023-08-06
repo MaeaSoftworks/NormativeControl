@@ -19,7 +19,7 @@ class PropertyResolver(mlPackage: WordprocessingMLPackage) {
         return p.pPr?.path()
             ?: styleDefinitionsPart.getStyleById(p.pPr?.pStyle?.`val`)?.pPr?.path()
             ?: dPPr.path()
-            ?: styleDefinitionsPart.defaultParagraphStyle.pPr.path()
+            ?: styleDefinitionsPart.defaultParagraphStyle?.pPr?.path()
     }
 
     // TODO: add support for composite objects

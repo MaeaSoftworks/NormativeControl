@@ -13,7 +13,7 @@ class DocumentParser(byteArrayStream: ByteArrayInputStream) {
     val resolver: PropertyResolver = PropertyResolver(mlPackage)
     private val ctx = Context(mlPackage, resolver)
     val doc: MainDocumentPart = mlPackage.mainDocumentPart.also { it.styleDefinitionsPart.jaxbElement }
-    val autoHyphenation: Boolean = doc.documentSettingsPart.jaxbElement.autoHyphenation?.isVal!!
+    val autoHyphenation: Boolean? by lazy { doc.documentSettingsPart.jaxbElement.autoHyphenation?.isVal }
 
     fun runVerification() {
         while (ctx.ptr.bodyPosition < ctx.ptr.totalChildSize) {

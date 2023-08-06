@@ -7,6 +7,7 @@ import io.minio.GetObjectArgs
 import io.minio.GetObjectTagsArgs
 import io.minio.MinioClient
 import io.minio.PutObjectArgs
+import io.minio.errors.ErrorResponseException
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
@@ -19,27 +20,23 @@ class Runner(
     private val callback: ParserCallback
 ) : Runnable {
     override fun run() {
-        try {
-            val tags = mutableMapOf<String, String>()
-            val file = retry(5, 5, this::class, { it != null }, { getFile(tags) })
-            val parser = DocumentParser(file)
-            parser.runVerification()
+        val tags = mutableMapOf<String, String>()
+        val file = retry<_, ErrorResponseException>(5, 5, this::class, { it != null }, { getFile(tags) })
+        val parser = DocumentParser(file)
+        parser.runVerification()
 
-            val render = ByteArrayOutputStream().also {
-                RenderLauncher(parser).render(it)
-            }
-
-            val result = ByteArrayOutputStream().also {
-                parser.writeResult(it)
-            }
-            callback.write(com.maeasoftworks.normativecontrolcore.bootstrap.dto.MessageCode.INFO, "Verified successfully. Uploading results")
-
-            uploadObject(ByteArrayInputStream(render.toByteArray()), "html", mapOf("accessKey" to tags["accessKey"]!!))
-            uploadObject(ByteArrayInputStream(result.toByteArray()), "result.docx", mapOf("accessKey" to tags["accessKey"]!!))
-
-        } catch (e: Exception) {
-            callback.write(com.maeasoftworks.normativecontrolcore.bootstrap.dto.MessageCode.ERROR, "An error occurred during Runner's work. Cause: ${e.message}; ${e.cause}")
+        val render = ByteArrayOutputStream().also {
+            RenderLauncher(parser).render(it)
         }
+
+        val result = ByteArrayOutputStream().also {
+            parser.writeResult(it)
+        }
+        callback.write(com.maeasoftworks.normativecontrolcore.bootstrap.dto.MessageCode.INFO, "Verified successfully. Uploading results")
+
+        uploadObject(ByteArrayInputStream(render.toByteArray()), "html", mapOf("accessKey" to tags["accessKey"]!!))
+        uploadObject(ByteArrayInputStream(result.toByteArray()), "result.docx", mapOf("accessKey" to tags["accessKey"]!!))
+
         count.decrementAndGet()
         callback.write(com.maeasoftworks.normativecontrolcore.bootstrap.dto.MessageCode.SUCCESS, "Completed")
     }
