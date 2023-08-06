@@ -1,7 +1,7 @@
-# Normative Control
+# normative control core
 
-![Normative Control](resources/normative-control.svg)
+![Normative Control](resources/core.svg)
 
-Normative Control service
+Core service for Normative Control application.
 
-Written using Kotlin by Mæa Softworks with ❤.
+By Mæa Softworks.
