@@ -16,7 +16,7 @@ class Runner(
 ) : Runnable {
     override fun run() {
         val tags = mutableMapOf<String, String>()
-        val file = retry<_, Exception>(5, 5, this::class, { it != null }, { s3.getObject("$documentId.docx", tags) })
+        val file = retry<_, Exception>(5, 5, this::class, { it != null }, { s3.getObject("$documentId/source.docx", tags) })
         if (file == null) {
             callback.write(MessageCode.ERROR, "Unable to get file")
             count.decrementAndGet()
@@ -34,8 +34,8 @@ class Runner(
         }
         callback.write(MessageCode.INFO, "Verified successfully. Uploading results")
 
-        s3.putObject(render.toByteArray(), "$documentId.html", mapOf("accessKey" to tags["accessKey"]!!))
-        s3.putObject(result.toByteArray(), "$documentId.result.docx", mapOf("accessKey" to tags["accessKey"]!!))
+        s3.putObject(render.toByteArray(), "$documentId/conclusion.html", mapOf("accessKey" to tags["accessKey"]!!))
+        s3.putObject(result.toByteArray(), "$documentId/conclusion.docx", mapOf("accessKey" to tags["accessKey"]!!))
 
         count.decrementAndGet()
         callback.write(MessageCode.SUCCESS, "Completed")
