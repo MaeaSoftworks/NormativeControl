@@ -1,8 +1,11 @@
 package com.maeasoftworks.normativecontrolcore.bootstrap.extensions
 
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.springframework.amqp.core.Queue
 import org.springframework.amqp.rabbit.core.RabbitTemplate
 
-fun <T> RabbitTemplate.convertAndSend(queue: Queue, body: T) {
-    this.convertAndSend(queue.name, JSON.writeValueAsString(body))
+inline fun <reified T> RabbitTemplate.convertAndSend(queue: Queue, body: @Serializable T) {
+    this.convertAndSend(queue.name, Json.encodeToString(body))
 }

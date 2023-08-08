@@ -6,21 +6,21 @@ import java.time.Duration
 import kotlin.reflect.KClass
 
 object Functions {
-    inline fun <T, reified E> retry(maxRetries: Int, timeoutSeconds: Long, caller: KClass<*>, predicate: (T?) -> Boolean, action: () -> T): T {
+    inline fun <T, reified E> retry(maxRetries: Int, timeoutSeconds: Long, caller: KClass<*>, predicate: (T?) -> Boolean, action: () -> T): T? {
         val logger: Logger = LoggerFactory.getLogger(caller.java)
         var count = 0
         var result: T? = null
         do {
             try {
-                logger.info("Attempt ${count++} of call")
+                logger.info("Attempt ${count++} to run")
                 result = action()
-                Thread.sleep(Duration.ofSeconds(timeoutSeconds))
             } catch (e: Exception) {
                 if (e !is E) {
                     throw e
                 }
+                Thread.sleep(Duration.ofSeconds(timeoutSeconds))
             }
         } while (!predicate(result) && count < maxRetries)
-        return result!!
+        return result
     }
 }

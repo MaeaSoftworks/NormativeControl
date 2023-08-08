@@ -5,11 +5,11 @@ import com.maeasoftworks.normativecontrolcore.core.model.DocumentChildParsers
 import com.maeasoftworks.normativecontrolcore.core.utils.PropertyResolver
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
-import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.io.InputStream
 
-class DocumentParser(byteArrayStream: ByteArrayInputStream) {
-    private val mlPackage: WordprocessingMLPackage = WordprocessingMLPackage.load(byteArrayStream)
+class DocumentParser(stream: InputStream) {
+    private val mlPackage: WordprocessingMLPackage = WordprocessingMLPackage.load(stream)
     val resolver: PropertyResolver = PropertyResolver(mlPackage)
     private val ctx = Context(mlPackage, resolver)
     val doc: MainDocumentPart = mlPackage.mainDocumentPart.also { it.styleDefinitionsPart.jaxbElement }

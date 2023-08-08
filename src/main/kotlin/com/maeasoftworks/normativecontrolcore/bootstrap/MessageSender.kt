@@ -7,10 +7,10 @@ import org.springframework.stereotype.Component
 
 @Component
 class MessageSender(
-    private val template: RabbitTemplate,
-    private val resultsQueue: Queue
+    val template: RabbitTemplate,
+    val resultsQueue: Queue
 ) {
-    fun <T> send(body: T & Any) {
+    final inline fun <reified T> send(body: T & Any) {
         template.convertAndSend(resultsQueue, body)
     }
 }
