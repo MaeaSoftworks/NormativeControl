@@ -1,6 +1,5 @@
 package com.maeasoftworks.normativecontrolcore.rendering.model.html
 
-import com.maeasoftworks.normativecontrolcore.rendering.model.css.Rule
 import com.maeasoftworks.normativecontrolcore.rendering.model.css.Style
 
 class HTMLElement(
@@ -39,15 +38,10 @@ class HTMLElement(
     }
 
     fun duplicate(): HTMLElement {
-        // todo: fix ability to edit styles of element of previous page on new page
-        return HTMLElement(this@HTMLElement.type).apply {
-            this.classes = this@HTMLElement.classes
-            this.id = this@HTMLElement.id
-            this.style = Style().also { style ->
-                for (rule in style.rules) {
-                    style.rules.add(Rule(rule.property + "", rule.value + "", rule.measure + ""))
-                }
-            }
+        return HTMLElement(this@HTMLElement.type).also {
+            it.classes = classes
+            it.id = id
+            it.style = style
         }
     }
 }

@@ -10,9 +10,11 @@ class PropertyResolver(mlPackage: WordprocessingMLPackage) {
     val dRPr: RPr
 
     init {
-        val docx4jResolver = org.docx4j.model.PropertyResolver(mlPackage)
-        dPPr = docx4jResolver.documentDefaultPPr
-        dRPr = docx4jResolver.documentDefaultRPr
+        org.docx4j.model.PropertyResolver(mlPackage).apply {
+            dPPr = this.documentDefaultPPr
+            dRPr = this.documentDefaultRPr
+        }
+        mlPackage.mainDocumentPart.resolver = this
     }
 
     inline fun <T> getActualProperty(p: P, path: PPr.() -> T?): T? {

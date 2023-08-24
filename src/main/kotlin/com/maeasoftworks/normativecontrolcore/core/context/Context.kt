@@ -1,11 +1,9 @@
 package com.maeasoftworks.normativecontrolcore.core.context
 
 import com.maeasoftworks.normativecontrolcore.core.enums.CaptureType
-import com.maeasoftworks.normativecontrolcore.core.model.ChapterMarkers
 import com.maeasoftworks.normativecontrolcore.core.model.Mistake
 import com.maeasoftworks.normativecontrolcore.core.parsers.chapters.ChapterParser
 import com.maeasoftworks.normativecontrolcore.core.parsers.chapters.FrontPageParser
-import com.maeasoftworks.normativecontrolcore.core.utils.PropertyResolver
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage
 import org.docx4j.openpackaging.parts.WordprocessingML.CommentsPart
 import org.docx4j.wml.*
@@ -13,18 +11,15 @@ import java.math.BigInteger
 import java.util.*
 
 class Context(
-    mlPackage: WordprocessingMLPackage,
-    val resolver: PropertyResolver
+    mlPackage: WordprocessingMLPackage
 ) {
     private val doc = mlPackage.mainDocumentPart
     val ptr: Pointer = Pointer(doc.content.size)
 
     var chapter: ChapterParser = FrontPageParser
-        set(value) {
-            field = value
-            println("Chapter changed to ${ChapterMarkers.names[value]?.joinToString("/")}")
-        }
+
     var lastDefinedChapter: ChapterParser = FrontPageParser
+
     private val comments = (doc.commentsPart ?: CommentsPart().apply {
         jaxbElement = Comments()
         doc.addTargetPart(this)

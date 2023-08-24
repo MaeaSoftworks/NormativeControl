@@ -19,7 +19,7 @@ object DocumentChildParsers {
     }
 
     private fun parseP(p: P, context: Context) {
-        val lvl = p.getPropertyValue(context.resolver) { outlineLvl }
+        val lvl = p.getPropertyValue { outlineLvl }
         if (lvl?.`val` != null) {
             //p is chapter header
             detectChapterByHeader(p, context, lvl.`val`.intValueExact())

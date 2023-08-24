@@ -21,7 +21,6 @@ class Renderer(
     private var currentP: HTMLElement? = HTMLElement("p")
     private var currentR: HTMLElement? = HTMLElement("span")
     private var currentInner: HTMLElement? = null
-    private val resolver = parser.resolver
 
     private val newPage: HTMLElement
         get() = HTMLElement("div").withClass("page")
@@ -87,30 +86,30 @@ class Renderer(
 
     private fun stylizeP(p: P) {
         currentP!!.style += {
-            MarginLeft set p.getPropertyValue(resolver) { ind?.left?.toDouble() }
-            MarginRight set p.getPropertyValue(resolver) { ind?.right?.toDouble() }
-            MarginBottom set p.getPropertyValue(resolver) { spacing?.after?.toDouble() }
-            MarginTop set p.getPropertyValue(resolver) { spacing?.before?.toDouble() }
-            LineHeight set p.getPropertyValue(resolver) { spacing?.line?.toDouble() }
-            TextIndent set p.getPropertyValue(resolver) { ind?.firstLine?.toDouble() }
-            TextAlign set p.getPropertyValue(resolver) { jc?.`val` }
-            BackgroundColor set p.getPropertyValue(resolver) { shd?.fill }
-            Hyphens set !(p.getPropertyValue(resolver) { suppressAutoHyphens?.isVal } ?: false)
+            MarginLeft set p.getPropertyValue { ind?.left }?.toDouble()
+            MarginRight set p.getPropertyValue { ind?.right }?.toDouble()
+            MarginBottom set p.getPropertyValue { spacing?.after }?.toDouble()
+            MarginTop set p.getPropertyValue { spacing?.before }?.toDouble()
+            LineHeight set p.getPropertyValue { spacing?.line }?.toDouble()
+            TextIndent set p.getPropertyValue { ind?.firstLine }?.toDouble()
+            TextAlign set p.getPropertyValue { jc?.`val` }
+            BackgroundColor set p.getPropertyValue { shd?.fill }
+            Hyphens set !(p.getPropertyValue { suppressAutoHyphens?.isVal } ?: false)
         }
     }
 
     private fun stylizeR(r: R) {
         currentR!!.style += {
-            FontFamily set r.getPropertyValue(resolver) { rFonts?.ascii }
-            FontSize set r.getPropertyValue(resolver) { sz?.`val`?.toInt() }
-            FontStyle set r.getPropertyValue(resolver) { i?.isVal }
-            FontWeight set r.getPropertyValue(resolver) { b?.isVal }
-            Color set r.getPropertyValue(resolver) { color?.`val` }
-            BackgroundColor set r.getPropertyValue(resolver) { highlight?.`val` }
-            TextTransform set r.getPropertyValue(resolver) { caps?.isVal }
-            FontVariantCaps set r.getPropertyValue(resolver) { smallCaps?.isVal }
-            FontVariantLigatures set r.getPropertyValue(resolver) { ligatures?.`val` }
-            LetterSpacing set r.getPropertyValue(resolver) { spacing?.`val`?.toDouble() }
+            FontFamily set r.getPropertyValue { rFonts?.ascii }
+            FontSize set r.getPropertyValue { sz?.`val`?.toInt() }
+            FontStyle set r.getPropertyValue { i?.isVal }
+            FontWeight set r.getPropertyValue { b?.isVal }
+            Color set r.getPropertyValue { color?.`val` }
+            BackgroundColor set r.getPropertyValue { highlight?.`val` }
+            TextTransform set r.getPropertyValue { caps?.isVal }
+            FontVariantCaps set r.getPropertyValue { smallCaps?.isVal }
+            FontVariantLigatures set r.getPropertyValue { ligatures?.`val` }
+            LetterSpacing set r.getPropertyValue { spacing?.`val` }?.toDouble()
         }
     }
 

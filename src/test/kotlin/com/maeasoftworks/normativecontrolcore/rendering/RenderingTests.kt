@@ -1,7 +1,6 @@
 package com.maeasoftworks.normativecontrolcore.rendering
 
 import com.maeasoftworks.normativecontrolcore.core.ParserTestFactory
-import com.maeasoftworks.normativecontrolcore.rendering.RenderLauncher
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayOutputStream
 import java.io.FileOutputStream

@@ -6,7 +6,7 @@ import java.time.Duration
 import kotlin.reflect.KClass
 
 object Functions {
-    inline fun <T, reified E> retry(maxRetries: Int, timeoutSeconds: Long, caller: KClass<*>, predicate: (T?) -> Boolean, action: () -> T): T? {
+    inline fun <T, reified E: Exception> retry(maxRetries: Int, timeoutSeconds: Long, caller: KClass<*>, predicate: (T?) -> Boolean, action: () -> T): T? {
         val logger: Logger = LoggerFactory.getLogger(caller.java)
         var count = 0
         var result: T? = null

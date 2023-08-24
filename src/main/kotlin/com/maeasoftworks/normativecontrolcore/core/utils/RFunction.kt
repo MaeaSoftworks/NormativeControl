@@ -18,7 +18,7 @@ inline fun <T> createRFunction(
     captureType: CaptureType = CaptureType.R
 ): RFunction {
     return { r: R, isEmpty: Boolean, d: DocumentParser ->
-        val t = r.getPropertyValue(d.resolver, valueProvider)
+        val t = r.getPropertyValue(valueProvider)
         if (mistakeCondition(r, isEmpty, d, t)) {
             Mistake(mistakeType, CaptureType.R, mistakeActual(t), mistakeExpected)
         } else null

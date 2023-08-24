@@ -9,7 +9,7 @@ import java.io.OutputStream
 class RenderLauncher(
     private val root: DocumentParser
 ) {
-    var html: HTMLFile = HTMLFile(
+    private var html: HTMLFile = HTMLFile(
         PageSettings().apply {
             val pageSize = root.doc.contents.body.sectPr.pgSz
             width = pageSize.w.intValueExact()

@@ -16,7 +16,7 @@ object PFunctionFactory {
                  p: P,
                  isEmpty: Boolean,
                  d: DocumentParser ->
-            body(pPos, p, isEmpty, d, p.getPropertyValue(d.resolver, path))
+            body(pPos, p, isEmpty, d, p.getPropertyValue(path))
         }
     }
 
@@ -29,7 +29,7 @@ object PFunctionFactory {
                  p: P,
                  isEmpty: Boolean,
                  d: DocumentParser ->
-            body(pPos, p, isEmpty, d, p.getPropertyValue(d.resolver, path1), p.getPropertyValue(d.resolver, path2))
+            body(pPos, p, isEmpty, d, p.getPropertyValue(path1), p.getPropertyValue(path2))
         }
     }
 }
