@@ -1,39 +1,34 @@
 package com.maeasoftworks.normativecontrolcore.rendering.model.css.properties
 
+import com.maeasoftworks.normativecontrolcore.rendering.utils.FONT_SCALING
 import org.docx4j.w14.STLigatures
 
-object FontFamily : Property<String>(
-    converter = { it }
+class FontFamily(value: String?) : Property<String>("font-family", value)
+
+class FontSize(value: Int?) : IntProperty("font-size", value, FONT_SCALING, "px")
+
+class FontStyle(value: Boolean?) : Property<Boolean?>(
+    "font-style",
+    value,
+    { if (it == null) null else { if (it) "italic" else null } }
 )
 
-object FontSize : IntProperty("px", 2)
-
-object FontStyle : Property<Boolean?>(
-    converter = {
-        if (it == null) null else {
-            if (it) "italic" else null
-        }
-    }
+class FontWeight(value: Boolean?) : Property<Boolean?>(
+    "font-weight",
+    value,
+    { if (it == null) null else { if (it) "bold" else null } }
 )
 
-object FontWeight : Property<Boolean?>(
-    converter = {
-        if (it == null) null else {
-            if (it) "bold" else null
-        }
-    }
+class FontVariantCaps(value: Boolean?) : Property<Boolean?>(
+    "font-variant-caps",
+    value,
+    { if (it == null) null else { if (it) "small-caps" else null } }
 )
 
-object FontVariantCaps : Property<Boolean?>(
-    converter = {
-        if (it == null) null else {
-            if (it) "small-caps" else null
-        }
-    }
-)
-
-object FontVariantLigatures : Property<STLigatures>(
-    converter = {
+class FontVariantLigatures(value: STLigatures?) : Property<STLigatures>(
+    "font-variant-ligatures",
+    value,
+    {
         when (it) {
             STLigatures.NONE -> "none"
             STLigatures.STANDARD -> "common-ligatures"

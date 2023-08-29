@@ -14,7 +14,6 @@ class PropertyResolver(mlPackage: WordprocessingMLPackage) {
             dPPr = this.documentDefaultPPr
             dRPr = this.documentDefaultRPr
         }
-        mlPackage.mainDocumentPart.resolver = this
     }
 
     inline fun <T> getActualProperty(p: P, path: PPr.() -> T?): T? {
@@ -24,7 +23,6 @@ class PropertyResolver(mlPackage: WordprocessingMLPackage) {
             ?: styleDefinitionsPart.defaultParagraphStyle?.pPr?.path()
     }
 
-    // TODO: add support for composite objects
     inline fun <T> getActualProperty(r: R, path: RPr.() -> T?): T? {
         val p = if (r.parent is P) r.parent as P else null
         val pStyle = styleDefinitionsPart.getStyleById(p?.pPr?.pStyle?.`val`)

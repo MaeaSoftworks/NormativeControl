@@ -1,33 +1,55 @@
 package com.maeasoftworks.normativecontrolcore.rendering
 
 import com.maeasoftworks.normativecontrolcore.core.parsers.DocumentParser
-import com.maeasoftworks.normativecontrolcore.rendering.model.PageSettings
-import com.maeasoftworks.normativecontrolcore.rendering.model.html.HTMLElement
-import com.maeasoftworks.normativecontrolcore.rendering.model.html.HTMLFile
+import com.maeasoftworks.normativecontrolcore.rendering.model.css.properties.*
+import com.maeasoftworks.normativecontrolcore.rendering.model.html.HtmlElement
+import com.maeasoftworks.normativecontrolcore.rendering.model.html.html
 import java.io.OutputStream
 
 class RenderLauncher(
     private val root: DocumentParser
 ) {
-    private var html: HTMLFile = HTMLFile(
-        PageSettings().apply {
-            val pageSize = root.doc.contents.body.sectPr.pgSz
-            width = pageSize.w.intValueExact()
-            height = pageSize.h.intValueExact()
-            val pageMargins = root.doc.contents.body.sectPr.pgMar
-            topMargin = pageMargins.top.intValueExact()
-            leftMargin = pageMargins.left.intValueExact()
-            bottomMargin = pageMargins.bottom.intValueExact()
-            rightMargin = pageMargins.right.intValueExact()
-            autoHyphen = root.autoHyphenation
-        }
-    )
-
     fun render(stream: OutputStream) {
-        val content = Renderer(root).render()
-        html.content.add(content)
+        val html = html {
+            stylesheet {
+                val pageSize = root.doc.contents.body.sectPr.pgSz
+                val w = pageSize.w.intValueExact()
+                val h = pageSize.h.intValueExact()
+                val pageMargins = root.doc.contents.body.sectPr.pgMar
+
+                "*" += {
+                    boxShadow = BoxShadow("inset 0px 0px 0px 1px red")
+                    boxSizing = BoxSizing("border-box")
+                    margin = Margin(0.0)
+                    padding = Padding(0.0)
+                }
+
+                ".page" += {
+                    width = Width((w).toDouble())
+                    minHeight = MinHeight((h).toDouble())
+                    paddingTop = PaddingTop((pageMargins.top.intValueExact()).toDouble())
+                    paddingLeft = PaddingLeft((pageMargins.left.intValueExact()).toDouble())
+                    paddingBottom = PaddingBottom((pageMargins.bottom.intValueExact()).toDouble())
+                    paddingRight = PaddingRight((pageMargins.right.intValueExact()).toDouble())
+                    hyphens = Hyphens(root.autoHyphenation)
+                }
+
+                ".page-size" += {
+                    boxShadow = BoxShadow("inset 0px 0px 0px 1px blue")
+                    boxSizing = BoxSizing("border-box")
+                    position = Position("absolute")
+                    width = Width((w - pageMargins.left.intValueExact() - pageMargins.right.intValueExact()).toDouble())
+                    height = Height((h - pageMargins.top.intValueExact() - pageMargins.bottom.intValueExact()).toDouble())
+                    zIndex = ZIndex(-10)
+                }
+            }
+            body {
+                Renderer(root).render()
+            }
+        }
+
         for (page in html.content[0].children) {
-            page.children.add(0, HTMLElement("div").withClass("page-size"))
+            page.children.add(0, HtmlElement("div").withClass("page-size"))
         }
         stream.write(html.toString().toByteArray())
     }

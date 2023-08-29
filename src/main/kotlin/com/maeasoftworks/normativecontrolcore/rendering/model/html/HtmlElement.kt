@@ -2,14 +2,14 @@ package com.maeasoftworks.normativecontrolcore.rendering.model.html
 
 import com.maeasoftworks.normativecontrolcore.rendering.model.css.Style
 
-class HTMLElement(
+class HtmlElement(
     val type: String,
     private val hasClosingTag: Boolean = true
 ) {
     private var classes: MutableList<String> = mutableListOf()
     var id: String? = null
     val content: StringBuilder = StringBuilder()
-    val children: MutableList<HTMLElement> = ArrayList()
+    val children: MutableList<HtmlElement> = ArrayList()
     var style: Style = Style()
 
     private val classesString: String
@@ -32,13 +32,19 @@ class HTMLElement(
         }
     }
 
-    fun withClass(classname: String): HTMLElement {
+    fun style(builder: Style.Builder.() -> Unit) {
+        val s = Style.Builder()
+        s.builder()
+        style = s.build()
+    }
+
+    fun withClass(classname: String): HtmlElement {
         classes.add(classname)
         return this
     }
 
-    fun duplicate(): HTMLElement {
-        return HTMLElement(this@HTMLElement.type).also {
+    fun duplicate(): HtmlElement {
+        return HtmlElement(this@HtmlElement.type).also {
             it.classes = classes
             it.id = id
             it.style = style

@@ -1,38 +1,28 @@
 package com.maeasoftworks.normativecontrolcore.rendering.model.css.properties
 
-import java.util.*
-
-/**
- * Base class that is representing CSS property
- * @param measure measure of property value (added in the end of line)
- * @param coefficient if property value is [Number] it will be divided by this value
- * @param converter function that will be applied to value after diving by coefficient
- */
 open class Property<T>(
-    val measure: String? = null,
-    val converter: (T?) -> String? = { it.toString() }
-) {
-    private val regex = Regex("([a-z0-9](?=[A-Z]))([A-Z])")
-
-    /**
-     * Property name default serializer
-     * @return property class name in kebab-case
-     */
-    override fun toString() = this::class.simpleName!!.replace(regex, "$1-$2").lowercase(Locale.getDefault())
-}
+    val name: String,
+    val value: T?,
+    val converter: (T?) -> String? = { it?.toString() },
+    val measure: String? = null
+)
 
 open class DoubleProperty(
-    measure: String? = null,
+    name: String,
+    value: Double?,
     coefficient: Double = 1.0,
-    converter: (Double?) -> String? = { it.toString() }
+    measure: String? = null,
+    converter: (Double?) -> String? = { it?.toString() }
 ) : Property<Double>(
-    measure, { converter(it?.div(coefficient)) }
+    name, value, { converter(it?.div(coefficient)) }, measure
 )
 
 open class IntProperty(
-    measure: String? = null,
+    name: String,
+    value: Int?,
     coefficient: Int = 1,
-    converter: (Int?) -> String? = { it.toString() }
+    measure: String? = null,
+    converter: (Int?) -> String? = { it?.toString() }
 ) : Property<Int>(
-    measure, { converter(it?.div(coefficient)) }
+    name, value, { converter(it?.div(coefficient)) }, measure
 )

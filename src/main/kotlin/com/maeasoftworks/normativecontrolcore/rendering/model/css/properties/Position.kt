@@ -1,9 +1,5 @@
 package com.maeasoftworks.normativecontrolcore.rendering.model.css.properties
 
-object Position : Property<String>()
+class Position(value: String) : Property<String>("position", value)
 
-object ZIndex : IntProperty() {
-    override fun toString(): String {
-        return "z-index"
-    }
-}
+class ZIndex(value: Int) : IntProperty("z-index", value)

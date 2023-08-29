@@ -1,5 +1,5 @@
 package com.maeasoftworks.normativecontrolcore.rendering.model.css.properties
 
-object Color : Property<String>(converter = { if (it != "null") "#$it" else null })
+class Color(value: String?) : Property<String>("color", value, converter = { if (it != "null") "#$it" else null })
 
-object BackgroundColor : Property<String>(converter = { if (it != null) "#$it" else null })
+class BackgroundColor(value: String?) : Property<String>("background-color", value, converter = { if (it != null) "#$it" else null })

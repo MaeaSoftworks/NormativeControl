@@ -1,5 +1,5 @@
 package com.maeasoftworks.normativecontrolcore.rendering.model.css.properties
 
-object BoxSizing : Property<String>()
+class BoxSizing(value: String) : Property<String>("box-sizing", value)
 
-object BoxShadow : Property<String>()
+class BoxShadow(value: String) : Property<String>("box-shadow", value)

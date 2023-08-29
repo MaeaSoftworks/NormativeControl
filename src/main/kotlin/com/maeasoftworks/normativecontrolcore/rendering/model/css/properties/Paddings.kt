@@ -2,8 +2,8 @@ package com.maeasoftworks.normativecontrolcore.rendering.model.css.properties
 
 import com.maeasoftworks.normativecontrolcore.rendering.utils.PIXELS_IN_POINT
 
-object Padding : DoubleProperty()
-object PaddingTop : DoubleProperty("px", coefficient = PIXELS_IN_POINT)
-object PaddingLeft : DoubleProperty("px", coefficient = PIXELS_IN_POINT)
-object PaddingBottom : DoubleProperty("px", coefficient = PIXELS_IN_POINT)
-object PaddingRight : DoubleProperty("px", coefficient = PIXELS_IN_POINT)
+class Padding(value: Double?) : DoubleProperty("padding", value)
+class PaddingTop(value: Double?) : DoubleProperty("padding-top",  value, coefficient = PIXELS_IN_POINT, "px")
+class PaddingLeft(value: Double?) : DoubleProperty("padding-left", value, coefficient = PIXELS_IN_POINT, "px")
+class PaddingBottom(value: Double?) : DoubleProperty("padding-bottom", value, coefficient = PIXELS_IN_POINT, "px")
+class PaddingRight(value: Double?) : DoubleProperty("padding-right", value, coefficient = PIXELS_IN_POINT, "px")

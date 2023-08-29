@@ -117,8 +117,8 @@ object Rules {
                     }
                 )
 
-                val hasNotDotInEnd: PFunction = { pPos, _, _, d ->
-                    if (TextUtils.getText(d.doc.content[pPos] as org.docx4j.wml.P).endsWith(".")) {
+                val hasNotDotInEnd: PFunction = { _, p, _, _ ->
+                    if (TextUtils.getText(p).endsWith(".")) {
                         Mistake(TEXT_HEADER_REDUNDANT_DOT, CaptureType.P)
                     } else null
                 }
@@ -153,8 +153,8 @@ object Rules {
 
                 val isAutoHyphenSuppressed = PFunctionFactory.create(
                     { suppressAutoHyphens },
-                    { _, _, _, d, s ->
-                        if ((s == null || !s.isVal) && d.autoHyphenation == true) {
+                    { _, _, _, ctx, s ->
+                        if ((s == null || !s.isVal) && ctx.mlPackage.mainDocumentPart.documentSettingsPart.jaxbElement.autoHyphenation?.isVal == true) {
                             Mistake(TEXT_HEADER_AUTO_HYPHEN, CaptureType.P)
                         } else null
                     }
@@ -181,8 +181,8 @@ object Rules {
 
         object RegularText {
             object P {
-                val justifyIsBoth: PFunction = { _, p, isEmpty, _ ->
-                    val jc = p.getPropertyValue { jc }
+                val justifyIsBoth: PFunction = { _, p, isEmpty, ctx ->
+                    val jc = p.getPropertyValue(ctx) { jc }
                     if (jc == null || jc.`val` != JcEnumeration.BOTH) {
                         Mistake(
                             if (isEmpty) TEXT_WHITESPACE_ALIGNMENT else TEXT_REGULAR_INCORRECT_ALIGNMENT,
@@ -193,8 +193,8 @@ object Rules {
                     } else null
                 }
 
-                val lineSpacingIsOneAndHalf: PFunction = { _, p, isEmpty, _ ->
-                    val s = p.getPropertyValue { spacing }
+                val lineSpacingIsOneAndHalf: PFunction = { _, p, isEmpty, ctx ->
+                    val s = p.getPropertyValue(ctx) { spacing }
                     if (s != null && s.line != null) {
                         if (s.lineRule.value() == "auto" && s.line.toDouble() != 360.0) {
                             Mistake(
@@ -222,19 +222,20 @@ object Rules {
                     }
                 )
 
-                val leftIndentIs0: PFunction = { _, p, _, _ ->
-                    val n = p.getPropertyValue { numPr }
-                    val i = p.getPropertyValue { ind }
-
-                    if (n != null && i != null && i.left != null && i.left.toDouble() != 0.0) {
-                        Mistake(
-                            TEXT_COMMON_INDENT_LEFT,
-                            CaptureType.P,
-                            "${i.left.toDouble() / 240.0}",
-                            "0"
-                        )
-                    } else null
-                }
+                val leftIndentIs0 = PFunctionFactory.create(
+                    { numPr },
+                    { ind },
+                    { _, _, _, _, n, i ->
+                        if (n != null && i != null && i.left != null && i.left.toDouble() != 0.0) {
+                            Mistake(
+                                TEXT_COMMON_INDENT_LEFT,
+                                CaptureType.P,
+                                "${i.left.toDouble() / 240.0}",
+                                "0"
+                            )
+                        } else null
+                    }
+                )
 
                 val rightIndentIs0 = PFunctionFactory.create(
                     { ind },
@@ -289,8 +290,8 @@ object Rules {
                     }
                 )
 
-                val hasNotDotInEnd: PFunction = { pPos, _, _, d ->
-                    if (TextUtils.getText(d.doc.content[pPos] as org.docx4j.wml.P).endsWith(".")) {
+                val hasNotDotInEnd: PFunction = { _, p, _, _ ->
+                    if (TextUtils.getText(p).endsWith(".")) {
                         Mistake(PICTURE_TITLE_ENDS_WITH_DOT, CaptureType.P)
                     } else null
                 }
@@ -315,12 +316,9 @@ object Rules {
                     }
                 )
 
-                val isNotUppercase: PFunction = { pPos, _, isEmpty, d ->
-                    val paragraph = d.doc.content[pPos] as org.docx4j.wml.P
-                    val text = TextUtils.getText(paragraph)
-                    if (!isEmpty &&
-                        (text.uppercase() == text || paragraph.content.all { if (it is R) it.getPropertyValue { caps }.let { caps -> caps != null && caps.isVal } else false })
-                    ) {
+                val isNotUppercase: PFunction = { _, p, isEmpty, ctx ->
+                    val text = TextUtils.getText(p)
+                    if (!isEmpty && (text.uppercase() == text || p.content.all { if (it is R) it.getPropertyValue(ctx) { caps }.let { caps -> caps != null && caps.isVal } else false })) {
                         Mistake(TEXT_HEADER_BODY_UPPERCASE, CaptureType.P)
                     } else null
                 }

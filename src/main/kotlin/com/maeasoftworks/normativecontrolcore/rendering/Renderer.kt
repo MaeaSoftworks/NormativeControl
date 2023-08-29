@@ -3,7 +3,7 @@ package com.maeasoftworks.normativecontrolcore.rendering
 import com.maeasoftworks.normativecontrolcore.core.parsers.DocumentParser
 import com.maeasoftworks.normativecontrolcore.core.utils.getPropertyValue
 import com.maeasoftworks.normativecontrolcore.rendering.model.css.properties.*
-import com.maeasoftworks.normativecontrolcore.rendering.model.html.HTMLElement
+import com.maeasoftworks.normativecontrolcore.rendering.model.html.HtmlElement
 import jakarta.xml.bind.JAXBElement
 import org.docx4j.TextUtils
 import org.docx4j.wml.Br
@@ -15,27 +15,28 @@ import org.docx4j.wml.Text
 class Renderer(
     private val parser: DocumentParser
 ) {
-    private val html = HTMLElement("div")
-    private var currentPage: HTMLElement? = newPage
+    private val ctx = parser.ctx
+    private val html = HtmlElement("div")
+    private var currentPage: HtmlElement? = newPage
     private var isInner = false
-    private var currentP: HTMLElement? = HTMLElement("p")
-    private var currentR: HTMLElement? = HTMLElement("span")
-    private var currentInner: HTMLElement? = null
+    private var currentP: HtmlElement? = HtmlElement("p")
+    private var currentR: HtmlElement? = HtmlElement("span")
+    private var currentInner: HtmlElement? = null
 
-    private val newPage: HTMLElement
-        get() = HTMLElement("div").withClass("page")
+    private val newPage: HtmlElement
+        get() = HtmlElement("div").withClass("page")
 
-    private val newP: HTMLElement
-        get() = HTMLElement("p")
+    private val newP: HtmlElement
+        get() = HtmlElement("p")
 
-    private val newInner: HTMLElement
-        get() = HTMLElement("a")
+    private val newInner: HtmlElement
+        get() = HtmlElement("a")
 
-    private var lastPBeforePageBreak: HTMLElement? = null
-    private var lastInnerBeforePageBreak: HTMLElement? = null
+    private var lastPBeforePageBreak: HtmlElement? = null
+    private var lastInnerBeforePageBreak: HtmlElement? = null
     private var alreadyBroken = false
 
-    fun render(): HTMLElement {
+    fun render(): HtmlElement {
         html.children.add(currentPage!!)
         for (p in parser.doc.content.indices) {
             when (parser.doc.content[p]) {
@@ -67,7 +68,7 @@ class Renderer(
         currentP!!.id = p.paraId
         stylizeP(p)
         if (p.content.isEmpty()) {
-            currentP!!.children.add(HTMLElement("br", false))
+            currentP!!.children.add(HtmlElement("br", false))
         }
         for (r in p.content.indices) {
             when (p.content[r]) {
@@ -85,36 +86,36 @@ class Renderer(
     }
 
     private fun stylizeP(p: P) {
-        currentP!!.style += {
-            MarginLeft set p.getPropertyValue { ind?.left }?.toDouble()
-            MarginRight set p.getPropertyValue { ind?.right }?.toDouble()
-            MarginBottom set p.getPropertyValue { spacing?.after }?.toDouble()
-            MarginTop set p.getPropertyValue { spacing?.before }?.toDouble()
-            LineHeight set p.getPropertyValue { spacing?.line }?.toDouble()
-            TextIndent set p.getPropertyValue { ind?.firstLine }?.toDouble()
-            TextAlign set p.getPropertyValue { jc?.`val` }
-            BackgroundColor set p.getPropertyValue { shd?.fill }
-            Hyphens set !(p.getPropertyValue { suppressAutoHyphens?.isVal } ?: false)
+        currentP!!.style {
+            marginLeft = MarginLeft(p.getPropertyValue(ctx) { ind?.left }?.toDouble())
+            marginRight = MarginRight(p.getPropertyValue(ctx) { ind?.right }?.toDouble())
+            marginBottom = MarginBottom(p.getPropertyValue(ctx) { spacing?.after }?.toDouble())
+            marginTop = MarginTop(p.getPropertyValue(ctx) { spacing?.before }?.toDouble())
+            lineHeight = LineHeight(p.getPropertyValue(ctx) { spacing?.line }?.toDouble())
+            textIndent = TextIndent(p.getPropertyValue(ctx) { ind?.firstLine }?.toDouble())
+            textAlign = TextAlign(p.getPropertyValue(ctx) { jc?.`val` })
+            backgroundColor = BackgroundColor(p.getPropertyValue(ctx) { shd?.fill })
+            hyphens = Hyphens(!(p.getPropertyValue(ctx) { suppressAutoHyphens?.isVal } ?: false))
         }
     }
 
     private fun stylizeR(r: R) {
-        currentR!!.style += {
-            FontFamily set r.getPropertyValue { rFonts?.ascii }
-            FontSize set r.getPropertyValue { sz?.`val`?.toInt() }
-            FontStyle set r.getPropertyValue { i?.isVal }
-            FontWeight set r.getPropertyValue { b?.isVal }
-            Color set r.getPropertyValue { color?.`val` }
-            BackgroundColor set r.getPropertyValue { highlight?.`val` }
-            TextTransform set r.getPropertyValue { caps?.isVal }
-            FontVariantCaps set r.getPropertyValue { smallCaps?.isVal }
-            FontVariantLigatures set r.getPropertyValue { ligatures?.`val` }
-            LetterSpacing set r.getPropertyValue { spacing?.`val` }?.toDouble()
+        currentR!!.style {
+            fontFamily =  FontFamily(r.getPropertyValue(ctx) { rFonts?.ascii })
+            fontSize =  FontSize(r.getPropertyValue(ctx) { sz?.`val`?.toInt() })
+            fontStyle =  FontStyle(r.getPropertyValue(ctx) { i?.isVal })
+            fontWeight =  FontWeight(r.getPropertyValue(ctx) { b?.isVal })
+            color = Color(r.getPropertyValue(ctx) { color?.`val` })
+            backgroundColor = BackgroundColor(r.getPropertyValue(ctx) { highlight?.`val` })
+            textTransform = TextTransform(r.getPropertyValue(ctx) { caps?.isVal })
+            fontVariantCaps = FontVariantCaps(r.getPropertyValue(ctx) { smallCaps?.isVal })
+            fontVariantLigatures = FontVariantLigatures(r.getPropertyValue(ctx) { ligatures?.`val` })
+            letterSpacing = LetterSpacing(r.getPropertyValue(ctx) { spacing?.`val` }?.toDouble())
         }
     }
 
     private fun renderHyperlink(h: Hyperlink) {
-        currentInner = HTMLElement("a")
+        currentInner = HtmlElement("a")
         refreshCurrentP()
         currentP!!.children.add(currentInner!!)
         for (r in h.content.indices) {
@@ -131,7 +132,7 @@ class Renderer(
                 is JAXBElement<*> -> {
                     when (c.value) {
                         is Text -> {
-                            currentR = HTMLElement("span")
+                            currentR = HtmlElement("span")
                             alreadyBroken = false
                             refreshCurrentP()
                             if (isInner) {

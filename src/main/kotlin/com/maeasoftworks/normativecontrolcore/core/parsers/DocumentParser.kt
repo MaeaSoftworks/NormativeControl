@@ -9,7 +9,7 @@ import java.io.InputStream
 
 class DocumentParser(stream: InputStream) {
     private val mlPackage: WordprocessingMLPackage = WordprocessingMLPackage.load(stream)
-    private val ctx = Context(mlPackage)
+    val ctx = Context(mlPackage)
     val doc: MainDocumentPart = mlPackage.mainDocumentPart.also { it.styleDefinitionsPart.jaxbElement }
     val autoHyphenation: Boolean? by lazy { doc.documentSettingsPart.jaxbElement.autoHyphenation?.isVal }
 
