@@ -1,47 +1,21 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-repositories {
-    mavenCentral()
-}
-
-group = "com.maeasoftworks"
-version = "1.0"
-
 plugins {
-    application
     kotlin("jvm") version "1.9.0"
-    id("org.springframework.boot") version "3.1.2"
-    id("io.spring.dependency-management") version "1.0.11.RELEASE"
-    id("org.jetbrains.kotlin.plugin.spring") version "1.9.0"
-    kotlin("plugin.serialization") version "1.9.0"
 }
 
-java.sourceCompatibility = JavaVersion.VERSION_19
+allprojects {
+    repositories {
+        mavenCentral()
+    }
 
-application {
-    mainClass.set("com.maeasoftworks.normativecontrolcore.bootstrap.NormativeControlApplicationKt")
-}
+    group = "com.maeasoftworks"
+    version = "1.0"
 
-dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
-
-    implementation("software.amazon.awssdk:s3:2.20.121")
-
-    implementation("org.docx4j:docx4j-JAXB-ReferenceImpl:11.4.9")
-
-    implementation("org.springframework.boot:spring-boot-starter-amqp")
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
-}
-
-tasks.getByName<Test>("test") {
-    useJUnitPlatform()
-}
-
-tasks.withType<KotlinCompile> {
-    kotlinOptions {
-        freeCompilerArgs += "-Xjsr305=strict"
-        jvmTarget = "19"
+    tasks.withType<KotlinCompile> {
+        kotlinOptions {
+            freeCompilerArgs += "-Xjsr305=strict"
+            jvmTarget = "19"
+        }
     }
 }
