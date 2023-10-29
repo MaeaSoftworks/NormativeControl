@@ -1,10 +1,10 @@
 plugins {
     application
-    kotlin("jvm") version "1.9.10"
+    kotlin("jvm") version "1.9.20-RC2"
     kotlin("plugin.serialization") version "1.9.10"
 }
 
-java.sourceCompatibility = JavaVersion.VERSION_20
+java.sourceCompatibility = JavaVersion.VERSION_21
 
 application {
     mainClass.set("com.maeasoftworks.normativecontrolcore.bootstrap.NormativeControlApplicationKt")
