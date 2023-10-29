@@ -1,13 +1,13 @@
 package api.teachers.controllers
 
-import api.common.services.RefreshTokenService
 import api.common.components.AccessTokenService
 import api.common.exceptions.*
-import api.teachers.dto.*
-import api.common.services.AuthenticationManagerService
 import api.common.implementations.UserIdAuthentication
 import api.common.repositories.RefreshTokenRepository
 import api.common.repositories.UsersRepository
+import api.common.services.AuthenticationManagerService
+import api.common.services.RefreshTokenService
+import api.teachers.dto.*
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
 import org.springframework.security.core.context.ReactiveSecurityContextHolder
@@ -46,7 +46,11 @@ class UserController(
         return refreshTokenService
             .findByToken(refreshToken)
             .switchIfEmpty { throw NotFoundException("Refresh token not found") }
-            .handle { it, sink -> if (refreshTokenService.isNotExpired(it)) { sink.next(it) } }
+            .handle { it, sink ->
+                if (refreshTokenService.isNotExpired(it)) {
+                    sink.next(it)
+                }
+            }
             .switchIfEmpty {
                 Mono
                     .just(refreshToken)

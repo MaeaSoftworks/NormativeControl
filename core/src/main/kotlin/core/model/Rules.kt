@@ -318,7 +318,9 @@ object Rules {
 
                 val isNotUppercase: PFunction = { _, p, isEmpty, ctx ->
                     val text = TextUtils.getText(p)
-                    if (!isEmpty && (text.uppercase() == text || p.content.all { if (it is R) it.getPropertyValue(ctx) { caps }.let { caps -> caps != null && caps.isVal } else false })) {
+                    if (!isEmpty && (text.uppercase() == text || p.content.all {
+                            if (it is R) it.getPropertyValue(ctx) { caps }.let { caps -> caps != null && caps.isVal } else false
+                        })) {
                         Mistake(TEXT_HEADER_BODY_UPPERCASE, CaptureType.P)
                     } else null
                 }

@@ -1,7 +1,7 @@
 package api.common.components
 
-import api.common.services.AuthenticationManagerService
 import api.common.implementations.UserIdAuthentication
+import api.common.services.AuthenticationManagerService
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.ReactiveSecurityContextHolder

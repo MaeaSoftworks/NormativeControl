@@ -1,9 +1,9 @@
 package core.rendering
 
 import core.parsers.DocumentParser
-import core.utils.getPropertyValue
 import core.rendering.model.css.properties.*
 import core.rendering.model.html.HtmlElement
+import core.utils.getPropertyValue
 import jakarta.xml.bind.JAXBElement
 import org.docx4j.TextUtils
 import org.docx4j.wml.Br
@@ -101,10 +101,10 @@ class Renderer(
 
     private fun stylizeR(r: R) {
         currentR!!.style {
-            fontFamily =  FontFamily(r.getPropertyValue(ctx) { rFonts?.ascii })
-            fontSize =  FontSize(r.getPropertyValue(ctx) { sz?.`val`?.toInt() })
-            fontStyle =  FontStyle(r.getPropertyValue(ctx) { i?.isVal })
-            fontWeight =  FontWeight(r.getPropertyValue(ctx) { b?.isVal })
+            fontFamily = FontFamily(r.getPropertyValue(ctx) { rFonts?.ascii })
+            fontSize = FontSize(r.getPropertyValue(ctx) { sz?.`val`?.toInt() })
+            fontStyle = FontStyle(r.getPropertyValue(ctx) { i?.isVal })
+            fontWeight = FontWeight(r.getPropertyValue(ctx) { b?.isVal })
             color = Color(r.getPropertyValue(ctx) { color?.`val` })
             backgroundColor = BackgroundColor(r.getPropertyValue(ctx) { highlight?.`val` })
             textTransform = TextTransform(r.getPropertyValue(ctx) { caps?.isVal })

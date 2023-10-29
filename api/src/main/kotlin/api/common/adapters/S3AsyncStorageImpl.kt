@@ -1,9 +1,9 @@
 package api.common.adapters
 
 import api.common.configurations.S3ClientConfigurationProperties
-import api.students.dto.UploadState
 import api.common.exceptions.NotFoundException
 import api.students.components.S3AsyncStorage
+import api.students.dto.UploadState
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.http.MediaType
 import org.springframework.http.codec.multipart.FilePart
@@ -18,7 +18,7 @@ import java.nio.ByteBuffer
 import java.util.concurrent.CompletableFuture
 
 @Component
-class S3AsyncStorageImpl(private val s3Client: S3AsyncClient, private val s3props: S3ClientConfigurationProperties): S3AsyncStorage {
+class S3AsyncStorageImpl(private val s3Client: S3AsyncClient, private val s3props: S3ClientConfigurationProperties) : S3AsyncStorage {
     override fun putObjectAsync(body: FilePart, objectName: String, tags: Map<String, String>): Mono<Boolean> {
         val uploadRequest = s3Client
             .createMultipartUpload(

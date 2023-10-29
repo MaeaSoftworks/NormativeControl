@@ -10,19 +10,31 @@ class FontSize(value: Int?) : IntProperty("font-size", value, FONT_SCALING, "px"
 class FontStyle(value: Boolean?) : Property<Boolean?>(
     "font-style",
     value,
-    { if (it == null) null else { if (it) "italic" else null } }
+    {
+        if (it == null) null else {
+            if (it) "italic" else null
+        }
+    }
 )
 
 class FontWeight(value: Boolean?) : Property<Boolean?>(
     "font-weight",
     value,
-    { if (it == null) null else { if (it) "bold" else null } }
+    {
+        if (it == null) null else {
+            if (it) "bold" else null
+        }
+    }
 )
 
 class FontVariantCaps(value: Boolean?) : Property<Boolean?>(
     "font-variant-caps",
     value,
-    { if (it == null) null else { if (it) "small-caps" else null } }
+    {
+        if (it == null) null else {
+            if (it) "small-caps" else null
+        }
+    }
 )
 
 class FontVariantLigatures(value: STLigatures?) : Property<STLigatures>(

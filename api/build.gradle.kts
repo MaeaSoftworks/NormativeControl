@@ -16,7 +16,7 @@ application.mainClass.set("api.NormativeControlApiApplicationKt")
 
 @Suppress("REDUNDANT_LABEL_WARNING")
 dependencies {
-    implementation@run {
+    implementation@ run {
         implementation(project(":core"))
 
         implementation("org.jetbrains.kotlin:kotlin-reflect")
@@ -37,21 +37,21 @@ dependencies {
         implementation("software.amazon.awssdk:netty-nio-client:2.20.121")
     }
 
-    runtime@run {
+    runtime@ run {
         runtimeOnly("com.mysql:mysql-connector-j")
         runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
         runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
     }
 
-    dev@run {
+    dev@ run {
         developmentOnly("org.springframework.boot:spring-boot-devtools")
     }
 
-    annotations@run {
+    annotations@ run {
         annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     }
 
-    test@run {
+    test@ run {
         testImplementation("io.projectreactor:reactor-test")
         testImplementation("org.springframework.boot:spring-boot-starter-test")
         testImplementation("org.springframework.security:spring-security-test")

@@ -19,10 +19,10 @@ class S3AsyncConfiguration {
             .builder()
             .httpClient(
                 NettyNioAsyncHttpClient
-                .builder()
-                .writeTimeout(Duration.ZERO)
-                .maxConcurrency(64)
-                .build()
+                    .builder()
+                    .writeTimeout(Duration.ZERO)
+                    .maxConcurrency(64)
+                    .build()
             )
             .region(s3props.region)
             .credentialsProvider { AwsBasicCredentials.create(s3props.accessKeyId, s3props.secretAccessKey) }

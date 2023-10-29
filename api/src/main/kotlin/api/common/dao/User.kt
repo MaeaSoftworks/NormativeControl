@@ -6,7 +6,7 @@ import org.springframework.data.relational.core.mapping.Column
 import org.springframework.data.relational.core.mapping.Table
 
 @Table(name = "users")
-class User: Persistable<Long> {
+class User : Persistable<Long> {
     @Id
     @Column("id")
     @get:JvmName("getIdKt")

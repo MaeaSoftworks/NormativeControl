@@ -1,8 +1,8 @@
 package api.students.components
 
+import api.common.exceptions.NoAccessException
 import api.students.dto.Message
 import api.students.dto.MessageCode
-import api.common.exceptions.NoAccessException
 import org.springframework.http.codec.multipart.FilePart
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Flux
@@ -55,8 +55,7 @@ class DocumentManager(
             .handle { it, sink ->
                 if (!it.containsKey("accessKey") || it["accessKey"] != accessKey) {
                     sink.error(NoAccessException("You do not have access to this document"))
-                }
-                else sink.next(it)
+                } else sink.next(it)
             }
             .thenMany(s3AsyncStorage.getObjectAsync(objectName))
     }

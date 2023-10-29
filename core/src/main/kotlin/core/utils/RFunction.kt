@@ -1,8 +1,8 @@
 package core.utils
 
-import core.model.Context
 import core.enums.CaptureType
 import core.enums.MistakeType
+import core.model.Context
 import core.model.Mistake
 import org.docx4j.wml.R
 import org.docx4j.wml.RPr

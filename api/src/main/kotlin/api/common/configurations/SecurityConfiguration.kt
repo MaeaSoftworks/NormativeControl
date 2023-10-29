@@ -19,7 +19,7 @@ class SecurityConfiguration(
     @Bean
     fun commonApiSecurity(http: ServerHttpSecurity): SecurityWebFilterChain {
         return http.invoke {
-            cors {  }
+            cors { }
             csrf { disable() }
             addFilterBefore(jwtFilter, SecurityWebFiltersOrder.AUTHENTICATION)
             authorizeExchange {
