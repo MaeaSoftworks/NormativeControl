@@ -1,13 +1,13 @@
 plugins {
     application
-    kotlin("jvm") version "1.9.0"
+    kotlin("jvm") version "1.9.10"
     id("org.springframework.boot") version "3.1.2"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
-    id("org.jetbrains.kotlin.plugin.spring") version "1.9.0"
-    kotlin("plugin.serialization") version "1.9.0"
+    id("org.jetbrains.kotlin.plugin.spring") version "1.9.10"
+    kotlin("plugin.serialization") version "1.9.10"
 }
 
-java.sourceCompatibility = JavaVersion.VERSION_19
+java.sourceCompatibility = JavaVersion.VERSION_20
 
 application {
     mainClass.set("bootstrapper.BootstrapperKt")
