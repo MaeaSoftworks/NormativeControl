@@ -16,7 +16,11 @@ class DocumentManager(
     fun saveDocumentAndSubscribe(document: FilePart, documentId: String, accessKey: String): Flux<Message> {
         return Flux.concat(
             s3AsyncStorage
-                .putObjectAsync(document, "$documentId/source.docx", mapOf("accessKey" to accessKey))
+                .putObjectAsync(
+                    document,
+                    "$documentId/source.docx",
+                    mapOf("accessKey" to accessKey)
+                )
                 .handle { it, sink ->
                     if (it) {
                         sink.next(Message(documentId, MessageCode.INFO, "File saved"))
@@ -25,7 +29,7 @@ class DocumentManager(
                     }
                 },
 
-            launcher.run(documentId)
+            launcher.run(documentId, Flux.from(document.content()), accessKey)
         )
     }
 

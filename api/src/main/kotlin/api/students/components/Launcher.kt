@@ -1,6 +1,7 @@
 package api.students.components
 
 import api.students.dto.Message
+import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Sinks
@@ -13,9 +14,9 @@ class Launcher(
 ) {
     private val executor: ExecutorService = Executors.newVirtualThreadPerTaskExecutor()
 
-    fun run(documentId: String): Flux<Message> {
+    fun run(documentId: String, file: Flux<DataBuffer>, accessKey: String): Flux<Message> {
         val sink = Sinks.many().unicast().onBackpressureBuffer<Message>()
-        executor.execute(Runner(documentId, s3Storage, ParserCallback(documentId, MessageSender(sink))))
+        executor.execute(Runner(documentId, file, accessKey, s3Storage, ParserCallback(documentId, MessageSender(sink))))
         return sink.asFlux()
     }
 }

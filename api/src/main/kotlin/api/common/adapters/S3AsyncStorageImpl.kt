@@ -36,7 +36,7 @@ class S3AsyncStorageImpl(private val s3Client: S3AsyncClient, private val s3prop
             .fromFuture(uploadRequest)
             .flatMapMany {
                 uploadState.uploadId = it.uploadId()
-                body.content()
+                Flux.from(body.content())
             }
             .bufferUntil {
                 uploadState.buffered += it.readableByteCount()
