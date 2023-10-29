@@ -1,0 +1,6 @@
+server:
+  port: 80
+
+spring:
+  webflux:
+    base-path: /api

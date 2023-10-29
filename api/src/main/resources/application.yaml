@@ -1,0 +1,34 @@
+spring:
+  rabbitmq:
+    host: localhost
+    username: maea
+    password: maeanc
+
+  r2dbc:
+    username: maea
+    url: r2dbc:mysql://localhost:3306/normativecontrol
+    password: maeanc
+    pool:
+      enabled: true
+
+  data:
+    r2dbc:
+      repositories:
+        enabled: true
+
+server:
+  port: 8080
+
+aws:
+  s3:
+    region: US-EAST-1
+    accessKeyId: TLLOX30bWCuHCYkUwzdc
+    secretAccessKey: ZaVrjzV4Kw0OGAYObJjH2T6IPcscuUeGYPLahU5s
+    endpoint: http://localhost:9000
+    bucket: normative-control
+
+security:
+  jwt:
+    secret: "XRQaA5ABbDbTosUYTW5WRukcQ8+U6mzvNh8mYXFkZ7c="
+    expirationMs: 3600000
+    refreshExpirationMs: 2592000000
