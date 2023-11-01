@@ -17,5 +17,5 @@ FROM eclipse-temurin:21-jre-alpine
 RUN addgroup -S instance && adduser -S maea -G instance
 USER maea
 
-COPY --from=build /app/sources/bootstrapper/build/libs/* /app/built/app.jar
+COPY --from=build /app/sources/api/build/libs/* /app/built/app.jar
 ENTRYPOINT java -jar app/built/app.jar
