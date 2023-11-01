@@ -1,7 +1,15 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.9.20-RC2" apply false
+    kotlin("jvm") version "1.9.20"
+}
+
+kotlin {
+    sourceSets.all {
+        languageSettings {
+            languageVersion = "2.0"
+        }
+    }
 }
 
 allprojects {
@@ -9,7 +17,7 @@ allprojects {
         mavenCentral()
     }
 
-    group = "com.maeasoftworks"
+    group = "ru.maeasoftworks"
     version = "1.0"
 
     tasks.withType<KotlinCompile> {
