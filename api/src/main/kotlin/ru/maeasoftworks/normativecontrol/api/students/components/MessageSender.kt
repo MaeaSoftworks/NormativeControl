@@ -1,12 +1,10 @@
 package ru.maeasoftworks.normativecontrol.api.students.components
 
+import kotlinx.coroutines.channels.Channel
 import ru.maeasoftworks.normativecontrol.api.students.dto.Message
-import reactor.core.publisher.Sinks
 
-class MessageSender(
-    private val sink: Sinks.Many<Message>
-) {
-    fun send(body: Message) {
-        sink.tryEmitNext(body)
+class MessageSender(private val channel: Channel<Message>) {
+    suspend fun send(body: Message) {
+        channel.send(body)
     }
 }

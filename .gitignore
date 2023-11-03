@@ -51,3 +51,4 @@ gradle-app.setting
 .gradletasknamecache
 .project
 .classpath
+core/src/test/resources/ignore/*

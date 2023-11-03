@@ -1,11 +1,11 @@
 package ru.maeasoftworks.normativecontrol.api.shared.services
 
+import kotlinx.coroutines.flow.Flow
 import ru.maeasoftworks.normativecontrol.api.shared.dao.RefreshToken
 import ru.maeasoftworks.normativecontrol.api.shared.repositories.RefreshTokenRepository
 import ru.maeasoftworks.normativecontrol.api.shared.repositories.UsersRepository
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
-import reactor.core.publisher.Mono
 import java.time.Instant
 
 @Service
@@ -18,22 +18,18 @@ class RefreshTokenService(
     @Value("\${security.jwt.refreshExpirationMs}")
     private var refreshTokenDurationMs: Long = 0
 
-    fun findByToken(token: String): Mono<RefreshToken> {
+    fun findByToken(token: String): Flow<RefreshToken> {
         return refreshTokenRepository.getByValue(token)
     }
 
-    fun createRefreshToken(userId: Long): Mono<RefreshToken> {
-        return usersRepository
-            .getById(userId)
-            .flatMap {
-                refreshTokenRepository.save(
-                    RefreshToken(
-                        it.id!!,
-                        tokenGenerator.generateToken(64),
-                        Instant.now().plusMillis(refreshTokenDurationMs)
-                    )
-                )
-            }
+    suspend fun createRefreshToken(userId: Long): RefreshToken {
+        return refreshTokenRepository.save(
+            RefreshToken(
+                usersRepository.findById(userId).id!!,
+                tokenGenerator.generateToken(64),
+                Instant.now().plusMillis(refreshTokenDurationMs)
+            )
+        )
     }
 
     fun isNotExpired(token: RefreshToken): Boolean {

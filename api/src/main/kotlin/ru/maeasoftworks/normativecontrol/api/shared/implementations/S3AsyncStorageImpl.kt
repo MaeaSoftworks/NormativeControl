@@ -1,5 +1,8 @@
 package ru.maeasoftworks.normativecontrol.api.shared.implementations
 
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.reactive.asFlow
 import ru.maeasoftworks.normativecontrol.api.shared.configurations.S3ClientConfigurationProperties
 import ru.maeasoftworks.normativecontrol.api.shared.exceptions.NotFoundException
 import ru.maeasoftworks.normativecontrol.api.students.components.S3AsyncStorage
@@ -9,17 +12,19 @@ import org.springframework.http.codec.multipart.FilePart
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import ru.maeasoftworks.normativecontrol.api.shared.asFlow
+import ru.maeasoftworks.normativecontrol.api.shared.await
 import software.amazon.awssdk.core.async.AsyncRequestBody
 import software.amazon.awssdk.core.async.AsyncResponseTransformer
 import software.amazon.awssdk.services.s3.S3AsyncClient
 import software.amazon.awssdk.services.s3.model.*
 import java.nio.ByteBuffer
-import java.util.concurrent.CompletableFuture
 
 @Component
 class S3AsyncStorageImpl(private val s3Client: S3AsyncClient, private val s3props: S3ClientConfigurationProperties) : S3AsyncStorage {
-    override fun putObjectAsync(body: FilePart, objectName: String, tags: Map<String, String>): Mono<Boolean> {
-        val uploadRequest = s3Client
+    override suspend fun putObjectAsync(body: FilePart, objectName: String, tags: Map<String, String>) {
+        val uploadState = UploadState(s3props.bucket, objectName)
+        val result = s3Client
             .createMultipartUpload(
                 CreateMultipartUploadRequest.builder()
                     .contentType((body.headers().contentType ?: MediaType.APPLICATION_OCTET_STREAM).toString())
@@ -28,32 +33,25 @@ class S3AsyncStorageImpl(private val s3Client: S3AsyncClient, private val s3prop
                     .bucket(s3props.bucket)
                     .build()
             )
+            .await()
 
-        val uploadState = UploadState(s3props.bucket, objectName)
+        uploadState.uploadId = result.uploadId()
 
-        return Mono
-            .fromFuture(uploadRequest)
-            .flatMapMany {
-                uploadState.uploadId = it.uploadId()
-                Flux.from(body.content())
-            }
-            .bufferUntil {
-                uploadState.buffered += it.readableByteCount()
-                if (uploadState.buffered >= s3props.multipartMinPartSize) {
-                    uploadState.buffered = 0
-                    return@bufferUntil true
-                } else {
-                    return@bufferUntil false
-                }
-            }
-            .map { concatBuffers(it) }
-            .flatMap { uploadPart(uploadState, it) }
-            .reduce(uploadState) { state, completedPart ->
-                state.completedParts[completedPart.partNumber()] = completedPart
-                state
-            }
-            .flatMap { completeUpload(it) }
-            .map { true }
+        Flux.from(body.content()).bufferUntil {
+            uploadState.buffered += it.readableByteCount()
+            return@bufferUntil if (uploadState.buffered >= s3props.multipartMinPartSize) {
+                uploadState.buffered = 0
+                true
+            } else false
+        }.map {
+            concatBuffers(it)
+        }.flatMap {
+            uploadPart(uploadState, it)
+        }.reduce(uploadState) { state, completedPart ->
+            state.also { it.completedParts[completedPart.partNumber()] = completedPart }
+        }.flatMap {
+            completeUpload(it)
+        }.asFlow().collect()
     }
 
     private fun concatBuffers(buffers: List<DataBuffer>): ByteBuffer {
@@ -67,24 +65,23 @@ class S3AsyncStorageImpl(private val s3Client: S3AsyncClient, private val s3prop
 
     private fun uploadPart(uploadState: UploadState, buffer: ByteBuffer): Mono<CompletedPart> {
         val partNumber = ++uploadState.partCounter
-        val request: CompletableFuture<UploadPartResponse> = s3Client.uploadPart(
-            UploadPartRequest.builder()
-                .bucket(uploadState.bucket)
-                .key(uploadState.objectName)
-                .partNumber(partNumber)
-                .uploadId(uploadState.uploadId)
-                .contentLength(buffer.capacity().toLong())
-                .build(),
-            AsyncRequestBody.fromPublisher(Mono.just(buffer))
-        )
-        return Mono
-            .fromFuture(request)
-            .map {
-                CompletedPart.builder()
-                    .eTag(it.eTag())
+        return Mono.fromFuture(
+            s3Client.uploadPart(
+                UploadPartRequest.builder()
+                    .bucket(uploadState.bucket)
+                    .key(uploadState.objectName)
                     .partNumber(partNumber)
-                    .build()
-            }
+                    .uploadId(uploadState.uploadId)
+                    .contentLength(buffer.capacity().toLong())
+                    .build(),
+                AsyncRequestBody.fromPublisher(Mono.just(buffer))
+            )
+        ).map {
+            CompletedPart.builder()
+                .eTag(it.eTag())
+                .partNumber(partNumber)
+                .build()
+        }
     }
 
     private fun completeUpload(state: UploadState): Mono<CompleteMultipartUploadResponse> {
@@ -104,36 +101,35 @@ class S3AsyncStorageImpl(private val s3Client: S3AsyncClient, private val s3prop
         )
     }
 
-    override fun getTagsAsync(objectName: String): Mono<Map<String, String>> {
-        return Mono
-            .fromFuture(
-                s3Client.getObjectTagging(
-                    GetObjectTaggingRequest
-                        .builder()
-                        .bucket(s3props.bucket)
-                        .key(objectName)
-                        .build()
-                )
-            )
-            .map { tagSet -> tagSet.tagSet().associate { it.key() to it.value() } }
-            .doOnError { throw NotFoundException("Object not found") }
+    override fun getTagsAsync(objectName: String): Flow<Map<String, String>> {
+        return s3Client.getObjectTagging(
+            GetObjectTaggingRequest
+                .builder()
+                .bucket(s3props.bucket)
+                .key(objectName)
+                .build()
+        ).asFlow().catch { //todo find cause
+            throw NotFoundException("Object not found")
+        }.map { tagSet ->
+            tagSet.tagSet().associate { it.key() to it.value() }
+        }
     }
 
-    override fun getObjectAsync(objectName: String): Flux<ByteBuffer> {
-        val request = GetObjectRequest.builder()
-            .bucket(s3props.bucket)
-            .key(objectName)
-            .build()
-
-        return Mono
-            .fromFuture(s3Client.getObject(request, AsyncResponseTransformer.toPublisher()))
-            .flatMapMany { it }
-            .onErrorResume { e ->
-                when (e) {
-                    is NoSuchKeyException -> throw NotFoundException("Document not found")
-                    else -> throw e
-                }
-            }
+    @OptIn(FlowPreview::class)
+    override fun getObjectAsync(objectName: String): Flow<ByteBuffer> {
+        return s3Client.getObject(
+            GetObjectRequest.builder()
+                .bucket(s3props.bucket)
+                .key(objectName)
+                .build(),
+            AsyncResponseTransformer.toPublisher()
+        ).asFlow().map {
+            it.asFlow()
+        }.flatMapConcat {
+            it
+        }.catch {
+            if (it is NoSuchKeyException) throw NotFoundException("Document not found")
+        }
     }
 
     class UploadState(val bucket: String, val objectName: String) {

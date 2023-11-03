@@ -1,13 +1,15 @@
 package ru.maeasoftworks.normativecontrol.api.shared.repositories
 
+import kotlinx.coroutines.flow.Flow
+import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 import ru.maeasoftworks.normativecontrol.api.shared.dao.RefreshToken
-import org.springframework.data.repository.reactive.ReactiveCrudRepository
-import reactor.core.publisher.Mono
 
-interface RefreshTokenRepository : ReactiveCrudRepository<RefreshToken, Long> {
-    fun getByValue(token: String): Mono<RefreshToken>
+interface RefreshTokenRepository : CoroutineCrudRepository<RefreshToken, Long> {
+    fun getByValue(token: String): Flow<RefreshToken>
 
-    fun deleteByUserId(userId: Long): Mono<Long>
+    override suspend fun deleteById(id: Long)
 
-    fun deleteByValue(refreshToken: String): Mono<Long>
+    override suspend fun delete(entity: RefreshToken)
+
+    suspend fun deleteByUserId(userId: Long)
 }

@@ -8,14 +8,16 @@ import ru.maeasoftworks.normativecontrol.api.shared.services.AuthenticationManag
 import ru.maeasoftworks.normativecontrol.api.shared.services.RefreshTokenService
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.reactive.asFlow
 import org.springframework.security.core.context.ReactiveSecurityContextHolder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.web.bind.annotation.*
-import reactor.core.publisher.Mono
-import reactor.kotlin.core.publisher.switchIfEmpty
 import ru.maeasoftworks.normativecontrol.api.inspectors.dto.*
 import ru.maeasoftworks.normativecontrol.api.shared.exceptions.*
 
+@FlowPreview
 @RestController
 @RequestMapping("/teacher/account")
 @CrossOrigin
@@ -28,71 +30,70 @@ class UserController(
     private val refreshTokenService: RefreshTokenService
 ) {
     @PostMapping("/login", produces = ["application/json"])
-    fun login(@RequestBody @Valid credentials: LoginRequest): Mono<LoginResponse> {
-        return usersRepository
-            .getByUsername(credentials.username)
-            .flatMap { authenticationManagerService.authenticate(UserIdAuthentication(it.id!!, password = credentials.password)) }
-            .map {
-                ReactiveSecurityContextHolder.withAuthentication(it)
+    fun login(@RequestBody @Valid credentials: LoginRequest): Flow<LoginResponse> {
+        return usersRepository.getByUsername(credentials.username)
+            .flatMapConcat {
+                authenticationManagerService.authenticate(UserIdAuthentication(it.id!!, password = credentials.password)).asFlow()
+            }.map {
                 it as UserIdAuthentication
+                ReactiveSecurityContextHolder.withAuthentication(it)
+                val token = refreshTokenService.createRefreshToken(it.userId)
+                LoginResponse(accessTokenService.generateToken(it.userId), token.value)
+            }.onEmpty {
+                throw InvalidCredentialsException("User not found")
             }
-            .flatMap { refreshTokenService.createRefreshToken(it.userId) }
-            .map { LoginResponse(accessTokenService.generateToken(it.userId!!), it.value) }
-            .switchIfEmpty { throw InvalidCredentialsException("User not found") }
     }
 
     @PatchMapping("/token", produces = ["application/json"])
-    fun updateAccessToken(@Valid @NotBlank @RequestParam("refreshToken") refreshToken: String): Mono<UpdateAccessTokenResponse> {
-        return refreshTokenService
-            .findByToken(refreshToken)
-            .switchIfEmpty { throw NotFoundException("Refresh token not found") }
-            .handle { it, sink ->
+    fun updateAccessToken(@Valid @NotBlank @RequestParam("refreshToken") refreshToken: String): Flow<UpdateAccessTokenResponse> {
+        return refreshTokenService.findByToken(refreshToken)
+            .onEmpty {
+                throw NotFoundException("Refresh token not found")
+            }.map {
                 if (refreshTokenService.isNotExpired(it)) {
-                    sink.next(it)
+                    tokenRepository.delete(it)
+                    throw RefreshTokenExpiredException()
                 }
+                UpdateAccessTokenResponse(accessTokenService.generateToken(it.userId!!))
             }
-            .switchIfEmpty {
-                Mono
-                    .just(refreshToken)
-                    .flatMap { tokenRepository.deleteByValue(it) }
-                    .handle { _, sink -> sink.error(RefreshTokenExpiredException()) }
-            }
-            .map { UpdateAccessTokenResponse(accessTokenService.generateToken(it.userId!!)) }
     }
 
     @PatchMapping("/password")
-    fun changePassword(@RequestBody passwordRequest: PasswordRequest): Mono<ResponsePayload> {
+    fun changePassword(@RequestBody passwordRequest: PasswordRequest): Flow<ResponsePayload> {
         return ReactiveSecurityContextHolder
             .getContext()
-            .flatMap { usersRepository.getById((it.authentication as UserIdAuthentication).userId) }
-            .handle { it, sink ->
-                if (passwordEncoder.matches(passwordRequest.password, it.password)) {
-                    sink.error(CredentialIsAlreadyUsedException())
-                } else {
-                    sink.next(it)
-                }
-            }.flatMap {
+            .asFlow()
+            .map {
+                usersRepository.findById((it.authentication as UserIdAuthentication).userId)
+            }
+            .filter {
+                passwordEncoder.matches(passwordRequest.password, it.password)
+            }
+            .onEmpty { throw CredentialIsAlreadyUsedException() }
+            .map {
                 it.password = passwordEncoder.encode(passwordRequest.password)
                 usersRepository.save(it)
+                tokenRepository.deleteByUserId(it.id!!)
+                ResponsePayload(it.toString(), Status.UPDATED)
             }
-            .flatMap { tokenRepository.deleteByUserId(it.id!!) }
-            .map { ResponsePayload(it.toString(), Status.UPDATED) }
     }
 
     @PatchMapping("/username")
-    fun changeUsername(@RequestBody usernameRequest: UsernameRequest): Mono<ResponsePayload> {
+    fun changeUsername(@RequestBody usernameRequest: UsernameRequest): Flow<ResponsePayload> {
         return usersRepository
             .existsByUsername(usernameRequest.username)
-            .handle { it, sink ->
-                if (it) {
-                    sink.error(PrincipalIsAlreadyUsedException())
-                } else {
-                    sink.next(it)
-                }
+            .map {
+                if (it) throw PrincipalIsAlreadyUsedException() else false
             }
-            .flatMap { ReactiveSecurityContextHolder.getContext() }
-            .flatMap { usersRepository.getById((it.authentication as UserIdAuthentication).userId) }
-            .flatMap { usersRepository.save(it.apply { username = usernameRequest.username }) }
-            .map { ResponsePayload(it.id.toString(), Status.UPDATED) }
+            .flatMapConcat {
+                ReactiveSecurityContextHolder.getContext().asFlow()
+            }
+            .map {
+                usersRepository.findById((it.authentication as UserIdAuthentication).userId)
+            }
+            .map {
+                usersRepository.save(it.apply { username = usernameRequest.username })
+                ResponsePayload(it.id.toString(), Status.UPDATED)
+            }
     }
 }

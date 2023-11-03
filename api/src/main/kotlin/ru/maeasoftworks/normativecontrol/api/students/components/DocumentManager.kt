@@ -1,5 +1,7 @@
 package ru.maeasoftworks.normativecontrol.api.students.components
 
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.*
 import ru.maeasoftworks.normativecontrol.api.shared.exceptions.NoAccessException
 import ru.maeasoftworks.normativecontrol.api.students.dto.Message
 import org.springframework.http.codec.multipart.FilePart
@@ -12,54 +14,50 @@ class DocumentManager(
     private val s3AsyncStorage: S3AsyncStorage,
     private val launcher: Launcher
 ) {
-    fun saveDocumentAndSubscribe(document: FilePart, documentId: String, accessKey: String): Flux<Message> {
-        return Flux.concat(
-            s3AsyncStorage
-                .putObjectAsync(
-                    document,
-                    "$documentId/source.docx",
-                    mapOf("accessKey" to accessKey)
-                )
-                .handle { it, sink ->
-                    if (it) {
-                        sink.next(Message(documentId, Message.Code.INFO, "File saved"))
-                    } else {
-                        sink.next(Message(documentId, Message.Code.ERROR, "Error during file uploading"))
-                    }
-                },
-
-            launcher.run(documentId, Flux.from(document.content()), accessKey)
-        )
+    fun saveDocumentAndSubscribe(document: FilePart, documentId: String, accessKey: String): Flow<Message> {
+        return flow {
+            try {
+                s3AsyncStorage.putObjectAsync(document, "$documentId/source.docx", mapOf("accessKey" to accessKey))
+            } catch (e: Exception) { // todo find causes
+                emit(Message(documentId, Message.Code.ERROR, "Error during file uploading"))
+            }
+            emit(Message(documentId, Message.Code.INFO, "File saved"))
+        }.onCompletion {
+            if (it == null)
+                emitAll(launcher.run(documentId, Flux.from(document.content()), accessKey))
+        }
     }
 
-    fun checkAccessAndGetHtml(documentId: String, accessKey: String): Flux<ByteBuffer> {
+    fun checkAccessAndGetHtml(documentId: String, accessKey: String): Flow<ByteBuffer> {
         return checkAccessAndGetObject("$documentId/conclusion.html", accessKey)
     }
 
-    fun getHtml(documentId: String): Flux<ByteBuffer> {
+    fun getHtml(documentId: String): Flow<ByteBuffer> {
         return getObject("$documentId/conclusion.html")
     }
 
-    fun checkAccessAndGetConclusion(documentId: String, accessKey: String): Flux<ByteBuffer> {
+    fun checkAccessAndGetConclusion(documentId: String, accessKey: String): Flow<ByteBuffer> {
         return checkAccessAndGetObject("$documentId/conclusion.docx", accessKey)
     }
 
-    fun getConclusion(documentId: String): Flux<ByteBuffer> {
+    fun getConclusion(documentId: String): Flow<ByteBuffer> {
         return getObject("$documentId/conclusion.docx")
     }
 
-    private fun checkAccessAndGetObject(objectName: String, accessKey: String): Flux<ByteBuffer> {
+    @OptIn(FlowPreview::class)
+    private fun checkAccessAndGetObject(objectName: String, accessKey: String): Flow<ByteBuffer> {
         return s3AsyncStorage
             .getTagsAsync(objectName)
-            .handle { it, sink ->
+            .onEach {
                 if (!it.containsKey("accessKey") || it["accessKey"] != accessKey) {
-                    sink.error(NoAccessException("You do not have access to this document"))
-                } else sink.next(it)
+                    throw NoAccessException("You do not have access to this document")
+                }
+            }.flatMapConcat {
+                s3AsyncStorage.getObjectAsync(objectName)
             }
-            .thenMany(s3AsyncStorage.getObjectAsync(objectName))
     }
 
-    private fun getObject(objectName: String): Flux<ByteBuffer> {
+    private fun getObject(objectName: String): Flow<ByteBuffer> {
         return s3AsyncStorage.getObjectAsync(objectName)
     }
 }

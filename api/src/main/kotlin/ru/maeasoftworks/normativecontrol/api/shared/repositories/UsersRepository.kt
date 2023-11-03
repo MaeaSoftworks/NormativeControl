@@ -1,14 +1,19 @@
+@file:Suppress("SpringDataRepositoryMethodReturnTypeInspection")
+
 package ru.maeasoftworks.normativecontrol.api.shared.repositories
 
+import kotlinx.coroutines.flow.Flow
+import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 import ru.maeasoftworks.normativecontrol.api.shared.dao.User
-import org.springframework.data.repository.reactive.ReactiveCrudRepository
 import reactor.core.publisher.Mono
 
-interface UsersRepository : ReactiveCrudRepository<User, Long> {
+interface UsersRepository : CoroutineCrudRepository<User, Long> {
 
-    fun getByUsername(username: String): Mono<User>
+    fun getByUsername(username: String): Flow<User>
+
+    override suspend fun findById(id: Long): User
 
     fun getById(id: Long): Mono<User>
 
-    fun existsByUsername(username: String): Mono<Boolean>
+    fun existsByUsername(username: String): Flow<Boolean>
 }
