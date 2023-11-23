@@ -1,5 +1,6 @@
 package ru.maeasoftworks.normativecontrol.api.students.components
 
+import kotlinx.coroutines.runBlocking
 import ru.maeasoftworks.normativecontrol.api.students.dto.Message
 import ru.maeasoftworks.normativecontrol.core.parsers.DocumentParser
 import ru.maeasoftworks.normativecontrol.core.rendering.RenderLauncher
@@ -19,10 +20,11 @@ class Runner(
     override fun run() {
         val inputStream = getFile()
         try {
-            val parser = DocumentParser(inputStream)
-            parser.runVerification()
+            val parser = DocumentParser()
+            parser.load(inputStream)
+            runBlocking { parser.runVerification() }
 
-            val render = ByteArrayOutputStream().also { RenderLauncher(parser).render(it) }
+            val render = RenderLauncher(parser).render()
 
             val result = ByteArrayOutputStream().also { parser.writeResult(it) }
 

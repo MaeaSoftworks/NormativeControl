@@ -1,30 +1,37 @@
 package ru.maeasoftworks.normativecontrol.core.model
 
+import kotlinx.coroutines.delay
 import ru.maeasoftworks.normativecontrol.core.enums.CaptureType
 import ru.maeasoftworks.normativecontrol.core.parsers.chapters.ChapterParser
 import ru.maeasoftworks.normativecontrol.core.parsers.chapters.FrontPageParser
 import ru.maeasoftworks.normativecontrol.core.utils.PropertyResolver
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage
 import org.docx4j.openpackaging.parts.WordprocessingML.CommentsPart
+import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
 import org.docx4j.wml.*
 import java.math.BigInteger
 import java.util.*
 
-class Context(
-    val mlPackage: WordprocessingMLPackage
-) {
-    private val doc = mlPackage.mainDocumentPart
-    val resolver = PropertyResolver(mlPackage)
-    val ptr: Pointer = Pointer(doc.content.size)
-
+class Context {
+    lateinit var mlPackage: WordprocessingMLPackage
+    private lateinit var doc: MainDocumentPart
+    lateinit var resolver: PropertyResolver
+    val ptr: Pointer = Pointer()
     var chapter: ChapterParser = FrontPageParser
-
     var lastDefinedChapter: ChapterParser = FrontPageParser
 
-    private val comments = (doc.commentsPart ?: CommentsPart().apply {
-        jaxbElement = Comments()
-        doc.addTargetPart(this)
-    }).also { ptr.lastMistake = it.jaxbElement.comment.size.toLong() }
+    private lateinit var comments: CommentsPart
+
+    fun load(mlPackage: WordprocessingMLPackage) {
+        this.mlPackage = mlPackage
+        doc = mlPackage.mainDocumentPart
+        resolver = PropertyResolver(mlPackage)
+        ptr.totalChildSize = doc.content.size
+        comments = (doc.commentsPart ?: CommentsPart().apply {
+            jaxbElement = Comments()
+            doc.addTargetPart(this)
+        }).also { ptr.lastMistake = it.jaxbElement.comment.size.toLong() }
+    }
 
     fun addMistake(mistake: Mistake) {
         val formattedText = if (mistake.actual != null && mistake.expected != null) {
@@ -153,8 +160,8 @@ class Context(
         }
     }
 
-    class Pointer(size: Int) {
-        var totalChildSize: Int = size
+    class Pointer {
+        var totalChildSize: Int = 0
             internal set
 
         var bodyPosition = 0
@@ -167,8 +174,9 @@ class Context(
 
         internal var lastMistake = 0L
 
-        fun moveNextChild() {
+        suspend fun moveNextChild() {
             bodyPosition++
+            delay(5)
         }
 
         fun moveNextChildContent() {

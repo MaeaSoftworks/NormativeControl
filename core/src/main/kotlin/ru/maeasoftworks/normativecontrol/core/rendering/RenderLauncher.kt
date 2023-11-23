@@ -9,7 +9,7 @@ import java.io.OutputStream
 class RenderLauncher(
     private val root: DocumentParser
 ) {
-    fun render(stream: OutputStream) {
+    fun render(): String {
         val html = html {
             stylesheet {
                 val pageSize = root.doc.contents.body.sectPr.pgSz
@@ -51,6 +51,6 @@ class RenderLauncher(
         for (page in html.content[0].children) {
             page.children.add(0, HtmlElement("div").withClass("page-size"))
         }
-        stream.write(html.toString().toByteArray())
+        return html.toString()
     }
 }

@@ -7,13 +7,20 @@ import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 
-class DocumentParser(stream: InputStream) {
-    private val mlPackage: WordprocessingMLPackage = WordprocessingMLPackage.load(stream)
-    val ctx = Context(mlPackage)
-    val doc: MainDocumentPart = mlPackage.mainDocumentPart.also { it.styleDefinitionsPart.jaxbElement }
-    val autoHyphenation: Boolean? by lazy { doc.documentSettingsPart.jaxbElement.autoHyphenation?.isVal }
+class DocumentParser {
+    private lateinit var mlPackage: WordprocessingMLPackage
+    val ctx = Context()
+    lateinit var doc: MainDocumentPart
+    var autoHyphenation: Boolean? = null
 
-    fun runVerification() {
+    fun load(stream: InputStream) {
+        mlPackage = WordprocessingMLPackage.load(stream)
+        doc = mlPackage.mainDocumentPart.also { it.styleDefinitionsPart.jaxbElement }
+        autoHyphenation = doc.documentSettingsPart.jaxbElement.autoHyphenation?.isVal
+        ctx.load(mlPackage)
+    }
+
+    suspend fun runVerification() {
         while (ctx.ptr.bodyPosition < ctx.ptr.totalChildSize) {
             val currentChild = doc.content[ctx.ptr.bodyPosition]
             DocumentChildParsers.parseDocumentChild(currentChild, ctx)
