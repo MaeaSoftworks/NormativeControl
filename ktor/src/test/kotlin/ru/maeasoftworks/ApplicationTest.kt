@@ -5,7 +5,6 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
 import kotlin.test.*
-import ru.maeasoftworks.modules.*
 import ru.maeasoftworks.normativecontrol.modules.configureRouting
 
 class ApplicationTest {

@@ -6,10 +6,10 @@ import ru.maeasoftworks.normativecontrol.core.model.Context
 import ru.maeasoftworks.normativecontrol.core.parsers.DocumentParser
 import ru.maeasoftworks.normativecontrol.core.rendering.RenderLauncher
 import ru.maeasoftworks.normativecontrol.dto.Message
-import ru.maeasoftworks.normativecontrol.extensions.Rat
+import ru.maeasoftworks.normativecontrol.utils.Rat
 import ru.maeasoftworks.normativecontrol.extensions.uploadConclusion
 import ru.maeasoftworks.normativecontrol.extensions.uploadRender
-import ru.maeasoftworks.normativecontrol.extensions.with
+import ru.maeasoftworks.normativecontrol.utils.with
 import ru.maeasoftworks.normativecontrol.modules.S3
 import java.io.ByteArrayOutputStream
 import java.io.InputStream

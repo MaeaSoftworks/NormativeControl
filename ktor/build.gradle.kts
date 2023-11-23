@@ -21,30 +21,30 @@ repositories {
 
 dependencies {
     implementation(project(":core"))
+    implementation(kotlin("reflect"))
     implementation("io.ktor:ktor-server-core-jvm")
     implementation("io.ktor:ktor-server-auth-jvm")
+    implementation("io.ktor:ktor-server-cors-jvm")
+    implementation("io.ktor:ktor-server-netty-jvm")
     implementation("io.ktor:ktor-server-auth-jwt-jvm")
     implementation("io.ktor:ktor-server-host-common-jvm")
     implementation("io.ktor:ktor-server-status-pages-jvm")
-    implementation("io.ktor:ktor-server-cors-jvm")
+    implementation("io.ktor:ktor-server-config-yaml:2.3.6")
     implementation("io.ktor:ktor-server-content-negotiation-jvm")
     implementation("io.ktor:ktor-serialization-kotlinx-json-jvm")
 
-    platform("org.komapper:komapper-platform:1.15.0").let {
-        implementation(it)
-        ksp(it)
-    }
+    ksp("org.komapper:komapper-processor")
+    ksp(platform("org.komapper:komapper-platform:1.15.0"))
     implementation("org.komapper:komapper-starter-r2dbc")
     implementation("org.komapper:komapper-dialect-postgresql-r2dbc")
-    implementation(project(mapOf("path" to ":api")))
-    ksp("org.komapper:komapper-processor")
+    implementation(platform("org.komapper:komapper-platform:1.15.0"))
+
     implementation("at.favre.lib:bcrypt:0.10.2")
-    implementation("io.ktor:ktor-server-netty-jvm")
-    implementation("ch.qos.logback:logback-classic:1.4.11")
-    implementation("io.ktor:ktor-server-config-yaml:2.3.6")
     implementation("software.amazon.awssdk:s3:2.20.121")
+    implementation("ch.qos.logback:logback-classic:1.4.11")
     implementation("software.amazon.awssdk:netty-nio-client:2.20.121")
+
     testImplementation("io.ktor:ktor-server-tests-jvm")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.9.20")
-    implementation(kotlin("reflect"))
+
 }

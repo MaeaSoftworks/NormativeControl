@@ -50,7 +50,7 @@ class S3Client(application: Application) {
         ).await()
     }
 
-    suspend fun getTagsAsync(objectName: String): Map<String, String> = coroutineScope {
+    suspend fun getTags(objectName: String): Map<String, String> = coroutineScope {
         return@coroutineScope s3Client.getObjectTagging(
             GetObjectTaggingRequest
                 .builder()
@@ -60,7 +60,7 @@ class S3Client(application: Application) {
         ).await().let { tagSet -> tagSet.tagSet().associate { it.key() to it.value() } }
     }
 
-    suspend fun getObjectAsync(objectName: String): Flow<ByteBuffer> = coroutineScope {
+    suspend fun getObject(objectName: String): Flow<ByteBuffer> = coroutineScope {
         return@coroutineScope s3Client.getObject(
             GetObjectRequest.builder()
                 .bucket(bucket)
