@@ -1,4 +1,4 @@
-package ru.maeasoftworks.normativecontrol.modules
+package ru.maeasoftworks.normativecontrol.shared.modules
 
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*

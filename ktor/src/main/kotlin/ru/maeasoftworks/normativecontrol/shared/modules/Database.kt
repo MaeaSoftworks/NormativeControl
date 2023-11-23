@@ -1,4 +1,4 @@
-package ru.maeasoftworks.normativecontrol.modules
+package ru.maeasoftworks.normativecontrol.shared.modules
 
 import io.ktor.server.application.*
 import org.komapper.core.dsl.Meta

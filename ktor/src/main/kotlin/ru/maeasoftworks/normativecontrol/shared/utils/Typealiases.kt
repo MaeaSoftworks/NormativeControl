@@ -1,4 +1,4 @@
-package ru.maeasoftworks.normativecontrol.utils
+package ru.maeasoftworks.normativecontrol.shared.utils
 
 import io.ktor.server.application.*
 import io.ktor.util.pipeline.*

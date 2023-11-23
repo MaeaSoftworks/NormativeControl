@@ -1,11 +1,11 @@
-package ru.maeasoftworks.normativecontrol.modules
+package ru.maeasoftworks.normativecontrol.shared.modules
 
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.response.*
-import ru.maeasoftworks.normativecontrol.exceptions.NoAccessException
-import ru.maeasoftworks.normativecontrol.exceptions.StatusException
+import ru.maeasoftworks.normativecontrol.shared.exceptions.NoAccessException
+import ru.maeasoftworks.normativecontrol.shared.exceptions.StatusException
 
 inline fun <reified T : StatusException> StatusPagesConfig.registerException() {
     exception<T> { call, cause ->

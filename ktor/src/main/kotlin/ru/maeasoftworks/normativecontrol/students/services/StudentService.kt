@@ -1,11 +1,11 @@
-package ru.maeasoftworks.normativecontrol.services
+package ru.maeasoftworks.normativecontrol.students.services
 
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
-import ru.maeasoftworks.normativecontrol.exceptions.NoAccessException
-import ru.maeasoftworks.normativecontrol.modules.S3
-import ru.maeasoftworks.normativecontrol.utils.Pipe
+import ru.maeasoftworks.normativecontrol.shared.exceptions.NoAccessException
+import ru.maeasoftworks.normativecontrol.shared.modules.S3
+import ru.maeasoftworks.normativecontrol.shared.utils.Pipe
 
 object StudentService {
     suspend fun Pipe.getFile(accessKey: String, filename: String) {

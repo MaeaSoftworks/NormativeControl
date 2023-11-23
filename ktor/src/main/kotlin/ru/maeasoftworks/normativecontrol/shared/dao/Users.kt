@@ -1,4 +1,4 @@
-package ru.maeasoftworks.normativecontrol.dao
+package ru.maeasoftworks.normativecontrol.shared.dao
 
 import org.komapper.annotation.*
 

@@ -1,4 +1,4 @@
-package ru.maeasoftworks.normativecontrol.dto
+package ru.maeasoftworks.normativecontrol.students.dto
 
 data class UploadMultipart(
     val file: ByteArray,

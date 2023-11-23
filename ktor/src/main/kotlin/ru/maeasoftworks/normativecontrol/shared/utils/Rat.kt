@@ -1,4 +1,4 @@
-package ru.maeasoftworks.normativecontrol.utils
+package ru.maeasoftworks.normativecontrol.shared.utils
 
 /**
  * Utility class to spy for a value in another coroutine without locking.

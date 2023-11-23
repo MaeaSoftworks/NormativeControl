@@ -1,4 +1,4 @@
-package ru.maeasoftworks.normativecontrol.modules
+package ru.maeasoftworks.normativecontrol.shared.modules
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm

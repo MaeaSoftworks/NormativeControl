@@ -1,4 +1,4 @@
-package ru.maeasoftworks.normativecontrol.extensions
+package ru.maeasoftworks.normativecontrol.shared.extensions
 
 import io.ktor.http.content.*
 import kotlinx.coroutines.async

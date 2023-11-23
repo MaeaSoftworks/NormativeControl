@@ -1,10 +1,6 @@
-package ru.maeasoftworks.normativecontrol.exceptions
+package ru.maeasoftworks.normativecontrol.shared.exceptions
 
 import io.ktor.http.*
-import io.ktor.http.content.*
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
-import kotlin.reflect.KClass
 
 open class StatusException(val code: HttpStatusCode, override val message: String): Throwable(message)
 

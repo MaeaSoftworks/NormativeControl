@@ -1,4 +1,4 @@
-package ru.maeasoftworks.normativecontrol.routers
+package ru.maeasoftworks.normativecontrol.students.routers
 
 import io.ktor.server.application.*
 import io.ktor.server.request.*
@@ -6,12 +6,12 @@ import io.ktor.server.routing.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import ru.maeasoftworks.normativecontrol.dto.Message
-import ru.maeasoftworks.normativecontrol.dto.UploadMultipart
-import ru.maeasoftworks.normativecontrol.extensions.*
-import ru.maeasoftworks.normativecontrol.model.startVerification
-import ru.maeasoftworks.normativecontrol.modules.S3
-import ru.maeasoftworks.normativecontrol.services.StudentService.getFile
+import ru.maeasoftworks.normativecontrol.students.dto.Message
+import ru.maeasoftworks.normativecontrol.students.dto.UploadMultipart
+import ru.maeasoftworks.normativecontrol.students.model.startVerification
+import ru.maeasoftworks.normativecontrol.shared.modules.S3
+import ru.maeasoftworks.normativecontrol.students.services.StudentService.getFile
+import ru.maeasoftworks.normativecontrol.shared.extensions.*
 import java.util.*
 
 fun Routing.studentRouter() {

@@ -1,16 +1,16 @@
-package ru.maeasoftworks.normativecontrol.model
+package ru.maeasoftworks.normativecontrol.students.model
 
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import ru.maeasoftworks.normativecontrol.core.model.Context
 import ru.maeasoftworks.normativecontrol.core.parsers.DocumentParser
 import ru.maeasoftworks.normativecontrol.core.rendering.RenderLauncher
-import ru.maeasoftworks.normativecontrol.dto.Message
-import ru.maeasoftworks.normativecontrol.utils.Rat
-import ru.maeasoftworks.normativecontrol.extensions.uploadConclusion
-import ru.maeasoftworks.normativecontrol.extensions.uploadRender
-import ru.maeasoftworks.normativecontrol.utils.with
-import ru.maeasoftworks.normativecontrol.modules.S3
+import ru.maeasoftworks.normativecontrol.students.dto.Message
+import ru.maeasoftworks.normativecontrol.shared.utils.Rat
+import ru.maeasoftworks.normativecontrol.shared.extensions.uploadConclusion
+import ru.maeasoftworks.normativecontrol.shared.extensions.uploadRender
+import ru.maeasoftworks.normativecontrol.shared.utils.with
+import ru.maeasoftworks.normativecontrol.shared.modules.S3
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 

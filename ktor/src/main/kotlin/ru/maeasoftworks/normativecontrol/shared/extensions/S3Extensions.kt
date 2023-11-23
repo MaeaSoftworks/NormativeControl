@@ -1,6 +1,6 @@
-package ru.maeasoftworks.normativecontrol.extensions
+package ru.maeasoftworks.normativecontrol.shared.extensions
 
-import ru.maeasoftworks.normativecontrol.modules.S3Client
+import ru.maeasoftworks.normativecontrol.shared.modules.S3Client
 
 suspend fun S3Client.uploadFile(documentId: String, file: ByteArray, accessKey: String) =
     putObject(file, documentId, mapOf("accessKey" to accessKey))
