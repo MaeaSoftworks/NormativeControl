@@ -2,6 +2,7 @@ package ru.maeasoftworks.normativecontrol.inspectors.controllers
 
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
+import io.ktor.server.auth.jwt.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -9,6 +10,7 @@ import org.kodein.di.DI
 import org.kodein.di.instance
 import ru.maeasoftworks.normativecontrol.inspectors.dto.LoginRequest
 import ru.maeasoftworks.normativecontrol.inspectors.dto.LoginResponse
+import ru.maeasoftworks.normativecontrol.inspectors.dto.SessionsResponse
 import ru.maeasoftworks.normativecontrol.inspectors.dto.UpdateAccessTokenResponse
 import ru.maeasoftworks.normativecontrol.inspectors.services.InspectorAccountService
 import ru.maeasoftworks.normativecontrol.shared.modules.JWTService
@@ -27,18 +29,28 @@ class InspectorViewController(override val di: DI): Controller() {
             route("/account") {
                 post("/login") {
                     val loginRequest = call.receive<LoginRequest>()
+                    val userAgent = call.request.headers["User-Agent"]
                     val user = inspectorAccountService.authenticate(loginRequest)
-                    val jwt = jwtService.createJWTToken(user.username)
-                    val refreshToken = refreshTokenService.createRefreshTokenAndSave(user.id)
+                    val jwt = jwtService.createJWTToken(user.id)
+                    val refreshToken = refreshTokenService.createRefreshTokenAndSave(user.id, userAgent)
                     call.respond(LoginResponse(jwt, refreshToken.refreshToken))
                 }
                 patch("/token") {
                     val refreshToken = call.parameters["refreshToken"] ?: throw IllegalArgumentException("refreshToken must be not null")
-                    val token = refreshTokenService.updateJwtToken(refreshToken)
-                    val jwt = jwtService.createJWTToken(userRepository.getUserById(token.userId)!!.username)
+                    val userAgent = call.request.headers["User-Agent"]
+                    val token = refreshTokenService.updateJwtToken(refreshToken, userAgent)
+                    val jwt = jwtService.createJWTToken(userRepository.getUserById(token.userId)!!.id)
                     call.respond(UpdateAccessTokenResponse(jwt, token.refreshToken))
                 }
                 authenticate("jwt") {
+                    get("/sessions") {
+                        val userId = call.authentication.principal<JWTPrincipal>()!!.subject!!.toLong()
+                        call.respond(
+                            SessionsResponse(
+                                userRepository.getUserAllRefreshTokens(userId).map { SessionsResponse.Session(it.userAgent, it.createdAt) }
+                            )
+                        )
+                    }
                     patch("password") {
 
                     }

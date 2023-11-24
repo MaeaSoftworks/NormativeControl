@@ -5,8 +5,8 @@ import com.auth0.jwt.algorithms.Algorithm
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
+import java.time.Instant
 import java.util.*
-import kotlin.properties.Delegates
 
 class JWTService(application: Application) {
     private val jwtAudience = application.environment.config.property("jwt.audience").getString()
@@ -21,17 +21,22 @@ class JWTService(application: Application) {
                 realm = jwtRealm
                 verifier(JWT.require(Algorithm.HMAC256(jwtSecret)).withAudience(jwtAudience).withIssuer(issuer).build())
                 validate { credential ->
-                    if (credential.payload.getClaim("username").asString().isNotBlank()) JWTPrincipal(credential.payload) else null
+                    if (credential.payload.audience.size == 1 && credential.payload.audience[0] == jwtAudience &&
+                        credential.payload.issuer == issuer &&
+                        credential.payload.subject.isNotBlank() &&
+                        credential.payload.expiresAtAsInstant >= Instant.now()) {
+                        JWTPrincipal(credential.payload)
+                    } else null
                 }
             }
         }
     }
 
-    fun createJWTToken(username: String): String {
+    fun createJWTToken(userId: Long): String {
         return JWT.create()
             .withAudience(jwtAudience)
             .withIssuer(issuer)
-            .withClaim("username", username)
+            .withSubject(userId.toString())
             .withExpiresAt(Date(System.currentTimeMillis() + jwtExpiration))
             .sign(Algorithm.HMAC256(jwtSecret))
     }

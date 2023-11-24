@@ -14,29 +14,29 @@ class RefreshTokenService(override val di: DI): Service() {
     private val secureRandom = SecureRandom()
     private val refreshTokenRepository: RefreshTokenRepository by instance()
 
-    suspend fun updateJwtToken(refreshToken: String): RefreshToken {
+    suspend fun updateJwtToken(refreshToken: String, userAgent: String?): RefreshToken {
         val token = refreshTokenRepository.getRefreshTokenByValue(refreshToken)
         if (token != null) {
             refreshTokenRepository.deleteRefreshToken(token)
-            if (token.expiresAt < Instant.now()) {
-                throw OutdatedRefreshToken()
-            } else {
-                return createRefreshTokenAndSave(token.userId)
+            if (token.expiresAt >= Instant.now()) {
+                return createRefreshTokenAndSave(token.userId, userAgent)
             }
-        } else {
-            throw InvalidRefreshToken()
+            throw OutdatedRefreshToken()
         }
+        throw InvalidRefreshToken()
     }
 
-    suspend fun createRefreshTokenAndSave(userId: Long): RefreshToken {
-        return refreshTokenRepository.saveRefreshToken(createRefreshToken(userId))
+    suspend fun createRefreshTokenAndSave(userId: Long, userAgent: String?): RefreshToken {
+        return refreshTokenRepository.saveRefreshToken(createRefreshToken(userId, userAgent))
     }
 
-    private fun createRefreshToken(userId: Long): RefreshToken {
+    private fun createRefreshToken(userId: Long, userAgent: String?): RefreshToken {
         return RefreshToken(
             refreshToken = createRefreshTokenString(),
             expiresAt = Instant.now().plusMillis(30L * 24 * 60 * 60 * 1000),
-            userId = userId
+            userId = userId,
+            createdAt = Instant.now(),
+            userAgent = userAgent
         )
     }
 
