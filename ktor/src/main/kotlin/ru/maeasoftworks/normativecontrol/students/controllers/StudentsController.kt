@@ -9,6 +9,7 @@ import org.kodein.di.DI
 import org.kodein.di.instance
 import ru.maeasoftworks.normativecontrol.shared.extensions.*
 import ru.maeasoftworks.normativecontrol.shared.utils.Controller
+import ru.maeasoftworks.normativecontrol.shared.utils.extractMultipartParts
 import ru.maeasoftworks.normativecontrol.students.dto.Message
 import ru.maeasoftworks.normativecontrol.students.dto.UploadMultipart
 import ru.maeasoftworks.normativecontrol.students.model.Verifier
