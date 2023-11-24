@@ -9,8 +9,8 @@ import ru.maeasoftworks.normativecontrol.core.parsers.DocumentParser
 import ru.maeasoftworks.normativecontrol.core.rendering.RenderLauncher
 import ru.maeasoftworks.normativecontrol.students.dto.Message
 import ru.maeasoftworks.normativecontrol.shared.utils.Rat
-import ru.maeasoftworks.normativecontrol.shared.extensions.uploadConclusion
-import ru.maeasoftworks.normativecontrol.shared.extensions.uploadRender
+import ru.maeasoftworks.normativecontrol.shared.extensions.uploadDocumentConclusion
+import ru.maeasoftworks.normativecontrol.shared.extensions.uploadDocumentRender
 import ru.maeasoftworks.normativecontrol.shared.utils.with
 import ru.maeasoftworks.normativecontrol.shared.modules.S3
 import ru.maeasoftworks.normativecontrol.shared.utils.Service
@@ -55,7 +55,7 @@ class Verifier(override val di: DI): Service() {
         stageHolder.stage = Message.Stage.SAVING
         val result = withContext(Dispatchers.IO) { ByteArrayOutputStream().also { parser.writeResult(it) } }
 
-        s3.uploadRender(documentId, render.toByteArray(), accessKey)
-        s3.uploadConclusion(documentId, result.toByteArray(), accessKey)
+        s3.uploadDocumentRender(documentId, render.toByteArray(), accessKey)
+        s3.uploadDocumentConclusion(documentId, result.toByteArray(), accessKey)
     }
 }

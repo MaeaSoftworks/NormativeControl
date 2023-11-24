@@ -3,7 +3,6 @@ package ru.maeasoftworks.normativecontrol
 import io.ktor.server.application.*
 import io.ktor.server.netty.EngineMain
 import io.ktor.server.routing.*
-import kotlinx.coroutines.launch
 import org.kodein.di.*
 import org.kodein.type.jvmType
 import ru.maeasoftworks.normativecontrol.shared.modules.*
