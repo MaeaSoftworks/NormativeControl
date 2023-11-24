@@ -14,3 +14,5 @@ abstract class Controller : Component() {
 }
 
 abstract class Service: Component()
+
+abstract class Repository: Component()

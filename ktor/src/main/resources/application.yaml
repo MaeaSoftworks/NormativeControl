@@ -9,6 +9,7 @@ jwt:
   audience: "normative-control.ru"
   realm: "normative-control.ru"
   secret: "XRQaA5ABbDbTosUYTW5WRukcQ8+U6mzvNh8mYXFkZ7c="
+  expiration: 60000
 r2dbc:
   username: "postgres"
   url: "r2dbc:postgresql://postgres:maeasoftworks@localhost:5432/normative-control"

@@ -11,15 +11,17 @@ import org.komapper.core.dsl.query.QueryScope
 import org.komapper.r2dbc.R2dbcDatabase
 
 class Database(application: Application) {
-    private val database: R2dbcDatabase
+    private var database: R2dbcDatabase
 
     init {
         val url = application.environment.config.property("r2dbc.url").getString()
-        database = R2dbcDatabase(url)
         runBlocking {
+            database = R2dbcDatabase(url)
             database.withTransaction {
-                database.runQuery {
-                    QueryDsl.create(Meta.all())
+                Meta.all().forEach {
+                    database.runQuery {
+                        QueryDsl.create(it)
+                    }
                 }
             }
         }

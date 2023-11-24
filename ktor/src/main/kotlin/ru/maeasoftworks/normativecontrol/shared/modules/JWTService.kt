@@ -35,9 +35,5 @@ class JWTService(application: Application) {
             .withExpiresAt(Date(System.currentTimeMillis() + jwtExpiration))
             .sign(Algorithm.HMAC256(jwtSecret))
     }
-
-    fun createRefreshToken() {
-
-    }
 }
 

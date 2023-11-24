@@ -5,6 +5,8 @@ import io.ktor.server.netty.EngineMain
 import io.ktor.server.routing.*
 import org.kodein.di.*
 import org.kodein.type.jvmType
+import ru.maeasoftworks.normativecontrol.inspectors.initializeInspectorModule
+import ru.maeasoftworks.normativecontrol.shared.initializeSharedModule
 import ru.maeasoftworks.normativecontrol.shared.modules.*
 import ru.maeasoftworks.normativecontrol.shared.utils.Controller
 import ru.maeasoftworks.normativecontrol.students.initializeStudentModule
@@ -12,13 +14,16 @@ import ru.maeasoftworks.normativecontrol.students.initializeStudentModule
 fun main(args: Array<String>) = EngineMain.main(args)
 
 fun Application.module() = setupKodein {
-    bindSingleton { Database(it) }
-    bindSingleton { JWTService(it) }
-    bindSingleton { S3(it) }
+    //plugins
     configureHTTP()
     configureSerialization()
     configureStatusPages()
+
+    //shared - warning: do not move below!
+    initializeSharedModule(it)
+
     initializeStudentModule(it)
+    initializeInspectorModule(it)
 }
 
 fun Application.setupKodein(
