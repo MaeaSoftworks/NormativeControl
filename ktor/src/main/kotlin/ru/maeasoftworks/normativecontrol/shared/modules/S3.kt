@@ -17,14 +17,7 @@ import java.net.URI
 import java.nio.ByteBuffer
 import java.time.Duration
 
-fun Application.configureS3() {
-    S3Client.instance = S3Client(this)
-}
-
-val S3: S3Client
-    get() = S3Client.instance
-
-class S3Client(application: Application) {
+class S3(application: Application) {
     private val region = Region.of(application.environment.config.property("aws.s3.region").getString())
     private val endpoint = URI(application.environment.config.property("aws.s3.endpoint").getString())
     private val accessKeyId = application.environment.config.property("aws.s3.accessKeyId").getString()
@@ -68,9 +61,5 @@ class S3Client(application: Application) {
                 .build(),
             AsyncResponseTransformer.toPublisher()
         ).await().asFlow()
-    }
-
-    companion object {
-        lateinit var instance: S3Client
     }
 }

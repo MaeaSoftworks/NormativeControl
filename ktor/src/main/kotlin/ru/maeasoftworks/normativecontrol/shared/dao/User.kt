@@ -2,8 +2,9 @@ package ru.maeasoftworks.normativecontrol.shared.dao
 
 import org.komapper.annotation.*
 
-@KomapperEntity
-data class Users(
+@KomapperEntity(["users"])
+@KomapperTable("users")
+data class User(
     @KomapperId
     @KomapperAutoIncrement
     @KomapperColumn("user_id")

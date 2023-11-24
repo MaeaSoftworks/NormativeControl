@@ -22,3 +22,5 @@ aws:
     secretAccessKey: "ZaVrjzV4Kw0OGAYObJjH2T6IPcscuUeGYPLahU5s"
     endpoint: "http://localhost:9000"
     bucket: "normative-control"
+bcrypt:
+  strength: 12

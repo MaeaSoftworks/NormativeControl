@@ -40,6 +40,7 @@ dependencies {
     implementation(platform("org.komapper:komapper-platform:1.15.0"))
 
     implementation("at.favre.lib:bcrypt:0.10.2")
+    implementation("org.kodein.di:kodein-di-jvm:7.17.0")
     implementation("software.amazon.awssdk:s3:2.20.121")
     implementation("ch.qos.logback:logback-classic:1.4.11")
     implementation("software.amazon.awssdk:netty-nio-client:2.20.121")
@@ -47,4 +48,10 @@ dependencies {
     testImplementation("io.ktor:ktor-server-tests-jvm")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.9.20")
 
+}
+
+tasks {
+    withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+        kotlinOptions.freeCompilerArgs += listOf("-opt-in=org.komapper.annotation.KomapperExperimentalAssociation")
+    }
 }
