@@ -2,7 +2,7 @@ package ru.maeasoftworks.normativecontrol.shared.modules
 
 import io.ktor.server.application.*
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.reactive.asFlow
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials

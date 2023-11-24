@@ -7,18 +7,19 @@ import org.kodein.di.instance
 import ru.maeasoftworks.normativecontrol.core.model.Context
 import ru.maeasoftworks.normativecontrol.core.parsers.DocumentParser
 import ru.maeasoftworks.normativecontrol.core.rendering.RenderLauncher
-import ru.maeasoftworks.normativecontrol.students.dto.Message
-import ru.maeasoftworks.normativecontrol.shared.utils.Rat
 import ru.maeasoftworks.normativecontrol.shared.extensions.uploadDocumentConclusion
 import ru.maeasoftworks.normativecontrol.shared.extensions.uploadDocumentRender
-import ru.maeasoftworks.normativecontrol.shared.utils.with
 import ru.maeasoftworks.normativecontrol.shared.modules.S3
+import ru.maeasoftworks.normativecontrol.shared.utils.Rat
 import ru.maeasoftworks.normativecontrol.shared.utils.Service
+import ru.maeasoftworks.normativecontrol.shared.utils.with
+import ru.maeasoftworks.normativecontrol.students.dto.Message
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 
-class Verifier(override val di: DI): Service() {
+class Verifier(override val di: DI) : Service() {
     private val s3: S3 by instance()
+
     data class StageHolder(var stage: Message.Stage)
 
     suspend fun startVerification(documentId: String, accessKey: String, file: InputStream, channel: Channel<Message>) = coroutineScope {

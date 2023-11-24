@@ -10,7 +10,7 @@ import ru.maeasoftworks.normativecontrol.shared.utils.Service
 import java.security.SecureRandom
 import java.time.Instant
 
-class RefreshTokenService(override val di: DI): Service() {
+class RefreshTokenService(override val di: DI) : Service() {
     private val secureRandom = SecureRandom()
     private val refreshTokenRepository: RefreshTokenRepository by instance()
 

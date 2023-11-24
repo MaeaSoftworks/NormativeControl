@@ -1,19 +1,24 @@
 package ru.maeasoftworks.normativecontrol
 
 import io.ktor.server.application.*
-import io.ktor.server.netty.EngineMain
+import io.ktor.server.netty.*
 import io.ktor.server.routing.*
-import org.kodein.di.*
+import org.kodein.di.DI
+import org.kodein.di.Instance
+import org.kodein.di.bind
+import org.kodein.di.instance
 import org.kodein.type.jvmType
 import ru.maeasoftworks.normativecontrol.inspectors.initializeInspectorModule
 import ru.maeasoftworks.normativecontrol.shared.initializeSharedModule
-import ru.maeasoftworks.normativecontrol.shared.modules.*
+import ru.maeasoftworks.normativecontrol.shared.modules.configureHTTP
+import ru.maeasoftworks.normativecontrol.shared.modules.configureSerialization
+import ru.maeasoftworks.normativecontrol.shared.modules.configureStatusPages
 import ru.maeasoftworks.normativecontrol.shared.utils.Controller
 import ru.maeasoftworks.normativecontrol.students.initializeStudentModule
 
 fun main(args: Array<String>) = EngineMain.main(args)
 
-fun Application.module() = setupKodein {
+fun Application.default() = setupKodein {
     //plugins
     configureHTTP()
     configureSerialization()

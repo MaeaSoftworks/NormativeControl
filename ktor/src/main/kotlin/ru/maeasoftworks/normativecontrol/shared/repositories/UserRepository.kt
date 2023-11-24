@@ -13,7 +13,7 @@ import ru.maeasoftworks.normativecontrol.shared.dao.users
 import ru.maeasoftworks.normativecontrol.shared.modules.Database
 import ru.maeasoftworks.normativecontrol.shared.utils.Repository
 
-class UserRepository(override val di: DI): Repository() {
+class UserRepository(override val di: DI) : Repository() {
     private val database: Database by instance()
 
     suspend fun getUserByUsername(username: String): User? {
@@ -42,7 +42,7 @@ class UserRepository(override val di: DI): Repository() {
                 .innerJoin(Meta.refreshTokens) {
                     Meta.users.id eq Meta.refreshTokens.userId
                 }.orderBy(SortItem.Column.Desc(Meta.refreshTokens.expiresAt))
-                    .includeAll()
+                .includeAll()
         }
         return store[Meta.refreshTokens]
     }

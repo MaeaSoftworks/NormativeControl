@@ -18,7 +18,7 @@ import ru.maeasoftworks.normativecontrol.shared.repositories.UserRepository
 import ru.maeasoftworks.normativecontrol.shared.services.RefreshTokenService
 import ru.maeasoftworks.normativecontrol.shared.utils.Controller
 
-class InspectorViewController(override val di: DI): Controller() {
+class InspectorViewController(override val di: DI) : Controller() {
     private val jwtService: JWTService by instance()
     private val inspectorAccountService: InspectorAccountService by instance()
     private val refreshTokenService: RefreshTokenService by instance()

@@ -10,7 +10,7 @@ import ru.maeasoftworks.normativecontrol.shared.dao.refreshTokens
 import ru.maeasoftworks.normativecontrol.shared.modules.Database
 import ru.maeasoftworks.normativecontrol.shared.utils.Repository
 
-class RefreshTokenRepository(override val di: DI): Repository() {
+class RefreshTokenRepository(override val di: DI) : Repository() {
     private val database: Database by instance()
 
     suspend fun getRefreshTokenByValue(refreshToken: String): RefreshToken? {

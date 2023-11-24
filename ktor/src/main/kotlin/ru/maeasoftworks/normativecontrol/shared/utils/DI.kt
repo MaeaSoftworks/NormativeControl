@@ -13,6 +13,6 @@ abstract class Controller : Component() {
     abstract fun Routing.registerRoutes()
 }
 
-abstract class Service: Component()
+abstract class Service : Component()
 
-abstract class Repository: Component()
+abstract class Repository : Component()

@@ -4,14 +4,14 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
+import ru.maeasoftworks.normativecontrol.default
 import kotlin.test.*
-import ru.maeasoftworks.normativecontrol.shared.modules.configureRouting
 
 class ApplicationTest {
     @Test
     fun testRoot() = testApplication {
         application {
-            configureRouting()
+            default()
         }
         client.get("/").apply {
             assertEquals(HttpStatusCode.OK, status)

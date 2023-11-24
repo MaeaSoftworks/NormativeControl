@@ -1,7 +1,7 @@
 ktor:
   application:
     modules:
-      - ru.maeasoftworks.normativecontrol.ApplicationKt.module
+      - ru.maeasoftworks.normativecontrol.ApplicationKt.default
   deployment:
     port: 8080
 jwt:

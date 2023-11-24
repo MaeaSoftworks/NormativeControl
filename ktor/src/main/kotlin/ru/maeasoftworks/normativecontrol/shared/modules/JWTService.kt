@@ -24,7 +24,8 @@ class JWTService(application: Application) {
                     if (credential.payload.audience.size == 1 && credential.payload.audience[0] == jwtAudience &&
                         credential.payload.issuer == issuer &&
                         credential.payload.subject.isNotBlank() &&
-                        credential.payload.expiresAtAsInstant >= Instant.now()) {
+                        credential.payload.expiresAtAsInstant >= Instant.now()
+                    ) {
                         JWTPrincipal(credential.payload)
                     } else null
                 }
