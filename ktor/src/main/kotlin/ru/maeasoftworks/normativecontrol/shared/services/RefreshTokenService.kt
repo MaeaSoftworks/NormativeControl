@@ -13,6 +13,7 @@ import java.time.Instant
 class RefreshTokenService(override val di: DI) : Service() {
     private val secureRandom = SecureRandom()
     private val refreshTokenRepository: RefreshTokenRepository by instance()
+    private val refreshTokenExpiration = application.environment.config.property("jwt.refreshTokenExpiration").getString().toLong()
 
     suspend fun updateJwtToken(refreshToken: String, userAgent: String?): RefreshToken {
         val token = refreshTokenRepository.getRefreshTokenByValue(refreshToken)
@@ -33,7 +34,7 @@ class RefreshTokenService(override val di: DI) : Service() {
     private fun createRefreshToken(userId: Long, userAgent: String?): RefreshToken {
         return RefreshToken(
             refreshToken = createRefreshTokenString(),
-            expiresAt = Instant.now().plusMillis(30L * 24 * 60 * 60 * 1000),
+            expiresAt = Instant.now().plusSeconds(refreshTokenExpiration),
             userId = userId,
             createdAt = Instant.now(),
             userAgent = userAgent

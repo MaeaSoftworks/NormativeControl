@@ -1,10 +1,6 @@
 package ru.maeasoftworks.normativecontrol.shared
 
-import io.ktor.server.application.Application
-import org.kodein.di.DI
-import org.kodein.di.bind
-import org.kodein.di.bindSingleton
-import org.kodein.di.singleton
+import org.kodein.di.*
 import ru.maeasoftworks.normativecontrol.shared.modules.Database
 import ru.maeasoftworks.normativecontrol.shared.modules.JWTService
 import ru.maeasoftworks.normativecontrol.shared.modules.S3
@@ -12,10 +8,10 @@ import ru.maeasoftworks.normativecontrol.shared.repositories.RefreshTokenReposit
 import ru.maeasoftworks.normativecontrol.shared.repositories.UserRepository
 import ru.maeasoftworks.normativecontrol.shared.services.RefreshTokenService
 
-fun DI.MainBuilder.initializeSharedModule(application: Application) {
-    JWTService(application).also { bind<JWTService>() with singleton { it } }
-    Database(application).also { bindSingleton { it } }
-    S3(application).also { bindSingleton { it } }
+fun DI.MainBuilder.initializeSharedModule() {
+    bindEagerSingleton { JWTService(this.di) }
+    bindEagerSingleton { Database(this.di) }
+    bindEagerSingleton { S3(this.di) }
 
     bindSingleton { RefreshTokenService(this.di) }
     bindSingleton { RefreshTokenRepository(this.di) }

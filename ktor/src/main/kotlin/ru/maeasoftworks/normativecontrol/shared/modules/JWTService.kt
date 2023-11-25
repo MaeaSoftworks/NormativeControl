@@ -2,19 +2,19 @@ package ru.maeasoftworks.normativecontrol.shared.modules
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
-import io.ktor.server.application.Application
 import io.ktor.server.auth.authentication
 import io.ktor.server.auth.jwt.JWTPrincipal
 import io.ktor.server.auth.jwt.jwt
+import org.kodein.di.DI
+import ru.maeasoftworks.normativecontrol.shared.utils.Service
 import java.time.Instant
-import java.util.*
 
-class JWTService(application: Application) {
+class JWTService(override val di: DI): Service() {
     private val jwtAudience = application.environment.config.property("jwt.audience").getString()
     private val issuer = application.environment.config.property("jwt.issuer").getString()
     private val jwtRealm = application.environment.config.property("jwt.realm").getString()
     private val jwtSecret = application.environment.config.property("jwt.secret").getString()
-    private val jwtExpiration = application.environment.config.property("jwt.expiration").getString().toLong()
+    private val jwtExpiration = application.environment.config.property("jwt.jwtTokenExpiration").getString().toLong()
 
     init {
         application.authentication {
@@ -39,7 +39,7 @@ class JWTService(application: Application) {
             .withAudience(jwtAudience)
             .withIssuer(issuer)
             .withSubject(userId.toString())
-            .withExpiresAt(Date(System.currentTimeMillis() + jwtExpiration))
+            .withExpiresAt(Instant.now().plusSeconds(jwtExpiration))
             .sign(Algorithm.HMAC256(jwtSecret))
     }
 }

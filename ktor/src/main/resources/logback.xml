@@ -4,11 +4,27 @@
             <pattern>%d{YYYY-MM-dd HH:mm:ss.SSS} %-30([%thread]) %highlight(%-7([%level])) %-36logger{36}: %msg%n</pattern>
         </encoder>
     </appender>
-    <root level="debug">
-        <appender-ref ref="STDOUT"/>
-    </root>
-    <logger name="org.eclipse.jetty" level="INFO"/>
-    <logger name="io.netty" level="INFO"/>
-    <logger name="org.docx4j" level="ERROR"/>
-    <logger name="software.amazon.awssdk" level="WARN"/>
+
+    <if condition='property("ktor.profile").contains("dev")' >
+        <!--dev config-->
+        <then>
+            <root level="debug">
+                <appender-ref ref="STDOUT"/>
+            </root>
+            <logger name="org.eclipse.jetty" level="INFO"/>
+            <logger name="io.netty" level="INFO"/>
+            <logger name="org.docx4j" level="ERROR"/>
+            <logger name="software.amazon.awssdk" level="WARN"/>
+        </then>
+    </if>
+    <if condition='property("ktor.profile").contains("production")' >
+        <!--production config-->
+        <then>
+            <root level="info">
+                <appender-ref ref="STDOUT"/>
+            </root>
+        </then>
+    </if>
+
+
 </configuration>
