@@ -1,7 +1,10 @@
 package ru.maeasoftworks.normativecontrol.students.controllers
 
-import io.ktor.server.application.*
-import io.ktor.server.routing.*
+import io.ktor.server.application.call
+import io.ktor.server.routing.Routing
+import io.ktor.server.routing.get
+import io.ktor.server.routing.post
+import io.ktor.server.routing.route
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
@@ -28,7 +31,7 @@ class StudentsController(override val di: DI) : Controller() {
                 post("/upload") {
                     val channel = Channel<Message>(Channel.UNLIMITED)
                     val documentId = UUID.randomUUID().toString().filter { it != '-' }
-                    val multipart = call.extractMultipartParts { UploadMultipart("file".byteArray, "accessKey".string) }
+                    val multipart = call.extractMultipartParts { UploadMultipart("file".file(), "accessKey".string()) }
                     studentDocumentService.uploadSourceDocument(documentId, multipart)
                     launch { verifier.startVerification(documentId, multipart.accessKey, multipart.file.inputStream(), channel) }
                     call.respond(channel.receiveAsFlow())

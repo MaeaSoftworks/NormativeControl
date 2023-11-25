@@ -1,8 +1,8 @@
 package ru.maeasoftworks.normativecontrol.core.rendering.model.css.properties
 
+import org.docx4j.wml.JcEnumeration
 import ru.maeasoftworks.normativecontrol.core.rendering.utils.PIXELS_IN_POINT
 import ru.maeasoftworks.normativecontrol.core.rendering.utils.POINTS_IN_LINES
-import org.docx4j.wml.JcEnumeration
 
 class LineHeight(value: Double?) : DoubleProperty("line-height", value, POINTS_IN_LINES)
 
@@ -24,9 +24,13 @@ class TextAlign(value: JcEnumeration?) : Property<JcEnumeration>(
 
 class Hyphens(value: Boolean?) : Property<Boolean?>("hyphens", value, converter = { if (it == true) "auto" else "none" })
 
-class TextTransform(value: Boolean?) : Property<Boolean?>("text-transform", value,
+class TextTransform(value: Boolean?) : Property<Boolean?>(
+    "text-transform",
+    value,
     converter = {
-        if (it == null) null else {
+        if (it == null) {
+            null
+        } else {
             if (it) "uppercase" else null
         }
     }

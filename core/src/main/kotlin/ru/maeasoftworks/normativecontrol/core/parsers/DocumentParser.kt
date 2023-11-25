@@ -1,9 +1,9 @@
 package ru.maeasoftworks.normativecontrol.core.parsers
 
-import ru.maeasoftworks.normativecontrol.core.model.Context
-import ru.maeasoftworks.normativecontrol.core.model.DocumentChildParsers
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
+import ru.maeasoftworks.normativecontrol.core.model.Context
+import ru.maeasoftworks.normativecontrol.core.model.DocumentChildParsers
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 

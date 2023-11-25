@@ -1,11 +1,11 @@
 package ru.maeasoftworks.normativecontrol.api.shared.services
 
-import ru.maeasoftworks.normativecontrol.api.shared.implementations.UserDetailsImpl
-import ru.maeasoftworks.normativecontrol.api.shared.repositories.UsersRepository
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
+import ru.maeasoftworks.normativecontrol.api.shared.implementations.UserDetailsImpl
+import ru.maeasoftworks.normativecontrol.api.shared.repositories.UsersRepository
 
 @Service
 class UserDetailsService(private val usersRepository: UsersRepository) : ReactiveUserDetailsService {

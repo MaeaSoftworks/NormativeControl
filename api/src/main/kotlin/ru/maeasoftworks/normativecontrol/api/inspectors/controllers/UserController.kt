@@ -1,11 +1,5 @@
 package ru.maeasoftworks.normativecontrol.api.inspectors.controllers
 
-import ru.maeasoftworks.normativecontrol.api.shared.services.AccessTokenService
-import ru.maeasoftworks.normativecontrol.api.shared.implementations.UserIdAuthentication
-import ru.maeasoftworks.normativecontrol.api.shared.repositories.RefreshTokenRepository
-import ru.maeasoftworks.normativecontrol.api.shared.repositories.UsersRepository
-import ru.maeasoftworks.normativecontrol.api.shared.services.AuthenticationManagerService
-import ru.maeasoftworks.normativecontrol.api.shared.services.RefreshTokenService
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
 import kotlinx.coroutines.FlowPreview
@@ -16,6 +10,12 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.web.bind.annotation.*
 import ru.maeasoftworks.normativecontrol.api.inspectors.dto.*
 import ru.maeasoftworks.normativecontrol.api.shared.exceptions.*
+import ru.maeasoftworks.normativecontrol.api.shared.implementations.UserIdAuthentication
+import ru.maeasoftworks.normativecontrol.api.shared.repositories.RefreshTokenRepository
+import ru.maeasoftworks.normativecontrol.api.shared.repositories.UsersRepository
+import ru.maeasoftworks.normativecontrol.api.shared.services.AccessTokenService
+import ru.maeasoftworks.normativecontrol.api.shared.services.AuthenticationManagerService
+import ru.maeasoftworks.normativecontrol.api.shared.services.RefreshTokenService
 
 @FlowPreview
 @RestController
@@ -30,7 +30,10 @@ class UserController(
     private val refreshTokenService: RefreshTokenService
 ) {
     @PostMapping("/login", produces = ["application/json"])
-    fun login(@RequestBody @Valid credentials: LoginRequest): Flow<LoginResponse> {
+    fun login(
+        @RequestBody @Valid
+        credentials: LoginRequest
+    ): Flow<LoginResponse> {
         return usersRepository.getByUsername(credentials.username)
             .flatMapConcat {
                 authenticationManagerService.authenticate(UserIdAuthentication(it.id!!, password = credentials.password)).asFlow()
@@ -45,7 +48,12 @@ class UserController(
     }
 
     @PatchMapping("/token", produces = ["application/json"])
-    fun updateAccessToken(@Valid @NotBlank @RequestParam("refreshToken") refreshToken: String): Flow<UpdateAccessTokenResponse> {
+    fun updateAccessToken(
+        @Valid
+        @NotBlank
+        @RequestParam("refreshToken")
+        refreshToken: String
+    ): Flow<UpdateAccessTokenResponse> {
         return refreshTokenService.findByToken(refreshToken)
             .onEmpty {
                 throw NotFoundException("Refresh token not found")

@@ -4,8 +4,8 @@ package ru.maeasoftworks.normativecontrol.api.shared.repositories
 
 import kotlinx.coroutines.flow.Flow
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository
-import ru.maeasoftworks.normativecontrol.api.shared.dao.User
 import reactor.core.publisher.Mono
+import ru.maeasoftworks.normativecontrol.api.shared.dao.User
 
 interface UsersRepository : CoroutineCrudRepository<User, Long> {
 

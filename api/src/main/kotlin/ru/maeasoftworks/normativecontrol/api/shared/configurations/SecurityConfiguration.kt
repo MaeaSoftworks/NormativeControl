@@ -1,6 +1,5 @@
 package ru.maeasoftworks.normativecontrol.api.shared.configurations
 
-import ru.maeasoftworks.normativecontrol.api.shared.services.JwtFilter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
@@ -9,6 +8,7 @@ import org.springframework.security.config.web.server.SecurityWebFiltersOrder
 import org.springframework.security.config.web.server.ServerHttpSecurity
 import org.springframework.security.config.web.server.invoke
 import org.springframework.security.web.server.SecurityWebFilterChain
+import ru.maeasoftworks.normativecontrol.api.shared.services.JwtFilter
 
 @Configuration
 @EnableWebFluxSecurity

@@ -1,11 +1,11 @@
 package ru.maeasoftworks.normativecontrol.api.students.components
 
 import kotlinx.coroutines.runBlocking
+import org.springframework.core.io.buffer.DataBuffer
+import reactor.core.publisher.Flux
 import ru.maeasoftworks.normativecontrol.api.students.dto.Message
 import ru.maeasoftworks.normativecontrol.core.parsers.DocumentParser
 import ru.maeasoftworks.normativecontrol.core.rendering.RenderLauncher
-import org.springframework.core.io.buffer.DataBuffer
-import reactor.core.publisher.Flux
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.InputStream

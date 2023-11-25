@@ -1,9 +1,5 @@
 package ru.maeasoftworks.normativecontrol.core.rendering
 
-import ru.maeasoftworks.normativecontrol.core.parsers.DocumentParser
-import ru.maeasoftworks.normativecontrol.core.rendering.model.css.properties.*
-import ru.maeasoftworks.normativecontrol.core.rendering.model.html.HtmlElement
-import ru.maeasoftworks.normativecontrol.core.utils.getPropertyValue
 import jakarta.xml.bind.JAXBElement
 import org.docx4j.TextUtils
 import org.docx4j.wml.Br
@@ -11,6 +7,10 @@ import org.docx4j.wml.P
 import org.docx4j.wml.P.Hyperlink
 import org.docx4j.wml.R
 import org.docx4j.wml.Text
+import ru.maeasoftworks.normativecontrol.core.parsers.DocumentParser
+import ru.maeasoftworks.normativecontrol.core.rendering.model.css.properties.*
+import ru.maeasoftworks.normativecontrol.core.rendering.model.html.HtmlElement
+import ru.maeasoftworks.normativecontrol.core.utils.getPropertyValue
 
 class Renderer(
     private val parser: DocumentParser

@@ -1,15 +1,15 @@
 package ru.maeasoftworks.normativecontrol.api.shared.services
 
-import ru.maeasoftworks.normativecontrol.api.shared.exceptions.InvalidCredentialsException
-import ru.maeasoftworks.normativecontrol.api.shared.exceptions.UnauthorizedException
-import ru.maeasoftworks.normativecontrol.api.shared.implementations.UserDetailsImpl
-import ru.maeasoftworks.normativecontrol.api.shared.implementations.UserIdAuthentication
 import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
+import ru.maeasoftworks.normativecontrol.api.shared.exceptions.InvalidCredentialsException
+import ru.maeasoftworks.normativecontrol.api.shared.exceptions.UnauthorizedException
+import ru.maeasoftworks.normativecontrol.api.shared.implementations.UserDetailsImpl
+import ru.maeasoftworks.normativecontrol.api.shared.implementations.UserIdAuthentication
 
 @Service
 class AuthenticationManagerService(

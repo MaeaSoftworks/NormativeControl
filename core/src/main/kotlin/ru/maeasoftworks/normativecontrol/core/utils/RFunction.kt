@@ -1,11 +1,11 @@
 package ru.maeasoftworks.normativecontrol.core.utils
 
+import org.docx4j.wml.R
+import org.docx4j.wml.RPr
 import ru.maeasoftworks.normativecontrol.core.enums.CaptureType
 import ru.maeasoftworks.normativecontrol.core.enums.MistakeType
 import ru.maeasoftworks.normativecontrol.core.model.Context
 import ru.maeasoftworks.normativecontrol.core.model.Mistake
-import org.docx4j.wml.R
-import org.docx4j.wml.RPr
 
 typealias RFunction = (r: R, isEmpty: Boolean, ctx: Context) -> Mistake?
 
@@ -21,6 +21,8 @@ inline fun <T> createRFunction(
         val t = r.getPropertyValue(ctx, valueProvider)
         if (mistakeCondition(r, isEmpty, ctx, t)) {
             Mistake(mistakeType, CaptureType.R, mistakeActual(t), mistakeExpected)
-        } else null
+        } else {
+            null
+        }
     }
 }

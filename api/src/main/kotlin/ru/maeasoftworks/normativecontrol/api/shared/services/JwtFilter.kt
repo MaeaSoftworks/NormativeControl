@@ -1,6 +1,5 @@
 package ru.maeasoftworks.normativecontrol.api.shared.services
 
-import ru.maeasoftworks.normativecontrol.api.shared.implementations.UserIdAuthentication
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.ReactiveSecurityContextHolder
@@ -11,6 +10,7 @@ import org.springframework.web.server.ServerWebExchange
 import org.springframework.web.server.WebFilter
 import org.springframework.web.server.WebFilterChain
 import reactor.core.publisher.Mono
+import ru.maeasoftworks.normativecontrol.api.shared.implementations.UserIdAuthentication
 
 @Service
 class JwtFilter(
@@ -21,10 +21,11 @@ class JwtFilter(
         val header = exchange.request.headers["Authorization"]
         var authentication: Authentication? = null
         if (!header.isNullOrEmpty()) {
-            val token = if (StringUtils.hasText(header[0]) && header[0].startsWith("Bearer "))
+            val token = if (StringUtils.hasText(header[0]) && header[0].startsWith("Bearer ")) {
                 header[0].removePrefix("Bearer ")
-            else
+            } else {
                 throw AuthenticationCredentialsNotFoundException("Request does not contain Authorization header")
+            }
             val userId = accessTokenService.validateJwtTokenAndGetUserId(token)
             authentication = UserIdAuthentication(userId, token = token)
         }

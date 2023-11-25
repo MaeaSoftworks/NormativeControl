@@ -1,7 +1,7 @@
 package ru.maeasoftworks.normativecontrol.api.students.components
 
-import ru.maeasoftworks.normativecontrol.api.shared.configurations.S3ClientConfigurationProperties
 import org.springframework.stereotype.Component
+import ru.maeasoftworks.normativecontrol.api.shared.configurations.S3ClientConfigurationProperties
 import software.amazon.awssdk.core.sync.RequestBody
 import software.amazon.awssdk.services.s3.S3Client
 import software.amazon.awssdk.services.s3.model.PutObjectRequest

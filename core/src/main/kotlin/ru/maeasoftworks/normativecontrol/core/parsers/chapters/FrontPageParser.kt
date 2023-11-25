@@ -1,8 +1,8 @@
 package ru.maeasoftworks.normativecontrol.core.parsers.chapters
 
-import ru.maeasoftworks.normativecontrol.core.model.Context
 import org.docx4j.wml.P
 import org.docx4j.wml.R
+import ru.maeasoftworks.normativecontrol.core.model.Context
 
 data object FrontPageParser : ChapterParser {
     override fun parsePHeader(p: P, context: Context) {

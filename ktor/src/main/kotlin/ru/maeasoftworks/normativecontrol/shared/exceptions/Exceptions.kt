@@ -1,6 +1,6 @@
 package ru.maeasoftworks.normativecontrol.shared.exceptions
 
-import io.ktor.http.*
+import io.ktor.http.HttpStatusCode
 
 open class StatusException(val code: HttpStatusCode, override val message: String) : Throwable(message)
 

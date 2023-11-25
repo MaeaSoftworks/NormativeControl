@@ -1,7 +1,7 @@
 package ru.maeasoftworks.normativecontrol.core.rendering.model.css.properties
 
-import ru.maeasoftworks.normativecontrol.core.rendering.utils.FONT_SCALING
 import org.docx4j.w14.STLigatures
+import ru.maeasoftworks.normativecontrol.core.rendering.utils.FONT_SCALING
 
 class FontFamily(value: String?) : Property<String>("font-family", value)
 
@@ -11,7 +11,9 @@ class FontStyle(value: Boolean?) : Property<Boolean?>(
     "font-style",
     value,
     {
-        if (it == null) null else {
+        if (it == null) {
+            null
+        } else {
             if (it) "italic" else null
         }
     }
@@ -21,7 +23,9 @@ class FontWeight(value: Boolean?) : Property<Boolean?>(
     "font-weight",
     value,
     {
-        if (it == null) null else {
+        if (it == null) {
+            null
+        } else {
             if (it) "bold" else null
         }
     }
@@ -31,7 +35,9 @@ class FontVariantCaps(value: Boolean?) : Property<Boolean?>(
     "font-variant-caps",
     value,
     {
-        if (it == null) null else {
+        if (it == null) {
+            null
+        } else {
             if (it) "small-caps" else null
         }
     }

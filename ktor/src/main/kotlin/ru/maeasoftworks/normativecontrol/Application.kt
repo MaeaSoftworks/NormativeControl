@@ -1,8 +1,8 @@
 package ru.maeasoftworks.normativecontrol
 
-import io.ktor.server.application.*
-import io.ktor.server.netty.*
-import io.ktor.server.routing.*
+import io.ktor.server.application.Application
+import io.ktor.server.netty.EngineMain
+import io.ktor.server.routing.routing
 import org.kodein.di.DI
 import org.kodein.di.Instance
 import org.kodein.di.bind

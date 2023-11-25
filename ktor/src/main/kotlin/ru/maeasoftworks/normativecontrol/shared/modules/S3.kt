@@ -1,6 +1,6 @@
 package ru.maeasoftworks.normativecontrol.shared.modules
 
-import io.ktor.server.application.*
+import io.ktor.server.application.Application
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.future.await

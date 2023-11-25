@@ -1,14 +1,14 @@
 package ru.maeasoftworks.normativecontrol.core.model
 
 import kotlinx.coroutines.delay
-import ru.maeasoftworks.normativecontrol.core.enums.CaptureType
-import ru.maeasoftworks.normativecontrol.core.parsers.chapters.ChapterParser
-import ru.maeasoftworks.normativecontrol.core.parsers.chapters.FrontPageParser
-import ru.maeasoftworks.normativecontrol.core.utils.PropertyResolver
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage
 import org.docx4j.openpackaging.parts.WordprocessingML.CommentsPart
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
 import org.docx4j.wml.*
+import ru.maeasoftworks.normativecontrol.core.enums.CaptureType
+import ru.maeasoftworks.normativecontrol.core.parsers.chapters.ChapterParser
+import ru.maeasoftworks.normativecontrol.core.parsers.chapters.FrontPageParser
+import ru.maeasoftworks.normativecontrol.core.utils.PropertyResolver
 import java.math.BigInteger
 import java.util.*
 
@@ -27,10 +27,12 @@ class Context {
         doc = mlPackage.mainDocumentPart
         resolver = PropertyResolver(mlPackage)
         ptr.totalChildSize = doc.content.size
-        comments = (doc.commentsPart ?: CommentsPart().apply {
-            jaxbElement = Comments()
-            doc.addTargetPart(this)
-        }).also { ptr.lastMistake = it.jaxbElement.comment.size.toLong() }
+        comments = (
+                doc.commentsPart ?: CommentsPart().apply {
+                    jaxbElement = Comments()
+                    doc.addTargetPart(this)
+                }
+                ).also { ptr.lastMistake = it.jaxbElement.comment.size.toLong() }
     }
 
     fun addMistake(mistake: Mistake) {

@@ -1,14 +1,14 @@
 package ru.maeasoftworks.normativecontrol.core.model
 
+import org.docx4j.TextUtils
+import org.docx4j.wml.JcEnumeration
+import org.docx4j.wml.R
 import ru.maeasoftworks.normativecontrol.core.enums.CaptureType
 import ru.maeasoftworks.normativecontrol.core.enums.MistakeType.*
 import ru.maeasoftworks.normativecontrol.core.utils.PFunction
 import ru.maeasoftworks.normativecontrol.core.utils.PFunctionFactory
 import ru.maeasoftworks.normativecontrol.core.utils.createRFunction
 import ru.maeasoftworks.normativecontrol.core.utils.getPropertyValue
-import org.docx4j.TextUtils
-import org.docx4j.wml.JcEnumeration
-import org.docx4j.wml.R
 import kotlin.math.abs
 import kotlin.math.floor
 
@@ -21,7 +21,9 @@ object Rules {
                     { _, _, isEmpty, _, bdr ->
                         if (bdr != null && (bdr.left.`val`.name != "NIL" || bdr.right.`val`.name != "NIL" || bdr.top.`val`.name != "NIL" || bdr.bottom.`val`.name != "NIL")) {
                             Mistake(if (isEmpty) TEXT_WHITESPACE_BORDER else TEXT_COMMON_BORDER, CaptureType.P)
-                        } else null
+                        } else {
+                            null
+                        }
                     }
                 )
 
@@ -30,8 +32,11 @@ object Rules {
                     { _, _, isEmpty, _, shd ->
                         if (shd != null && shd.fill != null && shd.fill != "FFFFFF") {
                             Mistake(if (isEmpty) TEXT_WHITESPACE_BACKGROUND_FILL else TEXT_COMMON_BACKGROUND_FILL, CaptureType.P)
-                        } else null
-                    })
+                        } else {
+                            null
+                        }
+                    }
+                )
             }
 
             object R {
@@ -99,7 +104,9 @@ object Rules {
                                 jc?.`val`.toString(),
                                 JcEnumeration.CENTER.toString()
                             )
-                        } else null
+                        } else {
+                            null
+                        }
                     }
                 )
 
@@ -113,18 +120,22 @@ object Rules {
                                 "%.2f".format(s.line.toDouble() / 240.0),
                                 "1"
                             )
-                        } else null
+                        } else {
+                            null
+                        }
                     }
                 )
 
                 val hasNotDotInEnd: PFunction = { _, p, _, _ ->
                     if (TextUtils.getText(p).endsWith(".")) {
                         Mistake(TEXT_HEADER_REDUNDANT_DOT, CaptureType.P)
-                    } else null
+                    } else {
+                        null
+                    }
                 }
 
-                //todo move to main loop
-                //val emptyLineAfterHeaderExists: PFunction = { pPos, _, _, d ->
+                // todo move to main loop
+                // val emptyLineAfterHeaderExists: PFunction = { pPos, _, _, d ->
                 //    if (d.doc.content.size <= pPos + 1) Mistake(CHAPTER_EMPTY, pPos + 1)
                 //    var caught: Mistake? = null
                 //    val isNotEmpty = try {
@@ -134,7 +145,7 @@ object Rules {
                 //        false
                 //    }
                 //    caught ?: if (isNotEmpty) Mistake(TEXT_HEADER_EMPTY_LINE_AFTER_HEADER_REQUIRED, pPos) else null
-                //}
+                // }
 
                 val firstLineIndentIs1dot25 = PFunctionFactory.create(
                     { numPr },
@@ -147,7 +158,9 @@ object Rules {
                                 floor(i.firstLine.toDouble() / 1440.0 * 2.54).toString(),
                                 "1.25"
                             )
-                        } else null
+                        } else {
+                            null
+                        }
                     }
                 )
 
@@ -156,7 +169,9 @@ object Rules {
                     { _, _, _, ctx, s ->
                         if ((s == null || !s.isVal) && ctx.mlPackage.mainDocumentPart.documentSettingsPart.jaxbElement.autoHyphenation?.isVal == true) {
                             Mistake(TEXT_HEADER_AUTO_HYPHEN, CaptureType.P)
-                        } else null
+                        } else {
+                            null
+                        }
                     }
                 )
             }
@@ -190,7 +205,9 @@ object Rules {
                             jc?.`val`?.toString(),
                             JcEnumeration.BOTH.toString()
                         )
-                    } else null
+                    } else {
+                        null
+                    }
                 }
 
                 val lineSpacingIsOneAndHalf: PFunction = { _, p, isEmpty, ctx ->
@@ -203,8 +220,12 @@ object Rules {
                                 "${s.line.toDouble() / 240.0}",
                                 "1.5"
                             )
-                        } else null
-                    } else null
+                        } else {
+                            null
+                        }
+                    } else {
+                        null
+                    }
                 }
 
                 val firstLineIndentIs1dot25 = PFunctionFactory.create(
@@ -218,7 +239,9 @@ object Rules {
                                 "${floor(i.firstLine.toDouble() / 1440 * 2.54)}",
                                 "1.25"
                             )
-                        } else null
+                        } else {
+                            null
+                        }
                     }
                 )
 
@@ -233,7 +256,9 @@ object Rules {
                                 "${i.left.toDouble() / 240.0}",
                                 "0"
                             )
-                        } else null
+                        } else {
+                            null
+                        }
                     }
                 )
 
@@ -248,7 +273,9 @@ object Rules {
                                 "${i.right.toDouble() / 240.0}",
                                 "0"
                             )
-                        } else null
+                        } else {
+                            null
+                        }
                     }
                 )
             }
@@ -286,14 +313,18 @@ object Rules {
                                 jc?.`val`?.toString(),
                                 JcEnumeration.CENTER.toString()
                             )
-                        } else null
+                        } else {
+                            null
+                        }
                     }
                 )
 
                 val hasNotDotInEnd: PFunction = { _, p, _, _ ->
                     if (TextUtils.getText(p).endsWith(".")) {
                         Mistake(PICTURE_TITLE_ENDS_WITH_DOT, CaptureType.P)
-                    } else null
+                    } else {
+                        null
+                    }
                 }
             }
         }
@@ -312,17 +343,24 @@ object Rules {
                                 jc.`val`.toString(),
                                 JcEnumeration.LEFT.toString()
                             )
-                        } else null
+                        } else {
+                            null
+                        }
                     }
                 )
 
                 val isNotUppercase: PFunction = { _, p, isEmpty, ctx ->
                     val text = TextUtils.getText(p)
-                    if (!isEmpty && (text.uppercase() == text || p.content.all {
-                            if (it is R) it.getPropertyValue(ctx) { caps }.let { caps -> caps != null && caps.isVal } else false
-                        })) {
+                    if (!isEmpty && (
+                                text.uppercase() == text || p.content.all {
+                                    if (it is R) it.getPropertyValue(ctx) { caps }.let { caps -> caps != null && caps.isVal } else false
+                                }
+                                )
+                    ) {
                         Mistake(TEXT_HEADER_BODY_UPPERCASE, CaptureType.P)
-                    } else null
+                    } else {
+                        null
+                    }
                 }
             }
         }

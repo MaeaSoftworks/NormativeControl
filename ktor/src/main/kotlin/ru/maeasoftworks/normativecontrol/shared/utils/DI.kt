@@ -1,7 +1,7 @@
 package ru.maeasoftworks.normativecontrol.shared.utils
 
-import io.ktor.server.application.*
-import io.ktor.server.routing.*
+import io.ktor.server.application.Application
+import io.ktor.server.routing.Routing
 import org.kodein.di.DIAware
 import org.kodein.di.instance
 

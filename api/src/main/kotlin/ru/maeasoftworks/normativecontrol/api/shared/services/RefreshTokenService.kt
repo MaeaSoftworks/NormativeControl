@@ -1,11 +1,11 @@
 package ru.maeasoftworks.normativecontrol.api.shared.services
 
 import kotlinx.coroutines.flow.Flow
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.stereotype.Service
 import ru.maeasoftworks.normativecontrol.api.shared.dao.RefreshToken
 import ru.maeasoftworks.normativecontrol.api.shared.repositories.RefreshTokenRepository
 import ru.maeasoftworks.normativecontrol.api.shared.repositories.UsersRepository
-import org.springframework.beans.factory.annotation.Value
-import org.springframework.stereotype.Service
 import java.time.Instant
 
 @Service

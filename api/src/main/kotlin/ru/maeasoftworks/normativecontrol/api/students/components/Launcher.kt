@@ -3,10 +3,10 @@ package ru.maeasoftworks.normativecontrol.api.students.components
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.consumeAsFlow
-import ru.maeasoftworks.normativecontrol.api.students.dto.Message
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
+import ru.maeasoftworks.normativecontrol.api.students.dto.Message
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 

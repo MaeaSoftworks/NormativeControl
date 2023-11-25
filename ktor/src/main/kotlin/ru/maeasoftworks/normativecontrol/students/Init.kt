@@ -1,6 +1,6 @@
 package ru.maeasoftworks.normativecontrol.students
 
-import io.ktor.server.application.*
+import io.ktor.server.application.Application
 import org.kodein.di.DI
 import org.kodein.di.bindSingleton
 import ru.maeasoftworks.normativecontrol.students.controllers.StudentsController

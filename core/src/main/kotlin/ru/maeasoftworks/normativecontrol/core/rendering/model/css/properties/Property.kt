@@ -14,7 +14,10 @@ open class DoubleProperty(
     measure: String? = null,
     converter: (Double?) -> String? = { it?.toString() }
 ) : Property<Double>(
-    name, value, { converter(it?.div(coefficient)) }, measure
+    name,
+    value,
+    { converter(it?.div(coefficient)) },
+    measure
 )
 
 open class IntProperty(
@@ -24,5 +27,8 @@ open class IntProperty(
     measure: String? = null,
     converter: (Int?) -> String? = { it?.toString() }
 ) : Property<Int>(
-    name, value, { converter(it?.div(coefficient)) }, measure
+    name,
+    value,
+    { converter(it?.div(coefficient)) },
+    measure
 )

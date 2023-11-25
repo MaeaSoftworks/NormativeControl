@@ -1,9 +1,9 @@
 package ru.maeasoftworks.normativecontrol.api.inspectors.controllers
 
 import kotlinx.coroutines.flow.Flow
-import ru.maeasoftworks.normativecontrol.api.students.components.DocumentManager
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
+import ru.maeasoftworks.normativecontrol.api.students.components.DocumentManager
 import java.nio.ByteBuffer
 
 @RestController

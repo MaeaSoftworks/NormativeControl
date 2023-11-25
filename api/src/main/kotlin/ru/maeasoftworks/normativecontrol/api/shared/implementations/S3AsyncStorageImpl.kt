@@ -3,9 +3,6 @@ package ru.maeasoftworks.normativecontrol.api.shared.implementations
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactive.asFlow
-import ru.maeasoftworks.normativecontrol.api.shared.configurations.S3ClientConfigurationProperties
-import ru.maeasoftworks.normativecontrol.api.shared.exceptions.NotFoundException
-import ru.maeasoftworks.normativecontrol.api.students.components.S3AsyncStorage
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.http.MediaType
 import org.springframework.http.codec.multipart.FilePart
@@ -14,6 +11,9 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import ru.maeasoftworks.normativecontrol.api.shared.asFlow
 import ru.maeasoftworks.normativecontrol.api.shared.await
+import ru.maeasoftworks.normativecontrol.api.shared.configurations.S3ClientConfigurationProperties
+import ru.maeasoftworks.normativecontrol.api.shared.exceptions.NotFoundException
+import ru.maeasoftworks.normativecontrol.api.students.components.S3AsyncStorage
 import software.amazon.awssdk.core.async.AsyncRequestBody
 import software.amazon.awssdk.core.async.AsyncResponseTransformer
 import software.amazon.awssdk.services.s3.S3AsyncClient
@@ -42,7 +42,9 @@ class S3AsyncStorageImpl(private val s3Client: S3AsyncClient, private val s3prop
             return@bufferUntil if (uploadState.buffered >= s3props.multipartMinPartSize) {
                 uploadState.buffered = 0
                 true
-            } else false
+            } else {
+                false
+            }
         }.map {
             concatBuffers(it)
         }.flatMap {
@@ -108,7 +110,7 @@ class S3AsyncStorageImpl(private val s3Client: S3AsyncClient, private val s3prop
                 .bucket(s3props.bucket)
                 .key(objectName)
                 .build()
-        ).asFlow().catch { //todo find cause
+        ).asFlow().catch { // todo find cause
             throw NotFoundException("Object not found")
         }.map { tagSet ->
             tagSet.tagSet().associate { it.key() to it.value() }

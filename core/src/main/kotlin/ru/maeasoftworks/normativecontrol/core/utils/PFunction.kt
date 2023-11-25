@@ -1,9 +1,9 @@
 package ru.maeasoftworks.normativecontrol.core.utils
 
-import ru.maeasoftworks.normativecontrol.core.model.Context
-import ru.maeasoftworks.normativecontrol.core.model.Mistake
 import org.docx4j.wml.P
 import org.docx4j.wml.PPr
+import ru.maeasoftworks.normativecontrol.core.model.Context
+import ru.maeasoftworks.normativecontrol.core.model.Mistake
 
 typealias PFunction = (pPos: Int, p: P, isEmpty: Boolean, ctx: Context) -> Mistake?
 
