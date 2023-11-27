@@ -11,11 +11,11 @@ FROM gradle:8.4.0-jdk21-alpine AS build
 COPY --from=cache /home/gradle/cache /home/gradle/.gradle
 WORKDIR /app/sources
 COPY / /app/sources
-RUN gradle bootJar
+RUN gradle buildFatJar
 
 FROM eclipse-temurin:21-jre-alpine
 RUN addgroup -S instance && adduser -S maea -G instance
 USER maea
 
-COPY --from=build /app/sources/api/build/libs/* /app/built/app.jar
+COPY --from=build /app/sources/api/build/libs/api-all.jar /app/built/app.jar
 ENTRYPOINT java -jar app/built/app.jar
