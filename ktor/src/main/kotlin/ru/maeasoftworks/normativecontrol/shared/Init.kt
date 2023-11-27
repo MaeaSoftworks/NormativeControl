@@ -7,6 +7,7 @@ import ru.maeasoftworks.normativecontrol.shared.modules.S3
 import ru.maeasoftworks.normativecontrol.shared.modules.initializeDatabase
 import ru.maeasoftworks.normativecontrol.shared.repositories.RefreshTokenRepository
 import ru.maeasoftworks.normativecontrol.shared.repositories.UserRepository
+import ru.maeasoftworks.normativecontrol.shared.services.DocumentService
 import ru.maeasoftworks.normativecontrol.shared.services.RefreshTokenService
 
 fun DI.MainBuilder.initializeSharedModule(application: Application) {
@@ -15,6 +16,7 @@ fun DI.MainBuilder.initializeSharedModule(application: Application) {
     bindEagerSingleton { JWTService(this.di) }
     bindEagerSingleton { S3(this.di) }
 
+    bindSingleton { DocumentService(this.di) }
     bindSingleton { RefreshTokenService(this.di) }
     bindSingleton { RefreshTokenRepository(this.di) }
     bindSingleton { UserRepository(this.di) }

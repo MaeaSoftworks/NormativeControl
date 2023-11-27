@@ -1,6 +1,10 @@
 package ru.maeasoftworks.normativecontrol.students.controllers
 
+import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.defaultForFileExtension
 import io.ktor.server.application.call
+import io.ktor.server.response.respondBytesWriter
 import io.ktor.server.routing.Routing
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
@@ -18,11 +22,11 @@ import ru.maeasoftworks.normativecontrol.shared.utils.extractMultipartParts
 import ru.maeasoftworks.normativecontrol.students.dto.Message
 import ru.maeasoftworks.normativecontrol.students.dto.UploadMultipart
 import ru.maeasoftworks.normativecontrol.students.model.Verifier
-import ru.maeasoftworks.normativecontrol.students.services.StudentDocumentService
+import ru.maeasoftworks.normativecontrol.shared.services.DocumentService
 import java.util.*
 
 class StudentsController(override val di: DI) : Controller() {
-    private val studentDocumentService: StudentDocumentService by instance()
+    private val documentService: DocumentService by instance()
     private val verifier: Verifier by instance()
 
     override fun Routing.registerRoutes() {
@@ -32,7 +36,7 @@ class StudentsController(override val di: DI) : Controller() {
                     val channel = Channel<Message>(Channel.UNLIMITED)
                     val documentId = UUID.randomUUID().toString().filter { it != '-' }
                     val multipart = call.extractMultipartParts { UploadMultipart("file".file(), "accessKey".string()) }
-                    studentDocumentService.uploadSourceDocument(documentId, multipart)
+                    documentService.uploadSourceDocument(documentId, multipart)
                     launch { verifier.startVerification(documentId, multipart.accessKey, multipart.file.inputStream(), channel) }
                     call.respond(channel.receiveAsFlow())
                 }
@@ -41,14 +45,32 @@ class StudentsController(override val di: DI) : Controller() {
                     val documentId = call.parameters["documentId"] ?: throw IllegalArgumentException("documentId must be not null")
                     val accessKey = call.parameters["accessKey"] ?: throw IllegalArgumentException("accessKey must be not null")
                     val filename = conclusion(documentId)
-                    studentDocumentService.getFile(call, accessKey, filename)
+
+                    call.respondBytesWriter(
+                        ContentType.defaultForFileExtension("docx"),
+                        HttpStatusCode.OK,
+                        null,
+                    ) {
+                        documentService.getFileWithAccessKey(accessKey, filename).collect {
+                            this.writeFully(it)
+                        }
+                    }
                 }
 
                 get("/render") {
                     val documentId = call.parameters["documentId"] ?: throw IllegalArgumentException("documentId must be not null")
                     val accessKey = call.parameters["accessKey"] ?: throw IllegalArgumentException("accessKey must be not null")
                     val filename = render(documentId)
-                    studentDocumentService.getFile(call, accessKey, filename)
+
+                    call.respondBytesWriter(
+                        ContentType.defaultForFileExtension("html"),
+                        HttpStatusCode.OK,
+                        null,
+                    ) {
+                        documentService.getFileWithAccessKey(accessKey, filename).collect {
+                            this.writeFully(it)
+                        }
+                    }
                 }
             }
         }
