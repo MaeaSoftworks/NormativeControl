@@ -35,7 +35,7 @@ fun Application.default() = setupDI {
     configureStatusPages()
 
     //shared - warning: do not move it below!
-    initializeSharedModule()
+    initializeSharedModule(this@default)
 
     initializeStudentModule()
     initializeInspectorModule()

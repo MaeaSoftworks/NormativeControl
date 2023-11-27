@@ -9,6 +9,6 @@ data class User(
     @KomapperAutoIncrement
     @KomapperColumn("user_id")
     val id: Long = 0,
-    val username: String,
-    val password: String
+    var username: String,
+    var password: String
 )

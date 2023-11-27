@@ -1,8 +1,11 @@
 package ru.maeasoftworks.normativecontrol.shared.services
 
+import kotlinx.coroutines.flow.Flow
 import org.kodein.di.DI
 import org.kodein.di.instance
+import org.komapper.core.dsl.Meta
 import ru.maeasoftworks.normativecontrol.shared.dao.RefreshToken
+import ru.maeasoftworks.normativecontrol.shared.dao.refreshTokens
 import ru.maeasoftworks.normativecontrol.shared.exceptions.InvalidRefreshToken
 import ru.maeasoftworks.normativecontrol.shared.exceptions.OutdatedRefreshToken
 import ru.maeasoftworks.normativecontrol.shared.repositories.RefreshTokenRepository
@@ -18,7 +21,7 @@ class RefreshTokenService(override val di: DI) : Service() {
     suspend fun updateJwtToken(refreshToken: String, userAgent: String?): RefreshToken {
         val token = refreshTokenRepository.getRefreshTokenByValue(refreshToken)
         if (token != null) {
-            refreshTokenRepository.deleteRefreshToken(token)
+            refreshTokenRepository.delete(token.id)
             if (token.expiresAt >= Instant.now()) {
                 return createRefreshTokenAndSave(token.userId, userAgent)
             }
@@ -28,7 +31,7 @@ class RefreshTokenService(override val di: DI) : Service() {
     }
 
     suspend fun createRefreshTokenAndSave(userId: Long, userAgent: String?): RefreshToken {
-        return refreshTokenRepository.saveRefreshToken(createRefreshToken(userId, userAgent))
+        return refreshTokenRepository.save(createRefreshToken(userId, userAgent))
     }
 
     private fun createRefreshToken(userId: Long, userAgent: String?): RefreshToken {
@@ -44,6 +47,9 @@ class RefreshTokenService(override val di: DI) : Service() {
     private fun createRefreshTokenString(): String {
         return (0..32).map { letters[secureRandom.nextInt(lettersLength)] }.joinToString("")
     }
+
+    suspend fun getAllRefreshTokensOfUser(userId: Long): Flow<RefreshToken> =
+        refreshTokenRepository.getAllBy(Meta.refreshTokens.userId, userId)
 
     companion object {
         val letters = ('a'..'z') + ('A'..'Z') + ('0'..'9') + "!@#$%^&*_".toCharArray()
