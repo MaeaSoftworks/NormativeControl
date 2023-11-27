@@ -1,57 +1,61 @@
 plugins {
-    application
-
     kotlin("jvm") version "1.9.20"
-    kotlin("plugin.spring") version "1.9.20"
-    kotlin("plugin.serialization") version "1.9.20"
-
-    id("org.springframework.boot") version "3.1.1"
-    id("io.spring.dependency-management") version "1.1.0"
+    id("io.ktor.plugin") version "2.3.6"
+    id("com.google.devtools.ksp") version "1.9.20-1.0.14"
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.9.20"
 }
 
-java.sourceCompatibility = JavaVersion.VERSION_21
+group = "ru.maeasoftworks"
+version = "0.0.1"
 
-application.mainClass.set("ru.maeasoftworks.normativecontrol.api.NormativeControlApplicationKt")
+application {
+    mainClass.set("io.ktor.server.netty.EngineMain")
+
+    val isDevelopment: Boolean = project.ext.has("development")
+    applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
+}
+
+repositories {
+    mavenCentral()
+}
 
 dependencies {
     implementation(project(":core"))
+    implementation(kotlin("reflect"))
+    implementation("io.ktor:ktor-server-core-jvm")
+    implementation("io.ktor:ktor-server-auth-jvm")
+    implementation("io.ktor:ktor-server-cors-jvm")
+    implementation("io.ktor:ktor-server-netty-jvm")
+    implementation("io.ktor:ktor-server-auth-jwt-jvm")
+    implementation("io.ktor:ktor-server-host-common-jvm")
+    implementation("io.ktor:ktor-server-status-pages-jvm")
+    implementation("io.ktor:ktor-server-config-yaml:2.3.6")
+    implementation("org.codehaus.janino:janino:3.1.8")
+    implementation("io.ktor:ktor-server-content-negotiation-jvm")
+    implementation("io.ktor:ktor-serialization-kotlinx-json-jvm")
 
-    implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
-    implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+    ksp("org.komapper:komapper-processor")
+    ksp(platform("org.komapper:komapper-platform:1.15.0"))
+    implementation("org.komapper:komapper-starter-r2dbc")
+    implementation("org.komapper:komapper-dialect-postgresql-r2dbc")
+    implementation(platform("org.komapper:komapper-platform:1.15.0"))
 
-    implementation("org.springframework.boot:spring-boot-starter-webflux")
-    implementation("org.springframework.boot:spring-boot-starter-security")
-    implementation("org.springframework.boot:spring-boot-starter-validation")
-    implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
-
-    implementation("io.r2dbc:r2dbc-pool")
-    implementation("io.asyncer:r2dbc-mysql")
-    implementation("io.jsonwebtoken:jjwt-api:0.11.5")
+    implementation("at.favre.lib:bcrypt:0.10.2")
+    implementation("org.kodein.di:kodein-di-jvm:7.17.0")
     implementation("software.amazon.awssdk:s3:2.20.121")
+    implementation("ch.qos.logback:logback-classic:1.4.11")
     implementation("software.amazon.awssdk:netty-nio-client:2.20.121")
 
-    runtimeOnly("com.mysql:mysql-connector-j")
-    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
-    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
-
-    developmentOnly("org.springframework.boot:spring-boot-devtools")
-
-    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-
-    testImplementation("io.projectreactor:reactor-test")
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.springframework.security:spring-security-test")
+    testImplementation("io.ktor:ktor-server-tests-jvm")
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.9.20")
 }
 
-configurations {
-    compileOnly {
-        extendsFrom(configurations.annotationProcessor.get())
+ksp {
+    arg("komapper.enableEntityMetamodelListing", "true")
+}
+
+tasks {
+    withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+        kotlinOptions.freeCompilerArgs += listOf("-opt-in=org.komapper.annotation.KomapperExperimentalAssociation")
     }
-}
-
-tasks.getByName<Test>("test") {
-    useJUnitPlatform()
 }

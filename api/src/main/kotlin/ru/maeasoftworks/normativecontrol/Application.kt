@@ -20,10 +20,10 @@ import ru.maeasoftworks.normativecontrol.students.initializeStudentModule
 const val variablePath = "ktor.profile"
 
 fun main(args: Array<String>) {
-    val profile = System.getenv()[variablePath]
+    var profile = System.getenv()[variablePath]
     if (profile == null) {
-        println("Environment variable `$variablePath` is not set. Please, provide correct `$variablePath` value in environment.")
-        return
+        println("Environment variable '$variablePath' is not set. Forcing 'production' profile...")
+        profile = "production"
     }
     EngineMain.main(args + "-config=application-$profile.yaml")
 }
