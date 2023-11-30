@@ -35,7 +35,10 @@ class Verifier(override val di: DI) : Service() {
             channel.send(Message(documentId, Message.Code.INFO, stageHolder.stage, "PROGRESS: $progress"))
         }
         task.invokeOnCompletion {
-            channel.close()
+            launch {
+                channel.send(Message(documentId, Message.Code.SUCCESS, "Done"))
+                channel.close()
+            }
         }
     }
 

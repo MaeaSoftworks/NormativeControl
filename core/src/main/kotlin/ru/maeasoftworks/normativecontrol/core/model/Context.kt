@@ -28,11 +28,11 @@ class Context {
         resolver = PropertyResolver(mlPackage)
         ptr.totalChildSize = doc.content.size
         comments = (
-                doc.commentsPart ?: CommentsPart().apply {
-                    jaxbElement = Comments()
-                    doc.addTargetPart(this)
-                }
-                ).also { ptr.lastMistake = it.jaxbElement.comment.size.toLong() }
+            doc.commentsPart ?: CommentsPart().apply {
+                jaxbElement = Comments()
+                doc.addTargetPart(this)
+            }
+            ).also { ptr.lastMistake = it.jaxbElement.comment.size.toLong() }
     }
 
     fun addMistake(mistake: Mistake) {
