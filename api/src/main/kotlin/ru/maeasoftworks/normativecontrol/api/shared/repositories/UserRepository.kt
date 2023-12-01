@@ -4,7 +4,7 @@ import org.komapper.core.dsl.Meta
 import ru.maeasoftworks.normativecontrol.api.shared.dao.User
 import ru.maeasoftworks.normativecontrol.api.shared.dao._User
 import ru.maeasoftworks.normativecontrol.api.shared.dao.users
-import ru.maeasoftworks.normativecontrol.api.shared.utils.Repository
+import ru.maeasoftworks.normativecontrol.api.app.Repository
 import javax.inject.Inject
 import javax.inject.Singleton
 

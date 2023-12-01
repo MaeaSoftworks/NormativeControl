@@ -3,6 +3,8 @@ package ru.maeasoftworks.normativecontrol.api
 import io.ktor.server.application.Application
 import io.ktor.server.netty.EngineMain
 import org.slf4j.LoggerFactory
+import ru.maeasoftworks.normativecontrol.api.app.DaggerApplicationConfiguration
+import ru.maeasoftworks.normativecontrol.api.app.initializeApplication
 
 private const val variablePath = "ktor.profile"
 
@@ -19,14 +21,4 @@ fun main(args: Array<String>) {
     EngineMain.main(args + "-config=application-$profile.yaml")
 }
 
-fun Application.default() = daggerApplication(DaggerApplicationComponent::builder)
-
-inline fun <DaggerComponentBuilder : ApplicationComponent.Builder> Application.daggerApplication(
-    createComponentBuilder: () -> DaggerComponentBuilder,
-    initComponent: (DaggerComponentBuilder) -> Unit = { }
-) {
-    val builder = createComponentBuilder()
-    builder.application(this)
-    initComponent(builder)
-    builder.build().also { it.registrar.apply { register() } }
-}
+fun Application.allModules() = initializeApplication(DaggerApplicationConfiguration::builder)

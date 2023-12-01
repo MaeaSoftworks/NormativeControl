@@ -13,7 +13,7 @@ import ru.maeasoftworks.normativecontrol.api.inspectors.services.InspectorAccoun
 import ru.maeasoftworks.normativecontrol.api.shared.modules.JWTService
 import ru.maeasoftworks.normativecontrol.api.shared.repositories.UserRepository
 import ru.maeasoftworks.normativecontrol.api.shared.services.RefreshTokenService
-import ru.maeasoftworks.normativecontrol.api.shared.utils.Controller
+import ru.maeasoftworks.normativecontrol.api.app.Controller
 import javax.inject.Inject
 import javax.inject.Singleton
 

@@ -1,5 +1,3 @@
-import groovy.text.markup.MarkupTemplateEngine
-
 plugins {
     kotlin("jvm") version "1.9.20"
     id("io.ktor.plugin") version "2.3.6"
@@ -72,39 +70,4 @@ tasks {
     withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
         kotlinOptions.freeCompilerArgs += listOf("-opt-in=org.komapper.annotation.KomapperExperimentalAssociation")
     }
-}
-
-val generateDaggerModule by tasks.register("generateDaggerModule") {
-    doFirst {
-        val autogenDir = file("build/generated/modules")
-        autogenDir.mkdirs()
-        val values = mutableMapOf<String, Any>()
-        val controllers = mutableListOf<String>()
-        val modules = mutableListOf<String>()
-
-        project.fileTree("src/main/kotlin").visit {
-            if (this.name.contains("Controller")) {
-                controllers += this.relativePath.replace(Regex("/"), ".").removeSuffix(".kt")
-            }
-            if (this.path.contains("modules") && !this.isDirectory) {
-                val text = this.file.readText()
-                if (text.contains(Regex("@Module"))) {
-                    val classname = Regex("@Module\\r\\n?(?:(?:(?:abstract )?class)|(?:interface)) (\\w+)")
-                        .find(text)?.groups?.last()?.value
-                    val pkg = Regex("package (.+)\\r\\n").find(text)?.groups?.last()?.value
-                    modules += "$pkg.$classname"
-                }
-            }
-        }
-        values += "controllers" to controllers
-        values += "modules" to modules
-        MarkupTemplateEngine()
-            .createTemplate(File(layout.projectDirectory.asFile.path + "/template.groovy"))
-            .make(values)
-            .writeTo(File(autogenDir.path + "/Modules.kt").writer())
-    }
-}
-
-afterEvaluate {
-    tasks.getByPath("kspKotlin").dependsOn(generateDaggerModule)
 }

@@ -1,4 +1,4 @@
-package ru.maeasoftworks.normativecontrol.api.shared.modules
+package ru.maeasoftworks.normativecontrol.api.shared.configurations
 
 import dagger.Module
 import dagger.Provides
@@ -9,7 +9,7 @@ import org.komapper.core.dsl.QueryDsl
 import org.komapper.r2dbc.R2dbcDatabase
 
 @Module
-class Database {
+interface ModuleConfiguration {
     companion object {
         @Provides
         fun initializeDatabase(application: Application): R2dbcDatabase {

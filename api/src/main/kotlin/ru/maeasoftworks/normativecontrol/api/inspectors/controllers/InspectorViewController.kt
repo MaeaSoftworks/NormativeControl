@@ -12,7 +12,7 @@ import io.ktor.server.routing.route
 import ru.maeasoftworks.normativecontrol.api.shared.extensions.conclusion
 import ru.maeasoftworks.normativecontrol.api.shared.extensions.render
 import ru.maeasoftworks.normativecontrol.api.shared.services.DocumentService
-import ru.maeasoftworks.normativecontrol.api.shared.utils.Controller
+import ru.maeasoftworks.normativecontrol.api.app.Controller
 import javax.inject.Inject
 import javax.inject.Singleton
 

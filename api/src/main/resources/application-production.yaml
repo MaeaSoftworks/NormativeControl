@@ -3,7 +3,7 @@ ktor:
     port: 80
   application:
     modules:
-      - ru.maeasoftworks.normativecontrol.api.ApplicationKt.default
+      - ru.maeasoftworks.normativecontrol.api.ApplicationKt.allModules
 
 jwt:
   issuer: "???"
