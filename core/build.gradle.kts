@@ -3,7 +3,7 @@ plugins {
     kotlin("plugin.serialization") version "1.9.20"
 }
 
-java.sourceCompatibility = JavaVersion.VERSION_21
+java.sourceCompatibility = JavaVersion.VERSION_20
 
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")

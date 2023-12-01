@@ -1,21 +1,25 @@
 package ru.maeasoftworks.normativecontrol.api.shared.services
 
+import io.ktor.server.application.Application
 import kotlinx.coroutines.flow.Flow
-import org.kodein.di.DI
-import org.kodein.di.instance
 import org.komapper.core.dsl.Meta
 import ru.maeasoftworks.normativecontrol.api.shared.dao.RefreshToken
-import ru.maeasoftworks.normativecontrol.shared.dao.refreshTokens
+import ru.maeasoftworks.normativecontrol.api.shared.dao.refreshTokens
 import ru.maeasoftworks.normativecontrol.api.shared.exceptions.InvalidRefreshToken
 import ru.maeasoftworks.normativecontrol.api.shared.exceptions.OutdatedRefreshToken
 import ru.maeasoftworks.normativecontrol.api.shared.repositories.RefreshTokenRepository
-import ru.maeasoftworks.normativecontrol.api.shared.utils.Service
 import java.security.SecureRandom
 import java.time.Instant
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class RefreshTokenService(override val di: DI) : Service() {
+@Singleton
+class RefreshTokenService @Inject constructor(
+    private val refreshTokenRepository: RefreshTokenRepository,
+    application: Application
+) {
     private val secureRandom = SecureRandom()
-    private val refreshTokenRepository: RefreshTokenRepository by instance()
+
     private val refreshTokenExpiration = application.environment.config.property("jwt.refreshTokenExpiration").getString().toLong()
 
     suspend fun updateJwtToken(refreshToken: String, userAgent: String?): RefreshToken {

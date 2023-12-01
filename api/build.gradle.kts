@@ -1,3 +1,5 @@
+import groovy.text.markup.MarkupTemplateEngine
+
 plugins {
     kotlin("jvm") version "1.9.20"
     id("io.ktor.plugin") version "2.3.6"
@@ -30,21 +32,25 @@ dependencies {
     implementation("io.ktor:ktor-server-host-common-jvm")
     implementation("io.ktor:ktor-server-status-pages-jvm")
     implementation("io.ktor:ktor-server-config-yaml:2.3.6")
-    implementation("org.codehaus.janino:janino:3.1.8")
     implementation("io.ktor:ktor-server-content-negotiation-jvm")
     implementation("io.ktor:ktor-serialization-kotlinx-json-jvm")
 
     ksp("org.komapper:komapper-processor")
+    ksp("com.google.dagger:dagger-compiler:2.48")
     ksp(platform("org.komapper:komapper-platform:1.15.0"))
+
     implementation("org.komapper:komapper-starter-r2dbc")
     implementation("org.komapper:komapper-dialect-postgresql-r2dbc")
     implementation(platform("org.komapper:komapper-platform:1.15.0"))
 
     implementation("at.favre.lib:bcrypt:0.10.2")
-    implementation("org.kodein.di:kodein-di-jvm:7.17.0")
+    implementation("com.google.dagger:dagger:2.48.1")
+    implementation("org.codehaus.janino:janino:3.1.8")
     implementation("software.amazon.awssdk:s3:2.20.121")
     implementation("ch.qos.logback:logback-classic:1.4.11")
     implementation("software.amazon.awssdk:netty-nio-client:2.20.121")
+
+    annotationProcessor("com.google.dagger:dagger-compiler:2.48.1")
 
     testImplementation("io.ktor:ktor-server-tests-jvm")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.9.20")
@@ -54,8 +60,51 @@ ksp {
     arg("komapper.enableEntityMetamodelListing", "true")
 }
 
+sourceSets {
+    main {
+        kotlin {
+            srcDir("build/generated/modules")
+        }
+    }
+}
+
 tasks {
     withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
         kotlinOptions.freeCompilerArgs += listOf("-opt-in=org.komapper.annotation.KomapperExperimentalAssociation")
     }
+}
+
+val generateDaggerModule by tasks.register("generateDaggerModule") {
+    doFirst {
+        val autogenDir = file("build/generated/modules")
+        autogenDir.mkdirs()
+        val values = mutableMapOf<String, Any>()
+        val controllers = mutableListOf<String>()
+        val modules = mutableListOf<String>()
+
+        project.fileTree("src/main/kotlin").visit {
+            if (this.name.contains("Controller")) {
+                controllers += this.relativePath.replace(Regex("/"), ".").removeSuffix(".kt")
+            }
+            if (this.path.contains("modules") && !this.isDirectory) {
+                val text = this.file.readText()
+                if (text.contains(Regex("@Module"))) {
+                    val classname = Regex("@Module\\r\\n?(?:(?:(?:abstract )?class)|(?:interface)) (\\w+)")
+                        .find(text)?.groups?.last()?.value
+                    val pkg = Regex("package (.+)\\r\\n").find(text)?.groups?.last()?.value
+                    modules += "$pkg.$classname"
+                }
+            }
+        }
+        values += "controllers" to controllers
+        values += "modules" to modules
+        MarkupTemplateEngine()
+            .createTemplate(File(layout.projectDirectory.asFile.path + "/template.groovy"))
+            .make(values)
+            .writeTo(File(autogenDir.path + "/Modules.kt").writer())
+    }
+}
+
+afterEvaluate {
+    tasks.getByPath("kspKotlin").dependsOn(generateDaggerModule)
 }

@@ -12,23 +12,24 @@ import io.ktor.server.routing.route
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import org.kodein.di.DI
-import org.kodein.di.instance
 import ru.maeasoftworks.normativecontrol.api.shared.extensions.conclusion
 import ru.maeasoftworks.normativecontrol.api.shared.extensions.render
 import ru.maeasoftworks.normativecontrol.api.shared.extensions.respond
+import ru.maeasoftworks.normativecontrol.api.shared.services.DocumentService
 import ru.maeasoftworks.normativecontrol.api.shared.utils.Controller
 import ru.maeasoftworks.normativecontrol.api.shared.utils.extractMultipartParts
 import ru.maeasoftworks.normativecontrol.api.students.dto.Message
 import ru.maeasoftworks.normativecontrol.api.students.dto.UploadMultipart
 import ru.maeasoftworks.normativecontrol.api.students.model.Verifier
-import ru.maeasoftworks.normativecontrol.api.shared.services.DocumentService
 import java.util.*
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class StudentsController(override val di: DI) : Controller() {
-    private val documentService: DocumentService by instance()
-    private val verifier: Verifier by instance()
-
+@Singleton
+class StudentsController @Inject constructor(
+    private val documentService: DocumentService,
+    private val verifier: Verifier
+) : Controller() {
     override fun Routing.registerRoutes() {
         route("/student") {
             route("/document") {
@@ -49,7 +50,7 @@ class StudentsController(override val di: DI) : Controller() {
                     call.respondBytesWriter(
                         ContentType.defaultForFileExtension("docx"),
                         HttpStatusCode.OK,
-                        null,
+                        null
                     ) {
                         documentService.getFileWithAccessKey(accessKey, filename).collect {
                             this.writeFully(it)
@@ -65,7 +66,7 @@ class StudentsController(override val di: DI) : Controller() {
                     call.respondBytesWriter(
                         ContentType.defaultForFileExtension("html"),
                         HttpStatusCode.OK,
-                        null,
+                        null
                     ) {
                         documentService.getFileWithAccessKey(accessKey, filename).collect {
                             this.writeFully(it)

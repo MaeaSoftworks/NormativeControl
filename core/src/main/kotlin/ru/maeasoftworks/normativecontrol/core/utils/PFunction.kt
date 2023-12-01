@@ -13,9 +13,9 @@ object PFunctionFactory {
         crossinline body: (pPos: Int, p: P, isEmpty: Boolean, ctx: Context, T?) -> Mistake?
     ): PFunction {
         return { pPos: Int,
-            p: P,
-            isEmpty: Boolean,
-            ctx: Context ->
+                 p: P,
+                 isEmpty: Boolean,
+                 ctx: Context ->
             body(pPos, p, isEmpty, ctx, p.getPropertyValue(ctx, path))
         }
     }
@@ -26,9 +26,9 @@ object PFunctionFactory {
         crossinline body: (pPos: Int, p: P, isEmpty: Boolean, ctx: Context, T1?, T2?) -> Mistake?
     ): PFunction {
         return { pPos: Int,
-            p: P,
-            isEmpty: Boolean,
-            ctx: Context ->
+                 p: P,
+                 isEmpty: Boolean,
+                 ctx: Context ->
             body(pPos, p, isEmpty, ctx, p.getPropertyValue(ctx, path1), p.getPropertyValue(ctx, path2))
         }
     }

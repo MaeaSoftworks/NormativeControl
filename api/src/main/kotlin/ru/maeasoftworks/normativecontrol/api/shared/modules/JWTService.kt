@@ -2,14 +2,16 @@ package ru.maeasoftworks.normativecontrol.api.shared.modules
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
+import io.ktor.server.application.Application
 import io.ktor.server.auth.authentication
 import io.ktor.server.auth.jwt.JWTPrincipal
 import io.ktor.server.auth.jwt.jwt
-import org.kodein.di.DI
-import ru.maeasoftworks.normativecontrol.api.shared.utils.Service
 import java.time.Instant
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class JWTService(override val di: DI): Service() {
+@Singleton
+class JWTService @Inject constructor(application: Application) {
     private val jwtAudience = application.environment.config.property("jwt.audience").getString()
     private val issuer = application.environment.config.property("jwt.issuer").getString()
     private val jwtRealm = application.environment.config.property("jwt.realm").getString()
@@ -28,7 +30,9 @@ class JWTService(override val di: DI): Service() {
                         credential.payload.expiresAtAsInstant >= Instant.now()
                     ) {
                         JWTPrincipal(credential.payload)
-                    } else null
+                    } else {
+                        null
+                    }
                 }
             }
         }
@@ -43,4 +47,3 @@ class JWTService(override val di: DI): Service() {
             .sign(Algorithm.HMAC256(jwtSecret))
     }
 }
-

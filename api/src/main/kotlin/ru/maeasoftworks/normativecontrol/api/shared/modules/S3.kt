@@ -1,11 +1,10 @@
 package ru.maeasoftworks.normativecontrol.api.shared.modules
 
+import io.ktor.server.application.Application
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.reactive.asFlow
-import org.kodein.di.DI
-import ru.maeasoftworks.normativecontrol.api.shared.utils.Service
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials
 import software.amazon.awssdk.core.async.AsyncRequestBody
 import software.amazon.awssdk.core.async.AsyncResponseTransformer
@@ -17,8 +16,11 @@ import software.amazon.awssdk.services.s3.model.*
 import java.net.URI
 import java.nio.ByteBuffer
 import java.time.Duration
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class S3(override val di: DI): Service() {
+@Singleton
+class S3 @Inject constructor(application: Application) {
     private val region = Region.of(application.environment.config.property("aws.s3.region").getString())
     private val endpoint = URI(application.environment.config.property("aws.s3.endpoint").getString())
     private val accessKeyId = application.environment.config.property("aws.s3.accessKeyId").getString()

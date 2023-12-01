@@ -14,8 +14,8 @@ suspend fun S3.uploadDocumentRender(documentId: String, file: ByteArray, accessK
 suspend fun S3.uploadDocumentConclusion(documentId: String, file: ByteArray, accessKey: String) =
     uploadFile(conclusion(documentId), file, accessKey)
 
-fun source(documentId: String) = "${documentId}/source.docx"
+fun source(documentId: String) = "$documentId/source.docx"
 
-fun render(documentId: String) = "${documentId}/conclusion.html"
+fun render(documentId: String) = "$documentId/conclusion.html"
 
-fun conclusion(documentId: String) = "${documentId}/conclusion.docx"
+fun conclusion(documentId: String) = "$documentId/conclusion.docx"

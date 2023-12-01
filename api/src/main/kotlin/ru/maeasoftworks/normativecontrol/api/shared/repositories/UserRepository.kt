@@ -1,12 +1,14 @@
 package ru.maeasoftworks.normativecontrol.api.shared.repositories
 
-import org.kodein.di.DI
 import org.komapper.core.dsl.Meta
 import ru.maeasoftworks.normativecontrol.api.shared.dao.User
-import ru.maeasoftworks.normativecontrol.shared.dao._User
-import ru.maeasoftworks.normativecontrol.shared.dao.users
+import ru.maeasoftworks.normativecontrol.api.shared.dao._User
+import ru.maeasoftworks.normativecontrol.api.shared.dao.users
 import ru.maeasoftworks.normativecontrol.api.shared.utils.Repository
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class UserRepository(override val di: DI) : Repository<User, Long, _User>(Meta.users, Meta.users.id) {
+@Singleton
+class UserRepository @Inject constructor() : Repository<User, Long, _User>(Meta.users, Meta.users.id) {
     suspend fun getUserByUsername(username: String): User? = getBy(Meta.users.username, username)
 }

@@ -1,17 +1,17 @@
 package ru.maeasoftworks.normativecontrol.api.inspectors.services
 
 import at.favre.lib.crypto.bcrypt.BCrypt
-import org.kodein.di.DI
-import org.kodein.di.instance
 import ru.maeasoftworks.normativecontrol.api.inspectors.dto.LoginRequest
 import ru.maeasoftworks.normativecontrol.api.shared.dao.User
 import ru.maeasoftworks.normativecontrol.api.shared.exceptions.AuthenticationException
 import ru.maeasoftworks.normativecontrol.api.shared.repositories.UserRepository
-import ru.maeasoftworks.normativecontrol.api.shared.utils.Service
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class InspectorAccountService(override val di: DI) : Service() {
-    private val userRepository: UserRepository by instance()
-
+@Singleton
+class InspectorAccountService @Inject constructor(
+    private val userRepository: UserRepository
+) {
     suspend fun authenticate(loginRequest: LoginRequest): User {
         val user = userRepository.getUserByUsername(loginRequest.username) ?: throw AuthenticationException()
         if (!(BCrypt.verifyer().verify(loginRequest.password.toCharArray(), user.password).verified)) {

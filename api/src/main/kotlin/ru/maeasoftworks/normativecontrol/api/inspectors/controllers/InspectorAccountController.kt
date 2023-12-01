@@ -8,22 +8,22 @@ import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.*
 import kotlinx.coroutines.flow.map
-import org.kodein.di.DI
-import org.kodein.di.instance
 import ru.maeasoftworks.normativecontrol.api.inspectors.dto.*
 import ru.maeasoftworks.normativecontrol.api.inspectors.services.InspectorAccountService
-import ru.maeasoftworks.normativecontrol.api.shared.extensions.respond
 import ru.maeasoftworks.normativecontrol.api.shared.modules.JWTService
 import ru.maeasoftworks.normativecontrol.api.shared.repositories.UserRepository
 import ru.maeasoftworks.normativecontrol.api.shared.services.RefreshTokenService
 import ru.maeasoftworks.normativecontrol.api.shared.utils.Controller
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class InspectorAccountController(override val di: DI): Controller() {
-    private val jwtService: JWTService by instance()
-    private val inspectorAccountService: InspectorAccountService by instance()
-    private val refreshTokenService: RefreshTokenService by instance()
-    private val userRepository: UserRepository by instance()
-
+@Singleton
+class InspectorAccountController @Inject constructor(
+    private val jwtService: JWTService,
+    private val inspectorAccountService: InspectorAccountService,
+    private val refreshTokenService: RefreshTokenService,
+    private val userRepository: UserRepository
+) : Controller() {
     override fun Routing.registerRoutes() {
         route("/inspector") {
             route("/account") {

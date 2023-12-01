@@ -3,30 +3,26 @@ package ru.maeasoftworks.normativecontrol.api.shared.utils
 import io.ktor.server.application.Application
 import io.ktor.server.routing.Routing
 import kotlinx.coroutines.flow.Flow
-import org.kodein.di.DIAware
-import org.kodein.di.instance
 import org.komapper.core.dsl.QueryDsl
 import org.komapper.core.dsl.metamodel.EntityMetamodel
 import org.komapper.core.dsl.metamodel.PropertyMetamodel
 import org.komapper.core.dsl.query.firstOrNull
 import org.komapper.r2dbc.R2dbcDatabase
+import javax.inject.Inject
 
-abstract class Component : DIAware {
-    val application: Application by instance()
-}
+abstract class Controller {
+    protected lateinit var application: Application
 
-abstract class Controller : Component() {
     abstract fun Routing.registerRoutes()
 }
-
-abstract class Service : Component()
 
 @Suppress("UNCHECKED_CAST")
 abstract class Repository<E : Any, ID : Any, M : EntityMetamodel<E, ID, M>>(
     rawMeta: EntityMetamodel<E, ID, M>,
     private val idColumn: PropertyMetamodel<E, ID, ID>
-) : Component() {
-    protected val database: R2dbcDatabase by instance()
+) {
+    @Inject
+    protected lateinit var database: R2dbcDatabase
     private val meta = rawMeta as M
 
     open suspend fun save(entity: E): E {

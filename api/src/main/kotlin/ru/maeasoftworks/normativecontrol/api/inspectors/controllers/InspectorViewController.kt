@@ -6,17 +6,20 @@ import io.ktor.http.defaultForFileExtension
 import io.ktor.server.application.call
 import io.ktor.server.auth.authenticate
 import io.ktor.server.response.respondBytesWriter
-import io.ktor.server.routing.*
-import org.kodein.di.DI
-import org.kodein.di.instance
+import io.ktor.server.routing.Routing
+import io.ktor.server.routing.get
+import io.ktor.server.routing.route
 import ru.maeasoftworks.normativecontrol.api.shared.extensions.conclusion
 import ru.maeasoftworks.normativecontrol.api.shared.extensions.render
-import ru.maeasoftworks.normativecontrol.api.shared.utils.Controller
 import ru.maeasoftworks.normativecontrol.api.shared.services.DocumentService
+import ru.maeasoftworks.normativecontrol.api.shared.utils.Controller
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class InspectorViewController(override val di: DI) : Controller() {
-    private val documentService: DocumentService by instance()
-
+@Singleton
+class InspectorViewController @Inject constructor(
+    private val documentService: DocumentService
+) : Controller() {
     override fun Routing.registerRoutes() {
         route("/inspector") {
             authenticate("jwt") {
@@ -28,7 +31,7 @@ class InspectorViewController(override val di: DI) : Controller() {
                         call.respondBytesWriter(
                             ContentType.defaultForFileExtension("docx"),
                             HttpStatusCode.OK,
-                            null,
+                            null
                         ) {
                             documentService.getFileUnsafe(filename).collect {
                                 this.writeFully(it)
@@ -43,7 +46,7 @@ class InspectorViewController(override val di: DI) : Controller() {
                         call.respondBytesWriter(
                             ContentType.defaultForFileExtension("html"),
                             HttpStatusCode.OK,
-                            null,
+                            null
                         ) {
                             documentService.getFileUnsafe(filename).collect {
                                 this.writeFully(it)
