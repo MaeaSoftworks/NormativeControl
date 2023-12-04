@@ -1,21 +1,19 @@
 plugins {
-    kotlin("jvm") version "1.9.20"
-    kotlin("plugin.serialization") version "1.9.20"
+    kotlin("jvm") version "2.0.0-Beta1"
 }
 
 java.sourceCompatibility = JavaVersion.VERSION_20
 
 dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
+    implementation(kotlin("reflect"))
     implementation("org.docx4j:docx4j-JAXB-ReferenceImpl:11.4.9")
     constraints {
         implementation("commons-codec:commons-codec:1.16.0") {
             because("Cxeb68d52e-5509 3.7 Exposure of Sensitive Information to an Unauthorized Actor vulnerability")
         }
     }
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.4")
-    testImplementation("org.junit.jupiter:junit-jupiter:5.7.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.7.3")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
