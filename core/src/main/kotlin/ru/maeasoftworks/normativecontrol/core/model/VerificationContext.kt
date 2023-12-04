@@ -11,15 +11,16 @@ import ru.maeasoftworks.normativecontrol.core.parsers.chapters.FrontPageParser
 import ru.maeasoftworks.normativecontrol.core.utils.PropertyResolver
 import java.math.BigInteger
 import java.util.*
+import kotlin.coroutines.CoroutineContext
 
-class Context {
+class VerificationContext: CoroutineContext.Element {
+    override val key: CoroutineContext.Key<*> = Key
     lateinit var mlPackage: WordprocessingMLPackage
     private lateinit var doc: MainDocumentPart
     lateinit var resolver: PropertyResolver
     val ptr: Pointer = Pointer()
     var chapter: ChapterParser = FrontPageParser
     var lastDefinedChapter: ChapterParser = FrontPageParser
-
     private lateinit var comments: CommentsPart
 
     fun load(mlPackage: WordprocessingMLPackage) {
@@ -27,12 +28,10 @@ class Context {
         doc = mlPackage.mainDocumentPart
         resolver = PropertyResolver(mlPackage)
         ptr.totalChildSize = doc.content.size
-        comments = (
-                doc.commentsPart ?: CommentsPart().apply {
-                    jaxbElement = Comments()
-                    doc.addTargetPart(this)
-                }
-                ).also { ptr.lastMistake = it.jaxbElement.comment.size.toLong() }
+        comments = (doc.commentsPart ?: CommentsPart().apply {
+            jaxbElement = Comments()
+            doc.addTargetPart(this)
+        }).also { ptr.lastMistake = it.jaxbElement.comment.size.toLong() }
     }
 
     fun addMistake(mistake: Mistake) {
@@ -188,5 +187,14 @@ class Context {
         fun resetChildContentPointer() {
             childContentPosition = 0
         }
+
+        suspend inline fun mainLoop(fn: (pos: Int) -> Unit) {
+            while (bodyPosition < totalChildSize) {
+                fn(bodyPosition)
+                moveNextChild()
+            }
+        }
     }
+
+    companion object Key: CoroutineContext.Key<VerificationContext>
 }

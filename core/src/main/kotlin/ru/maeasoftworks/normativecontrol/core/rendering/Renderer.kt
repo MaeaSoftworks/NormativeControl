@@ -7,15 +7,14 @@ import org.docx4j.wml.P
 import org.docx4j.wml.P.Hyperlink
 import org.docx4j.wml.R
 import org.docx4j.wml.Text
-import ru.maeasoftworks.normativecontrol.core.parsers.DocumentParser
+import ru.maeasoftworks.normativecontrol.core.parsers.DocumentVerifier
 import ru.maeasoftworks.normativecontrol.core.rendering.model.css.properties.*
 import ru.maeasoftworks.normativecontrol.core.rendering.model.html.HtmlElement
 import ru.maeasoftworks.normativecontrol.core.utils.getPropertyValue
 
 class Renderer(
-    private val parser: DocumentParser
+    private val parser: DocumentVerifier
 ) {
-    private val ctx = parser.ctx
     private val html = HtmlElement("div")
     private var currentPage: HtmlElement? = newPage
     private var isInner = false
@@ -36,7 +35,7 @@ class Renderer(
     private var lastInnerBeforePageBreak: HtmlElement? = null
     private var alreadyBroken = false
 
-    fun render(): HtmlElement {
+    suspend fun render(): HtmlElement {
         html.children.add(currentPage!!)
         for (p in parser.doc.content.indices) {
             when (parser.doc.content[p]) {
@@ -58,7 +57,7 @@ class Renderer(
         }
     }
 
-    private fun renderP(p: P) {
+    private suspend fun renderP(p: P) {
         currentP = newP
         if (currentPage == null) {
             currentPage = newPage
@@ -85,36 +84,36 @@ class Renderer(
         }
     }
 
-    private fun stylizeP(p: P) {
+    private suspend fun stylizeP(p: P) {
         currentP!!.style {
-            marginLeft = MarginLeft(p.getPropertyValue(ctx) { ind?.left }?.toDouble())
-            marginRight = MarginRight(p.getPropertyValue(ctx) { ind?.right }?.toDouble())
-            marginBottom = MarginBottom(p.getPropertyValue(ctx) { spacing?.after }?.toDouble())
-            marginTop = MarginTop(p.getPropertyValue(ctx) { spacing?.before }?.toDouble())
-            lineHeight = LineHeight(p.getPropertyValue(ctx) { spacing?.line }?.toDouble())
-            textIndent = TextIndent(p.getPropertyValue(ctx) { ind?.firstLine }?.toDouble())
-            textAlign = TextAlign(p.getPropertyValue(ctx) { jc?.`val` })
-            backgroundColor = BackgroundColor(p.getPropertyValue(ctx) { shd?.fill })
-            hyphens = Hyphens(!(p.getPropertyValue(ctx) { suppressAutoHyphens?.isVal } ?: false))
+            marginLeft = MarginLeft(p.getPropertyValue { ind?.left }?.toDouble())
+            marginRight = MarginRight(p.getPropertyValue { ind?.right }?.toDouble())
+            marginBottom = MarginBottom(p.getPropertyValue { spacing?.after }?.toDouble())
+            marginTop = MarginTop(p.getPropertyValue { spacing?.before }?.toDouble())
+            lineHeight = LineHeight(p.getPropertyValue { spacing?.line }?.toDouble())
+            textIndent = TextIndent(p.getPropertyValue { ind?.firstLine }?.toDouble())
+            textAlign = TextAlign(p.getPropertyValue { jc?.`val` })
+            backgroundColor = BackgroundColor(p.getPropertyValue { shd?.fill })
+            hyphens = Hyphens(!(p.getPropertyValue { suppressAutoHyphens?.isVal } ?: false))
         }
     }
 
-    private fun stylizeR(r: R) {
+    private suspend fun stylizeR(r: R) {
         currentR!!.style {
-            fontFamily = FontFamily(r.getPropertyValue(ctx) { rFonts?.ascii })
-            fontSize = FontSize(r.getPropertyValue(ctx) { sz?.`val`?.toInt() })
-            fontStyle = FontStyle(r.getPropertyValue(ctx) { i?.isVal })
-            fontWeight = FontWeight(r.getPropertyValue(ctx) { b?.isVal })
-            color = Color(r.getPropertyValue(ctx) { color?.`val` })
-            backgroundColor = BackgroundColor(r.getPropertyValue(ctx) { highlight?.`val` })
-            textTransform = TextTransform(r.getPropertyValue(ctx) { caps?.isVal })
-            fontVariantCaps = FontVariantCaps(r.getPropertyValue(ctx) { smallCaps?.isVal })
-            fontVariantLigatures = FontVariantLigatures(r.getPropertyValue(ctx) { ligatures?.`val` })
-            letterSpacing = LetterSpacing(r.getPropertyValue(ctx) { spacing?.`val` }?.toDouble())
+            fontFamily = FontFamily(r.getPropertyValue { rFonts?.ascii })
+            fontSize = FontSize(r.getPropertyValue { sz?.`val`?.toInt() })
+            fontStyle = FontStyle(r.getPropertyValue { i?.isVal })
+            fontWeight = FontWeight(r.getPropertyValue { b?.isVal })
+            color = Color(r.getPropertyValue { color?.`val` })
+            backgroundColor = BackgroundColor(r.getPropertyValue { highlight?.`val` })
+            textTransform = TextTransform(r.getPropertyValue { caps?.isVal })
+            fontVariantCaps = FontVariantCaps(r.getPropertyValue { smallCaps?.isVal })
+            fontVariantLigatures = FontVariantLigatures(r.getPropertyValue { ligatures?.`val` })
+            letterSpacing = LetterSpacing(r.getPropertyValue { spacing?.`val` }?.toDouble())
         }
     }
 
-    private fun renderHyperlink(h: Hyperlink) {
+    private suspend fun renderHyperlink(h: Hyperlink) {
         currentInner = HtmlElement("a")
         refreshCurrentP()
         currentP!!.children.add(currentInner!!)
@@ -126,7 +125,7 @@ class Renderer(
         isInner = false
     }
 
-    private fun renderR(r: R) {
+    private suspend fun renderR(r: R) {
         for (c in r.content) {
             when (c) {
                 is JAXBElement<*> -> {

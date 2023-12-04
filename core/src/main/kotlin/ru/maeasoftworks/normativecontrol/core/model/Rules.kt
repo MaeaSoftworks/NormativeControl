@@ -5,10 +5,7 @@ import org.docx4j.wml.JcEnumeration
 import org.docx4j.wml.R
 import ru.maeasoftworks.normativecontrol.core.enums.CaptureType
 import ru.maeasoftworks.normativecontrol.core.enums.MistakeType.*
-import ru.maeasoftworks.normativecontrol.core.utils.PFunction
-import ru.maeasoftworks.normativecontrol.core.utils.PFunctionFactory
-import ru.maeasoftworks.normativecontrol.core.utils.createRFunction
-import ru.maeasoftworks.normativecontrol.core.utils.getPropertyValue
+import ru.maeasoftworks.normativecontrol.core.utils.*
 import kotlin.math.abs
 import kotlin.math.floor
 
@@ -18,7 +15,7 @@ object Rules {
             object P {
                 val notBordered: PFunction = PFunctionFactory.create(
                     { pBdr },
-                    { _, _, isEmpty, _, bdr ->
+                    { _, _, isEmpty, bdr ->
                         if (bdr != null && (bdr.left.`val`.name != "NIL" || bdr.right.`val`.name != "NIL" || bdr.top.`val`.name != "NIL" || bdr.bottom.`val`.name != "NIL")) {
                             Mistake(if (isEmpty) TEXT_WHITESPACE_BORDER else TEXT_COMMON_BORDER, CaptureType.P)
                         } else {
@@ -29,7 +26,7 @@ object Rules {
 
                 val hasNotBackground = PFunctionFactory.create(
                     { shd },
-                    { _, _, isEmpty, _, shd ->
+                    { _, _, isEmpty, shd ->
                         if (shd != null && shd.fill != null && shd.fill != "FFFFFF") {
                             Mistake(if (isEmpty) TEXT_WHITESPACE_BACKGROUND_FILL else TEXT_COMMON_BACKGROUND_FILL, CaptureType.P)
                         } else {
@@ -96,7 +93,7 @@ object Rules {
             object P {
                 val justifyIsCenter = PFunctionFactory.create(
                     { jc },
-                    { _, _, isEmpty, _, jc ->
+                    { _, _, isEmpty, jc ->
                         if (jc == null || jc.`val` != JcEnumeration.CENTER) {
                             Mistake(
                                 if (isEmpty) TEXT_WHITESPACE_AFTER_HEADER_ALIGNMENT else TEXT_HEADER_ALIGNMENT,
@@ -112,7 +109,7 @@ object Rules {
 
                 val lineSpacingIsOne = PFunctionFactory.create(
                     { spacing },
-                    { _, _, _, _, s ->
+                    { _, _, _, s ->
                         if (s != null && s.line != null && s.line.toDouble() != 240.0) {
                             Mistake(
                                 TEXT_HEADER_LINE_SPACING,
@@ -126,7 +123,7 @@ object Rules {
                     }
                 )
 
-                val hasNotDotInEnd: PFunction = { _, p, _, _ ->
+                val hasNotDotInEnd: PFunction = { _, p, _ ->
                     if (TextUtils.getText(p).endsWith(".")) {
                         Mistake(TEXT_HEADER_REDUNDANT_DOT, CaptureType.P)
                     } else {
@@ -150,7 +147,7 @@ object Rules {
                 val firstLineIndentIs1dot25 = PFunctionFactory.create(
                     { numPr },
                     { ind },
-                    { _, _, _, _, n, i ->
+                    { _, _, _, n, i ->
                         if (n != null && i != null && i.firstLine != null && abs(floor(i.firstLine.toDouble() / 1440.0 * 2.54) - 1.25) <= 0.01) {
                             Mistake(
                                 TEXT_HEADER_INDENT_FIRST_LINES,
@@ -166,8 +163,8 @@ object Rules {
 
                 val isAutoHyphenSuppressed = PFunctionFactory.create(
                     { suppressAutoHyphens },
-                    { _, _, _, ctx, s ->
-                        if ((s == null || !s.isVal) && ctx.mlPackage.mainDocumentPart.documentSettingsPart.jaxbElement.autoHyphenation?.isVal == true) {
+                    { _, _, _, s ->
+                        if ((s == null || !s.isVal) && getContext()!!.mlPackage.mainDocumentPart.documentSettingsPart.jaxbElement.autoHyphenation?.isVal == true) {
                             Mistake(TEXT_HEADER_AUTO_HYPHEN, CaptureType.P)
                         } else {
                             null
@@ -196,8 +193,8 @@ object Rules {
 
         object RegularText {
             object P {
-                val justifyIsBoth: PFunction = { _, p, isEmpty, ctx ->
-                    val jc = p.getPropertyValue(ctx) { jc }
+                val justifyIsBoth: PFunction = { _, p, isEmpty ->
+                    val jc = p.getPropertyValue { jc }
                     if (jc == null || jc.`val` != JcEnumeration.BOTH) {
                         Mistake(
                             if (isEmpty) TEXT_WHITESPACE_ALIGNMENT else TEXT_REGULAR_INCORRECT_ALIGNMENT,
@@ -210,8 +207,8 @@ object Rules {
                     }
                 }
 
-                val lineSpacingIsOneAndHalf: PFunction = { _, p, isEmpty, ctx ->
-                    val s = p.getPropertyValue(ctx) { spacing }
+                val lineSpacingIsOneAndHalf: PFunction = { _, p, isEmpty ->
+                    val s = p.getPropertyValue { spacing }
                     if (s != null && s.line != null) {
                         if (s.lineRule.value() == "auto" && s.line.toDouble() != 360.0) {
                             Mistake(
@@ -231,7 +228,7 @@ object Rules {
                 val firstLineIndentIs1dot25 = PFunctionFactory.create(
                     { numPr },
                     { ind },
-                    { _, _, isEmpty, _, n, i ->
+                    { _, _, isEmpty, n, i ->
                         if (n != null && i != null && i.firstLine != null && abs(floor(i.firstLine.toDouble() / 1440.0 * 2.54) - 1.25) <= 0.01) {
                             Mistake(
                                 if (isEmpty) TEXT_WHITESPACE_INDENT_FIRST_LINES else TEXT_REGULAR_INDENT_FIRST_LINES,
@@ -248,7 +245,7 @@ object Rules {
                 val leftIndentIs0 = PFunctionFactory.create(
                     { numPr },
                     { ind },
-                    { _, _, _, _, n, i ->
+                    { _, _, _, n, i ->
                         if (n != null && i != null && i.left != null && i.left.toDouble() != 0.0) {
                             Mistake(
                                 TEXT_COMMON_INDENT_LEFT,
@@ -265,7 +262,7 @@ object Rules {
                 val rightIndentIs0 = PFunctionFactory.create(
                     { ind },
                     { numPr },
-                    { _, _, isEmpty, _, i, n ->
+                    { _, _, isEmpty, i, n ->
                         if (n != null && i != null && i.right != null && i.right.toDouble() != 0.0) {
                             Mistake(
                                 if (isEmpty) TEXT_WHITESPACE_INDENT_RIGHT else TEXT_COMMON_INDENT_RIGHT,
@@ -305,7 +302,7 @@ object Rules {
             object P {
                 val justifyIsCenter = PFunctionFactory.create(
                     { jc },
-                    { _, _, isEmpty, _, jc ->
+                    { _, _, isEmpty, jc ->
                         if (jc == null || jc.`val` != JcEnumeration.CENTER) {
                             Mistake(
                                 if (isEmpty) TEXT_WHITESPACE_AFTER_HEADER_ALIGNMENT else PICTURE_TITLE_NOT_CENTERED,
@@ -319,7 +316,7 @@ object Rules {
                     }
                 )
 
-                val hasNotDotInEnd: PFunction = { _, p, _, _ ->
+                val hasNotDotInEnd: PFunction = { _, p, _ ->
                     if (TextUtils.getText(p).endsWith(".")) {
                         Mistake(PICTURE_TITLE_ENDS_WITH_DOT, CaptureType.P)
                     } else {
@@ -335,7 +332,7 @@ object Rules {
             object P {
                 val justifyIsLeft = PFunctionFactory.create(
                     { jc },
-                    { _, _, isEmpty, _, jc ->
+                    { _, _, isEmpty, jc ->
                         if (jc != null && jc.`val` != JcEnumeration.LEFT) {
                             Mistake(
                                 if (isEmpty) TEXT_WHITESPACE_AFTER_HEADER_ALIGNMENT else TEXT_HEADER_BODY_ALIGNMENT,
@@ -349,13 +346,9 @@ object Rules {
                     }
                 )
 
-                val isNotUppercase: PFunction = { _, p, isEmpty, ctx ->
+                val isNotUppercase: PFunction = { _, p, isEmpty ->
                     val text = TextUtils.getText(p)
-                    if (!isEmpty && (
-                                text.uppercase() == text || p.content.all {
-                                    if (it is R) it.getPropertyValue(ctx) { caps }.let { caps -> caps != null && caps.isVal } else false
-                                }
-                                )
+                    if (!isEmpty && (text.uppercase() == text || p.content.all { if (it is R) it.getPropertyValue { caps }.let { caps -> caps != null && caps.isVal } else false })
                     ) {
                         Mistake(TEXT_HEADER_BODY_UPPERCASE, CaptureType.P)
                     } else {

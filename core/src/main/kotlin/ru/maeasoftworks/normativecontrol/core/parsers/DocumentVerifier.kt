@@ -2,14 +2,14 @@ package ru.maeasoftworks.normativecontrol.core.parsers
 
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
-import ru.maeasoftworks.normativecontrol.core.model.Context
-import ru.maeasoftworks.normativecontrol.core.model.DocumentChildParsers
+import org.jvnet.jaxb2_commons.ppp.Child
+import ru.maeasoftworks.normativecontrol.core.model.Transmission
+import ru.maeasoftworks.normativecontrol.core.model.VerificationContext
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 
-class DocumentParser {
+class DocumentVerifier(val ctx: VerificationContext) {
     private lateinit var mlPackage: WordprocessingMLPackage
-    val ctx = Context()
     lateinit var doc: MainDocumentPart
     var autoHyphenation: Boolean? = null
 
@@ -21,10 +21,9 @@ class DocumentParser {
     }
 
     suspend fun runVerification() {
-        while (ctx.ptr.bodyPosition < ctx.ptr.totalChildSize) {
-            val currentChild = doc.content[ctx.ptr.bodyPosition]
-            DocumentChildParsers.parseDocumentChild(currentChild, ctx)
-            ctx.ptr.moveNextChild()
+        ctx.ptr.mainLoop { pos ->
+            val currentChild = doc.content[pos] as? Child
+            Transmission.transmitChild(currentChild)
         }
     }
 

@@ -19,13 +19,13 @@ class Html {
             html.stylesheet = b.build()
         }
 
-        fun body(content: () -> HtmlElement) {
+        suspend fun body(content: suspend () -> HtmlElement) {
             html.content.add(content())
         }
     }
 }
 
-fun html(builder: Html.Builder.() -> Unit): Html {
+suspend fun html(builder: suspend Html.Builder.() -> Unit): Html {
     val h = Html.Builder()
     h.builder()
     return h.html

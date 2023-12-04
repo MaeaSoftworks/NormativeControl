@@ -8,8 +8,8 @@ import ru.maeasoftworks.normativecontrol.api.shared.modules.S3
 import ru.maeasoftworks.normativecontrol.api.shared.utils.Rat
 import ru.maeasoftworks.normativecontrol.api.shared.utils.with
 import ru.maeasoftworks.normativecontrol.api.students.dto.Message
-import ru.maeasoftworks.normativecontrol.core.model.Context
-import ru.maeasoftworks.normativecontrol.core.parsers.DocumentParser
+import ru.maeasoftworks.normativecontrol.core.model.VerificationContext
+import ru.maeasoftworks.normativecontrol.core.parsers.DocumentVerifier
 import ru.maeasoftworks.normativecontrol.core.rendering.RenderLauncher
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
@@ -22,8 +22,8 @@ class Verifier @Inject constructor(private val s3: S3) {
 
     suspend fun startVerification(documentId: String, accessKey: String, file: InputStream, channel: Channel<Message>) = coroutineScope {
         val stageHolder = StageHolder(Message.Stage.INITIALIZATION)
-        val rat = Rat { parser: DocumentParser -> parser.ctx.ptr }
-        val task = launch { verify(documentId, accessKey, file, stageHolder, rat) }
+        val rat = Rat { parser: DocumentVerifier -> parser.ctx.ptr }
+        val task = launch { verify(documentId, accessKey, file, stageHolder, rat, VerificationContext()) }
         while (task.isActive) {
             delay(200)
             val ptr = rat.report()
@@ -47,9 +47,10 @@ class Verifier @Inject constructor(private val s3: S3) {
         accessKey: String,
         file: InputStream,
         stageHolder: StageHolder,
-        rat: Rat<DocumentParser, Context.Pointer>
-    ) = coroutineScope {
-        val parser = DocumentParser() with rat
+        rat: Rat<DocumentVerifier, VerificationContext.Pointer>,
+        ctx: VerificationContext
+    ) = withContext(ctx) {
+        val parser = DocumentVerifier(ctx) with rat
         withContext(Dispatchers.IO) { parser.load(file) }
         stageHolder.stage = Message.Stage.VERIFICATION
         parser.runVerification()

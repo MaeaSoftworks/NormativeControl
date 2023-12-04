@@ -1,14 +1,14 @@
 package ru.maeasoftworks.normativecontrol.core.rendering
 
-import ru.maeasoftworks.normativecontrol.core.parsers.DocumentParser
+import ru.maeasoftworks.normativecontrol.core.parsers.DocumentVerifier
 import ru.maeasoftworks.normativecontrol.core.rendering.model.css.properties.*
 import ru.maeasoftworks.normativecontrol.core.rendering.model.html.HtmlElement
 import ru.maeasoftworks.normativecontrol.core.rendering.model.html.html
 
 class RenderLauncher(
-    private val root: DocumentParser
+    private val root: DocumentVerifier
 ) {
-    fun render(): String {
+    suspend fun render(): String {
         val html = html {
             stylesheet {
                 val pageSize = root.doc.contents.body.sectPr.pgSz

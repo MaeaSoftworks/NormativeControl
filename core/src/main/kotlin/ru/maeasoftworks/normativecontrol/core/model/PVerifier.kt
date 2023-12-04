@@ -9,66 +9,61 @@ import ru.maeasoftworks.normativecontrol.core.parsers.chapters.BodyParser
 import ru.maeasoftworks.normativecontrol.core.parsers.chapters.ChapterParser
 import ru.maeasoftworks.normativecontrol.core.parsers.chapters.UndefinedChapter
 import ru.maeasoftworks.normativecontrol.core.utils.getPropertyValue
+import ru.maeasoftworks.normativecontrol.core.utils.usingContext
+import kotlin.coroutines.coroutineContext
 
-object DocumentChildParsers {
-    fun parseDocumentChild(child: Any, context: Context) {
-        when (child) {
-            is P -> parseP(child, context)
-        }
-    }
-
-    private fun parseP(p: P, context: Context) {
-        val lvl = p.getPropertyValue(context) { outlineLvl }
+object PVerifier: Verifier<P> {
+    override suspend fun verify(child: P) {
+        val lvl = child.getPropertyValue { outlineLvl }
         if (lvl?.`val` != null) {
-            // p is chapter header
-            detectChapterByHeader(p, context, lvl.`val`.intValueExact())
+            detectChapterByHeader(child, lvl.`val`.intValueExact())
         }
     }
 
-    private fun detectChapterByHeader(p: P, context: Context, level: Int) {
+    private suspend fun detectChapterByHeader(p: P, level: Int) {
         val text = TextUtils.getText(p)
         if (text.matches(Regex("^(\\d+(?:\\.\\d*)?).*\$"))) {
-            checkChapterOrderAndSet(BodyParser, context)
+            checkChapterOrderAndSet(BodyParser)
             return
         }
         for (keys in 0 until ChapterMarkers.markers.size) {
             for ((title, parser) in ChapterMarkers.markers) {
                 if (text.uppercase() == title) {
-                    checkChapterOrderAndSet(parser, context)
+                    checkChapterOrderAndSet(parser)
                     return
                 }
             }
         }
         if (text.uppercase().startsWith(ChapterMarkers.APPENDIX_NAME)) {
-            checkChapterOrderAndSet(AppendixParser, context)
+            checkChapterOrderAndSet(AppendixParser)
             return
         }
-        checkChapterOrderAndSet(UndefinedChapter, context)
+        checkChapterOrderAndSet(UndefinedChapter)
     }
 
-    private fun checkChapterOrderAndSet(chapterParser: ChapterParser, context: Context) {
+    private suspend fun checkChapterOrderAndSet(chapterParser: ChapterParser) = usingContext { ctx ->
         if (chapterParser is UndefinedChapter) {
-            context.addMistake(
+            ctx.addMistake(
                 Mistake(
                     MistakeType.CHAPTER_UNDEFINED_CHAPTER,
                     CaptureType.P,
                     ChapterMarkers.names[chapterParser]!!.joinToString("/"),
-                    ChapterMarkers.nextOf[context.lastDefinedChapter]!!.flatMap { ChapterMarkers.names[it]!! }.joinToString("/")
+                    ChapterMarkers.nextOf[ctx.lastDefinedChapter]!!.flatMap { ChapterMarkers.names[it]!! }.joinToString("/")
                 )
             )
         } else {
-            if (!ChapterMarkers.nextOf[context.lastDefinedChapter]!!.contains(chapterParser)) {
-                context.addMistake(
+            if (!ChapterMarkers.nextOf[ctx.lastDefinedChapter]!!.contains(chapterParser)) {
+                ctx.addMistake(
                     Mistake(
                         MistakeType.CHAPTER_ORDER_MISMATCH,
                         CaptureType.P,
                         ChapterMarkers.names[chapterParser]!!.joinToString("/"),
-                        ChapterMarkers.nextOf[context.lastDefinedChapter]!!.flatMap { ChapterMarkers.names[it]!! }.joinToString("/")
+                        ChapterMarkers.nextOf[ctx.lastDefinedChapter]!!.flatMap { ChapterMarkers.names[it]!! }.joinToString("/")
                     )
                 )
             }
-            context.lastDefinedChapter = chapterParser
+            ctx.lastDefinedChapter = chapterParser
         }
-        context.chapter = chapterParser
+        ctx.chapter = chapterParser
     }
 }

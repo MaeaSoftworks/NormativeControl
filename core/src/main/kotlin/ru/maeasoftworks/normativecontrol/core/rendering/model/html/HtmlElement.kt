@@ -32,7 +32,7 @@ class HtmlElement(
         }
     }
 
-    fun style(builder: Style.Builder.() -> Unit) {
+    suspend fun style(builder: suspend Style.Builder.() -> Unit) {
         val s = Style.Builder()
         s.builder()
         style = s.build()
