@@ -6,8 +6,8 @@ import org.docx4j.openpackaging.parts.WordprocessingML.CommentsPart
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
 import org.docx4j.wml.*
 import ru.maeasoftworks.normativecontrol.core.enums.CaptureType
-import ru.maeasoftworks.normativecontrol.core.parsers.chapters.ChapterParser
-import ru.maeasoftworks.normativecontrol.core.parsers.chapters.FrontPageParser
+import ru.maeasoftworks.normativecontrol.core.abstractions.Chapter
+import ru.maeasoftworks.normativecontrol.core.implementations.ufru.FrontPageVerifier
 import ru.maeasoftworks.normativecontrol.core.utils.PropertyResolver
 import java.math.BigInteger
 import java.util.*
@@ -19,8 +19,8 @@ class VerificationContext: CoroutineContext.Element {
     private lateinit var doc: MainDocumentPart
     lateinit var resolver: PropertyResolver
     val ptr: Pointer = Pointer()
-    var chapter: ChapterParser = FrontPageParser
-    var lastDefinedChapter: ChapterParser = FrontPageParser
+    var chapter: Chapter.Companion = FrontPageVerifier
+    var lastDefinedChapter: Chapter.Companion = FrontPageVerifier
     private lateinit var comments: CommentsPart
 
     fun load(mlPackage: WordprocessingMLPackage) {

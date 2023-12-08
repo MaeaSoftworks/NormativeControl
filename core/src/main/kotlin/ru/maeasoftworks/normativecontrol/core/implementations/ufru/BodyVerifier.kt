@@ -1,8 +1,6 @@
-package ru.maeasoftworks.normativecontrol.core.parsers.chapters
+package ru.maeasoftworks.normativecontrol.core.implementations.ufru
 
-import org.docx4j.wml.P
-import org.docx4j.wml.R
-import ru.maeasoftworks.normativecontrol.core.model.VerificationContext
+import ru.maeasoftworks.normativecontrol.core.abstractions.Chapter
 
 /**
  * Parser for body chapter.
@@ -11,7 +9,11 @@ import ru.maeasoftworks.normativecontrol.core.model.VerificationContext
  * 1. Split chapter to subchapters by headers.
  * 2. Recursively validate every subchapter.
  */
-data object BodyParser : ChapterParser {
+interface BodyVerifier<T> : Chapter<T> {
+    suspend fun verifyForBody(element: T)
+
+    companion object Companion : Chapter.Companion
+
     /*
     private var isPicturesOrderedInSubchapters: Boolean? = false
     private lateinit var innerPictures: MutableList<Picture>
@@ -278,20 +280,4 @@ data object BodyParser : ChapterParser {
         }
     }
     */
-
-    override fun parsePHeader(p: P, verificationContext: VerificationContext) {
-        TODO("Not yet implemented")
-    }
-
-    override fun parsePHeaderR(r: R, verificationContext: VerificationContext) {
-        TODO("Not yet implemented")
-    }
-
-    override fun parseCommonP(p: P, verificationContext: VerificationContext) {
-        TODO("Not yet implemented")
-    }
-
-    override fun parseCommonPR(r: R, verificationContext: VerificationContext) {
-        TODO("Not yet implemented")
-    }
 }
