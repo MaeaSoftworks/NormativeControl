@@ -2,13 +2,18 @@ package ru.maeasoftworks.normativecontrol.core
 
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
-import ru.maeasoftworks.normativecontrol.core.implementations.ufru.PVerifier
-import ru.maeasoftworks.normativecontrol.core.invoke
+import ru.maeasoftworks.normativecontrol.core.implementations.ufru.PHandler
+import ru.maeasoftworks.normativecontrol.hotloader.HotLoader
 
-class VerificationTests: ShouldSpec({
-    context(PVerifier::class.simpleName!!) {
+class VerificationTests : ShouldSpec({
+    beforeTest {
+        HotLoader.safeLoad()
+    }
+
+    context(PHandler::class.simpleName!!) {
         should("regex works properly") {
-            val fn = PVerifier { "isChapterBodyHeader" }
+            val fn = PHandler { "isChapterBodyHeader" }
+
             fn("1.2 Abc") shouldBe true
             fn("1.2. Abc") shouldBe false
             fn("1.2Abc") shouldBe false

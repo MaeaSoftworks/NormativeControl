@@ -1,6 +1,6 @@
 package ru.maeasoftworks.normativecontrol.core.enums
 
-enum class CaptureType {
+enum class Closure {
     SECTOR,
     P,
     R

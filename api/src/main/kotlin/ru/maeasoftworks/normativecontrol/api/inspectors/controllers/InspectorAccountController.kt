@@ -8,12 +8,12 @@ import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.*
 import kotlinx.coroutines.flow.map
+import ru.maeasoftworks.normativecontrol.api.app.Controller
 import ru.maeasoftworks.normativecontrol.api.inspectors.dto.*
 import ru.maeasoftworks.normativecontrol.api.inspectors.services.InspectorAccountService
 import ru.maeasoftworks.normativecontrol.api.shared.modules.JWTService
 import ru.maeasoftworks.normativecontrol.api.shared.repositories.UserRepository
 import ru.maeasoftworks.normativecontrol.api.shared.services.RefreshTokenService
-import ru.maeasoftworks.normativecontrol.api.app.Controller
 import javax.inject.Inject
 import javax.inject.Singleton
 

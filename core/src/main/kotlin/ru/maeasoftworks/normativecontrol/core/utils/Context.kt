@@ -5,6 +5,6 @@ import kotlin.coroutines.coroutineContext
 
 suspend fun getContext() = coroutineContext[VerificationContext.Key]
 
-suspend inline fun <T> usingContext(fn: (VerificationContext) -> T): T {
+suspend inline fun <T> usingContext(fn: VerificationContext.() -> T): T {
     return fn(getContext()!!)
 }

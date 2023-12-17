@@ -1,5 +1,5 @@
 package ru.maeasoftworks.normativecontrol.core.rendering.model.css.properties
 
-class Position(value: String) : Property<String>("position", value)
+object Position : Property<String>("position")
 
-class ZIndex(value: Int) : IntProperty("z-index", value)
+object ZIndex : IntProperty("z-index")

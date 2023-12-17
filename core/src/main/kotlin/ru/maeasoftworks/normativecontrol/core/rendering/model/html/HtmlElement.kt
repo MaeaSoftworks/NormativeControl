@@ -1,15 +1,20 @@
+@file:OptIn(InternalConstructor::class)
+
 package ru.maeasoftworks.normativecontrol.core.rendering.model.html
 
+import ru.maeasoftworks.normativecontrol.core.annotations.InternalConstructor
 import ru.maeasoftworks.normativecontrol.core.rendering.model.css.Style
+import ru.maeasoftworks.normativecontrol.core.rendering.model.css.Stylesheet
+import java.io.Serializable
 
-class HtmlElement(
-    val type: String,
+open class HtmlElement @InternalConstructor constructor(
+    private val type: String,
     private val hasClosingTag: Boolean = true
 ) {
-    private var classes: MutableList<String> = mutableListOf()
+    val classes: MutableList<String> = mutableListOf()
     var id: String? = null
-    val content: StringBuilder = StringBuilder()
-    val children: MutableList<HtmlElement> = ArrayList()
+    var content: Serializable? = null
+    val children: MutableList<HtmlElement> = mutableListOf()
     var style: Style = Style()
 
     private val classesString: String
@@ -24,18 +29,15 @@ class HtmlElement(
     private val styleString: String
         get() = if (style.size > 0) style.toString().let { if (it != "") " style='$it'" else "" } else ""
 
+    private val contentString: String
+        get() = content?.toString() ?: ""
+
     override fun toString(): String {
         return if (hasClosingTag) {
-            "<$type$idString$classesString$styleString>$content$childrenString</$type>"
+            "<$type$idString$classesString$styleString>$contentString$childrenString</$type>"
         } else {
             "<$type$idString$classesString$styleString>"
         }
-    }
-
-    suspend fun style(builder: suspend Style.Builder.() -> Unit) {
-        val s = Style.Builder()
-        s.builder()
-        style = s.build()
     }
 
     fun withClass(classname: String): HtmlElement {
@@ -45,9 +47,77 @@ class HtmlElement(
 
     fun duplicate(): HtmlElement {
         return HtmlElement(this@HtmlElement.type).also {
-            it.classes = classes
+            it.classes.addAll(classes)
             it.id = id
             it.style = style
         }
     }
+
+    inline operator fun String.invoke(body: HtmlElement.() -> Unit) {
+        children += HtmlElement(this).also(body)
+    }
+
+    inline fun div(body: HtmlElement.() -> Unit) {
+        children += ru.maeasoftworks.normativecontrol.core.rendering.model.html.div(body)
+    }
+
+    inline fun p(body: HtmlElement.() -> Unit) {
+        children += ru.maeasoftworks.normativecontrol.core.rendering.model.html.p(body)
+    }
+
+    inline fun span(body: HtmlElement.() -> Unit) {
+        children += ru.maeasoftworks.normativecontrol.core.rendering.model.html.span(body)
+    }
+
+    inline fun head(body: HtmlElement.() -> Unit) {
+        children += ru.maeasoftworks.normativecontrol.core.rendering.model.html.head(body)
+    }
+
+    inline fun body(body: HtmlElement.() -> Unit) {
+        children += ru.maeasoftworks.normativecontrol.core.rendering.model.html.body(body)
+    }
+
+    inline fun styleElement(body: HtmlElement.() -> Unit) {
+        children += ru.maeasoftworks.normativecontrol.core.rendering.model.html.styleElement(body)
+    }
+}
+
+inline fun css(body: Stylesheet.Builder.() -> Unit): Stylesheet {
+    return Stylesheet.Builder().apply(body).build()
+}
+
+inline fun div(body: HtmlElement.() -> Unit): HtmlElement {
+    return HtmlElement("div").also(body)
+}
+
+inline fun p(body: HtmlElement.() -> Unit): HtmlElement {
+    return HtmlElement("p").also(body)
+}
+
+fun br(): HtmlElement {
+    return HtmlElement("br", false)
+}
+
+inline fun span(body: HtmlElement.() -> Unit): HtmlElement {
+    return HtmlElement("span").also(body)
+}
+
+inline fun head(body: HtmlElement.() -> Unit): HtmlElement {
+    return HtmlElement("head").also(body)
+}
+
+inline fun body(body: HtmlElement.() -> Unit): HtmlElement {
+    return HtmlElement("body").also(body)
+}
+
+inline fun html(body: HtmlElement.() -> Unit): HtmlElement {
+    return object : HtmlElement("html") {
+        override fun toString(): String {
+            return "<!doctype html>" + super.toString()
+        }
+    }.also(body)
+}
+
+inline fun styleElement(body: HtmlElement.() -> Unit): HtmlElement {
+    return HtmlElement("style").also(body)
 }

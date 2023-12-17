@@ -1,33 +1,39 @@
 package ru.maeasoftworks.normativecontrol.core.model
 
-import kotlinx.coroutines.delay
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage
 import org.docx4j.openpackaging.parts.WordprocessingML.CommentsPart
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
 import org.docx4j.wml.*
-import ru.maeasoftworks.normativecontrol.core.enums.CaptureType
 import ru.maeasoftworks.normativecontrol.core.abstractions.Chapter
-import ru.maeasoftworks.normativecontrol.core.implementations.ufru.FrontPageVerifier
+import ru.maeasoftworks.normativecontrol.core.abstractions.Profile
+import ru.maeasoftworks.normativecontrol.core.enums.Closure
 import ru.maeasoftworks.normativecontrol.core.utils.PropertyResolver
 import java.math.BigInteger
 import java.util.*
 import kotlin.coroutines.CoroutineContext
 
-class VerificationContext: CoroutineContext.Element {
+class VerificationContext(val profile: Profile) : CoroutineContext.Element {
     override val key: CoroutineContext.Key<*> = Key
-    lateinit var mlPackage: WordprocessingMLPackage
-    private lateinit var doc: MainDocumentPart
-    lateinit var resolver: PropertyResolver
+
     val ptr: Pointer = Pointer()
-    var chapter: Chapter.Companion = FrontPageVerifier
-    var lastDefinedChapter: Chapter.Companion = FrontPageVerifier
+
+    lateinit var mlPackage: WordprocessingMLPackage
+    lateinit var resolver: PropertyResolver
+    lateinit var render: RenderingContext
+    lateinit var chapter: Chapter
+    lateinit var lastDefinedChapter: Chapter
+    lateinit var doc: MainDocumentPart
+
     private lateinit var comments: CommentsPart
 
     fun load(mlPackage: WordprocessingMLPackage) {
+        chapter = profile.startChapter
+        lastDefinedChapter = profile.startChapter
         this.mlPackage = mlPackage
         doc = mlPackage.mainDocumentPart
         resolver = PropertyResolver(mlPackage)
         ptr.totalChildSize = doc.content.size
+        render = RenderingContext(doc)
         comments = (doc.commentsPart ?: CommentsPart().apply {
             jaxbElement = Comments()
             doc.addTargetPart(this)
@@ -52,8 +58,8 @@ class VerificationContext: CoroutineContext.Element {
             this.id = BigInteger.valueOf(id)
         }
 
-        when (mistake.captureType) {
-            CaptureType.SECTOR -> {
+        when (mistake.closure) {
+            Closure.SECTOR -> {
                 val paragraph = doc.content[ptr.bodyPosition] as P
                 paragraph.content.add(0, commentRangeStart)
                 paragraph.content.add(1, commentRangeEnd)
@@ -62,7 +68,7 @@ class VerificationContext: CoroutineContext.Element {
                 ptr.childContentPosition += 3
             }
 
-            CaptureType.P -> {
+            Closure.P -> {
                 var paragraphStart: P
                 var putInStartToStart = false
                 var paragraphEnd: P
@@ -101,7 +107,7 @@ class VerificationContext: CoroutineContext.Element {
                 }
             }
 
-            CaptureType.R -> {
+            Closure.R -> {
                 val paragraph: P = try {
                     doc.content[ptr.bodyPosition] as P
                 } catch (e: ClassCastException) {
@@ -161,7 +167,7 @@ class VerificationContext: CoroutineContext.Element {
         }
     }
 
-    class Pointer {
+    inner class Pointer {
         var totalChildSize: Int = 0
             internal set
 
@@ -175,9 +181,8 @@ class VerificationContext: CoroutineContext.Element {
 
         internal var lastMistake = 0L
 
-        suspend fun moveNextChild() {
+        fun moveNextChild() {
             bodyPosition++
-            delay(5)
         }
 
         fun moveNextChildContent() {
@@ -188,13 +193,22 @@ class VerificationContext: CoroutineContext.Element {
             childContentPosition = 0
         }
 
-        suspend inline fun mainLoop(fn: (pos: Int) -> Unit) {
+        inline fun mainLoop(fn: (pos: Int) -> Unit) {
             while (bodyPosition < totalChildSize) {
                 fn(bodyPosition)
                 moveNextChild()
             }
         }
+
+        inline fun childLoop(fn: (pos: Int) -> Unit) {
+            totalChildContentSize = (doc.content[bodyPosition] as ContentAccessor).content.size
+            while (childContentPosition < totalChildContentSize) {
+                fn(childContentPosition)
+                moveNextChildContent()
+            }
+            resetChildContentPointer()
+        }
     }
 
-    companion object Key: CoroutineContext.Key<VerificationContext>
+    companion object Key : CoroutineContext.Key<VerificationContext>
 }

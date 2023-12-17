@@ -4,13 +4,12 @@ import org.docx4j.wml.JcEnumeration
 import ru.maeasoftworks.normativecontrol.core.rendering.utils.PIXELS_IN_POINT
 import ru.maeasoftworks.normativecontrol.core.rendering.utils.POINTS_IN_LINES
 
-class LineHeight(value: Double?) : DoubleProperty("line-height", value, POINTS_IN_LINES)
+object LineHeight : DoubleProperty("line-height", POINTS_IN_LINES)
 
-class TextIndent(value: Double?) : DoubleProperty("text-indent", value, PIXELS_IN_POINT, "px")
+object TextIndent : DoubleProperty("text-indent", PIXELS_IN_POINT, "px")
 
-class TextAlign(value: JcEnumeration?) : Property<JcEnumeration>(
+object TextAlign : Property<JcEnumeration>(
     "text-align",
-    value,
     converter = {
         when (it) {
             JcEnumeration.LEFT -> "left"
@@ -22,11 +21,10 @@ class TextAlign(value: JcEnumeration?) : Property<JcEnumeration>(
     }
 )
 
-class Hyphens(value: Boolean?) : Property<Boolean?>("hyphens", value, converter = { if (it == true) "auto" else "none" })
+object Hyphens : Property<Boolean?>("hyphens", converter = { if (it == true) "auto" else "none" })
 
-class TextTransform(value: Boolean?) : Property<Boolean?>(
+object TextTransform : Property<Boolean?>(
     "text-transform",
-    value,
     converter = {
         if (it == null) {
             null
@@ -36,4 +34,4 @@ class TextTransform(value: Boolean?) : Property<Boolean?>(
     }
 )
 
-class LetterSpacing(value: Double?) : DoubleProperty("letter-spacing", value, PIXELS_IN_POINT, "px")
+object LetterSpacing : DoubleProperty("letter-spacing", PIXELS_IN_POINT, "px")

@@ -1,10 +1,9 @@
 package ru.maeasoftworks.normativecontrol.core.rendering.model.css
 
 import ru.maeasoftworks.normativecontrol.core.rendering.model.css.properties.*
-import kotlin.reflect.KProperty
 
 class Style {
-    private val rules: MutableList<Rule> = mutableListOf()
+    var rules: MutableList<Rule> = mutableListOf()
     val size: Int
         get() = rules.size
 
@@ -20,56 +19,54 @@ class Style {
         return result.toString()
     }
 
+    inline operator fun invoke(fn: Builder.() -> Unit) {
+        rules = Builder().also(fn).rules
+    }
+
     class Builder {
-        private val style = Style()
-        var boxSizing: BoxSizing? by StyleProperty
-        var boxShadow: BoxShadow? by StyleProperty
-        var color: Color? by StyleProperty
-        var backgroundColor: BackgroundColor? by StyleProperty
-        var fontFamily: FontFamily? by StyleProperty
-        var fontSize: FontSize? by StyleProperty
-        var fontStyle: FontStyle? by StyleProperty
-        var fontWeight: FontWeight? by StyleProperty
-        var fontVariantCaps: FontVariantCaps? by StyleProperty
-        var fontVariantLigatures: FontVariantLigatures? by StyleProperty
-        var margin: Margin? by StyleProperty
-        var marginTop: MarginTop? by StyleProperty
-        var marginLeft: MarginLeft? by StyleProperty
-        var marginBottom: MarginBottom? by StyleProperty
-        var marginRight: MarginRight? by StyleProperty
-        var padding: Padding? by StyleProperty
-        var paddingTop: PaddingTop? by StyleProperty
-        var paddingLeft: PaddingLeft? by StyleProperty
-        var paddingBottom: PaddingBottom? by StyleProperty
-        var paddingRight: PaddingRight? by StyleProperty
-        var position: Position? by StyleProperty
-        var width: Width? by StyleProperty
-        var minWidth: MinWidth? by StyleProperty
-        var height: Height? by StyleProperty
-        var minHeight: MinHeight? by StyleProperty
-        var lineHeight: LineHeight? by StyleProperty
-        var textIndent: TextIndent? by StyleProperty
-        var textAlign: TextAlign? by StyleProperty
-        var hyphens: Hyphens? by StyleProperty
-        var textTransform: TextTransform? by StyleProperty
-        var letterSpacing: LetterSpacing? by StyleProperty
-        var zIndex: ZIndex? by StyleProperty
+        val rules: MutableList<Rule> = mutableListOf()
+        var boxSizing = StyleProperty(BoxSizing)
+        var boxShadow = StyleProperty(BoxShadow)
+        var color = StyleProperty(Color)
+        var backgroundColor = StyleProperty(BackgroundColor)
+        var fontFamily = StyleProperty(FontFamily)
+        var fontSize = StyleProperty(FontSize)
+        var fontStyle = StyleProperty(FontStyle)
+        var fontWeight = StyleProperty(FontWeight)
+        var fontVariantCaps = StyleProperty(FontVariantCaps)
+        var fontVariantLigatures = StyleProperty(FontVariantLigatures)
+        var margin = StyleProperty(Margin)
+        var marginTop = StyleProperty(MarginTop)
+        var marginLeft = StyleProperty(MarginLeft)
+        var marginBottom = StyleProperty(MarginBottom)
+        var marginRight = StyleProperty(MarginRight)
+        var padding = StyleProperty(Padding)
+        var paddingTop = StyleProperty(PaddingTop)
+        var paddingLeft = StyleProperty(PaddingLeft)
+        var paddingBottom = StyleProperty(PaddingBottom)
+        var paddingRight = StyleProperty(PaddingRight)
+        var position = StyleProperty(Position)
+        var width = StyleProperty(Width)
+        var minWidth = StyleProperty(MinWidth)
+        var height = StyleProperty(Height)
+        var minHeight = StyleProperty(MinHeight)
+        var lineHeight = StyleProperty(LineHeight)
+        var textIndent = StyleProperty(TextIndent)
+        var textAlign = StyleProperty(TextAlign)
+        var hyphens = StyleProperty(Hyphens)
+        var textTransform = StyleProperty(TextTransform)
+        var letterSpacing = StyleProperty(LetterSpacing)
+        var zIndex = StyleProperty(ZIndex)
 
-        fun build() = style
-
-        object StyleProperty {
-            operator fun <T> getValue(receiver: Builder, property: KProperty<*>): T {
-                throw NotImplementedError()
-            }
-
-            operator fun <O, T : Property<O>> setValue(receiver: Builder, kProperty: KProperty<*>, value: T?) {
-                if (value != null) {
-                    val v = value.converter(value.value)
-                    if (v != null) {
-                        receiver.style.rules.add(Rule(value.name, v, value.measure))
-                    }
+        infix fun <T> StyleProperty<T>.`=`(value: T?) {
+            if (value != null) {
+                val v = this.property.converter(value)
+                if (v != null) {
+                    rules.add(Rule(property.name, v, property.measure))
                 }
             }
         }
+
+        data class StyleProperty<T>(val property: Property<T>)
     }
 }

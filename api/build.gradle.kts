@@ -1,8 +1,8 @@
 plugins {
-    kotlin("jvm") version "2.0.0-Beta1"
+    kotlin("jvm") version "1.9.21"
     id("io.ktor.plugin") version "2.3.6"
-    id("com.google.devtools.ksp") version "2.0.0-Beta1-1.0.15"
-    id("org.jetbrains.kotlin.plugin.serialization") version "2.0.0-Beta1"
+    id("com.google.devtools.ksp") version "1.9.21-1.0.16"
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.9.21"
 }
 
 group = "ru.maeasoftworks"

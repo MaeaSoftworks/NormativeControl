@@ -1,6 +1,8 @@
 package ru.maeasoftworks.normativecontrol.core.rendering.model.css
 
-class Stylesheet {
+import java.io.Serializable
+
+class Stylesheet : Serializable {
     private val styles: HashMap<String, Style> = hashMapOf()
 
     override fun toString(): String {
@@ -10,10 +12,10 @@ class Stylesheet {
     class Builder {
         private val stylesheet = Stylesheet()
 
-        operator fun String.plusAssign(builder: Style.Builder.() -> Unit) {
+        operator fun String.invoke(builder: Style.Builder.() -> Unit) {
             val s = Style.Builder()
             s.builder()
-            stylesheet.styles[this] = s.build()
+            stylesheet.styles[this] = Style().also { it.rules = s.rules }
         }
 
         fun build() = stylesheet

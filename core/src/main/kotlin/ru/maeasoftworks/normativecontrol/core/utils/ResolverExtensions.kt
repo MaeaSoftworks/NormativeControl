@@ -4,8 +4,6 @@ import org.docx4j.wml.P
 import org.docx4j.wml.PPr
 import org.docx4j.wml.R
 import org.docx4j.wml.RPr
-import ru.maeasoftworks.normativecontrol.core.model.VerificationContext
-import kotlin.coroutines.coroutineContext
 
 suspend inline fun <T> P.getPropertyValue(path: PPr.() -> T?): T? {
     return getContext()?.resolver?.getActualProperty(this, path)

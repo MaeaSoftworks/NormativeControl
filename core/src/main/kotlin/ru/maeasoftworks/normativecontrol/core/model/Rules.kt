@@ -3,7 +3,7 @@ package ru.maeasoftworks.normativecontrol.core.model
 import org.docx4j.TextUtils
 import org.docx4j.wml.JcEnumeration
 import org.docx4j.wml.R
-import ru.maeasoftworks.normativecontrol.core.enums.CaptureType
+import ru.maeasoftworks.normativecontrol.core.enums.Closure
 import ru.maeasoftworks.normativecontrol.core.enums.MistakeType.*
 import ru.maeasoftworks.normativecontrol.core.utils.*
 import kotlin.math.abs
@@ -17,7 +17,7 @@ object Rules {
                     { pBdr },
                     { _, _, isEmpty, bdr ->
                         if (bdr != null && (bdr.left.`val`.name != "NIL" || bdr.right.`val`.name != "NIL" || bdr.top.`val`.name != "NIL" || bdr.bottom.`val`.name != "NIL")) {
-                            Mistake(if (isEmpty) TEXT_WHITESPACE_BORDER else TEXT_COMMON_BORDER, CaptureType.P)
+                            Mistake(if (isEmpty) TEXT_WHITESPACE_BORDER else TEXT_COMMON_BORDER, Closure.P)
                         } else {
                             null
                         }
@@ -28,7 +28,7 @@ object Rules {
                     { shd },
                     { _, _, isEmpty, shd ->
                         if (shd != null && shd.fill != null && shd.fill != "FFFFFF") {
-                            Mistake(if (isEmpty) TEXT_WHITESPACE_BACKGROUND_FILL else TEXT_COMMON_BACKGROUND_FILL, CaptureType.P)
+                            Mistake(if (isEmpty) TEXT_WHITESPACE_BACKGROUND_FILL else TEXT_COMMON_BACKGROUND_FILL, Closure.P)
                         } else {
                             null
                         }
@@ -97,7 +97,7 @@ object Rules {
                         if (jc == null || jc.`val` != JcEnumeration.CENTER) {
                             Mistake(
                                 if (isEmpty) TEXT_WHITESPACE_AFTER_HEADER_ALIGNMENT else TEXT_HEADER_ALIGNMENT,
-                                CaptureType.P,
+                                Closure.P,
                                 jc?.`val`.toString(),
                                 JcEnumeration.CENTER.toString()
                             )
@@ -113,7 +113,7 @@ object Rules {
                         if (s != null && s.line != null && s.line.toDouble() != 240.0) {
                             Mistake(
                                 TEXT_HEADER_LINE_SPACING,
-                                CaptureType.P,
+                                Closure.P,
                                 "%.2f".format(s.line.toDouble() / 240.0),
                                 "1"
                             )
@@ -125,7 +125,7 @@ object Rules {
 
                 val hasNotDotInEnd: PFunction = { _, p, _ ->
                     if (TextUtils.getText(p).endsWith(".")) {
-                        Mistake(TEXT_HEADER_REDUNDANT_DOT, CaptureType.P)
+                        Mistake(TEXT_HEADER_REDUNDANT_DOT, Closure.P)
                     } else {
                         null
                     }
@@ -151,7 +151,7 @@ object Rules {
                         if (n != null && i != null && i.firstLine != null && abs(floor(i.firstLine.toDouble() / 1440.0 * 2.54) - 1.25) <= 0.01) {
                             Mistake(
                                 TEXT_HEADER_INDENT_FIRST_LINES,
-                                CaptureType.P,
+                                Closure.P,
                                 floor(i.firstLine.toDouble() / 1440.0 * 2.54).toString(),
                                 "1.25"
                             )
@@ -165,7 +165,7 @@ object Rules {
                     { suppressAutoHyphens },
                     { _, _, _, s ->
                         if ((s == null || !s.isVal) && getContext()!!.mlPackage.mainDocumentPart.documentSettingsPart.jaxbElement.autoHyphenation?.isVal == true) {
-                            Mistake(TEXT_HEADER_AUTO_HYPHEN, CaptureType.P)
+                            Mistake(TEXT_HEADER_AUTO_HYPHEN, Closure.P)
                         } else {
                             null
                         }
@@ -198,7 +198,7 @@ object Rules {
                     if (jc == null || jc.`val` != JcEnumeration.BOTH) {
                         Mistake(
                             if (isEmpty) TEXT_WHITESPACE_ALIGNMENT else TEXT_REGULAR_INCORRECT_ALIGNMENT,
-                            CaptureType.P,
+                            Closure.P,
                             jc?.`val`?.toString(),
                             JcEnumeration.BOTH.toString()
                         )
@@ -213,7 +213,7 @@ object Rules {
                         if (s.lineRule.value() == "auto" && s.line.toDouble() != 360.0) {
                             Mistake(
                                 if (isEmpty) TEXT_WHITESPACE_LINE_SPACING else TEXT_REGULAR_LINE_SPACING,
-                                CaptureType.P,
+                                Closure.P,
                                 "${s.line.toDouble() / 240.0}",
                                 "1.5"
                             )
@@ -232,7 +232,7 @@ object Rules {
                         if (n != null && i != null && i.firstLine != null && abs(floor(i.firstLine.toDouble() / 1440.0 * 2.54) - 1.25) <= 0.01) {
                             Mistake(
                                 if (isEmpty) TEXT_WHITESPACE_INDENT_FIRST_LINES else TEXT_REGULAR_INDENT_FIRST_LINES,
-                                CaptureType.P,
+                                Closure.P,
                                 "${floor(i.firstLine.toDouble() / 1440 * 2.54)}",
                                 "1.25"
                             )
@@ -249,7 +249,7 @@ object Rules {
                         if (n != null && i != null && i.left != null && i.left.toDouble() != 0.0) {
                             Mistake(
                                 TEXT_COMMON_INDENT_LEFT,
-                                CaptureType.P,
+                                Closure.P,
                                 "${i.left.toDouble() / 240.0}",
                                 "0"
                             )
@@ -266,7 +266,7 @@ object Rules {
                         if (n != null && i != null && i.right != null && i.right.toDouble() != 0.0) {
                             Mistake(
                                 if (isEmpty) TEXT_WHITESPACE_INDENT_RIGHT else TEXT_COMMON_INDENT_RIGHT,
-                                CaptureType.P,
+                                Closure.P,
                                 "${i.right.toDouble() / 240.0}",
                                 "0"
                             )
@@ -306,7 +306,7 @@ object Rules {
                         if (jc == null || jc.`val` != JcEnumeration.CENTER) {
                             Mistake(
                                 if (isEmpty) TEXT_WHITESPACE_AFTER_HEADER_ALIGNMENT else PICTURE_TITLE_NOT_CENTERED,
-                                CaptureType.P,
+                                Closure.P,
                                 jc?.`val`?.toString(),
                                 JcEnumeration.CENTER.toString()
                             )
@@ -318,7 +318,7 @@ object Rules {
 
                 val hasNotDotInEnd: PFunction = { _, p, _ ->
                     if (TextUtils.getText(p).endsWith(".")) {
-                        Mistake(PICTURE_TITLE_ENDS_WITH_DOT, CaptureType.P)
+                        Mistake(PICTURE_TITLE_ENDS_WITH_DOT, Closure.P)
                     } else {
                         null
                     }
@@ -336,7 +336,7 @@ object Rules {
                         if (jc != null && jc.`val` != JcEnumeration.LEFT) {
                             Mistake(
                                 if (isEmpty) TEXT_WHITESPACE_AFTER_HEADER_ALIGNMENT else TEXT_HEADER_BODY_ALIGNMENT,
-                                CaptureType.P,
+                                Closure.P,
                                 jc.`val`.toString(),
                                 JcEnumeration.LEFT.toString()
                             )
@@ -348,9 +348,11 @@ object Rules {
 
                 val isNotUppercase: PFunction = { _, p, isEmpty ->
                     val text = TextUtils.getText(p)
-                    if (!isEmpty && (text.uppercase() == text || p.content.all { if (it is R) it.getPropertyValue { caps }.let { caps -> caps != null && caps.isVal } else false })
+                    if (!isEmpty && (text.uppercase() == text || p.content.all {
+                            if (it is R) it.getPropertyValue { caps }.let { caps -> caps != null && caps.isVal } else false
+                        })
                     ) {
-                        Mistake(TEXT_HEADER_BODY_UPPERCASE, CaptureType.P)
+                        Mistake(TEXT_HEADER_BODY_UPPERCASE, Closure.P)
                     } else {
                         null
                     }

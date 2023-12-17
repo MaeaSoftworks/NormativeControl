@@ -2,8 +2,8 @@ package ru.maeasoftworks.normativecontrol.core.rendering.model.css.properties
 
 import ru.maeasoftworks.normativecontrol.core.rendering.utils.PIXELS_IN_POINT
 
-class Margin(value: Double?) : DoubleProperty("margin", value)
-class MarginTop(value: Double?) : DoubleProperty("margin-top", value, PIXELS_IN_POINT, "px")
-class MarginLeft(value: Double?) : DoubleProperty("margin-left", value, PIXELS_IN_POINT, "px")
-class MarginBottom(value: Double?) : DoubleProperty("margin-bottom", value, PIXELS_IN_POINT, "px")
-class MarginRight(value: Double?) : DoubleProperty("margin-right", value, PIXELS_IN_POINT, "px")
+object Margin : DoubleProperty("margin")
+object MarginTop : DoubleProperty("margin-top", PIXELS_IN_POINT, "px")
+object MarginLeft : DoubleProperty("margin-left", PIXELS_IN_POINT, "px")
+object MarginBottom : DoubleProperty("margin-bottom", PIXELS_IN_POINT, "px")
+object MarginRight : DoubleProperty("margin-right", PIXELS_IN_POINT, "px")

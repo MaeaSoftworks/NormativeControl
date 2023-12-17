@@ -8,9 +8,9 @@ import ru.maeasoftworks.normativecontrol.api.shared.modules.S3
 import ru.maeasoftworks.normativecontrol.api.shared.utils.Rat
 import ru.maeasoftworks.normativecontrol.api.shared.utils.with
 import ru.maeasoftworks.normativecontrol.api.students.dto.Message
+import ru.maeasoftworks.normativecontrol.core.Document
+import ru.maeasoftworks.normativecontrol.core.abstractions.Profile
 import ru.maeasoftworks.normativecontrol.core.model.VerificationContext
-import ru.maeasoftworks.normativecontrol.core.parsers.DocumentVerifier
-import ru.maeasoftworks.normativecontrol.core.rendering.RenderLauncher
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import javax.inject.Inject
@@ -20,10 +20,16 @@ import javax.inject.Singleton
 class Verifier @Inject constructor(private val s3: S3) {
     data class StageHolder(var stage: Message.Stage)
 
-    suspend fun startVerification(documentId: String, accessKey: String, file: InputStream, channel: Channel<Message>) = coroutineScope {
+    suspend fun startVerification(
+        documentId: String,
+        accessKey: String,
+        file: InputStream,
+        channel: Channel<Message>,
+        profile: Profile = Profile.UrFU
+    ) = coroutineScope {
         val stageHolder = StageHolder(Message.Stage.INITIALIZATION)
-        val rat = Rat { parser: DocumentVerifier -> parser.ctx.ptr }
-        val task = launch { verify(documentId, accessKey, file, stageHolder, rat, VerificationContext()) }
+        val rat = Rat { parser: Document -> parser.ctx.ptr }
+        val task = launch { verify(documentId, accessKey, file, stageHolder, rat, VerificationContext(profile)) }
         while (task.isActive) {
             delay(200)
             val ptr = rat.report()
@@ -47,20 +53,17 @@ class Verifier @Inject constructor(private val s3: S3) {
         accessKey: String,
         file: InputStream,
         stageHolder: StageHolder,
-        rat: Rat<DocumentVerifier, VerificationContext.Pointer>,
+        rat: Rat<Document, VerificationContext.Pointer>,
         ctx: VerificationContext
     ) = withContext(ctx) {
-        val parser = DocumentVerifier(ctx) with rat
+        val parser = Document(ctx = ctx) with rat
         withContext(Dispatchers.IO) { parser.load(file) }
         stageHolder.stage = Message.Stage.VERIFICATION
         parser.runVerification()
-        stageHolder.stage = Message.Stage.RENDERING
-        val render = RenderLauncher(parser).render()
-
         stageHolder.stage = Message.Stage.SAVING
         val result = withContext(Dispatchers.IO) { ByteArrayOutputStream().also { parser.writeResult(it) } }
 
-        s3.uploadDocumentRender(documentId, render.toByteArray(), accessKey)
+        s3.uploadDocumentRender(documentId, parser.ctx.render.toString().toByteArray(), accessKey)
         s3.uploadDocumentConclusion(documentId, result.toByteArray(), accessKey)
     }
 }

@@ -1,29 +1,36 @@
-package ru.maeasoftworks.normativecontrol.core.parsers
+package ru.maeasoftworks.normativecontrol.core
 
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
-import org.jvnet.jaxb2_commons.ppp.Child
-import ru.maeasoftworks.normativecontrol.core.model.Transmission
+import ru.maeasoftworks.normativecontrol.core.abstractions.ChapterHeader
+import ru.maeasoftworks.normativecontrol.core.abstractions.HandlerMapper
 import ru.maeasoftworks.normativecontrol.core.model.VerificationContext
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 
-class DocumentVerifier(val ctx: VerificationContext) {
+class Document(val ctx: VerificationContext) {
     private lateinit var mlPackage: WordprocessingMLPackage
     lateinit var doc: MainDocumentPart
-    var autoHyphenation: Boolean? = null
 
     fun load(stream: InputStream) {
         mlPackage = WordprocessingMLPackage.load(stream)
         doc = mlPackage.mainDocumentPart.also { it.styleDefinitionsPart.jaxbElement }
-        autoHyphenation = doc.documentSettingsPart.jaxbElement.autoHyphenation?.isVal
         ctx.load(mlPackage)
     }
 
     suspend fun runVerification() {
         ctx.ptr.mainLoop { pos ->
-            val currentChild = doc.content[pos] as? Child
-            Transmission.transmitChild(currentChild)
+            val element = doc.content[pos]
+            val handler = HandlerMapper[ctx.profile, element]
+            if (handler != null) {
+                if (handler is ChapterHeader) {
+                    if (handler.isHeader(element)) {
+                        val chapter = handler.detectChapterByHeader(element)
+                        handler.checkChapterOrderAndUpdateContext(chapter)
+                    }
+                }
+                handler.handle(element)
+            }
         }
     }
 

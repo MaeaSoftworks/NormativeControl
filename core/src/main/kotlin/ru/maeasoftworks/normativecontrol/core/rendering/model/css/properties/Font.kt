@@ -3,49 +3,36 @@ package ru.maeasoftworks.normativecontrol.core.rendering.model.css.properties
 import org.docx4j.w14.STLigatures
 import ru.maeasoftworks.normativecontrol.core.rendering.utils.FONT_SCALING
 
-class FontFamily(value: String?) : Property<String>("font-family", value)
+object FontFamily : Property<String>("font-family")
 
-class FontSize(value: Int?) : IntProperty("font-size", value, FONT_SCALING, "px")
+object FontSize : IntProperty("font-size", FONT_SCALING, "px")
 
-class FontStyle(value: Boolean?) : Property<Boolean?>(
-    "font-style",
-    value,
-    {
-        if (it == null) {
-            null
-        } else {
-            if (it) "italic" else null
-        }
+object FontStyle : Property<Boolean?>("font-style", {
+    if (it == null) {
+        null
+    } else {
+        if (it) "italic" else null
     }
-)
+})
 
-class FontWeight(value: Boolean?) : Property<Boolean?>(
-    "font-weight",
-    value,
-    {
-        if (it == null) {
-            null
-        } else {
-            if (it) "bold" else null
-        }
+object FontWeight : Property<Boolean?>("font-weight", {
+    if (it == null) {
+        null
+    } else {
+        if (it) "bold" else null
     }
-)
+})
 
-class FontVariantCaps(value: Boolean?) : Property<Boolean?>(
-    "font-variant-caps",
-    value,
-    {
-        if (it == null) {
-            null
-        } else {
-            if (it) "small-caps" else null
-        }
+object FontVariantCaps : Property<Boolean?>("font-variant-caps", {
+    if (it == null) {
+        null
+    } else {
+        if (it) "small-caps" else null
     }
-)
+})
 
-class FontVariantLigatures(value: STLigatures?) : Property<STLigatures>(
+object FontVariantLigatures : Property<STLigatures>(
     "font-variant-ligatures",
-    value,
     {
         when (it) {
             STLigatures.NONE -> "none"

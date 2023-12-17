@@ -7,15 +7,14 @@ import org.docx4j.wml.P
 import org.docx4j.wml.P.Hyperlink
 import org.docx4j.wml.R
 import org.docx4j.wml.Text
-import ru.maeasoftworks.normativecontrol.core.parsers.DocumentVerifier
-import ru.maeasoftworks.normativecontrol.core.rendering.model.css.properties.*
+import ru.maeasoftworks.normativecontrol.core.Document
 import ru.maeasoftworks.normativecontrol.core.rendering.model.html.HtmlElement
-import ru.maeasoftworks.normativecontrol.core.utils.getPropertyValue
+import ru.maeasoftworks.normativecontrol.core.rendering.model.html.div
 
 class Renderer(
-    private val parser: DocumentVerifier
+    private val parser: Document,
+    private val html: HtmlElement
 ) {
-    private val html = HtmlElement("div")
     private var currentPage: HtmlElement? = newPage
     private var isInner = false
     private var currentP: HtmlElement? = HtmlElement("p")
@@ -65,7 +64,7 @@ class Renderer(
         }
         currentPage!!.children.add(currentP!!)
         currentP!!.id = p.paraId
-        stylizeP(p)
+        //stylizeP(p)
         if (p.content.isEmpty()) {
             currentP!!.children.add(HtmlElement("br", false))
         }
@@ -84,32 +83,18 @@ class Renderer(
         }
     }
 
-    private suspend fun stylizeP(p: P) {
-        currentP!!.style {
-            marginLeft = MarginLeft(p.getPropertyValue { ind?.left }?.toDouble())
-            marginRight = MarginRight(p.getPropertyValue { ind?.right }?.toDouble())
-            marginBottom = MarginBottom(p.getPropertyValue { spacing?.after }?.toDouble())
-            marginTop = MarginTop(p.getPropertyValue { spacing?.before }?.toDouble())
-            lineHeight = LineHeight(p.getPropertyValue { spacing?.line }?.toDouble())
-            textIndent = TextIndent(p.getPropertyValue { ind?.firstLine }?.toDouble())
-            textAlign = TextAlign(p.getPropertyValue { jc?.`val` })
-            backgroundColor = BackgroundColor(p.getPropertyValue { shd?.fill })
-            hyphens = Hyphens(!(p.getPropertyValue { suppressAutoHyphens?.isVal } ?: false))
-        }
-    }
-
     private suspend fun stylizeR(r: R) {
-        currentR!!.style {
-            fontFamily = FontFamily(r.getPropertyValue { rFonts?.ascii })
-            fontSize = FontSize(r.getPropertyValue { sz?.`val`?.toInt() })
-            fontStyle = FontStyle(r.getPropertyValue { i?.isVal })
-            fontWeight = FontWeight(r.getPropertyValue { b?.isVal })
-            color = Color(r.getPropertyValue { color?.`val` })
-            backgroundColor = BackgroundColor(r.getPropertyValue { highlight?.`val` })
-            textTransform = TextTransform(r.getPropertyValue { caps?.isVal })
-            fontVariantCaps = FontVariantCaps(r.getPropertyValue { smallCaps?.isVal })
-            fontVariantLigatures = FontVariantLigatures(r.getPropertyValue { ligatures?.`val` })
-            letterSpacing = LetterSpacing(r.getPropertyValue { spacing?.`val` }?.toDouble())
+        currentR!!.styleElement {
+            //fontFamily = FontFamily(r.getPropertyValue { rFonts?.ascii })
+            //fontSize = FontSize(r.getPropertyValue { sz?.`val`?.toInt() })
+            //fontStyle = FontStyle(r.getPropertyValue { i?.isVal })
+            //fontWeight = FontWeight(r.getPropertyValue { b?.isVal })
+            //color = Color(r.getPropertyValue { color?.`val` })
+            //backgroundColor = BackgroundColor(r.getPropertyValue { highlight?.`val` })
+            //textTransform = TextTransform(r.getPropertyValue { caps?.isVal })
+            //fontVariantCaps = FontVariantCaps(r.getPropertyValue { smallCaps?.isVal })
+            //fontVariantLigatures = FontVariantLigatures(r.getPropertyValue { ligatures?.`val` })
+            //letterSpacing = LetterSpacing(r.getPropertyValue { spacing?.`val` }?.toDouble())
         }
     }
 
@@ -144,7 +129,7 @@ class Renderer(
                             } else {
                                 currentP!!.children.add(currentR!!)
                             }
-                            currentR!!.content.append(TextUtils.getText(c))
+                            currentR!!.content = TextUtils.getText(c)
                             stylizeR(r)
                         }
 
@@ -162,6 +147,7 @@ class Renderer(
     }
 
     private fun pageBreak() {
+        currentPage!!.children.add(0, div { classes += "page-size" })
         lastPBeforePageBreak = currentP?.duplicate()
         lastInnerBeforePageBreak = currentInner?.duplicate()
         currentPage = null
