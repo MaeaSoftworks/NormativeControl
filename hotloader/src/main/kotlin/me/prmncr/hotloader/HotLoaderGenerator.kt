@@ -1,4 +1,4 @@
-package ru.maeasoftworks.normativecontrol.hotloader
+package me.prmncr.hotloader
 
 import com.google.devtools.ksp.containingFile
 import com.google.devtools.ksp.processing.CodeGenerator
@@ -6,12 +6,18 @@ import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.squareup.kotlinpoet.*
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.io.OutputStreamWriter
 import java.nio.charset.StandardCharsets
 
-class FileGenerator(private val codeGenerator: CodeGenerator) {
+class HotLoaderGenerator(private val codeGenerator: CodeGenerator) {
     fun generate(annotated: List<KSAnnotated>) {
-        val pkg = "ru.maeasoftworks.normativecontrol.hotloader"
+        if (annotated.isEmpty()) {
+            return
+        }
+
+        val pkg = this::class.qualifiedName!!.split(".").dropLast(1).joinToString(".")
         val name = "HotLoader"
 
         val code = FileSpec.builder(ClassName(pkg, name))
@@ -23,19 +29,24 @@ class FileGenerator(private val codeGenerator: CodeGenerator) {
                             .mutable()
                             .build()
                     )
+                    .addProperty(
+                        PropertySpec.builder("logger", Logger::class, listOf(KModifier.PRIVATE))
+                            .initializer(CodeBlock.builder().addStatement("%T.getLogger(this::class.java)", LoggerFactory::class).build())
+                            .build()
+                    )
                     .addFunction(
-                        FunSpec.builder("safeLoad")
+                        FunSpec.builder("load")
                             .addCode(
                                 """
                                 if (loaded) return
-                                load()
+                                unsafeLoad()
                                 loaded = true
                             """.trimIndent()
                             )
                             .build()
                     )
                     .addFunction(
-                        FunSpec.builder("load")
+                        FunSpec.builder("unsafeLoad")
                             .addModifiers(KModifier.PRIVATE)
                             .addCode("val classes = listOf(\n")
                             .apply {
@@ -44,16 +55,12 @@ class FileGenerator(private val codeGenerator: CodeGenerator) {
                                 }
                             }
                             .addCode(")\n")
-                            .addStatement("classes.forEach { it.apply { println(\"[HotLoader] \${this::class.simpleName} was loaded\") } }")
+                            .addStatement("logger.info(\"Loaded classes: [\${ classes.map { it::class.simpleName }.joinToString() }]\")")
                             .build()
                     ).build()
             ).build()
         val stream = try {
-            codeGenerator.createNewFile(
-                Dependencies(aggregating = true, *annotated.map { it.containingFile!! }.toTypedArray()),
-                pkg,
-                name
-            )
+            codeGenerator.createNewFile(Dependencies(aggregating = true, *annotated.mapNotNull { it.containingFile }.toTypedArray()), pkg, name)
         } catch (e: FileAlreadyExistsException) {
             e.file.outputStream()
         }

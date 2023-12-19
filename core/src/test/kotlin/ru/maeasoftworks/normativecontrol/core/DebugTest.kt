@@ -1,14 +1,14 @@
 package ru.maeasoftworks.normativecontrol.core
 
 import io.kotest.core.spec.style.ShouldSpec
+import me.prmncr.hotloader.HotLoader
 import ru.maeasoftworks.normativecontrol.core.abstractions.Profile
 import ru.maeasoftworks.normativecontrol.core.model.VerificationContext
-import ru.maeasoftworks.normativecontrol.hotloader.HotLoader
 import java.io.File
 
 class DebugTest : ShouldSpec({
     beforeTest {
-        HotLoader.safeLoad()
+        HotLoader.load()
     }
 
     should("not throws exceptions") {

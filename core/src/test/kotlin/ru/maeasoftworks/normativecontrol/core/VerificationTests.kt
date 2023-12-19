@@ -2,12 +2,12 @@ package ru.maeasoftworks.normativecontrol.core
 
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
+import me.prmncr.hotloader.HotLoader
 import ru.maeasoftworks.normativecontrol.core.implementations.ufru.PHandler
-import ru.maeasoftworks.normativecontrol.hotloader.HotLoader
 
 class VerificationTests : ShouldSpec({
     beforeTest {
-        HotLoader.safeLoad()
+        HotLoader.load()
     }
 
     context(PHandler::class.simpleName!!) {

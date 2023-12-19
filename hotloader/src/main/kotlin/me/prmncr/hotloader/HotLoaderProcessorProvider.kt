@@ -1,11 +1,11 @@
-package ru.maeasoftworks.normativecontrol.hotloader
+package me.prmncr.hotloader
 
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
 
-class ProcessorProvider : SymbolProcessorProvider {
+class HotLoaderProcessorProvider : SymbolProcessorProvider {
     override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
-        return Processor(FileGenerator(codeGenerator = environment.codeGenerator))
+        return HotLoaderProcessor(HotLoaderGenerator(codeGenerator = environment.codeGenerator))
     }
 }

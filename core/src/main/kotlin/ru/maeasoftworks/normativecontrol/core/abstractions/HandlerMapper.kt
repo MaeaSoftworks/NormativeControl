@@ -4,15 +4,14 @@ object HandlerMapper {
     val builtInChain = mutableListOf<Mapping<*>>()
     val chain = mutableMapOf<Profile, MutableList<Mapping<*>>>()
 
-    inline fun <reified T> register(profile: Profile, obj: Handler<*>) {
+    inline fun <reified T> register(profile: Profile, noinline obj: HandlerInvocation<*>) {
         if (profile != Profile.BuiltIn) {
-            if (chain.containsKey(profile)) {
-                chain[profile]!! += { if (it is T) obj else null }
-            } else {
+            if (!chain.containsKey(profile)) {
                 chain[profile] = mutableListOf()
             }
+            chain[profile]!! += { if (it is T) obj else { -> null } }
         } else {
-            builtInChain += { if (it is T) obj else null }
+            builtInChain += { if (it is T) obj else { -> null } }
         }
     }
 
@@ -30,17 +29,19 @@ object HandlerMapper {
         for (lambda in chain[profile]!!) {
             val maybeHandler = lambda(target)
             if (maybeHandler != null) {
-                return maybeHandler
+                return maybeHandler()
             }
         }
         for (lambda in builtInChain) {
             val maybeHandler = lambda(target)
             if (maybeHandler != null) {
-                return maybeHandler
+                return maybeHandler()
             }
         }
         return null
     }
 }
 
-typealias Mapping<T> = (Any) -> Handler<T>?
+typealias HandlerInvocation<T> = () -> Handler<T>?
+
+typealias Mapping<T> = (Any) -> HandlerInvocation<T>?

@@ -10,10 +10,10 @@ import ru.maeasoftworks.normativecontrol.core.rendering.model.html.br
 import ru.maeasoftworks.normativecontrol.core.rendering.model.html.p
 import ru.maeasoftworks.normativecontrol.core.utils.getPropertyValue
 import ru.maeasoftworks.normativecontrol.core.utils.usingContext
-import ru.maeasoftworks.normativecontrol.hotloader.HotLoaded
+import me.prmncr.hotloader.HotLoaded
 
 @HotLoaded
-object PHandler : Handler<P>({ register<P>(Profile.UrFU, PHandler) }), ChapterHeader {
+object PHandler : Handler<P>({ register<P>(Profile.UrFU) { PHandler } }), ChapterHeader {
     override val headerRegex = Regex("""^(\d+(?:\.\d)?)\s(?:\w+\s?)+$""")
 
     override suspend fun handle(element: Any) = usingContext {
@@ -35,7 +35,7 @@ object PHandler : Handler<P>({ register<P>(Profile.UrFU, PHandler) }), ChapterHe
             }
             this@usingContext.ptr.childLoop { pos ->
                 val child = element.content[pos]
-                //this@usingContext.implementation.handlerContainer[child]?.handle(child)
+                HandlerMapper[this@usingContext.profile, child]?.handle(child)
             }
         }
 

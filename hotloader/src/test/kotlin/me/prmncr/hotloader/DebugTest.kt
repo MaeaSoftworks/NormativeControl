@@ -1,4 +1,4 @@
-package ru.maeasoftworks.normativecontrol.hotloader
+package me.prmncr.hotloader
 
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
@@ -41,7 +41,7 @@ class DebugTest {
             sources = files
             inheritClassPath = true
             languageVersion = "1.9"
-            symbolProcessorProviders = listOf(ProcessorProvider())
+            symbolProcessorProviders = listOf(HotLoaderProcessorProvider())
         }.compile()
         println(result.outputDirectory)
         assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode)

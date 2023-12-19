@@ -3,16 +3,16 @@ package ru.maeasoftworks.normativecontrol.core
 import io.kotest.common.ExperimentalKotest
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
+import me.prmncr.hotloader.HotLoader
 import org.docx4j.wml.P
 import ru.maeasoftworks.normativecontrol.core.annotations.InternalConstructor
 import ru.maeasoftworks.normativecontrol.core.model.RenderingContext
 import ru.maeasoftworks.normativecontrol.core.rendering.model.html.HtmlElement
-import ru.maeasoftworks.normativecontrol.hotloader.HotLoader
 
 @OptIn(InternalConstructor::class, ExperimentalKotest::class)
 class RenderingTests : ShouldSpec({
     beforeTest {
-        HotLoader.safeLoad()
+        HotLoader.load()
     }
 
     context("simple rendering tests").config(enabled = false) {
