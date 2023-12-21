@@ -7,8 +7,10 @@ import ru.maeasoftworks.normativecontrol.core.enums.MistakeType
 import ru.maeasoftworks.normativecontrol.core.model.Mistake
 import ru.maeasoftworks.normativecontrol.core.model.VerificationContext
 
+@Deprecated("Use new API")
 typealias RFunction = suspend (r: R, isEmpty: Boolean, ctx: VerificationContext) -> Mistake?
 
+@Deprecated("Use new API")
 inline fun <T> createRFunction(
     crossinline valueProvider: RPr.() -> T,
     mistakeType: MistakeType,

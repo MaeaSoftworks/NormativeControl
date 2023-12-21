@@ -1,6 +1,4 @@
-package ru.maeasoftworks.normativecontrol.core.rendering.model.css
-
-import ru.maeasoftworks.normativecontrol.core.rendering.model.css.properties.*
+package ru.maeasoftworks.normativecontrol.core.rendering.css
 
 class Style {
     var rules: MutableList<Rule> = mutableListOf()

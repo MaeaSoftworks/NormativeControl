@@ -1,8 +1,6 @@
 package ru.maeasoftworks.normativecontrol.core.rendering
 
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
-import ru.maeasoftworks.normativecontrol.core.rendering.model.html.css
-import ru.maeasoftworks.normativecontrol.core.rendering.model.html.html
 
 fun htmlTemplate(doc: MainDocumentPart?) = html {
     head {
@@ -36,7 +34,7 @@ fun htmlTemplate(doc: MainDocumentPart?) = html {
                     position `=` "absolute"
                     width `=` pageMargins?.let { (w?.minus(it.left.intValueExact())?.minus(it.right.intValueExact()))?.toDouble() }
                     height `=` pageMargins?.let { (h?.minus(it.top.intValueExact())?.minus(it.bottom.intValueExact()))?.toDouble() }
-                    zIndex `=` -10
+                    zIndex `=` -10.0
                 }
             }
         }

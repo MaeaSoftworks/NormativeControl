@@ -1,13 +1,13 @@
-@file:OptIn(InternalConstructor::class)
+@file:OptIn(Internal::class)
 
-package ru.maeasoftworks.normativecontrol.core.rendering.model.html
+package ru.maeasoftworks.normativecontrol.core.rendering
 
-import ru.maeasoftworks.normativecontrol.core.annotations.InternalConstructor
-import ru.maeasoftworks.normativecontrol.core.rendering.model.css.Style
-import ru.maeasoftworks.normativecontrol.core.rendering.model.css.Stylesheet
+import ru.maeasoftworks.normativecontrol.core.annotations.Internal
+import ru.maeasoftworks.normativecontrol.core.rendering.css.Style
+import ru.maeasoftworks.normativecontrol.core.rendering.css.Stylesheet
 import java.io.Serializable
 
-open class HtmlElement @InternalConstructor constructor(
+open class HtmlElement @Internal constructor(
     private val type: String,
     private val hasClosingTag: Boolean = true
 ) {
@@ -58,27 +58,27 @@ open class HtmlElement @InternalConstructor constructor(
     }
 
     inline fun div(body: HtmlElement.() -> Unit) {
-        children += ru.maeasoftworks.normativecontrol.core.rendering.model.html.div(body)
+        children += ru.maeasoftworks.normativecontrol.core.rendering.div(body)
     }
 
     inline fun p(body: HtmlElement.() -> Unit) {
-        children += ru.maeasoftworks.normativecontrol.core.rendering.model.html.p(body)
+        children += ru.maeasoftworks.normativecontrol.core.rendering.p(body)
     }
 
     inline fun span(body: HtmlElement.() -> Unit) {
-        children += ru.maeasoftworks.normativecontrol.core.rendering.model.html.span(body)
+        children += ru.maeasoftworks.normativecontrol.core.rendering.span(body)
     }
 
     inline fun head(body: HtmlElement.() -> Unit) {
-        children += ru.maeasoftworks.normativecontrol.core.rendering.model.html.head(body)
+        children += ru.maeasoftworks.normativecontrol.core.rendering.head(body)
     }
 
     inline fun body(body: HtmlElement.() -> Unit) {
-        children += ru.maeasoftworks.normativecontrol.core.rendering.model.html.body(body)
+        children += ru.maeasoftworks.normativecontrol.core.rendering.body(body)
     }
 
     inline fun styleElement(body: HtmlElement.() -> Unit) {
-        children += ru.maeasoftworks.normativecontrol.core.rendering.model.html.styleElement(body)
+        children += ru.maeasoftworks.normativecontrol.core.rendering.styleElement(body)
     }
 }
 

@@ -4,8 +4,10 @@ import org.docx4j.wml.P
 import org.docx4j.wml.PPr
 import ru.maeasoftworks.normativecontrol.core.model.Mistake
 
+@Deprecated("Use new API")
 typealias PFunction = suspend (pPos: Int, p: P, isEmpty: Boolean) -> Mistake?
 
+@Deprecated("Use new API")
 object PFunctionFactory {
     inline fun <T> create(
         crossinline path: PPr.() -> T,

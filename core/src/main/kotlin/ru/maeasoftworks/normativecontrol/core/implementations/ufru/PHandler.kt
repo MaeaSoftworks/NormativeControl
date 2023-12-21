@@ -6,8 +6,8 @@ import ru.maeasoftworks.normativecontrol.core.abstractions.*
 import ru.maeasoftworks.normativecontrol.core.enums.Closure
 import ru.maeasoftworks.normativecontrol.core.enums.MistakeType
 import ru.maeasoftworks.normativecontrol.core.model.Mistake
-import ru.maeasoftworks.normativecontrol.core.rendering.model.html.br
-import ru.maeasoftworks.normativecontrol.core.rendering.model.html.p
+import ru.maeasoftworks.normativecontrol.core.rendering.br
+import ru.maeasoftworks.normativecontrol.core.rendering.p
 import ru.maeasoftworks.normativecontrol.core.utils.getPropertyValue
 import ru.maeasoftworks.normativecontrol.core.utils.usingContext
 import me.prmncr.hotloader.HotLoaded
@@ -18,7 +18,7 @@ object PHandler : Handler<P>({ register<P>(Profile.UrFU) { PHandler } }), Chapte
 
     override suspend fun handle(element: Any) = usingContext {
         element as P
-        render.body.children += p {
+        render.currentPage.children += p {
             style {
                 marginLeft `=` element.getPropertyValue { ind?.left }?.toDouble()
                 marginRight `=` element.getPropertyValue { ind?.right }?.toDouble()
@@ -28,7 +28,7 @@ object PHandler : Handler<P>({ register<P>(Profile.UrFU) { PHandler } }), Chapte
                 textIndent `=` element.getPropertyValue { ind?.firstLine }?.toDouble()
                 textAlign `=` element.getPropertyValue { jc?.`val` }
                 backgroundColor `=` element.getPropertyValue { shd?.fill }
-                hyphens `=` !(element.getPropertyValue { suppressAutoHyphens?.isVal } ?: false)
+                hyphens `=` element.getPropertyValue { suppressAutoHyphens }?.isVal.let { if (it == true) true else null }
             }
             if (element.content.isEmpty()) {
                 children += br()

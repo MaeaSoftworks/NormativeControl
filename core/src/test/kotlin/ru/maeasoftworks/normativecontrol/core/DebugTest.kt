@@ -1,6 +1,7 @@
 package ru.maeasoftworks.normativecontrol.core
 
 import io.kotest.core.spec.style.ShouldSpec
+import kotlinx.coroutines.withContext
 import me.prmncr.hotloader.HotLoader
 import ru.maeasoftworks.normativecontrol.core.abstractions.Profile
 import ru.maeasoftworks.normativecontrol.core.model.VerificationContext
@@ -12,9 +13,12 @@ class DebugTest : ShouldSpec({
     }
 
     should("not throws exceptions") {
-        Document(VerificationContext(Profile.UrFU)).apply {
-            load(File("src/test/resources/ignore/different sized parts.docx").inputStream())
-            runVerification()
+        val ctx = VerificationContext(Profile.UrFU)
+        withContext(ctx) {
+            Document(ctx).apply {
+                load(File("src/test/resources/ignore/different sized parts.docx").inputStream())
+                runVerification()
+            }
         }
     }
 })

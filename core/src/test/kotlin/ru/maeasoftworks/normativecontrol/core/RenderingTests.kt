@@ -5,11 +5,11 @@ import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import me.prmncr.hotloader.HotLoader
 import org.docx4j.wml.P
-import ru.maeasoftworks.normativecontrol.core.annotations.InternalConstructor
+import ru.maeasoftworks.normativecontrol.core.annotations.Internal
 import ru.maeasoftworks.normativecontrol.core.model.RenderingContext
-import ru.maeasoftworks.normativecontrol.core.rendering.model.html.HtmlElement
+import ru.maeasoftworks.normativecontrol.core.rendering.HtmlElement
 
-@OptIn(InternalConstructor::class, ExperimentalKotest::class)
+@OptIn(Internal::class, ExperimentalKotest::class)
 class RenderingTests : ShouldSpec({
     beforeTest {
         HotLoader.load()

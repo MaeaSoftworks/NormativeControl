@@ -8,9 +8,8 @@ import org.docx4j.wml.P.Hyperlink
 import org.docx4j.wml.R
 import org.docx4j.wml.Text
 import ru.maeasoftworks.normativecontrol.core.Document
-import ru.maeasoftworks.normativecontrol.core.rendering.model.html.HtmlElement
-import ru.maeasoftworks.normativecontrol.core.rendering.model.html.div
-
+/*
+@Deprecated("Use new API")
 class Renderer(
     private val parser: Document,
     private val html: HtmlElement
@@ -157,3 +156,4 @@ class Renderer(
         alreadyBroken = true
     }
 }
+ */

@@ -6,12 +6,14 @@ import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
 import org.docx4j.wml.*
 import ru.maeasoftworks.normativecontrol.core.abstractions.Chapter
 import ru.maeasoftworks.normativecontrol.core.abstractions.Profile
+import ru.maeasoftworks.normativecontrol.core.annotations.Internal
 import ru.maeasoftworks.normativecontrol.core.enums.Closure
 import ru.maeasoftworks.normativecontrol.core.utils.PropertyResolver
 import java.math.BigInteger
 import java.util.*
 import kotlin.coroutines.CoroutineContext
 
+@OptIn(Internal::class)
 class VerificationContext(val profile: Profile) : CoroutineContext.Element {
     override val key: CoroutineContext.Key<*> = Key
 
@@ -167,36 +169,25 @@ class VerificationContext(val profile: Profile) : CoroutineContext.Element {
         }
     }
 
+
     inner class Pointer {
         var totalChildSize: Int = 0
-            internal set
+            @Internal set
 
         var bodyPosition = 0
-            internal set
+            @Internal set
 
         var totalChildContentSize: Int = 0
 
         var childContentPosition = 0
-            internal set
+            @Internal set
 
-        internal var lastMistake = 0L
-
-        fun moveNextChild() {
-            bodyPosition++
-        }
-
-        fun moveNextChildContent() {
-            bodyPosition++
-        }
-
-        fun resetChildContentPointer() {
-            childContentPosition = 0
-        }
+        @Internal var lastMistake = 0L
 
         inline fun mainLoop(fn: (pos: Int) -> Unit) {
             while (bodyPosition < totalChildSize) {
                 fn(bodyPosition)
-                moveNextChild()
+                bodyPosition++
             }
         }
 
@@ -204,9 +195,9 @@ class VerificationContext(val profile: Profile) : CoroutineContext.Element {
             totalChildContentSize = (doc.content[bodyPosition] as ContentAccessor).content.size
             while (childContentPosition < totalChildContentSize) {
                 fn(childContentPosition)
-                moveNextChildContent()
+                childContentPosition++
             }
-            resetChildContentPointer()
+            childContentPosition = 0
         }
     }
 
