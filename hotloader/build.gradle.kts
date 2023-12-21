@@ -2,8 +2,7 @@ plugins {
     kotlin("jvm") version "1.9.21"
 }
 
-group = "ru.maeasoftworks.normativecontrol"
-version = "1.0"
+java.sourceCompatibility = JavaVersion.VERSION_20
 
 repositories {
     mavenCentral()
