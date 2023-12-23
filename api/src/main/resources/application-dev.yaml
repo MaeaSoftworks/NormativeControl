@@ -3,7 +3,7 @@ ktor:
     port: 8080
   application:
     modules:
-      - ru.maeasoftworks.normativecontrol.api.ApplicationKt.allModules
+      - ru.maeasoftworks.normativecontrol.api.ApplicationKt.initialize
   development: true
 
 jwt:

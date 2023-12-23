@@ -16,24 +16,26 @@ import software.amazon.awssdk.services.s3.model.*
 import java.net.URI
 import java.nio.ByteBuffer
 import java.time.Duration
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class S3 @Inject constructor(application: Application) {
-    private val region = Region.of(application.environment.config.property("aws.s3.region").getString())
-    private val endpoint = URI(application.environment.config.property("aws.s3.endpoint").getString())
-    private val accessKeyId = application.environment.config.property("aws.s3.accessKeyId").getString()
-    private val secretAccessKey = application.environment.config.property("aws.s3.secretAccessKey").getString()
-    private val bucket = application.environment.config.property("aws.s3.bucket").getString()
-    private val s3Client: S3AsyncClient = S3AsyncClient
-        .builder()
-        .httpClient(NettyNioAsyncHttpClient.builder().writeTimeout(Duration.ZERO).maxConcurrency(64).build())
-        .region(region)
-        .credentialsProvider { AwsBasicCredentials.create(accessKeyId, secretAccessKey) }
-        .endpointOverride(endpoint)
-        .serviceConfiguration(S3Configuration.builder().checksumValidationEnabled(false).chunkedEncodingEnabled(true).pathStyleAccessEnabled(true).build())
-        .build()
+object S3 {
+    private lateinit var bucket: String
+    private lateinit var s3Client: S3AsyncClient
+
+    fun Application.configureS3() {
+        val region = Region.of(environment.config.property("aws.s3.region").getString())
+        val endpoint = URI(environment.config.property("aws.s3.endpoint").getString())
+        val accessKeyId = environment.config.property("aws.s3.accessKeyId").getString()
+        val secretAccessKey = environment.config.property("aws.s3.secretAccessKey").getString()
+        bucket = environment.config.property("aws.s3.bucket").getString()
+        s3Client = S3AsyncClient
+            .builder()
+            .httpClient(NettyNioAsyncHttpClient.builder().writeTimeout(Duration.ZERO).maxConcurrency(64).build())
+            .region(region)
+            .credentialsProvider { AwsBasicCredentials.create(accessKeyId, secretAccessKey) }
+            .endpointOverride(endpoint)
+            .serviceConfiguration(S3Configuration.builder().checksumValidationEnabled(false).chunkedEncodingEnabled(true).pathStyleAccessEnabled(true).build())
+            .build()
+    }
 
     suspend fun putObject(file: ByteArray, objectName: String, tags: Map<String, String>): PutObjectResponse = coroutineScope {
         return@coroutineScope s3Client.putObject(

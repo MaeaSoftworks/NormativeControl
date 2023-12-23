@@ -10,22 +10,21 @@ import ru.maeasoftworks.normativecontrol.api.shared.exceptions.OutdatedRefreshTo
 import ru.maeasoftworks.normativecontrol.api.shared.repositories.RefreshTokenRepository
 import java.security.SecureRandom
 import java.time.Instant
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class RefreshTokenService @Inject constructor(
-    private val refreshTokenRepository: RefreshTokenRepository,
-    application: Application
-) {
+object RefreshTokenService {
     private val secureRandom = SecureRandom()
+    private var refreshTokenExpiration: Long = 0
+    private val letters = ('a'..'z') + ('A'..'Z') + ('0'..'9') + "!@#$%^&*_".toCharArray()
+    private val lettersLength = letters.size
 
-    private val refreshTokenExpiration = application.environment.config.property("jwt.refreshTokenExpiration").getString().toLong()
+    fun Application.configureRefreshTokenService() {
+        refreshTokenExpiration = environment.config.property("jwt.refreshTokenExpiration").getString().toLong()
+    }
 
     suspend fun updateJwtToken(refreshToken: String, userAgent: String?): RefreshToken {
-        val token = refreshTokenRepository.getRefreshTokenByValue(refreshToken)
+        val token = RefreshTokenRepository.getRefreshTokenByValue(refreshToken)
         if (token != null) {
-            refreshTokenRepository.delete(token.id)
+            RefreshTokenRepository.delete(token.id)
             if (token.expiresAt >= Instant.now()) {
                 return createRefreshTokenAndSave(token.userId, userAgent)
             }
@@ -35,7 +34,7 @@ class RefreshTokenService @Inject constructor(
     }
 
     suspend fun createRefreshTokenAndSave(userId: Long, userAgent: String?): RefreshToken {
-        return refreshTokenRepository.save(createRefreshToken(userId, userAgent))
+        return RefreshTokenRepository.save(createRefreshToken(userId, userAgent))
     }
 
     private fun createRefreshToken(userId: Long, userAgent: String?): RefreshToken {
@@ -52,11 +51,5 @@ class RefreshTokenService @Inject constructor(
         return (0..32).map { letters[secureRandom.nextInt(lettersLength)] }.joinToString("")
     }
 
-    suspend fun getAllRefreshTokensOfUser(userId: Long): Flow<RefreshToken> =
-        refreshTokenRepository.getAllBy(Meta.refreshTokens.userId, userId)
-
-    companion object {
-        val letters = ('a'..'z') + ('A'..'Z') + ('0'..'9') + "!@#$%^&*_".toCharArray()
-        val lettersLength = letters.size
-    }
+    suspend fun getAllRefreshTokensOfUser(userId: Long): Flow<RefreshToken> = RefreshTokenRepository.getAllBy(Meta.refreshTokens.userId, userId)
 }

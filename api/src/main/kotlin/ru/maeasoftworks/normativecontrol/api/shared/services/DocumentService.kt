@@ -8,22 +8,20 @@ import ru.maeasoftworks.normativecontrol.api.shared.extensions.uploadSourceDocum
 import ru.maeasoftworks.normativecontrol.api.shared.modules.S3
 import ru.maeasoftworks.normativecontrol.api.students.dto.UploadMultipart
 import java.nio.ByteBuffer
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class DocumentService @Inject constructor(private val s3: S3) {
+
+object DocumentService {
     suspend fun getFileWithAccessKey(accessKey: String, filename: String): Flow<ByteBuffer> {
-        if (s3.getTags(filename)["accessKey"] == accessKey) {
-            return s3.getObject(filename)
+        if (S3.getTags(filename)["accessKey"] == accessKey) {
+            return S3.getObject(filename)
         } else {
             throw NoAccessException()
         }
     }
 
-    suspend fun getFileUnsafe(filename: String): Flow<ByteBuffer> = s3.getObject(filename)
+    suspend fun getFileUnsafe(filename: String): Flow<ByteBuffer> = S3.getObject(filename)
 
     suspend fun uploadSourceDocument(documentId: String, uploadMultipart: UploadMultipart) = coroutineScope {
-        launch { s3.uploadSourceDocument(documentId, uploadMultipart.file, uploadMultipart.accessKey) }
+        launch { S3.uploadSourceDocument(documentId, uploadMultipart.file, uploadMultipart.accessKey) }
     }
 }

@@ -34,7 +34,6 @@ dependencies {
     implementation("io.ktor:ktor-serialization-kotlinx-json-jvm")
 
     ksp("org.komapper:komapper-processor")
-    ksp("com.google.dagger:dagger-compiler:2.49")
     ksp(platform("org.komapper:komapper-platform:1.15.0"))
 
     implementation("org.komapper:komapper-starter-r2dbc")
@@ -42,13 +41,10 @@ dependencies {
     implementation(platform("org.komapper:komapper-platform:1.15.0"))
 
     implementation("at.favre.lib:bcrypt:0.10.2")
-    implementation("com.google.dagger:dagger:2.49")
     implementation("org.codehaus.janino:janino:3.1.11")
     implementation("software.amazon.awssdk:s3:2.21.37")
     implementation("ch.qos.logback:logback-classic:1.4.14")
     implementation("software.amazon.awssdk:netty-nio-client:2.21.37")
-
-    annotationProcessor("com.google.dagger:dagger-compiler:2.49")
 
     testImplementation("io.ktor:ktor-server-tests-jvm")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.9.20")

@@ -6,6 +6,6 @@ import com.google.devtools.ksp.processing.SymbolProcessorProvider
 
 class HotLoaderProcessorProvider : SymbolProcessorProvider {
     override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
-        return HotLoaderProcessor(HotLoaderGenerator(codeGenerator = environment.codeGenerator))
+        return HotLoaderProcessor(HotLoaderGenerator(codeGenerator = environment.codeGenerator), environment.options)
     }
 }

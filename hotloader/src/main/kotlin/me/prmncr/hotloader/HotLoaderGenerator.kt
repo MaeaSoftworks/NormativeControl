@@ -12,12 +12,12 @@ import java.io.OutputStreamWriter
 import java.nio.charset.StandardCharsets
 
 class HotLoaderGenerator(private val codeGenerator: CodeGenerator) {
-    fun generate(annotated: List<KSAnnotated>) {
+    fun generate(annotated: List<KSAnnotated>, basePackage: String?) {
         if (annotated.isEmpty()) {
             return
         }
 
-        val pkg = this::class.qualifiedName!!.split(".").dropLast(1).joinToString(".")
+        val pkg = basePackage ?: this::class.qualifiedName!!.split(".").dropLast(1).joinToString(".")
         val name = "HotLoader"
 
         val code = FileSpec.builder(ClassName(pkg, name))

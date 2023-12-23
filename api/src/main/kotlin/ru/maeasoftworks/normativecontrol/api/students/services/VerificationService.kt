@@ -1,4 +1,4 @@
-package ru.maeasoftworks.normativecontrol.api.students.model
+package ru.maeasoftworks.normativecontrol.api.students.services
 
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
@@ -13,11 +13,8 @@ import ru.maeasoftworks.normativecontrol.core.abstractions.Profile
 import ru.maeasoftworks.normativecontrol.core.model.VerificationContext
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class Verifier @Inject constructor(private val s3: S3) {
+object VerificationService {
     data class StageHolder(var stage: Message.Stage)
 
     suspend fun startVerification(
@@ -63,7 +60,7 @@ class Verifier @Inject constructor(private val s3: S3) {
         stageHolder.stage = Message.Stage.SAVING
         val result = withContext(Dispatchers.IO) { ByteArrayOutputStream().also { parser.writeResult(it) } }
 
-        s3.uploadDocumentRender(documentId, parser.ctx.render.toString().toByteArray(), accessKey)
-        s3.uploadDocumentConclusion(documentId, result.toByteArray(), accessKey)
+        S3.uploadDocumentRender(documentId, parser.ctx.render.toString().toByteArray(), accessKey)
+        S3.uploadDocumentConclusion(documentId, result.toByteArray(), accessKey)
     }
 }

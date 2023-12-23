@@ -7,19 +7,22 @@ import io.ktor.server.auth.authentication
 import io.ktor.server.auth.jwt.JWTPrincipal
 import io.ktor.server.auth.jwt.jwt
 import java.time.Instant
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class JWTService @Inject constructor(application: Application) {
-    private val jwtAudience = application.environment.config.property("jwt.audience").getString()
-    private val issuer = application.environment.config.property("jwt.issuer").getString()
-    private val jwtRealm = application.environment.config.property("jwt.realm").getString()
-    private val jwtSecret = application.environment.config.property("jwt.secret").getString()
-    private val jwtExpiration = application.environment.config.property("jwt.jwtTokenExpiration").getString().toLong()
+object JWTService {
+    private lateinit var jwtAudience: String
+    private lateinit var issuer: String
+    private lateinit var jwtRealm: String
+    private lateinit var jwtSecret: String
+    private var jwtExpiration: Long = 0
 
-    init {
-        application.authentication {
+    fun Application.configureJWT() {
+        jwtAudience = environment.config.property("jwt.audience").getString()
+        issuer = environment.config.property("jwt.issuer").getString()
+        jwtRealm = environment.config.property("jwt.realm").getString()
+        jwtSecret = environment.config.property("jwt.secret").getString()
+        jwtExpiration = environment.config.property("jwt.jwtTokenExpiration").getString().toLong()
+
+        authentication {
             jwt("jwt") {
                 realm = jwtRealm
                 verifier(JWT.require(Algorithm.HMAC256(jwtSecret)).withAudience(jwtAudience).withIssuer(issuer).build())

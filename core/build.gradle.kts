@@ -20,6 +20,10 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
+ksp {
+    arg("hotloader.basePackage", "ru.maeasoftworks.normativecontrol.core")
+}
+
 tasks.getByName<Test>("test") {
     useJUnitPlatform()
 }
