@@ -5,7 +5,7 @@
         </encoder>
     </appender>
 
-    <if condition='property("ktor.profile").contains("dev")'>
+    <if condition='property("ktor.profile").contains("dev") || property("ktor.profile").contains("standalone")'>
         <!--dev config-->
         <then>
             <root level="debug">

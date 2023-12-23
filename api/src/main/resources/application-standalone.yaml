@@ -1,0 +1,21 @@
+ktor:
+  deployment:
+    port: 8080
+  application:
+    modules:
+      - ru.maeasoftworks.normativecontrol.api.ApplicationKt.initializeStandalone
+  development: true
+
+jwt:
+  issuer: "normative-control.ru"
+  audience: "normative-control.ru"
+  realm: "normative-control.ru"
+  secret: "XRQaA5ABbDbTosUYTW5WRukcQ8+U6mzvNh8mYXFkZ7c="
+  jwtTokenExpiration: 922752000
+  refreshTokenExpiration: 922752000
+
+r2dbc:
+  url: "r2dbc:h2:mem:///normativecontrol;DB_CLOSE_DELAY=-1"
+
+logback:
+  dev: true

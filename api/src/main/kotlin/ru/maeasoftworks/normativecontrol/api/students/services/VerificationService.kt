@@ -4,7 +4,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import ru.maeasoftworks.normativecontrol.api.shared.extensions.uploadDocumentConclusion
 import ru.maeasoftworks.normativecontrol.api.shared.extensions.uploadDocumentRender
-import ru.maeasoftworks.normativecontrol.api.shared.modules.S3
+import ru.maeasoftworks.normativecontrol.api.shared.modules.FileStorage
 import ru.maeasoftworks.normativecontrol.api.shared.utils.Rat
 import ru.maeasoftworks.normativecontrol.api.shared.utils.with
 import ru.maeasoftworks.normativecontrol.api.students.dto.Message
@@ -60,7 +60,7 @@ object VerificationService {
         stageHolder.stage = Message.Stage.SAVING
         val result = withContext(Dispatchers.IO) { ByteArrayOutputStream().also { parser.writeResult(it) } }
 
-        S3.uploadDocumentRender(documentId, parser.ctx.render.toString().toByteArray(), accessKey)
-        S3.uploadDocumentConclusion(documentId, result.toByteArray(), accessKey)
+        FileStorage.uploadDocumentRender(documentId, parser.ctx.render.getString().toByteArray(), accessKey)
+        FileStorage.uploadDocumentConclusion(documentId, result.toByteArray(), accessKey)
     }
 }

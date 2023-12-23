@@ -2,6 +2,7 @@ package ru.maeasoftworks.normativecontrol.api.app
 
 enum class Profile {
     DEV,
+    STANDALONE,
     PRODUCTION;
 
     override fun toString(): String {

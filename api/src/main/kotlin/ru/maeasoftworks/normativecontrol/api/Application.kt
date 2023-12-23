@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package ru.maeasoftworks.normativecontrol.api
 
 import io.ktor.server.application.Application
@@ -7,11 +9,8 @@ import org.slf4j.LoggerFactory
 import ru.maeasoftworks.normativecontrol.api.app.Profile
 import ru.maeasoftworks.normativecontrol.api.inspectors.controllers.inspectorAccountRouting
 import ru.maeasoftworks.normativecontrol.api.inspectors.controllers.inspectorViewRouting
+import ru.maeasoftworks.normativecontrol.api.shared.modules.*
 import ru.maeasoftworks.normativecontrol.api.shared.modules.JWTService.configureJWT
-import ru.maeasoftworks.normativecontrol.api.shared.modules.S3.configureS3
-import ru.maeasoftworks.normativecontrol.api.shared.modules.configureHTTP
-import ru.maeasoftworks.normativecontrol.api.shared.modules.configureSerialization
-import ru.maeasoftworks.normativecontrol.api.shared.modules.configureStatusPages
 import ru.maeasoftworks.normativecontrol.api.shared.services.Database.configureDatabase
 import ru.maeasoftworks.normativecontrol.api.shared.services.RefreshTokenService.configureRefreshTokenService
 import ru.maeasoftworks.normativecontrol.api.students.controllers.studentsRouting
@@ -32,7 +31,31 @@ fun main(args: Array<String>) {
 fun Application.initialize() {
     run common@{
         configureDatabase()
-        configureS3()
+        FileStorage.initialize(this, S3FileStorage)
+        configureHTTP()
+        configureJWT()
+        configureRefreshTokenService()
+        configureSerialization()
+        configureStatusPages()
+    }
+    run students@{
+        HotLoader.load()
+        routing {
+            studentsRouting()
+        }
+    }
+    run inspectors@{
+        routing {
+            inspectorAccountRouting()
+            inspectorViewRouting()
+        }
+    }
+}
+
+fun Application.initializeStandalone() {
+    run common@{
+        configureDatabase()
+        FileStorage.initialize(this, InMemoryFileStorage)
         configureHTTP()
         configureJWT()
         configureRefreshTokenService()

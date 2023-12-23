@@ -17,11 +17,11 @@ import java.net.URI
 import java.nio.ByteBuffer
 import java.time.Duration
 
-object S3 {
+object S3FileStorage: FileStorage {
     private lateinit var bucket: String
     private lateinit var s3Client: S3AsyncClient
 
-    fun Application.configureS3() {
+    override fun Application.internalInitialize() {
         val region = Region.of(environment.config.property("aws.s3.region").getString())
         val endpoint = URI(environment.config.property("aws.s3.endpoint").getString())
         val accessKeyId = environment.config.property("aws.s3.accessKeyId").getString()
@@ -37,8 +37,8 @@ object S3 {
             .build()
     }
 
-    suspend fun putObject(file: ByteArray, objectName: String, tags: Map<String, String>): PutObjectResponse = coroutineScope {
-        return@coroutineScope s3Client.putObject(
+    override suspend fun putObject(file: ByteArray, objectName: String, tags: Map<String, String>): Unit = coroutineScope {
+        s3Client.putObject(
             PutObjectRequest.builder()
                 .tagging(Tagging.builder().tagSet(tags.map { Tag.builder().key(it.key).value(it.value).build() }).build())
                 .key(objectName)
@@ -48,7 +48,7 @@ object S3 {
         ).await()
     }
 
-    suspend fun getTags(objectName: String): Map<String, String> = coroutineScope {
+    override suspend fun getTags(objectName: String): Map<String, String> = coroutineScope {
         return@coroutineScope s3Client.getObjectTagging(
             GetObjectTaggingRequest
                 .builder()
@@ -58,7 +58,7 @@ object S3 {
         ).await().let { tagSet -> tagSet.tagSet().associate { it.key() to it.value() } }
     }
 
-    suspend fun getObject(objectName: String): Flow<ByteBuffer> = coroutineScope {
+    override suspend fun getObject(objectName: String): Flow<ByteBuffer> = coroutineScope {
         return@coroutineScope s3Client.getObject(
             GetObjectRequest.builder()
                 .bucket(bucket)

@@ -22,6 +22,7 @@ repositories {
 dependencies {
     implementation(project(":core"))
     implementation(kotlin("reflect"))
+
     implementation("io.ktor:ktor-server-core-jvm")
     implementation("io.ktor:ktor-server-auth-jvm")
     implementation("io.ktor:ktor-server-cors-jvm")
@@ -35,9 +36,7 @@ dependencies {
 
     ksp("org.komapper:komapper-processor")
     ksp(platform("org.komapper:komapper-platform:1.15.0"))
-
     implementation("org.komapper:komapper-starter-r2dbc")
-    implementation("org.komapper:komapper-dialect-postgresql-r2dbc")
     implementation(platform("org.komapper:komapper-platform:1.15.0"))
 
     implementation("at.favre.lib:bcrypt:0.10.2")
@@ -45,6 +44,9 @@ dependencies {
     implementation("software.amazon.awssdk:s3:2.21.37")
     implementation("ch.qos.logback:logback-classic:1.4.14")
     implementation("software.amazon.awssdk:netty-nio-client:2.21.37")
+
+    runtimeOnly("org.komapper:komapper-dialect-h2-r2dbc")
+    runtimeOnly("org.komapper:komapper-dialect-postgresql-r2dbc")
 
     testImplementation("io.ktor:ktor-server-tests-jvm")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.9.20")

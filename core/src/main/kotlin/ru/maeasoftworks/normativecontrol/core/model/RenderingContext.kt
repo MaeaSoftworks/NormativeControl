@@ -26,4 +26,8 @@ class RenderingContext(doc: MainDocumentPart?) {
             newRoot.children += root.children.last().also { root = it }.duplicate().also { newRoot = it }
         }
     }
+
+    fun getString(): String {
+        return html.toString()
+    }
 }
