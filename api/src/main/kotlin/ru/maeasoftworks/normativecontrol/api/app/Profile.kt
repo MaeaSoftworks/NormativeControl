@@ -10,7 +10,7 @@ enum class Profile {
     }
 
     companion object {
-        const val ARGUMENT_NAME = "ktor.profile"
+        const val ARGUMENT_NAME = "normativecontrol.profile"
 
         operator fun invoke(value: String?): Profile? {
             return value?.uppercase()?.let { Profile.valueOf(it) }

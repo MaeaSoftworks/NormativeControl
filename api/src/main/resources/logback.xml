@@ -5,7 +5,7 @@
         </encoder>
     </appender>
 
-    <if condition='property("ktor.profile").contains("dev") || property("ktor.profile").contains("standalone")'>
+    <if condition='property("normativecontrol.profile").contains("dev") || property("normativecontrol.profile").contains("standalone")'>
         <!--dev config-->
         <then>
             <root level="debug">
@@ -17,7 +17,7 @@
             <logger name="software.amazon.awssdk" level="WARN"/>
         </then>
     </if>
-    <if condition='property("ktor.profile").contains("production")'>
+    <if condition='property("normativecontrol.profile").contains("production")'>
         <!--production config-->
         <then>
             <root level="info">

@@ -1,4 +1,5 @@
 plugins {
+    application
     kotlin("jvm") version "1.9.21"
     id("io.ktor.plugin") version "2.3.6"
     id("com.google.devtools.ksp") version "1.9.21-1.0.16"
@@ -9,7 +10,7 @@ group = "ru.maeasoftworks"
 version = "0.0.1"
 
 application {
-    mainClass.set("io.ktor.server.netty.EngineMain")
+    mainClass.set("ru.maeasoftworks.normativecontrol.api.ApplicationKt")
 
     val isDevelopment: Boolean = project.ext.has("development")
     applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
@@ -45,8 +46,9 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:1.4.14")
     implementation("software.amazon.awssdk:netty-nio-client:2.21.37")
 
-    runtimeOnly("org.komapper:komapper-dialect-h2-r2dbc")
-    runtimeOnly("org.komapper:komapper-dialect-postgresql-r2dbc")
+    implementation("org.komapper:komapper-dialect-h2-r2dbc")
+    // comment this line if it crashed
+    implementation("org.komapper:komapper-dialect-postgresql-r2dbc")
 
     testImplementation("io.ktor:ktor-server-tests-jvm")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.9.20")
@@ -64,8 +66,6 @@ sourceSets {
     }
 }
 
-tasks {
-    withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-        kotlinOptions.freeCompilerArgs += listOf("-opt-in=org.komapper.annotation.KomapperExperimentalAssociation")
-    }
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+    kotlinOptions.freeCompilerArgs += listOf("-opt-in=org.komapper.annotation.KomapperExperimentalAssociation")
 }

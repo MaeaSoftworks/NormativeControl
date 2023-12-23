@@ -18,7 +18,7 @@ import ru.maeasoftworks.normativecontrol.core.HotLoader
 
 fun main(args: Array<String>) {
     val logger = LoggerFactory.getLogger("Application::main")
-    var profile = Profile(System.getenv()[Profile.ARGUMENT_NAME])
+    var profile = Profile(System.getenv()[Profile.ARGUMENT_NAME] ?: System.getProperty(Profile.ARGUMENT_NAME))
     if (profile == null) {
         logger.warn("Environment variable '${Profile.ARGUMENT_NAME}' is not set. Force 'production' profile...")
         profile = Profile.PRODUCTION
