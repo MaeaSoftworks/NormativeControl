@@ -8,22 +8,25 @@ import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.plugins.statuspages.StatusPagesConfig
 import io.ktor.server.response.respondText
 import ru.maeasoftworks.normativecontrol.api.shared.exceptions.*
+import ru.maeasoftworks.normativecontrol.api.shared.utils.Module
 
-inline fun <reified T : StatusException> StatusPagesConfig.registerException() {
-    exception<T> { call, cause ->
-        call.respondText(cause.message, ContentType.Application.Any, cause.code)
+object StatusPages: Module {
+    override fun Application.module() {
+        install(StatusPages) {
+            registerException<NoAccessException>()
+            registerException<AuthenticationException>()
+            registerException<OutdatedRefreshToken>()
+            registerException<InvalidRefreshToken>()
+
+            exception<Throwable> { call, cause ->
+                call.respondText(text = "Unregistered exception: $cause", status = HttpStatusCode.InternalServerError)
+            }
+        }
     }
-}
 
-fun Application.configureStatusPages() {
-    install(StatusPages) {
-        registerException<NoAccessException>()
-        registerException<AuthenticationException>()
-        registerException<OutdatedRefreshToken>()
-        registerException<InvalidRefreshToken>()
-
-        exception<Throwable> { call, cause ->
-            call.respondText(text = "Unregistered exception: $cause", status = HttpStatusCode.InternalServerError)
+    private inline fun <reified T : StatusException> StatusPagesConfig.registerException() {
+        exception<T> { call, cause ->
+            call.respondText(cause.message, ContentType.Application.Any, cause.code)
         }
     }
 }

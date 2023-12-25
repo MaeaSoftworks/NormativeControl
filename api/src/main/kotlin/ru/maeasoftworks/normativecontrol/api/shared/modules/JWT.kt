@@ -6,16 +6,17 @@ import io.ktor.server.application.Application
 import io.ktor.server.auth.authentication
 import io.ktor.server.auth.jwt.JWTPrincipal
 import io.ktor.server.auth.jwt.jwt
+import ru.maeasoftworks.normativecontrol.api.shared.utils.Module
 import java.time.Instant
 
-object JWTService {
+object JWT: Module {
     private lateinit var jwtAudience: String
     private lateinit var issuer: String
     private lateinit var jwtRealm: String
     private lateinit var jwtSecret: String
     private var jwtExpiration: Long = 0
 
-    fun Application.configureJWT() {
+    override fun Application.module() {
         jwtAudience = environment.config.property("jwt.audience").getString()
         issuer = environment.config.property("jwt.issuer").getString()
         jwtRealm = environment.config.property("jwt.realm").getString()

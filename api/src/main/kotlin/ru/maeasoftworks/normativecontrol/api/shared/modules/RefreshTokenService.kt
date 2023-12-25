@@ -1,4 +1,4 @@
-package ru.maeasoftworks.normativecontrol.api.shared.services
+package ru.maeasoftworks.normativecontrol.api.shared.modules
 
 import io.ktor.server.application.Application
 import kotlinx.coroutines.flow.Flow
@@ -8,16 +8,17 @@ import ru.maeasoftworks.normativecontrol.api.shared.dao.refreshTokens
 import ru.maeasoftworks.normativecontrol.api.shared.exceptions.InvalidRefreshToken
 import ru.maeasoftworks.normativecontrol.api.shared.exceptions.OutdatedRefreshToken
 import ru.maeasoftworks.normativecontrol.api.shared.repositories.RefreshTokenRepository
+import ru.maeasoftworks.normativecontrol.api.shared.utils.Module
 import java.security.SecureRandom
 import java.time.Instant
 
-object RefreshTokenService {
+object RefreshTokenService: Module {
     private val secureRandom = SecureRandom()
     private var refreshTokenExpiration: Long = 0
     private val letters = ('a'..'z') + ('A'..'Z') + ('0'..'9') + "!@#$%^&*_".toCharArray()
     private val lettersLength = letters.size
 
-    fun Application.configureRefreshTokenService() {
+    override fun Application.module() {
         refreshTokenExpiration = environment.config.property("jwt.refreshTokenExpiration").getString().toLong()
     }
 

@@ -28,7 +28,6 @@ dependencies {
     implementation("io.ktor:ktor-server-auth-jvm")
     implementation("io.ktor:ktor-server-cors-jvm")
     implementation("io.ktor:ktor-server-netty-jvm")
-    implementation("io.ktor:ktor-server-config-yaml")
     implementation("io.ktor:ktor-server-auth-jwt-jvm")
     implementation("io.ktor:ktor-server-host-common-jvm")
     implementation("io.ktor:ktor-server-status-pages-jvm")
@@ -56,14 +55,6 @@ dependencies {
 
 ksp {
     arg("komapper.enableEntityMetamodelListing", "true")
-}
-
-sourceSets {
-    main {
-        kotlin {
-            srcDir("build/generated/modules")
-        }
-    }
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {

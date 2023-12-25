@@ -5,12 +5,16 @@ import kotlinx.coroutines.runBlocking
 import org.komapper.core.dsl.Meta
 import org.komapper.core.dsl.QueryDsl
 import org.komapper.r2dbc.R2dbcDatabase
+import ru.maeasoftworks.normativecontrol.api.shared.utils.Module
+import ru.maeasoftworks.normativecontrol.core.annotations.Internal
 
-object Database {
-    lateinit var database: R2dbcDatabase
+@OptIn(Internal::class)
+object Database: Module {
+    @Internal
+    lateinit var instance: R2dbcDatabase
         private set
 
-    fun Application.configureDatabase() {
+    override fun Application.module() {
         val database: R2dbcDatabase
         val url = environment.config.property("r2dbc.url").getString()
         runBlocking {
@@ -23,8 +27,8 @@ object Database {
                 }
             }
         }
-        Database.database = database
+        instance = database
     }
 
-    inline operator fun <T> invoke(fn: R2dbcDatabase.() -> T): T = database.fn()
+    inline operator fun <T> invoke(fn: R2dbcDatabase.() -> T): T = instance.fn()
 }

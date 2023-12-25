@@ -5,6 +5,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.reactive.asFlow
+import ru.maeasoftworks.normativecontrol.api.shared.utils.Module
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials
 import software.amazon.awssdk.core.async.AsyncRequestBody
 import software.amazon.awssdk.core.async.AsyncResponseTransformer
@@ -17,11 +18,12 @@ import java.net.URI
 import java.nio.ByteBuffer
 import java.time.Duration
 
-object S3FileStorage: FileStorage {
+object S3FileStorage: Module, FileStorage {
     private lateinit var bucket: String
     private lateinit var s3Client: S3AsyncClient
 
-    override fun Application.internalInitialize() {
+    override fun Application.module() {
+        FileStorage.initialize(S3FileStorage)
         val region = Region.of(environment.config.property("aws.s3.region").getString())
         val endpoint = URI(environment.config.property("aws.s3.endpoint").getString())
         val accessKeyId = environment.config.property("aws.s3.accessKeyId").getString()
