@@ -9,6 +9,7 @@ typealias PFunction = suspend (pPos: Int, p: P, isEmpty: Boolean) -> Mistake?
 
 @Deprecated("Use new API")
 object PFunctionFactory {
+    @Deprecated("Use new API")
     inline fun <T> create(
         crossinline path: PPr.() -> T,
         crossinline body: suspend (pPos: Int, p: P, isEmpty: Boolean, T?) -> Mistake?
@@ -16,6 +17,7 @@ object PFunctionFactory {
         return { pPos: Int, p: P, isEmpty: Boolean -> body(pPos, p, isEmpty, p.getPropertyValue(path)) }
     }
 
+    @Deprecated("Use new API")
     inline fun <T1, T2> create(
         crossinline path1: PPr.() -> T1,
         crossinline path2: PPr.() -> T2,

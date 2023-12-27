@@ -1,29 +1,88 @@
 package ru.maeasoftworks.normativecontrol.api.domain.services
 
 import at.favre.lib.crypto.bcrypt.BCrypt
+import io.ktor.server.application.Application
+import org.slf4j.LoggerFactory
 import ru.maeasoftworks.normativecontrol.api.app.web.dto.LoginRequest
+import ru.maeasoftworks.normativecontrol.api.app.web.dto.RegistrationRequest
 import ru.maeasoftworks.normativecontrol.api.domain.dao.User
-import ru.maeasoftworks.normativecontrol.api.infrastructure.web.AuthenticationException
+import ru.maeasoftworks.normativecontrol.api.domain.dao.VerificationCode
+import ru.maeasoftworks.normativecontrol.api.infrastructure.database.Database.transaction
 import ru.maeasoftworks.normativecontrol.api.infrastructure.database.repositories.UserRepository
+import ru.maeasoftworks.normativecontrol.api.infrastructure.database.repositories.VerificationCodeRepository
+import ru.maeasoftworks.normativecontrol.api.infrastructure.security.Role
+import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.Module
+import ru.maeasoftworks.normativecontrol.api.infrastructure.web.*
+import java.security.SecureRandom
+import java.time.Instant
 
-object AccountService {
-    suspend fun authenticate(loginRequest: LoginRequest): User {
-        val user = UserRepository.getUserByUsername(loginRequest.username) ?: throw AuthenticationException()
+object AccountService: Module {
+    private val random = SecureRandom()
+    private var verificationCodeExpiration: Long = 0
+    private val logger = LoggerFactory.getLogger(this::class.java)
+
+    override fun Application.module() {
+        verificationCodeExpiration = environment.config.property("security.verification.expirationSeconds").getString().toLong()
+    }
+
+    suspend fun register(registrationRequest: RegistrationRequest): User = transaction {
+        val registered = UserRepository.getUserByEmail(registrationRequest.email)
+        if (registered != null) throw CredentialsIsAlreadyInUseException()
+        return@transaction UserRepository.save(
+            User(
+                email = registrationRequest.email,
+                password = BCrypt.withDefaults().hashToString(10, registrationRequest.password.toCharArray()),
+                role = Role.STUDENT
+            )
+        )
+    }
+
+    suspend fun authenticate(loginRequest: LoginRequest): User = transaction {
+        val user = UserRepository.getUserByEmail(loginRequest.email) ?: throw AuthenticationException()
         if (!(BCrypt.verifyer().verify(loginRequest.password.toCharArray(), user.password).verified)) {
             throw AuthenticationException()
         }
-        return user
+        return@transaction user
     }
 
-    suspend fun changePassword(userId: Long, newPassword: String) {
+    suspend fun changePassword(userId: Long, newPassword: String) = transaction {
         UserRepository.update(userId) {
-            this.password = BCrypt.withDefaults().hashToString(10, newPassword.toCharArray())
+            password = BCrypt.withDefaults().hashToString(10, newPassword.toCharArray())
         }
     }
 
-    suspend fun changeUsername(userId: Long, newUsername: String) {
+    suspend fun changeEmail(userId: Long, newEmail: String) = transaction {
         UserRepository.update(userId) {
-            this.username = newUsername
+            email = newEmail
+            isCredentialsVerified = false
         }
+    }
+
+    suspend fun createVerificationCode(userId: Long): Pair<Instant, Instant> = transaction {
+        if (UserRepository.getById(userId)?.isCredentialsVerified ?: throw EntityNotFoundException("User")) {
+            throw InconsistentStateException("Email is already verified")
+        }
+        VerificationCodeRepository.deleteAllByUserId(userId)
+        val code = random.nextInt(100_000, 1_000_000)
+        logger.warn("Verification code for userId=$userId: $code") // TODO replace with email or something
+        val createdAt = Instant.now()
+        val expiredAt = createdAt.plusSeconds(verificationCodeExpiration)
+        VerificationCodeRepository.save(VerificationCode(userId = userId, code = code, createdAt = createdAt, expiresAt = expiredAt))
+        return@transaction createdAt to expiredAt
+    }
+
+    suspend fun verify(userId: Long, verificationCode: Int): Boolean = transaction {
+        val code = VerificationCodeRepository.getByUserId(userId) ?: throw EntityNotFoundException("Valid verification code")
+        if (code.expiresAt < Instant.now()) {
+            throw OutdatedException("Verification code")
+        }
+        if (code.code != verificationCode) {
+            return@transaction false
+        }
+        VerificationCodeRepository.delete(code.id)
+        UserRepository.update(userId) {
+            this.isCredentialsVerified = true
+        }
+        return@transaction true
     }
 }

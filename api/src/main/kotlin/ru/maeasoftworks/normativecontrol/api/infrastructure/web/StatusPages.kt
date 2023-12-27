@@ -4,6 +4,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
+import io.ktor.server.plugins.requestvalidation.RequestValidationException
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.plugins.statuspages.StatusPagesConfig
 import io.ktor.server.response.respondText
@@ -14,8 +15,11 @@ object StatusPages: Module {
         install(StatusPages) {
             registerException<NoAccessException>()
             registerException<AuthenticationException>()
-            registerException<OutdatedRefreshToken>()
+            registerException<OutdatedException>()
             registerException<InvalidRefreshToken>()
+            registerException<CredentialsIsAlreadyInUseException>()
+            registerException<EntityNotFoundException>()
+            registerException<InconsistentStateException>()
 
             exception<Throwable> { call, cause ->
                 call.respondText(text = "Unregistered exception: $cause", status = HttpStatusCode.InternalServerError)
@@ -25,7 +29,10 @@ object StatusPages: Module {
 
     private inline fun <reified T : StatusException> StatusPagesConfig.registerException() {
         exception<T> { call, cause ->
-            call.respondText(cause.message, ContentType.Application.Any, cause.code)
+            call.respondText(cause.message, ContentType.Text.Plain, cause.code)
+        }
+        exception<RequestValidationException> { call, cause ->
+            call.respondText(cause.reasons.joinToString(), ContentType.Text.Plain, HttpStatusCode.BadRequest)
         }
     }
 }

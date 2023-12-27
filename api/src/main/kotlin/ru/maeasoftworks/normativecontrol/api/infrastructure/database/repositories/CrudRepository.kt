@@ -16,53 +16,44 @@ abstract class CrudRepository<E : Any, ID : Any, M : EntityMetamodel<E, ID, M>>(
 
     open suspend fun save(entity: E): E {
         return Database {
-            withTransaction {
-                runQuery {
-                    QueryDsl.insert(meta).single(entity)
-                }
+            runQuery {
+                QueryDsl.insert(meta).single(entity)
             }
         }
     }
 
     open suspend fun getById(id: ID): E? {
         return Database {
-            withTransaction {
-                runQuery {
-                    QueryDsl.from(meta).where { idColumn eq id }.firstOrNull()
-                }
+            runQuery {
+                QueryDsl.from(meta).where { idColumn eq id }.firstOrNull()
             }
         }
     }
 
     open suspend fun <C : Any> getBy(column: PropertyMetamodel<E, C, C>, value: C): E? {
         return Database {
-            withTransaction {
-                return@withTransaction runQuery {
-                    QueryDsl.from(meta).where { column eq value }.firstOrNull()
-                }
+            runQuery {
+                QueryDsl.from(meta).where { column eq value }.firstOrNull()
             }
         }
     }
 
     open suspend fun <C : Any> getAllBy(column: PropertyMetamodel<E, C, C>, value: C): Flow<E> {
         return Database {
-            withTransaction {
-                return@withTransaction flowQuery {
-                    QueryDsl.from(meta).where { column eq value }
-                }
+            flowQuery {
+                QueryDsl.from(meta).where { column eq value }
             }
         }
     }
 
-    open suspend fun update(id: ID, fn: E.() -> Unit): E? {
+    open suspend fun update(id: ID, throwOnNotFound: (() -> Exception)? = null, fn: E.() -> Unit): E? {
+        val entity = getById(id)
+        if (throwOnNotFound != null && entity == null) throw throwOnNotFound()
+        entity?.fn()
         return Database {
-            withTransaction {
-                val entity = getById(id)
-                entity?.fn()
-                return@withTransaction entity?.let {
-                    runQuery {
-                        QueryDsl.insert(meta).single(it)
-                    }
+            entity?.let {
+                runQuery {
+                    QueryDsl.update(meta).single(it)
                 }
             }
         }
@@ -70,11 +61,9 @@ abstract class CrudRepository<E : Any, ID : Any, M : EntityMetamodel<E, ID, M>>(
 
     open suspend fun delete(id: ID): E? {
         return Database {
-            withTransaction {
-                return@withTransaction runQuery {
-                    QueryDsl.delete(meta).where { idColumn eq id }.returning()
-                }.firstOrNull()
-            }
+            runQuery {
+                QueryDsl.delete(meta).where { idColumn eq id }.returning()
+            }.firstOrNull()
         }
     }
 }

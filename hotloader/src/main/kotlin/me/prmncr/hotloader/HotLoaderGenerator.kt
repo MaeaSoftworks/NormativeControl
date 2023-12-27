@@ -55,7 +55,7 @@ class HotLoaderGenerator(private val codeGenerator: CodeGenerator) {
                                 }
                             }
                             .addCode(")\n")
-                            .addStatement("logger.info(\"Loaded classes: [\${ classes.map { it::class.simpleName }.joinToString() }]\")")
+                            .addStatement("logger.debug(\"Loaded classes: [\${ classes.map { it::class.simpleName }.joinToString() }]\")")
                             .build()
                     ).build()
             ).build()

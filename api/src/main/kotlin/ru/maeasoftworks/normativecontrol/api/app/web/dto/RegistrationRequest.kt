@@ -3,6 +3,7 @@ package ru.maeasoftworks.normativecontrol.api.app.web.dto
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class UsernameRequest(
-    val username: String
+data class RegistrationRequest(
+    val email: String,
+    val password: String
 )

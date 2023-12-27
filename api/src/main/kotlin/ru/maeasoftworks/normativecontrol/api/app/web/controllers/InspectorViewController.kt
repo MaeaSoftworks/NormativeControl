@@ -12,13 +12,13 @@ import io.ktor.server.routing.route
 import ru.maeasoftworks.normativecontrol.api.infrastructure.filestorage.FileStorage
 import ru.maeasoftworks.normativecontrol.api.infrastructure.filestorage.conclusion
 import ru.maeasoftworks.normativecontrol.api.infrastructure.filestorage.render
-import ru.maeasoftworks.normativecontrol.api.infrastructure.security.Jwt
+import ru.maeasoftworks.normativecontrol.api.infrastructure.security.Security
 import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.ControllerModule
 
 object InspectorViewController: ControllerModule() {
     override fun Routing.register() {
         route("/inspector") {
-            authenticate(Jwt.CONFIGURATION_NAME) {
+            authenticate(Security.JWT.CONFIGURATION_NAME) {
                 route("/document") {
                     get("/conclusion") {
                         val documentId = call.parameters["documentId"] ?: throw IllegalArgumentException("documentId must be not null")
