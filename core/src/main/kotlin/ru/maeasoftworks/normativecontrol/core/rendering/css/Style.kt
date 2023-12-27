@@ -17,54 +17,53 @@ class Style {
         return result.toString()
     }
 
-    inline operator fun invoke(fn: Builder.() -> Unit) {
-        rules = Builder().also(fn).rules
+    inline operator fun plusAssign(fn: Block.() -> Unit) {
+        rules = Block().also(fn).rules
     }
 
-    class Builder {
+    @Suppress("UNUSED")
+    class Block {
         val rules: MutableList<Rule> = mutableListOf()
-        var boxSizing = StyleProperty(BoxSizing)
-        var boxShadow = StyleProperty(BoxShadow)
-        var color = StyleProperty(Color)
-        var backgroundColor = StyleProperty(BackgroundColor)
-        var fontFamily = StyleProperty(FontFamily)
-        var fontSize = StyleProperty(FontSize)
-        var fontStyle = StyleProperty(FontStyle)
-        var fontWeight = StyleProperty(FontWeight)
-        var fontVariantCaps = StyleProperty(FontVariantCaps)
-        var fontVariantLigatures = StyleProperty(FontVariantLigatures)
-        var margin = StyleProperty(Margin)
-        var marginTop = StyleProperty(MarginTop)
-        var marginLeft = StyleProperty(MarginLeft)
-        var marginBottom = StyleProperty(MarginBottom)
-        var marginRight = StyleProperty(MarginRight)
-        var padding = StyleProperty(Padding)
-        var paddingTop = StyleProperty(PaddingTop)
-        var paddingLeft = StyleProperty(PaddingLeft)
-        var paddingBottom = StyleProperty(PaddingBottom)
-        var paddingRight = StyleProperty(PaddingRight)
-        var position = StyleProperty(Position)
-        var width = StyleProperty(Width)
-        var minWidth = StyleProperty(MinWidth)
-        var height = StyleProperty(Height)
-        var minHeight = StyleProperty(MinHeight)
-        var lineHeight = StyleProperty(LineHeight)
-        var textIndent = StyleProperty(TextIndent)
-        var textAlign = StyleProperty(TextAlign)
-        var hyphens = StyleProperty(Hyphens)
-        var textTransform = StyleProperty(TextTransform)
-        var letterSpacing = StyleProperty(LetterSpacing)
-        var zIndex = StyleProperty(ZIndex)
+        var boxSizing = BoxSizing
+        var boxShadow = BoxShadow
+        var color = Color
+        var backgroundColor = BackgroundColor
+        var fontFamily = FontFamily
+        var fontSize = FontSize
+        var fontStyle = FontStyle
+        var fontWeight = FontWeight
+        var fontVariantCaps = FontVariantCaps
+        var fontVariantLigatures = FontVariantLigatures
+        var margin = Margin
+        var marginTop = MarginTop
+        var marginLeft = MarginLeft
+        var marginBottom = MarginBottom
+        var marginRight = MarginRight
+        var padding = Padding
+        var paddingTop = PaddingTop
+        var paddingLeft = PaddingLeft
+        var paddingBottom = PaddingBottom
+        var paddingRight = PaddingRight
+        var position = Position
+        var width = Width
+        var minWidth = MinWidth
+        var height = Height
+        var minHeight = MinHeight
+        var lineHeight = LineHeight
+        var textIndent = TextIndent
+        var textAlign = TextAlign
+        var hyphens = Hyphens
+        var textTransform = TextTransform
+        var letterSpacing = LetterSpacing
+        var zIndex = ZIndex
 
-        infix fun <T> StyleProperty<T>.`=`(value: T?) {
+        infix fun <T> Property<T>.set(value: T?) {
             if (value != null) {
-                val v = this.property.converter(value)
+                val v = this.converter(value)
                 if (v != null) {
-                    rules.add(Rule(property.name, v, property.measure))
+                    rules.add(Rule(name, v, measure))
                 }
             }
         }
-
-        data class StyleProperty<T>(val property: Property<T>)
     }
 }

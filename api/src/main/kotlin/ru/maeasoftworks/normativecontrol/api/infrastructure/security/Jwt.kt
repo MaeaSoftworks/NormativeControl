@@ -30,7 +30,8 @@ object Jwt: Module {
                 realm = jwtRealm
                 verifier(JWT.require(Algorithm.HMAC256(jwtSecret)).withAudience(jwtAudience).withIssuer(issuer).build())
                 validate { credential ->
-                    if (credential.payload.audience.size == 1 && credential.payload.audience[0] == jwtAudience &&
+                    if (credential.payload.audience.size == 1 &&
+                        credential.payload.audience[0] == jwtAudience &&
                         credential.payload.issuer == issuer &&
                         credential.payload.subject.isNotBlank() &&
                         credential.payload.expiresAtAsInstant >= Instant.now()

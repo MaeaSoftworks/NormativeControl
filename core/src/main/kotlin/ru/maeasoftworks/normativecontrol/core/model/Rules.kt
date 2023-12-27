@@ -164,7 +164,7 @@ object Rules {
                 val isAutoHyphenSuppressed = PFunctionFactory.create(
                     { suppressAutoHyphens },
                     { _, _, _, s ->
-                        if ((s == null || !s.isVal) && getContext()!!.mlPackage.mainDocumentPart.documentSettingsPart.jaxbElement.autoHyphenation?.isVal == true) {
+                        if ((s == null || !s.isVal) && getVerificationContext()!!.mlPackage.mainDocumentPart.documentSettingsPart.jaxbElement.autoHyphenation?.isVal == true) {
                             Mistake(TEXT_HEADER_AUTO_HYPHEN, Closure.P)
                         } else {
                             null

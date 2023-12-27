@@ -9,33 +9,33 @@ import ru.maeasoftworks.normativecontrol.core.model.Mistake
 import ru.maeasoftworks.normativecontrol.core.rendering.br
 import ru.maeasoftworks.normativecontrol.core.rendering.p
 import ru.maeasoftworks.normativecontrol.core.utils.getPropertyValue
-import ru.maeasoftworks.normativecontrol.core.utils.usingContext
+import ru.maeasoftworks.normativecontrol.core.utils.verificationContext
 import me.prmncr.hotloader.HotLoaded
 
 @HotLoaded
 object PHandler : Handler<P>({ register<P>(Profile.UrFU) { PHandler } }), ChapterHeader {
     override val headerRegex = Regex("""^(\d+(?:\.\d)?)\s(?:\w+\s?)+$""")
 
-    override suspend fun handle(element: Any) = usingContext {
+    override suspend fun handle(element: Any): Unit = verificationContext ctx@{
         element as P
         render.currentPage.children += p {
-            style {
-                marginLeft `=` element.getPropertyValue { ind?.left }?.toDouble()
-                marginRight `=` element.getPropertyValue { ind?.right }?.toDouble()
-                marginBottom `=` element.getPropertyValue { spacing?.after }?.toDouble()
-                marginTop `=` element.getPropertyValue { spacing?.before }?.toDouble()
-                lineHeight `=` element.getPropertyValue { spacing?.line }?.toDouble()
-                textIndent `=` element.getPropertyValue { ind?.firstLine }?.toDouble()
-                textAlign `=` element.getPropertyValue { jc?.`val` }
-                backgroundColor `=` element.getPropertyValue { shd?.fill }
-                hyphens `=` element.getPropertyValue { suppressAutoHyphens }?.isVal.let { if (it == true) true else null }
+            style += {
+                marginLeft set element.getPropertyValue { ind?.left }?.toDouble()
+                marginRight set element.getPropertyValue { ind?.right }?.toDouble()
+                marginBottom set element.getPropertyValue { spacing?.after }?.toDouble()
+                marginTop set element.getPropertyValue { spacing?.before }?.toDouble()
+                lineHeight set element.getPropertyValue { spacing?.line }?.toDouble()
+                textIndent set element.getPropertyValue { ind?.firstLine }?.toDouble()
+                textAlign set element.getPropertyValue { jc?.`val` }
+                backgroundColor set element.getPropertyValue { shd?.fill }
+                hyphens set element.getPropertyValue { suppressAutoHyphens }?.isVal.let { if (it == true) true else null }
             }
             if (element.content.isEmpty()) {
                 children += br()
             }
-            this@usingContext.ptr.childLoop { pos ->
+            this@ctx.ptr.childLoop { pos ->
                 val child = element.content[pos]
-                HandlerMapper[this@usingContext.profile, child]?.handle(child)
+                HandlerMapper[this@ctx.profile, child]?.handle(child)
             }
         }
 
@@ -71,7 +71,7 @@ object PHandler : Handler<P>({ register<P>(Profile.UrFU) { PHandler } }), Chapte
         return (element as P).getPropertyValue { outlineLvl }?.`val` != null
     }
 
-    override suspend fun detectChapterByHeader(element: Any): Chapter = usingContext {
+    override suspend fun detectChapterByHeader(element: Any): Chapter = verificationContext {
         val text = TextUtils.getText(element)
         if (isChapterBodyHeader(text)) {
             return BodyChapter
@@ -89,7 +89,7 @@ object PHandler : Handler<P>({ register<P>(Profile.UrFU) { PHandler } }), Chapte
         return UndefinedChapter
     }
 
-    override suspend fun checkChapterOrderAndUpdateContext(chapter: Chapter) = usingContext {
+    override suspend fun checkChapterOrderAndUpdateContext(chapter: Chapter) = verificationContext {
         if (chapter is UndefinedChapter) {
             addMistake(
                 Mistake(

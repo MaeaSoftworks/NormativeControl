@@ -46,11 +46,12 @@ dependencies {
     implementation("software.amazon.awssdk:netty-nio-client:2.21.37")
 
     implementation("org.komapper:komapper-dialect-h2-r2dbc")
-    // comment this line if it crashed
+    // comment this line if it crashed in standalone mode
     implementation("org.komapper:komapper-dialect-postgresql-r2dbc")
 
     testImplementation("io.ktor:ktor-server-tests-jvm")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.9.20")
+    testImplementation("io.kotest:kotest-runner-junit5:5.8.0")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 ksp {

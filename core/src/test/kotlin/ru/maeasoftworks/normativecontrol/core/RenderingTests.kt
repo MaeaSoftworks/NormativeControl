@@ -3,7 +3,6 @@ package ru.maeasoftworks.normativecontrol.core
 import io.kotest.common.ExperimentalKotest
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
-import me.prmncr.hotloader.HotLoader
 import org.docx4j.wml.P
 import ru.maeasoftworks.normativecontrol.core.annotations.Internal
 import ru.maeasoftworks.normativecontrol.core.model.RenderingContext

@@ -12,9 +12,9 @@ class Stylesheet : Serializable {
     class Builder {
         private val stylesheet = Stylesheet()
 
-        operator fun String.invoke(builder: Style.Builder.() -> Unit) {
-            val s = Style.Builder()
-            s.builder()
+        operator fun String.invoke(block: Style.Block.() -> Unit) {
+            val s = Style.Block()
+            s.block()
             stylesheet.styles[this] = Style().also { it.rules = s.rules }
         }
 

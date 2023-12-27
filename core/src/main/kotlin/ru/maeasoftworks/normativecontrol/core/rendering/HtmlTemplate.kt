@@ -4,7 +4,7 @@ import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
 
 fun htmlTemplate(doc: MainDocumentPart?) = html {
     head {
-        "style" {
+        style {
             content = css {
                 val pageSize = doc?.contents?.body?.sectPr?.pgSz
                 val w = pageSize?.w?.intValueExact()
@@ -12,29 +12,29 @@ fun htmlTemplate(doc: MainDocumentPart?) = html {
                 val pageMargins = doc?.contents?.body?.sectPr?.pgMar
 
                 "*" {
-                    boxShadow `=` "inset 0px 0px 0px 1px red"
-                    boxSizing `=` "border-box"
-                    margin `=` 0.0
-                    padding `=` 0.0
+                    boxShadow set "inset 0px 0px 0px 1px red"
+                    boxSizing set "border-box"
+                    margin set 0.0
+                    padding set 0.0
                 }
 
                 ".page" {
-                    width `=` w?.toDouble()
-                    minHeight `=` h?.toDouble()
-                    paddingTop `=` pageMargins?.top?.intValueExact()?.toDouble()
-                    paddingLeft `=` pageMargins?.left?.intValueExact()?.toDouble()
-                    paddingBottom `=` pageMargins?.bottom?.intValueExact()?.toDouble()
-                    paddingRight `=` pageMargins?.right?.intValueExact()?.toDouble()
-                    hyphens `=` doc?.documentSettingsPart?.jaxbElement?.autoHyphenation?.isVal
+                    width set w?.toDouble()
+                    minHeight set h?.toDouble()
+                    paddingTop set pageMargins?.top?.intValueExact()?.toDouble()
+                    paddingLeft set pageMargins?.left?.intValueExact()?.toDouble()
+                    paddingBottom set pageMargins?.bottom?.intValueExact()?.toDouble()
+                    paddingRight set pageMargins?.right?.intValueExact()?.toDouble()
+                    hyphens set doc?.documentSettingsPart?.jaxbElement?.autoHyphenation?.isVal
                 }
 
                 ".page-size" {
-                    boxShadow `=` "inset 0px 0px 0px 1px blue"
-                    boxSizing `=` "border-box"
-                    position `=` "absolute"
-                    width `=` pageMargins?.let { (w?.minus(it.left.intValueExact())?.minus(it.right.intValueExact()))?.toDouble() }
-                    height `=` pageMargins?.let { (h?.minus(it.top.intValueExact())?.minus(it.bottom.intValueExact()))?.toDouble() }
-                    zIndex `=` -10.0
+                    boxShadow set "inset 0px 0px 0px 1px blue"
+                    boxSizing set "border-box"
+                    position set "absolute"
+                    width set pageMargins?.let { (w?.minus(it.left.intValueExact())?.minus(it.right.intValueExact()))?.toDouble() }
+                    height set pageMargins?.let { (h?.minus(it.top.intValueExact())?.minus(it.bottom.intValueExact()))?.toDouble() }
+                    zIndex set -10.0
                 }
             }
         }

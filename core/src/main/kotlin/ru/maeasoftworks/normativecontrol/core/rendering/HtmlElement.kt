@@ -45,6 +45,7 @@ open class HtmlElement @Internal constructor(
         return this
     }
 
+    @OptIn(Internal::class)
     fun duplicate(): HtmlElement {
         return HtmlElement(this@HtmlElement.type).also {
             it.classes.addAll(classes)
@@ -53,63 +54,81 @@ open class HtmlElement @Internal constructor(
         }
     }
 
+    @HtmlDsl
     inline operator fun String.invoke(body: HtmlElement.() -> Unit) {
         children += HtmlElement(this).also(body)
     }
 
+    @HtmlDsl
     inline fun div(body: HtmlElement.() -> Unit) {
         children += ru.maeasoftworks.normativecontrol.core.rendering.div(body)
     }
 
+    @HtmlDsl
     inline fun p(body: HtmlElement.() -> Unit) {
         children += ru.maeasoftworks.normativecontrol.core.rendering.p(body)
     }
 
+    @HtmlDsl
     inline fun span(body: HtmlElement.() -> Unit) {
         children += ru.maeasoftworks.normativecontrol.core.rendering.span(body)
     }
 
+    @HtmlDsl
     inline fun head(body: HtmlElement.() -> Unit) {
         children += ru.maeasoftworks.normativecontrol.core.rendering.head(body)
     }
 
+    @HtmlDsl
     inline fun body(body: HtmlElement.() -> Unit) {
         children += ru.maeasoftworks.normativecontrol.core.rendering.body(body)
     }
 
-    inline fun styleElement(body: HtmlElement.() -> Unit) {
-        children += ru.maeasoftworks.normativecontrol.core.rendering.styleElement(body)
+    @HtmlDsl
+    inline fun style(body: HtmlElement.() -> Unit) {
+        children += ru.maeasoftworks.normativecontrol.core.rendering.style(body)
     }
 }
 
+@DslMarker
+annotation class HtmlDsl
+
+@HtmlDsl
 inline fun css(body: Stylesheet.Builder.() -> Unit): Stylesheet {
     return Stylesheet.Builder().apply(body).build()
 }
 
+@HtmlDsl
 inline fun div(body: HtmlElement.() -> Unit): HtmlElement {
     return HtmlElement("div").also(body)
 }
 
+@HtmlDsl
 inline fun p(body: HtmlElement.() -> Unit): HtmlElement {
     return HtmlElement("p").also(body)
 }
 
+@HtmlDsl
 fun br(): HtmlElement {
     return HtmlElement("br", false)
 }
 
+@HtmlDsl
 inline fun span(body: HtmlElement.() -> Unit): HtmlElement {
     return HtmlElement("span").also(body)
 }
 
+@HtmlDsl
 inline fun head(body: HtmlElement.() -> Unit): HtmlElement {
     return HtmlElement("head").also(body)
 }
 
+@HtmlDsl
 inline fun body(body: HtmlElement.() -> Unit): HtmlElement {
     return HtmlElement("body").also(body)
 }
 
+@HtmlDsl
 inline fun html(body: HtmlElement.() -> Unit): HtmlElement {
     return object : HtmlElement("html") {
         override fun toString(): String {
@@ -118,6 +137,7 @@ inline fun html(body: HtmlElement.() -> Unit): HtmlElement {
     }.also(body)
 }
 
-inline fun styleElement(body: HtmlElement.() -> Unit): HtmlElement {
+@HtmlDsl
+inline fun style(body: HtmlElement.() -> Unit): HtmlElement {
     return HtmlElement("style").also(body)
 }
