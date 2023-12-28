@@ -13,8 +13,6 @@ import java.io.ByteArrayOutputStream
 import java.io.InputStream
 
 object VerificationService {
-    data class StageHolder(var stage: Message.Stage)
-
     suspend fun startVerification(
         documentId: String,
         accessKey: String,
@@ -22,18 +20,25 @@ object VerificationService {
         channel: Channel<Message>,
         profile: Profile = Profile.UrFU
     ) = coroutineScope {
-        val stageHolder = StageHolder(Message.Stage.INITIALIZATION)
-        val rat = Rat { parser: Document -> parser.ctx.ptr }
-        val task = launch { verify(documentId, accessKey, file, stageHolder, rat, VerificationContext(profile)) }
+        var stageHolder = Message.Stage.INITIALIZATION
+        val ctx = VerificationContext(profile)
+        val document = Document(ctx)
+        val task = launch {
+            withContext(ctx) {
+                withContext(Dispatchers.IO) { document.load(file) }
+                stageHolder = Message.Stage.VERIFICATION
+                document.runVerification()
+                stageHolder = Message.Stage.SAVING
+                val result = withContext(Dispatchers.IO) { ByteArrayOutputStream().also { document.writeResult(it) } }
+
+                FileStorage.uploadDocumentRender(documentId, document.ctx.render.getString().toByteArray(), accessKey)
+                FileStorage.uploadDocumentConclusion(documentId, result.toByteArray(), accessKey)
+            }
+        }
         while (task.isActive) {
             delay(200)
-            val ptr = rat.report()
-            val progress = if (ptr != null) {
-                (ptr.bodyPosition * 1.0 / ptr.totalChildSize).let { if (it.isNaN()) 0.0 else it }
-            } else {
-                0.0
-            }
-            channel.send(Message(documentId, Message.Code.INFO, stageHolder.stage, "PROGRESS: $progress"))
+            val progress = (ctx.ptr.bodyPosition * 1.0 / ctx.ptr.totalChildSize).let { if (it.isNaN()) 0.0 else it }
+            channel.send(Message(documentId, Message.Code.INFO, stageHolder, "PROGRESS: $progress"))
         }
         task.invokeOnCompletion {
             launch {
@@ -41,24 +46,5 @@ object VerificationService {
                 channel.close()
             }
         }
-    }
-
-    private suspend fun verify(
-        documentId: String,
-        accessKey: String,
-        file: InputStream,
-        stageHolder: StageHolder,
-        rat: Rat<Document, VerificationContext.Pointer>,
-        ctx: VerificationContext
-    ) = withContext(ctx) {
-        val parser = Document(ctx = ctx) with rat
-        withContext(Dispatchers.IO) { parser.load(file) }
-        stageHolder.stage = Message.Stage.VERIFICATION
-        parser.runVerification()
-        stageHolder.stage = Message.Stage.SAVING
-        val result = withContext(Dispatchers.IO) { ByteArrayOutputStream().also { parser.writeResult(it) } }
-
-        FileStorage.uploadDocumentRender(documentId, parser.ctx.render.getString().toByteArray(), accessKey)
-        FileStorage.uploadDocumentConclusion(documentId, result.toByteArray(), accessKey)
     }
 }

@@ -10,7 +10,7 @@ import java.io.InputStream
 
 class Document(val ctx: VerificationContext) {
     private lateinit var mlPackage: WordprocessingMLPackage
-    lateinit var doc: MainDocumentPart
+    private lateinit var doc: MainDocumentPart
 
     fun load(stream: InputStream) {
         mlPackage = WordprocessingMLPackage.load(stream)
