@@ -3,32 +3,31 @@ package ru.maeasoftworks.normativecontrol.api.infrastructure.web
 import io.ktor.http.content.MultiPartData
 import io.ktor.http.content.PartData
 import io.ktor.http.content.forEachPart
-import io.ktor.http.content.streamProvider
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.request.receiveMultipart
+import io.ktor.util.asStream
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 
-class Extractor(private val multiPartData: MultiPartData) {
-    private val parts = mutableMapOf<String, PartData>()
+class MultipartExtractor(val multiPartData: MultiPartData) {
+    val parts = mutableMapOf<String, PartData>()
 
-    fun String.string(): String = (parts[this]!! as PartData.FormItem).value
+    fun string(path: String): String = (parts[path]!! as PartData.FormItem).value
 
-    suspend fun String.file(): ByteArray = coroutineScope {
-        return@coroutineScope withContext(Dispatchers.IO) {
-            (parts[this@file]!! as PartData.FileItem).streamProvider().readAllBytes()
+    suspend fun file(path: String): ByteArray {
+        return withContext(Dispatchers.IO) {
+            (parts[path]!! as PartData.FileItem).provider().asStream().readAllBytes()
         }
     }
 
-    internal suspend fun <T> execute(fn: suspend Extractor.() -> T): T {
-        multiPartData.forEachPart {
-            parts[it.name!!] = it
+    companion object {
+        suspend inline fun <T> ApplicationCall.extractMultipartParts(fn: MultipartExtractor.() -> T): T {
+            return MultipartExtractor(this.receiveMultipart()).run {
+                multiPartData.forEachPart {
+                    parts[it.name!!] = it
+                }
+                fn()
+            }
         }
-        return fn()
     }
-}
-
-suspend fun <T> ApplicationCall.extractMultipartParts(fn: suspend Extractor.() -> T): T {
-    return Extractor(this.receiveMultipart()).execute(fn)
 }

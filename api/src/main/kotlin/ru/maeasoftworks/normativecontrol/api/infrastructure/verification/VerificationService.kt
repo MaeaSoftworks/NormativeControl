@@ -20,15 +20,15 @@ object VerificationService {
         channel: Channel<Message>,
         profile: Profile = Profile.UrFU
     ) = coroutineScope {
-        var stageHolder = Message.Stage.INITIALIZATION
+        var stage = Message.Stage.INITIALIZATION
         val ctx = VerificationContext(profile)
         val document = Document(ctx)
         val task = launch {
             withContext(ctx) {
                 withContext(Dispatchers.IO) { document.load(file) }
-                stageHolder = Message.Stage.VERIFICATION
+                stage = Message.Stage.VERIFICATION
                 document.runVerification()
-                stageHolder = Message.Stage.SAVING
+                stage = Message.Stage.SAVING
                 val result = withContext(Dispatchers.IO) { ByteArrayOutputStream().also { document.writeResult(it) } }
 
                 FileStorage.uploadDocumentRender(documentId, document.ctx.render.getString().toByteArray(), accessKey)
@@ -38,11 +38,11 @@ object VerificationService {
         while (task.isActive) {
             delay(200)
             val progress = (ctx.ptr.bodyPosition * 1.0 / ctx.ptr.totalChildSize).let { if (it.isNaN()) 0.0 else it }
-            channel.send(Message(documentId, Message.Code.INFO, stageHolder, "PROGRESS: $progress"))
+            channel.send(Message.Progress(progress, stage))
         }
         task.invokeOnCompletion {
             launch {
-                channel.send(Message(documentId, Message.Code.SUCCESS, "Done"))
+                channel.send(Message.Success(documentId))
                 channel.close()
             }
         }

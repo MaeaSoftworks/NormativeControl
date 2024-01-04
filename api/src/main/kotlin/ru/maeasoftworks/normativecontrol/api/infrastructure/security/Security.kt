@@ -11,10 +11,10 @@ import org.komapper.core.dsl.Meta
 import ru.maeasoftworks.normativecontrol.api.domain.dao.RefreshToken
 import ru.maeasoftworks.normativecontrol.api.domain.dao.refreshTokens
 import ru.maeasoftworks.normativecontrol.api.infrastructure.database.repositories.RefreshTokenRepository
+import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.KeyGenerator
 import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.Module
 import ru.maeasoftworks.normativecontrol.api.infrastructure.web.InvalidRefreshToken
 import ru.maeasoftworks.normativecontrol.api.infrastructure.web.OutdatedException
-import java.security.SecureRandom
 import java.time.Instant
 
 object Security: Module {
@@ -75,12 +75,7 @@ object Security: Module {
     }
 
     object RefreshTokens: Module {
-        private val secureRandom = SecureRandom()
         private var refreshTokenExpiration: Long = 0
-
-        private val letters = ('a'..'z') + ('A'..'Z') + ('0'..'9') + "!@#$%^&*_".toList()
-
-        private val lettersLength = letters.size
 
         override fun Application.module() {
             refreshTokenExpiration = environment.config.property("security.jwt.refreshTokenExpirationSeconds").getString().toLong()
@@ -109,9 +104,9 @@ object Security: Module {
                 )
             )
         }
-        private fun createRefreshTokenString(): String {
-            return (0..32).map { letters[secureRandom.nextInt(lettersLength)] }.joinToString("")
-        }
+
+        private fun createRefreshTokenString(): String = KeyGenerator.generate(32)
+
         suspend fun getAllRefreshTokensOfUser(userId: Long): Flow<RefreshToken> = RefreshTokenRepository.getAllBy(Meta.refreshTokens.userId, userId)
     }
 }
