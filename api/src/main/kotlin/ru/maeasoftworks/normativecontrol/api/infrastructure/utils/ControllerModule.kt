@@ -7,9 +7,14 @@ import io.ktor.server.routing.routing
 abstract class ControllerModule: Module {
     abstract fun Routing.register()
 
-    final override fun Application.module() {
+    override fun Application.module() {
         routing {
             register()
         }
+    }
+
+    @Suppress("FunctionName")
+    protected fun Application.super_module() {
+        module()
     }
 }

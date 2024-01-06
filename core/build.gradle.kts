@@ -1,9 +1,9 @@
 plugins {
-    kotlin("jvm") version "1.9.21"
-    id("com.google.devtools.ksp") version "1.9.21-1.0.16"
+    kotlin("jvm") version "1.9.22"
+    id("com.google.devtools.ksp") version "1.9.22-1.0.16"
 }
 
-java.sourceCompatibility = JavaVersion.VERSION_20
+java.sourceCompatibility = JavaVersion.VERSION_21
 
 dependencies {
     implementation(kotlin("reflect"))
@@ -16,6 +16,7 @@ dependencies {
         }
     }
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.7.3")
+
     testImplementation("io.kotest:kotest-runner-junit5:5.8.0")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }

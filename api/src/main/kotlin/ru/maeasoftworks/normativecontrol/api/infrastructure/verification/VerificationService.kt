@@ -17,7 +17,7 @@ object VerificationService {
         documentId: String,
         accessKey: String,
         file: InputStream,
-        channel: Channel<Message>,
+        channel: Channel<Message>? = null,
         profile: Profile = Profile.UrFU
     ) = coroutineScope {
         var stage = Message.Stage.INITIALIZATION
@@ -26,6 +26,7 @@ object VerificationService {
         val task = launch {
             withContext(ctx) {
                 withContext(Dispatchers.IO) { document.load(file) }
+
                 stage = Message.Stage.VERIFICATION
                 document.runVerification()
                 stage = Message.Stage.SAVING
@@ -38,12 +39,12 @@ object VerificationService {
         while (task.isActive) {
             delay(200)
             val progress = (ctx.ptr.bodyPosition * 1.0 / ctx.ptr.totalChildSize).let { if (it.isNaN()) 0.0 else it }
-            channel.send(Message.Progress(progress, stage))
+            channel?.send(Message.Progress(progress, stage))
         }
         task.invokeOnCompletion {
             launch {
-                channel.send(Message.Success(documentId))
-                channel.close()
+                channel?.send(Message.Success(documentId))
+                channel?.close()
             }
         }
     }

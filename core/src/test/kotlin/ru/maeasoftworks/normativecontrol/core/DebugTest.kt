@@ -2,7 +2,6 @@ package ru.maeasoftworks.normativecontrol.core
 
 import io.kotest.core.spec.style.ShouldSpec
 import kotlinx.coroutines.withContext
-import me.prmncr.hotloader.HotLoader
 import ru.maeasoftworks.normativecontrol.core.abstractions.Profile
 import ru.maeasoftworks.normativecontrol.core.model.VerificationContext
 import java.io.File

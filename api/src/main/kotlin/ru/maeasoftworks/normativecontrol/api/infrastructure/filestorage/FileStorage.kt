@@ -11,7 +11,7 @@ interface FileStorage {
     suspend fun getObject(objectName: String): Flow<ByteBuffer>
 
     companion object: FileStorage {
-        private lateinit var instance: FileStorage
+        private var instance: FileStorage = InMemoryFileStorage
 
         @JvmStatic
         fun initialize(storage: FileStorage) {

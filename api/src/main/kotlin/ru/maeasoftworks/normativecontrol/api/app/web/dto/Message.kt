@@ -1,5 +1,8 @@
 package ru.maeasoftworks.normativecontrol.api.app.web.dto
 
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+
 sealed class Message(val code: Code, stage: Stage?, message: String?, vararg args: Pair<String, String?>) : java.io.Serializable {
     private val body = mutableMapOf<String, String?>()
 
@@ -11,7 +14,7 @@ sealed class Message(val code: Code, stage: Stage?, message: String?, vararg arg
     }
 
     override fun toString(): String {
-        return "{${body.entries.joinToString("") { if (it.value != null) "\"${it.key}\":\"${it.value}\"," else "" }.removeSuffix(",") }}"
+        return Json.encodeToString(body.filter { it.value != null })
     }
 
     class Progress(value: Double, stage: Stage, vararg args: Pair<String, String?>):

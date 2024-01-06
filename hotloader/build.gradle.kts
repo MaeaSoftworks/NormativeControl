@@ -1,15 +1,15 @@
 plugins {
-    kotlin("jvm") version "1.9.21"
+    kotlin("jvm") version "1.9.22"
 }
-
-java.sourceCompatibility = JavaVersion.VERSION_20
 
 repositories {
     mavenCentral()
 }
 
+java.sourceCompatibility = JavaVersion.VERSION_21
+
 dependencies {
-    implementation("com.google.devtools.ksp:symbol-processing-api:1.9.21-1.0.16")
+    implementation("com.google.devtools.ksp:symbol-processing-api:1.9.22-1.0.16")
     implementation("com.squareup:kotlinpoet:1.15.3")
     implementation("com.squareup:kotlinpoet-ksp:1.15.3")
     implementation("org.docx4j:docx4j-JAXB-ReferenceImpl:11.4.9")

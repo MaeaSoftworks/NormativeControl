@@ -1,10 +1,12 @@
 plugins {
     application
-    kotlin("jvm") version "1.9.21"
-    id("io.ktor.plugin") version "2.3.6"
-    id("com.google.devtools.ksp") version "1.9.21-1.0.16"
-    id("org.jetbrains.kotlin.plugin.serialization") version "1.9.21"
+    kotlin("jvm") version "1.9.22"
+    id("io.ktor.plugin") version "2.3.7"
+    id("com.google.devtools.ksp") version "1.9.22-1.0.16"
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.9.22"
 }
+
+java.sourceCompatibility = JavaVersion.VERSION_21
 
 group = "ru.maeasoftworks"
 version = "0.0.1"
@@ -28,6 +30,7 @@ dependencies {
     implementation("io.ktor:ktor-server-auth-jvm")
     implementation("io.ktor:ktor-server-cors-jvm")
     implementation("io.ktor:ktor-server-netty-jvm")
+    implementation("io.ktor:ktor-server-websockets")
     implementation("io.ktor:ktor-server-auth-jwt-jvm")
     implementation("io.ktor:ktor-server-host-common-jvm")
     implementation("io.ktor:ktor-server-status-pages-jvm")
@@ -46,19 +49,20 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:1.4.14")
     implementation("software.amazon.awssdk:netty-nio-client:2.21.37")
 
-    implementation("org.komapper:komapper-dialect-h2-r2dbc")
+    runtimeOnly("org.komapper:komapper-dialect-h2-r2dbc")
     // comment this line if it crashed in standalone mode
-    implementation("org.komapper:komapper-dialect-postgresql-r2dbc")
+    runtimeOnly("org.komapper:komapper-dialect-postgresql-r2dbc")
 
     testImplementation("io.ktor:ktor-server-tests-jvm")
     testImplementation("io.kotest:kotest-runner-junit5:5.8.0")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testRuntimeOnly("org.komapper:komapper-dialect-h2-r2dbc")
 }
 
 ksp {
     arg("komapper.enableEntityMetamodelListing", "true")
 }
 
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-    kotlinOptions.freeCompilerArgs += listOf("-opt-in=org.komapper.annotation.KomapperExperimentalAssociation")
+tasks.withType<Test>().configureEach {
+    useJUnitPlatform()
 }

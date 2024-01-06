@@ -10,3 +10,13 @@ fun Application.applyModule(module: Module) {
         }
     }
 }
+
+fun Application.applyModules(vararg module: Module) {
+    this.apply {
+        module.forEach {
+            it.apply {
+                module()
+            }
+        }
+    }
+}
