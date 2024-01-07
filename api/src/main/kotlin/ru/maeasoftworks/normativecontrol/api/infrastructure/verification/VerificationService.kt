@@ -15,7 +15,7 @@ import java.io.InputStream
 object VerificationService {
     suspend fun startVerification(
         documentId: String,
-        accessKey: String,
+        fingerprint: String?,
         file: InputStream,
         channel: Channel<Message>? = null,
         profile: Profile = Profile.UrFU
@@ -32,8 +32,8 @@ object VerificationService {
                 stage = Message.Stage.SAVING
                 val result = withContext(Dispatchers.IO) { ByteArrayOutputStream().also { document.writeResult(it) } }
 
-                FileStorage.uploadDocumentRender(documentId, document.ctx.render.getString().toByteArray(), accessKey)
-                FileStorage.uploadDocumentConclusion(documentId, result.toByteArray(), accessKey)
+                FileStorage.uploadDocumentRender(documentId, document.ctx.render.getString().toByteArray(), fingerprint)
+                FileStorage.uploadDocumentConclusion(documentId, result.toByteArray(), fingerprint)
             }
         }
         while (task.isActive) {

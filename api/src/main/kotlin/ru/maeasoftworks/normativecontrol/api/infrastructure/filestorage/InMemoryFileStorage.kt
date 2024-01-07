@@ -14,8 +14,8 @@ object InMemoryFileStorage: Module, FileStorage {
         FileStorage.initialize(InMemoryFileStorage)
     }
 
-    override suspend fun putObject(file: ByteArray, objectName: String, tags: Map<String, String>) {
-        storage[objectName] = Pair(file, tags)
+    override suspend fun putObject(file: ByteArray, objectName: String, vararg tags: Pair<String, String>) {
+        storage[objectName] = Pair(file, tags.toMap())
     }
 
     override suspend fun getTags(objectName: String): Map<String, String>? {

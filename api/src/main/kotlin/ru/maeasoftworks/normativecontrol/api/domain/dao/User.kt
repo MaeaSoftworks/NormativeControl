@@ -5,14 +5,13 @@ import ru.maeasoftworks.normativecontrol.api.infrastructure.security.Role
 
 @KomapperEntity(["users"])
 @KomapperTable("users")
+@KomapperOneToMany(targetEntity = Document::class, navigator = "documents")
 data class User(
     @KomapperId
-    @KomapperAutoIncrement
-    @KomapperColumn("user_id")
-    val id: Long = 0,
+    val id: String,
     var email: String,
     var password: String,
     @KomapperEnum(EnumType.NAME)
-    var role: Role,
+    var role: Role = Role.STUDENT,
     var isCredentialsVerified: Boolean = false
 )

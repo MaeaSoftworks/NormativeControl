@@ -46,14 +46,14 @@ object AccountController: ControllerModule() {
 
             authenticate(Security.JWT.CONFIGURATION_NAME) {
                 get("/verify") {
-                    val userId = call.authentication.principal<JWTPrincipal>()!!.subject!!.toLong()
+                    val userId = call.authentication.principal<JWTPrincipal>()!!.subject!!
                     val instants = AccountService.createVerificationCode(userId)
                     call.respond(AccountVerificationResponse(instants.first, instants.second))
                 }
 
                 post("/verify") {
                     val verificationRequest = call.receive<AccountVerificationRequest>()
-                    val userId = call.authentication.principal<JWTPrincipal>()!!.subject!!.toLong()
+                    val userId = call.authentication.principal<JWTPrincipal>()!!.subject!!
                     if (AccountService.verify(userId, verificationRequest.verificationCode)) {
                         call.respond(HttpStatusCode.OK, "Successfully verified!")
                     } else {
@@ -62,19 +62,19 @@ object AccountController: ControllerModule() {
                 }
 
                 get("/sessions") {
-                    val userId = call.authentication.principal<JWTPrincipal>()!!.subject!!.toLong()
+                    val userId = call.authentication.principal<JWTPrincipal>()!!.subject!!
                     call.respond(Security.RefreshTokens.getAllRefreshTokensOfUser(userId).map { Session(it.userAgent, it.createdAt) })
                 }
 
                 patch("password") {
                     val newPassword = call.receive<PasswordRequest>()
-                    val userId = call.authentication.principal<JWTPrincipal>()!!.subject!!.toLong()
+                    val userId = call.authentication.principal<JWTPrincipal>()!!.subject!!
                     AccountService.changePassword(userId, newPassword.password)
                 }
 
                 patch("email") {
                     val newUsername = call.receive<UpdateEmailRequest>()
-                    val userId = call.authentication.principal<JWTPrincipal>()!!.subject!!.toLong()
+                    val userId = call.authentication.principal<JWTPrincipal>()!!.subject!!
                     AccountService.changeEmail(userId, newUsername.email)
                 }
             }

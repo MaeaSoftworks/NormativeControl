@@ -23,7 +23,7 @@ object Security: Module {
         RefreshTokens.apply { module() }
     }
 
-    suspend fun createTokenPair(userId: Long, useragent: String?): Pair<String, RefreshToken> {
+    suspend fun createTokenPair(userId: String, useragent: String?): Pair<String, RefreshToken> {
         val jwt = JWT.createJWTToken(userId)
         val refreshToken = RefreshTokens.createRefreshTokenAndSave(userId, useragent)
         return jwt to refreshToken
@@ -64,11 +64,11 @@ object Security: Module {
                 }
             }
         }
-        fun createJWTToken(userId: Long): String {
+        fun createJWTToken(userId: String): String {
             return JWTLib.create()
                 .withAudience(jwtAudience)
                 .withIssuer(issuer)
-                .withSubject(userId.toString())
+                .withSubject(userId)
                 .withExpiresAt(Instant.now().plusSeconds(jwtExpiration))
                 .sign(Algorithm.HMAC256(jwtSecret))
         }
@@ -93,7 +93,7 @@ object Security: Module {
             throw InvalidRefreshToken()
         }
 
-        suspend fun createRefreshTokenAndSave(userId: Long, userAgent: String?): RefreshToken {
+        suspend fun createRefreshTokenAndSave(userId: String, userAgent: String?): RefreshToken {
             return RefreshTokenRepository.save(
                 RefreshToken(
                     refreshToken = createRefreshTokenString(),
@@ -107,6 +107,6 @@ object Security: Module {
 
         private fun createRefreshTokenString(): String = KeyGenerator.generate(32)
 
-        suspend fun getAllRefreshTokensOfUser(userId: Long): Flow<RefreshToken> = RefreshTokenRepository.getAllBy(Meta.refreshTokens.userId, userId)
+        suspend fun getAllRefreshTokensOfUser(userId: String): Flow<RefreshToken> = RefreshTokenRepository.getAllBy(Meta.refreshTokens.userId, userId)
     }
 }

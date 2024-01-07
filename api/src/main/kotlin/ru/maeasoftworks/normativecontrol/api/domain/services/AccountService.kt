@@ -11,6 +11,7 @@ import ru.maeasoftworks.normativecontrol.api.infrastructure.database.Database.tr
 import ru.maeasoftworks.normativecontrol.api.infrastructure.database.repositories.UserRepository
 import ru.maeasoftworks.normativecontrol.api.infrastructure.database.repositories.VerificationCodeRepository
 import ru.maeasoftworks.normativecontrol.api.infrastructure.security.Role
+import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.KeyGenerator
 import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.Module
 import ru.maeasoftworks.normativecontrol.api.infrastructure.web.*
 import java.security.SecureRandom
@@ -27,9 +28,17 @@ object AccountService: Module {
 
     suspend fun register(registrationRequest: RegistrationRequest): User = transaction {
         val registered = UserRepository.getUserByEmail(registrationRequest.email)
+        var id: String
+        while (true) {
+            id = KeyGenerator.generate(16)
+            if (!UserRepository.existById(id)) {
+                break
+            }
+        }
         if (registered != null) throw CredentialsIsAlreadyInUseException()
         return@transaction UserRepository.save(
             User(
+                id = id,
                 email = registrationRequest.email,
                 password = BCrypt.withDefaults().hashToString(10, registrationRequest.password.toCharArray()),
                 role = Role.STUDENT
@@ -45,20 +54,20 @@ object AccountService: Module {
         return@transaction user
     }
 
-    suspend fun changePassword(userId: Long, newPassword: String) = transaction {
+    suspend fun changePassword(userId: String, newPassword: String) = transaction {
         UserRepository.update(userId) {
             password = BCrypt.withDefaults().hashToString(10, newPassword.toCharArray())
         }
     }
 
-    suspend fun changeEmail(userId: Long, newEmail: String) = transaction {
+    suspend fun changeEmail(userId: String, newEmail: String) = transaction {
         UserRepository.update(userId) {
             email = newEmail
             isCredentialsVerified = false
         }
     }
 
-    suspend fun createVerificationCode(userId: Long): Pair<Instant, Instant> = transaction {
+    suspend fun createVerificationCode(userId: String): Pair<Instant, Instant> = transaction {
         if (UserRepository.getById(userId)?.isCredentialsVerified ?: throw EntityNotFoundException("User")) {
             throw InconsistentStateException("Email is already verified")
         }
@@ -71,7 +80,7 @@ object AccountService: Module {
         return@transaction createdAt to expiredAt
     }
 
-    suspend fun verify(userId: Long, verificationCode: Int): Boolean = transaction {
+    suspend fun verify(userId: String, verificationCode: Int): Boolean = transaction {
         val code = VerificationCodeRepository.getByUserId(userId) ?: throw EntityNotFoundException("Valid verification code")
         if (code.expiresAt < Instant.now()) {
             throw OutdatedException("Verification code")

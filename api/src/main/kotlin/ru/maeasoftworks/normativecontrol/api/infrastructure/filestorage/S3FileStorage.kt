@@ -39,10 +39,14 @@ object S3FileStorage: Module, FileStorage {
             .build()
     }
 
-    override suspend fun putObject(file: ByteArray, objectName: String, tags: Map<String, String>): Unit = coroutineScope {
+    override suspend fun putObject(file: ByteArray, objectName: String, vararg tags: Pair<String, String>): Unit = coroutineScope {
         s3Client.putObject(
             PutObjectRequest.builder()
-                .tagging(Tagging.builder().tagSet(tags.map { Tag.builder().key(it.key).value(it.value).build() }).build())
+                .tagging(
+                    Tagging.builder()
+                        .tagSet(tags.map { (key, value) -> Tag.builder().apply { key(key).value(value) }.build() })
+                        .build()
+                )
                 .key(objectName)
                 .bucket(bucket)
                 .build(),

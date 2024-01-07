@@ -4,6 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class VerificationInitialization(
-    val fingerprint: String?,
+    val fingerprint: String? = null,
     val length: Int
 )
