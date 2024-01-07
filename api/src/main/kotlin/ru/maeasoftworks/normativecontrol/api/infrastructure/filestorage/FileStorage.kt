@@ -10,7 +10,7 @@ interface FileStorage {
 
     suspend fun getObject(objectName: String): Flow<ByteBuffer>
 
-    companion object: FileStorage {
+    companion object : FileStorage {
         private var instance: FileStorage = InMemoryFileStorage
 
         @JvmStatic

@@ -10,7 +10,7 @@ import ru.maeasoftworks.normativecontrol.core.HotLoader
 import java.io.ByteArrayInputStream
 import java.io.File
 
-class AsyncVerificationTests: ShouldSpec({
+class AsyncVerificationTests : ShouldSpec({
     val file = File("src/test/resources/ignore/sample1.docx").readBytes()
 
     beforeTest {

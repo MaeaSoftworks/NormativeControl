@@ -17,7 +17,7 @@ import ru.maeasoftworks.normativecontrol.api.infrastructure.web.*
 import java.security.SecureRandom
 import java.time.Instant
 
-object AccountService: Module {
+object AccountService : Module {
     private val random = SecureRandom()
     private var verificationCodeExpiration: Long = 0
     private val logger = LoggerFactory.getLogger(this::class.java)

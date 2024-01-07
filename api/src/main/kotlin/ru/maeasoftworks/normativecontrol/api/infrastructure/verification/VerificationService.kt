@@ -2,10 +2,10 @@ package ru.maeasoftworks.normativecontrol.api.infrastructure.verification
 
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
+import ru.maeasoftworks.normativecontrol.api.app.web.dto.Message
+import ru.maeasoftworks.normativecontrol.api.infrastructure.filestorage.FileStorage
 import ru.maeasoftworks.normativecontrol.api.infrastructure.filestorage.uploadDocumentConclusion
 import ru.maeasoftworks.normativecontrol.api.infrastructure.filestorage.uploadDocumentRender
-import ru.maeasoftworks.normativecontrol.api.infrastructure.filestorage.FileStorage
-import ru.maeasoftworks.normativecontrol.api.app.web.dto.Message
 import ru.maeasoftworks.normativecontrol.core.Document
 import ru.maeasoftworks.normativecontrol.core.abstractions.Profile
 import ru.maeasoftworks.normativecontrol.core.model.VerificationContext

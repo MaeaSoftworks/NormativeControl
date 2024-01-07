@@ -10,7 +10,7 @@ import io.ktor.server.plugins.statuspages.StatusPagesConfig
 import io.ktor.server.response.respondText
 import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.Module
 
-object StatusPages: Module {
+object StatusPages : Module {
     override fun Application.module() {
         install(StatusPages) {
             registerException<NoAccessException>()

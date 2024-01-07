@@ -1,6 +1,6 @@
 package ru.maeasoftworks.normativecontrol.api.infrastructure.utils
 
-class Boxed<T: Any>: Box<T> {
+class Boxed<T : Any> : Box<T> {
     val isInitialized: Boolean
         get() = valueUnsafe != null
 
@@ -8,7 +8,9 @@ class Boxed<T: Any>: Box<T> {
 
     override var value: T
         get() = valueUnsafe!!
-        set(value) { valueUnsafe = value }
+        set(value) {
+            valueUnsafe = value
+        }
 
     constructor()
 
@@ -16,7 +18,7 @@ class Boxed<T: Any>: Box<T> {
         this.value = value
     }
 
-    class Nullable<T>: Box<T?> {
+    class Nullable<T> : Box<T?> {
         var isInitialized: Boolean = false
             private set
 

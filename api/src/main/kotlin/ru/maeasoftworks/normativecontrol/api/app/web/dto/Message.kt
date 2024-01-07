@@ -17,15 +17,19 @@ sealed class Message(val code: Code, stage: Stage?, message: String?, vararg arg
         return Json.encodeToString(body.filter { it.value != null })
     }
 
-    class Progress(value: Double, stage: Stage, vararg args: Pair<String, String?>):
+    class Progress(value: Double, stage: Stage, vararg args: Pair<String, String?>) :
         Message(Code.PROGRESS, stage, null, *args, "value" to value.toString())
-    class Success(id: String, vararg args: Pair<String, String?>):
+
+    class Success(id: String, vararg args: Pair<String, String?>) :
         Message(Code.SUCCESS, null, null, *args, "id" to id)
-    class Info(message: String, vararg args: Pair<String, String?>):
+
+    class Info(message: String, vararg args: Pair<String, String?>) :
         Message(Code.INFO, null, message = message, *args)
-    class Warn(description: String, vararg args: Pair<String, String?>):
+
+    class Warn(description: String, vararg args: Pair<String, String?>) :
         Message(Code.WARN, null, null, *args, "description" to description)
-    class Error(description: String, vararg args: Pair<String, String?>):
+
+    class Error(description: String, vararg args: Pair<String, String?>) :
         Message(Code.ERROR, null, null, *args, "description" to description)
 
     enum class Code {

@@ -18,7 +18,7 @@ import java.net.URI
 import java.nio.ByteBuffer
 import java.time.Duration
 
-object S3FileStorage: Module, FileStorage {
+object S3FileStorage : Module, FileStorage {
     private lateinit var bucket: String
     private lateinit var s3Client: S3AsyncClient
 

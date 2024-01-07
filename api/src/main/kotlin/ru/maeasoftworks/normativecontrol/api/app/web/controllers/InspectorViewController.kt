@@ -15,7 +15,7 @@ import ru.maeasoftworks.normativecontrol.api.infrastructure.filestorage.render
 import ru.maeasoftworks.normativecontrol.api.infrastructure.security.Security
 import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.ControllerModule
 
-object InspectorViewController: ControllerModule() {
+object InspectorViewController : ControllerModule() {
     override fun Routing.register() {
         route("/inspector") {
             authenticate(Security.JWT.CONFIGURATION_NAME) {

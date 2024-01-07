@@ -20,33 +20,35 @@ import io.ktor.server.websocket.webSocket
 import io.ktor.websocket.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
-import ru.maeasoftworks.normativecontrol.api.infrastructure.filestorage.conclusion
-import ru.maeasoftworks.normativecontrol.api.infrastructure.filestorage.render
-import ru.maeasoftworks.normativecontrol.api.infrastructure.web.respond
-import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.ControllerModule
-import ru.maeasoftworks.normativecontrol.api.app.web.dto.Message
 import ru.maeasoftworks.normativecontrol.api.app.web.dto.Event
+import ru.maeasoftworks.normativecontrol.api.app.web.dto.Message
 import ru.maeasoftworks.normativecontrol.api.app.web.dto.VerificationInitialization
 import ru.maeasoftworks.normativecontrol.api.domain.dao.Document
 import ru.maeasoftworks.normativecontrol.api.infrastructure.database.Database.transaction
 import ru.maeasoftworks.normativecontrol.api.infrastructure.database.repositories.DocumentRepository
-import ru.maeasoftworks.normativecontrol.api.infrastructure.verification.VerificationService
 import ru.maeasoftworks.normativecontrol.api.infrastructure.filestorage.FileStorage
+import ru.maeasoftworks.normativecontrol.api.infrastructure.filestorage.conclusion
+import ru.maeasoftworks.normativecontrol.api.infrastructure.filestorage.render
 import ru.maeasoftworks.normativecontrol.api.infrastructure.filestorage.uploadSourceDocument
 import ru.maeasoftworks.normativecontrol.api.infrastructure.security.Security
 import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.Box
 import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.Boxed
+import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.ControllerModule
 import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.KeyGenerator
+import ru.maeasoftworks.normativecontrol.api.infrastructure.verification.VerificationService
 import ru.maeasoftworks.normativecontrol.api.infrastructure.web.MultipartExtractor.Companion.extractMultipartParts
 import ru.maeasoftworks.normativecontrol.api.infrastructure.web.NoAccessException
 import ru.maeasoftworks.normativecontrol.api.infrastructure.web.WebSockets
+import ru.maeasoftworks.normativecontrol.api.infrastructure.web.respond
 import java.io.ByteArrayInputStream
 import kotlin.math.ceil
 
-object StudentsController: ControllerModule() {
+object StudentsController : ControllerModule() {
     override fun Routing.register() {
         route("/student") {
             authenticate(Security.JWT.CONFIGURATION_NAME) {
@@ -135,7 +137,7 @@ object StudentsController: ControllerModule() {
                         verifyFile(KeyGenerator.generate(32), channel, fingerprint, file)
                         val warn = Message.Warn(
                             "SSE `${call.request.host()}:${call.request.port()}/${call.request.path()}` is deprecated. " +
-                            "Please, use WebSocket: `ws://${call.request.host()}:${call.request.port()}/${call.request.path()}` instead."
+                                    "Please, use WebSocket: `ws://${call.request.host()}:${call.request.port()}/${call.request.path()}` instead."
                         )
                         call.respond(
                             channel.receiveAsFlow().onCompletion { emit(warn) }.map { Event.fromMessage(it) },

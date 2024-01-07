@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.flow
 import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.Module
 import java.nio.ByteBuffer
 
-object InMemoryFileStorage: Module, FileStorage {
+object InMemoryFileStorage : Module, FileStorage {
     private val storage: MutableMap<String, Pair<ByteArray, Map<String, String>>> = mutableMapOf()
 
     override fun Application.module() {

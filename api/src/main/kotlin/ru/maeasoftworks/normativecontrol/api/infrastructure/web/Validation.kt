@@ -7,14 +7,13 @@ import io.ktor.server.plugins.requestvalidation.ValidationResult
 import ru.maeasoftworks.normativecontrol.api.app.web.dto.RegistrationRequest
 import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.Module
 
-object Validation: Module {
+object Validation : Module {
     override fun Application.module() {
         install(RequestValidation) {
             validate<RegistrationRequest> {
                 if (it.email.matches(Regex("""^[\w\-.]+@[\w-]+\.+\w{2,4}$"""))) {
                     ValidationResult.Valid
-                }
-                else {
+                } else {
                     ValidationResult.Invalid("Value of 'email' does not matches email pattern")
                 }
             }

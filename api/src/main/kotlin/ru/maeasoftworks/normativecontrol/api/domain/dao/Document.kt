@@ -1,6 +1,9 @@
 package ru.maeasoftworks.normativecontrol.api.domain.dao
 
-import org.komapper.annotation.*
+import org.komapper.annotation.KomapperEntity
+import org.komapper.annotation.KomapperId
+import org.komapper.annotation.KomapperManyToOne
+import org.komapper.annotation.KomapperTable
 
 @KomapperEntity(["documents"])
 @KomapperTable("documents")

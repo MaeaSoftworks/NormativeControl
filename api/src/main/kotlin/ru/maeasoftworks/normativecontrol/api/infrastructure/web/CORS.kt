@@ -7,7 +7,7 @@ import io.ktor.server.application.install
 import io.ktor.server.plugins.cors.routing.CORS
 import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.Module
 
-object CORS: Module {
+object CORS : Module {
     override fun Application.module() {
         install(CORS) {
             allowMethod(HttpMethod.Options)

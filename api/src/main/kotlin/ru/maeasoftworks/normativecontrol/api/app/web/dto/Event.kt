@@ -6,7 +6,7 @@ data class Event(val event: String, val data: String) {
     }
 
     companion object {
-        fun fromMessage(message: Message) = message.asEvent({code.name}, { this.toString() })
+        fun fromMessage(message: Message) = message.asEvent({ code.name }, { this.toString() })
     }
 }
 

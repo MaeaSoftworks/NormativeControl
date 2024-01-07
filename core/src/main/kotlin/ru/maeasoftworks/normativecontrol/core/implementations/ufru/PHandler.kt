@@ -1,5 +1,6 @@
 package ru.maeasoftworks.normativecontrol.core.implementations.ufru
 
+import me.prmncr.hotloader.HotLoaded
 import org.docx4j.TextUtils
 import org.docx4j.wml.P
 import ru.maeasoftworks.normativecontrol.core.abstractions.*
@@ -10,7 +11,6 @@ import ru.maeasoftworks.normativecontrol.core.rendering.br
 import ru.maeasoftworks.normativecontrol.core.rendering.p
 import ru.maeasoftworks.normativecontrol.core.utils.getPropertyValue
 import ru.maeasoftworks.normativecontrol.core.utils.verificationContext
-import me.prmncr.hotloader.HotLoaded
 
 @HotLoaded
 object PHandler : Handler<P>({ register<P>(Profile.UrFU) { PHandler } }), ChapterHeader {

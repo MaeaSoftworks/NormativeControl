@@ -16,7 +16,7 @@ import ru.maeasoftworks.normativecontrol.api.infrastructure.database.repositorie
 import ru.maeasoftworks.normativecontrol.api.infrastructure.security.Security
 import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.ControllerModule
 
-object AccountController: ControllerModule() {
+object AccountController : ControllerModule() {
     override fun Routing.register() {
         route("/account") {
             post("/register") {

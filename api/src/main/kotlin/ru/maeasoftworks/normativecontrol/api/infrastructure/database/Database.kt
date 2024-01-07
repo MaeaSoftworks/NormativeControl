@@ -9,7 +9,7 @@ import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.Module
 import ru.maeasoftworks.normativecontrol.core.annotations.Internal
 
 @OptIn(Internal::class)
-object Database: Module {
+object Database : Module {
     @Internal
     lateinit var instance: R2dbcDatabase
         private set

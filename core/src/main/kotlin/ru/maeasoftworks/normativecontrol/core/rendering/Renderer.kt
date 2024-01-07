@@ -1,13 +1,5 @@
 package ru.maeasoftworks.normativecontrol.core.rendering
 
-import jakarta.xml.bind.JAXBElement
-import org.docx4j.TextUtils
-import org.docx4j.wml.Br
-import org.docx4j.wml.P
-import org.docx4j.wml.P.Hyperlink
-import org.docx4j.wml.R
-import org.docx4j.wml.Text
-import ru.maeasoftworks.normativecontrol.core.Document
 /*
 @Deprecated("Use new API")
 class Renderer(

@@ -5,4 +5,4 @@ import ru.maeasoftworks.normativecontrol.api.domain.dao.Document
 import ru.maeasoftworks.normativecontrol.api.domain.dao._Document
 import ru.maeasoftworks.normativecontrol.api.domain.dao.documents
 
-object DocumentRepository: CrudRepository<Document, String, _Document>(Meta.documents, Meta.documents.id)
+object DocumentRepository : CrudRepository<Document, String, _Document>(Meta.documents, Meta.documents.id)

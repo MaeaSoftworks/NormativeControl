@@ -1,9 +1,9 @@
 package ru.maeasoftworks.normativecontrol.core.model
 
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
-import ru.maeasoftworks.normativecontrol.core.rendering.htmlTemplate
 import ru.maeasoftworks.normativecontrol.core.rendering.HtmlElement
 import ru.maeasoftworks.normativecontrol.core.rendering.div
+import ru.maeasoftworks.normativecontrol.core.rendering.htmlTemplate
 
 class RenderingContext(doc: MainDocumentPart?) {
     private val html = htmlTemplate(doc)

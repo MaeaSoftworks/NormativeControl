@@ -1,6 +1,5 @@
 package ru.maeasoftworks.normativecontrol.api.infrastructure.security
 
-import com.auth0.jwt.JWT as JWTLib
 import com.auth0.jwt.algorithms.Algorithm
 import io.ktor.server.application.Application
 import io.ktor.server.auth.authentication
@@ -16,8 +15,9 @@ import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.Module
 import ru.maeasoftworks.normativecontrol.api.infrastructure.web.InvalidRefreshToken
 import ru.maeasoftworks.normativecontrol.api.infrastructure.web.OutdatedException
 import java.time.Instant
+import com.auth0.jwt.JWT as JWTLib
 
-object Security: Module {
+object Security : Module {
     override fun Application.module() {
         JWT.apply { module() }
         RefreshTokens.apply { module() }
@@ -29,7 +29,7 @@ object Security: Module {
         return jwt to refreshToken
     }
 
-    object JWT: Module {
+    object JWT : Module {
         const val CONFIGURATION_NAME = "jwt"
         private lateinit var jwtAudience: String
         private lateinit var issuer: String
@@ -64,6 +64,7 @@ object Security: Module {
                 }
             }
         }
+
         fun createJWTToken(userId: String): String {
             return JWTLib.create()
                 .withAudience(jwtAudience)
@@ -74,7 +75,7 @@ object Security: Module {
         }
     }
 
-    object RefreshTokens: Module {
+    object RefreshTokens : Module {
         private var refreshTokenExpiration: Long = 0
 
         override fun Application.module() {

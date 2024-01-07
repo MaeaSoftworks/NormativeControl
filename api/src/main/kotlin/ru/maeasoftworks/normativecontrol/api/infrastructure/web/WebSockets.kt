@@ -7,7 +7,7 @@ import io.ktor.server.websocket.timeout
 import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.Module
 import java.time.Duration
 
-object WebSockets: Module {
+object WebSockets : Module {
     var maxFrameSize: Long = 0
         private set
 

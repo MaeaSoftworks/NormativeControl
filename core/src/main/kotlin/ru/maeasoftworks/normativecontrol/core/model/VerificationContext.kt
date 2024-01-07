@@ -182,7 +182,8 @@ class VerificationContext(val profile: Profile) : CoroutineContext.Element {
         var childContentPosition = 0
             @Internal set
 
-        @Internal var lastMistake = 0L
+        @Internal
+        var lastMistake = 0L
 
         inline fun mainLoop(fn: (pos: Int) -> Unit) {
             while (bodyPosition < totalChildSize) {
