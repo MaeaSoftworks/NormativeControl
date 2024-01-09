@@ -8,6 +8,7 @@ import io.ktor.server.auth.jwt.jwt
 import kotlinx.coroutines.flow.Flow
 import org.komapper.core.dsl.Meta
 import ru.maeasoftworks.normativecontrol.api.domain.dao.RefreshToken
+import ru.maeasoftworks.normativecontrol.api.domain.dao.User
 import ru.maeasoftworks.normativecontrol.api.domain.dao.refreshTokens
 import ru.maeasoftworks.normativecontrol.api.infrastructure.database.repositories.RefreshTokenRepository
 import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.KeyGenerator
@@ -23,9 +24,9 @@ object Security : Module {
         RefreshTokens.apply { module() }
     }
 
-    suspend fun createTokenPair(userId: String, useragent: String?): Pair<String, RefreshToken> {
-        val jwt = JWT.createJWTToken(userId)
-        val refreshToken = RefreshTokens.createRefreshTokenAndSave(userId, useragent)
+    suspend fun createTokenPair(user: User, useragent: String?): Pair<String, RefreshToken> {
+        val jwt = JWT.createJWTToken(user)
+        val refreshToken = RefreshTokens.createRefreshTokenAndSave(user.id, useragent)
         return jwt to refreshToken
     }
 
@@ -65,11 +66,12 @@ object Security : Module {
             }
         }
 
-        fun createJWTToken(userId: String): String {
+        fun createJWTToken(user: User): String {
             return JWTLib.create()
                 .withAudience(jwtAudience)
                 .withIssuer(issuer)
-                .withSubject(userId)
+                .withSubject(user.id)
+                .withArrayClaim("role", user.rolesStrings)
                 .withExpiresAt(Instant.now().plusSeconds(jwtExpiration))
                 .sign(Algorithm.HMAC256(jwtSecret))
         }

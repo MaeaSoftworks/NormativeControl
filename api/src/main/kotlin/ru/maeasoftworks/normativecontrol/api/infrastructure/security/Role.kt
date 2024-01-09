@@ -1,7 +1,7 @@
 package ru.maeasoftworks.normativecontrol.api.infrastructure.security
 
 enum class Role {
-    ADMIN,
+    STUDENT,
     INSPECTOR,
-    STUDENT
+    ADMIN
 }

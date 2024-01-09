@@ -3,6 +3,7 @@ package ru.maeasoftworks.normativecontrol.api.app.web.dto
 import kotlinx.serialization.Serializable
 import ru.maeasoftworks.normativecontrol.api.infrastructure.security.Role
 
+@Suppress("ArrayInDataClass")
 @Serializable
 data class CredentialsResponse(
     val accessToken: String,
@@ -11,7 +12,7 @@ data class CredentialsResponse(
 
     val isCredentialsVerified: Boolean? = null,
 
-    val role: Role? = null,
+    var roles: Array<Role> = emptyArray(),
 
     val tokenType: String = "Bearer"
 )

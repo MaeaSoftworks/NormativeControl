@@ -35,7 +35,9 @@ import ru.maeasoftworks.normativecontrol.api.infrastructure.filestorage.FileStor
 import ru.maeasoftworks.normativecontrol.api.infrastructure.filestorage.conclusion
 import ru.maeasoftworks.normativecontrol.api.infrastructure.filestorage.render
 import ru.maeasoftworks.normativecontrol.api.infrastructure.filestorage.uploadSourceDocument
+import ru.maeasoftworks.normativecontrol.api.infrastructure.security.Role
 import ru.maeasoftworks.normativecontrol.api.infrastructure.security.Security
+import ru.maeasoftworks.normativecontrol.api.infrastructure.security.withRoles
 import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.Box
 import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.Boxed
 import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.ControllerModule
@@ -52,41 +54,43 @@ object StudentsController : ControllerModule() {
     override fun Routing.register() {
         route("/student") {
             authenticate(Security.JWT.CONFIGURATION_NAME) {
-                route("/secured") {
-                    route("/document") {
-                        webSocket("/verify") {
-                            val len = Boxed<Int>()
-                            var file: ByteArray? = null
-                            val pos = Boxed(0)
-                            incoming.receiveAsFlow().collect { frame ->
-                                if (!len.isInitialized) {
-                                    getMetadata(frame, null, len)
-                                    file = ByteArray(len.value)
-                                    send("Upload was initialized. Waiting for ${ceil(len.value * 1.0 / WebSockets.maxFrameSize).toInt()} file frames...")
-                                    return@collect
-                                }
-                                if (pos.value < len.value) {
-                                    val added = fillFile(frame, file!!, pos)
-                                    send(Frame.Text("Added $added bytes; received ${pos.value} of ${len.value} bytes."))
-                                }
-                                if (pos.value == len.value) {
-                                    send("All data received.")
-                                    val channel = Channel<Message>(Channel.UNLIMITED)
-                                    val documentId = KeyGenerator.generate(32)
-                                    verifyFile(documentId, channel, null, file!!)
-                                    transaction {
-                                        DocumentRepository.save(
-                                            Document(
-                                                documentId,
-                                                call.authentication.principal<JWTPrincipal>()!!.subject!!
-                                            )
-                                        )
+                withRoles(Role.STUDENT) {
+                    route("/secured") {
+                        route("/document") {
+                            webSocket("/verify") {
+                                val len = Boxed<Int>()
+                                var file: ByteArray? = null
+                                val pos = Boxed(0)
+                                incoming.receiveAsFlow().collect { frame ->
+                                    if (!len.isInitialized) {
+                                        getMetadata(frame, null, len)
+                                        file = ByteArray(len.value)
+                                        send("Upload was initialized. Waiting for ${ceil(len.value * 1.0 / WebSockets.maxFrameSize).toInt()} file frames...")
+                                        return@collect
                                     }
-                                    launch {
-                                        channel.receiveAsFlow()
-                                            .map { message -> Frame.Text(message.toString()) }
-                                            .collect { i -> send(i) }
-                                        close()
+                                    if (pos.value < len.value) {
+                                        val added = fillFile(frame, file!!, pos)
+                                        send(Frame.Text("Added $added bytes; received ${pos.value} of ${len.value} bytes."))
+                                    }
+                                    if (pos.value == len.value) {
+                                        send("All data received.")
+                                        val channel = Channel<Message>(Channel.UNLIMITED)
+                                        val documentId = KeyGenerator.generate(32)
+                                        verifyFile(documentId, channel, null, file!!)
+                                        transaction {
+                                            DocumentRepository.save(
+                                                Document(
+                                                    documentId,
+                                                    call.authentication.principal<JWTPrincipal>()!!.subject!!
+                                                )
+                                            )
+                                        }
+                                        launch {
+                                            channel.receiveAsFlow()
+                                                .map { message -> Frame.Text(message.toString()) }
+                                                .collect { i -> send(i) }
+                                            close()
+                                        }
                                     }
                                 }
                             }

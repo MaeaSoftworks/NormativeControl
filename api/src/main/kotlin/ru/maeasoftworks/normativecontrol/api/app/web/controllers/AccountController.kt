@@ -24,23 +24,23 @@ object AccountController : ControllerModule() {
 
                 val userAgent = call.request.headers["User-Agent"]
                 val user = AccountService.register(registrationRequest)
-                val (jwt, ref) = Security.createTokenPair(user.id, userAgent)
-                call.respond(CredentialsResponse(jwt, ref.asResponse(), user.isCredentialsVerified, user.role))
+                val (jwt, ref) = Security.createTokenPair(user, userAgent)
+                call.respond(CredentialsResponse(jwt, ref.asResponse(), user.isCredentialsVerified, user.roles))
             }
 
             post("/login") {
                 val loginRequest = call.receive<LoginRequest>()
                 val userAgent = call.request.headers["User-Agent"]
                 val user = AccountService.authenticate(loginRequest)
-                val (jwt, ref) = Security.createTokenPair(user.id, userAgent)
-                call.respond(CredentialsResponse(jwt, ref.asResponse(), user.isCredentialsVerified, user.role))
+                val (jwt, ref) = Security.createTokenPair(user, userAgent)
+                call.respond(CredentialsResponse(jwt, ref.asResponse(), user.isCredentialsVerified, user.roles))
             }
 
             patch("/token") {
                 val refreshToken = call.parameters["refreshToken"] ?: throw IllegalArgumentException("refreshToken must be not null")
                 val userAgent = call.request.headers["User-Agent"]
                 val token = Security.RefreshTokens.updateJwtToken(refreshToken, userAgent)
-                val jwt = Security.JWT.createJWTToken(transaction { UserRepository.getById(token.userId)!!.id })
+                val jwt = Security.JWT.createJWTToken(transaction { UserRepository.getById(token.userId)!! })
                 call.respond(CredentialsResponse(jwt, token.asResponse()))
             }
 

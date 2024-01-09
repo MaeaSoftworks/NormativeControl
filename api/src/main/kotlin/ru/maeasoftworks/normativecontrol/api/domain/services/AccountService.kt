@@ -41,7 +41,7 @@ object AccountService : Module {
                 id = id,
                 email = registrationRequest.email,
                 password = BCrypt.withDefaults().hashToString(10, registrationRequest.password.toCharArray()),
-                role = Role.STUDENT
+                roles = arrayOf(Role.STUDENT)
             )
         )
     }

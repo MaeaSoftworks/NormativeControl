@@ -12,30 +12,34 @@ import io.ktor.server.routing.route
 import ru.maeasoftworks.normativecontrol.api.infrastructure.filestorage.FileStorage
 import ru.maeasoftworks.normativecontrol.api.infrastructure.filestorage.conclusion
 import ru.maeasoftworks.normativecontrol.api.infrastructure.filestorage.render
+import ru.maeasoftworks.normativecontrol.api.infrastructure.security.Role
 import ru.maeasoftworks.normativecontrol.api.infrastructure.security.Security
+import ru.maeasoftworks.normativecontrol.api.infrastructure.security.withRoles
 import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.ControllerModule
 
 object InspectorViewController : ControllerModule() {
     override fun Routing.register() {
         route("/inspector") {
             authenticate(Security.JWT.CONFIGURATION_NAME) {
-                route("/document") {
-                    get("/conclusion") {
-                        val documentId = call.parameters["documentId"] ?: throw IllegalArgumentException("documentId must be not null")
-                        val filename = conclusion(documentId)
-                        call.respondBytesWriter(ContentType.defaultForFileExtension("docx"), HttpStatusCode.OK) {
-                            FileStorage.getObject(filename).collect {
-                                this.writeFully(it)
+                withRoles(Role.INSPECTOR) {
+                    route("/document") {
+                        get("/conclusion") {
+                            val documentId = call.parameters["documentId"] ?: throw IllegalArgumentException("documentId must be not null")
+                            val filename = conclusion(documentId)
+                            call.respondBytesWriter(ContentType.defaultForFileExtension("docx"), HttpStatusCode.OK) {
+                                FileStorage.getObject(filename).collect {
+                                    this.writeFully(it)
+                                }
                             }
                         }
-                    }
 
-                    get("/render") {
-                        val documentId = call.parameters["documentId"] ?: throw IllegalArgumentException("documentId must be not null")
-                        val filename = render(documentId)
-                        call.respondBytesWriter(ContentType.defaultForFileExtension("html"), HttpStatusCode.OK) {
-                            FileStorage.getObject(filename).collect {
-                                this.writeFully(it)
+                        get("/render") {
+                            val documentId = call.parameters["documentId"] ?: throw IllegalArgumentException("documentId must be not null")
+                            val filename = render(documentId)
+                            call.respondBytesWriter(ContentType.defaultForFileExtension("html"), HttpStatusCode.OK) {
+                                FileStorage.getObject(filename).collect {
+                                    this.writeFully(it)
+                                }
                             }
                         }
                     }
