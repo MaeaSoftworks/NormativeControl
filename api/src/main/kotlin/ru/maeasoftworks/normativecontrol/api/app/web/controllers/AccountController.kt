@@ -13,6 +13,7 @@ import ru.maeasoftworks.normativecontrol.api.app.web.dto.*
 import ru.maeasoftworks.normativecontrol.api.domain.services.AccountService
 import ru.maeasoftworks.normativecontrol.api.infrastructure.database.Database.transaction
 import ru.maeasoftworks.normativecontrol.api.infrastructure.database.repositories.UserRepository
+import ru.maeasoftworks.normativecontrol.api.infrastructure.security.Role
 import ru.maeasoftworks.normativecontrol.api.infrastructure.security.Security
 import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.ControllerModule
 
@@ -73,9 +74,14 @@ object AccountController : ControllerModule() {
                 }
 
                 patch("email") {
-                    val newUsername = call.receive<UpdateEmailRequest>()
-                    val userId = call.authentication.principal<JWTPrincipal>()!!.subject!!
-                    AccountService.changeEmail(userId, newUsername.email)
+                    val (userId, roles) = call.authentication.principal<JWTPrincipal>()!!
+                        .let {it.subject!! to it.payload.getClaim("roles").asArray(Role::class.java) }
+                    val newEmail = if (roles.any { it == Role.STUDENT }) {
+                        call.receive<UpdateEmailStudentRequest>().email
+                    } else {
+                        call.receive<UpdateEmailRequest>().email
+                    }
+                    AccountService.changeEmail(userId, newEmail)
                 }
             }
         }

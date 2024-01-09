@@ -13,11 +13,14 @@ import ru.maeasoftworks.normativecontrol.api.app.web.dto.Message
 import ru.maeasoftworks.normativecontrol.api.app.web.dto.VerificationInitialization
 import ru.maeasoftworks.normativecontrol.api.infrastructure.database.Database.transaction
 import ru.maeasoftworks.normativecontrol.api.infrastructure.database.repositories.DocumentRepository
+import ru.maeasoftworks.normativecontrol.api.infrastructure.database.repositories.UserRepository
 import ru.maeasoftworks.normativecontrol.api.infrastructure.filestorage.FileStorage
 import ru.maeasoftworks.normativecontrol.api.infrastructure.filestorage.uploadSourceDocument
 import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.Box
 import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.Boxed
 import ru.maeasoftworks.normativecontrol.api.infrastructure.verification.VerificationService
+import ru.maeasoftworks.normativecontrol.api.infrastructure.web.InvalidRequestException
+import ru.maeasoftworks.normativecontrol.core.abstractions.Profile
 import java.io.ByteArrayInputStream
 
 object StudentsService {
@@ -38,9 +41,24 @@ object StudentsService {
         len?.value = initialization.length
     }
 
-    fun CoroutineScope.verifyFile(documentId: String, channel: Channel<Message>, fingerprint: String?, file: ByteArray) {
-        val uploading = launch { FileStorage.uploadSourceDocument(documentId, file, fingerprint) }
-        val verification = launch { VerificationService.startVerification(documentId, fingerprint, ByteArrayInputStream(file), channel) }
+    suspend fun verifyFile(
+        scope: CoroutineScope,
+        documentId: String,
+        file: ByteArray,
+        channel: Channel<Message>,
+        userId: String? = null,
+        fingerprint: String? = null
+    ) {
+        if (userId == null && fingerprint == null) {
+            throw InvalidRequestException()
+        }
+        val profile = if (fingerprint == null) {
+            transaction { UserRepository.getById(userId!!)!!.domain }!!.profile
+        } else {
+            Profile.UrFU
+        }
+        val uploading = scope.launch { FileStorage.uploadSourceDocument(documentId, file, fingerprint) }
+        val verification = scope.launch { VerificationService.startVerification(documentId, fingerprint, ByteArrayInputStream(file), channel, profile) }
         channel.invokeOnClose {
             if (uploading.isActive) {
                 uploading.cancel()

@@ -43,6 +43,11 @@ object InspectorViewController : ControllerModule() {
                             }
                         }
                     }
+                    route("/students") {
+                        get("/find") {
+                            //val email = call.request.queryParameters["email"]
+                        }
+                    }
                 }
             }
         }

@@ -74,7 +74,13 @@ object StudentsController : ControllerModule() {
                                         send("All data received.")
                                         val channel = Channel<Message>(Channel.UNLIMITED)
                                         val documentId = KeyGenerator.generate(32)
-                                        using(StudentsService) { verifyFile(documentId, channel, null, file!!) }
+                                        StudentsService.verifyFile(
+                                            this@webSocket,
+                                            documentId,
+                                            file!!,
+                                            channel,
+                                            call.authentication.principal<JWTPrincipal>()!!.subject!!
+                                        )
                                         transaction {
                                             DocumentRepository.save(
                                                 Document(
@@ -123,7 +129,7 @@ object StudentsController : ControllerModule() {
                             if (pos.value == len.value) {
                                 send("All data received.")
                                 val channel = Channel<Message>(Channel.UNLIMITED)
-                                using(StudentsService) { verifyFile(KeyGenerator.generate(32), channel, fingerprint.value!!, file!!) }
+                                StudentsService.verifyFile(this@webSocket, KeyGenerator.generate(32), file!!, channel, fingerprint = fingerprint.value!!)
                                 launch {
                                     channel.receiveAsFlow()
                                         .map { message -> Frame.Text(message.toString()) }
@@ -141,7 +147,7 @@ object StudentsController : ControllerModule() {
                                 call.response.cookies.append(Cookie("fingerprint", value = it, path = "/student/anonymous"))
                             }
                         val channel = Channel<Message>(Channel.UNLIMITED)
-                        using(StudentsService) { verifyFile(KeyGenerator.generate(32), channel, fingerprint, file) }
+                        StudentsService.verifyFile(this@post, KeyGenerator.generate(32), file, channel, fingerprint = fingerprint)
                         val warn = Message.Warn(
                             "SSE `${call.request.host()}:${call.request.port()}/${call.request.path()}` is deprecated. " +
                                     "Please, use WebSocket: `ws://${call.request.host()}:${call.request.port()}/${call.request.path()}` instead."

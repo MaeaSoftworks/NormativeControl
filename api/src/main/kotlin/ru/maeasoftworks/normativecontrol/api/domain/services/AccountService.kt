@@ -5,6 +5,7 @@ import io.ktor.server.application.Application
 import org.slf4j.LoggerFactory
 import ru.maeasoftworks.normativecontrol.api.app.web.dto.LoginRequest
 import ru.maeasoftworks.normativecontrol.api.app.web.dto.RegistrationRequest
+import ru.maeasoftworks.normativecontrol.api.domain.EmailDomain
 import ru.maeasoftworks.normativecontrol.api.domain.dao.User
 import ru.maeasoftworks.normativecontrol.api.domain.dao.VerificationCode
 import ru.maeasoftworks.normativecontrol.api.infrastructure.database.Database.transaction
@@ -40,6 +41,7 @@ object AccountService : Module {
             User(
                 id = id,
                 email = registrationRequest.email,
+                domain = EmailDomain.ofEmail(registrationRequest.email)!!, // validation check in Validation.kt
                 password = BCrypt.withDefaults().hashToString(10, registrationRequest.password.toCharArray()),
                 roles = arrayOf(Role.STUDENT)
             )

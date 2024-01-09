@@ -20,6 +20,7 @@ object StatusPages : Module {
             registerException<CredentialsIsAlreadyInUseException>()
             registerException<EntityNotFoundException>()
             registerException<InconsistentStateException>()
+            registerException<InvalidRequestException>()
 
             exception<Throwable> { call, cause ->
                 call.respondText(text = "Unregistered exception: $cause", status = HttpStatusCode.InternalServerError)
