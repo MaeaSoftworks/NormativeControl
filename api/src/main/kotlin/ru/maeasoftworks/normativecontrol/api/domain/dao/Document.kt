@@ -4,6 +4,7 @@ import org.komapper.annotation.KomapperEntity
 import org.komapper.annotation.KomapperId
 import org.komapper.annotation.KomapperManyToOne
 import org.komapper.annotation.KomapperTable
+import java.time.Instant
 
 @KomapperEntity(["documents"])
 @KomapperTable("documents")
@@ -14,5 +15,6 @@ import org.komapper.annotation.KomapperTable
 data class Document(
     @KomapperId
     val id: String,
-    val userId: String
+    val userId: String,
+    val timestamp: Instant
 )

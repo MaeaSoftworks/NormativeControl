@@ -16,8 +16,10 @@ data class User internal constructor(
     var rolesStrings: Array<String> = emptyArray(),
     var isCredentialsVerified: Boolean = false
 ) {
-    val roles: Array<Role>
+    @setparam:KomapperIgnore
+    var roles: Array<Role>
         get() = rolesStrings.map { Role.valueOf(it) }.toTypedArray()
+        set(value) { rolesStrings = value.map { it.name }.toTypedArray() }
 
     constructor(
         id: String = null!!,
