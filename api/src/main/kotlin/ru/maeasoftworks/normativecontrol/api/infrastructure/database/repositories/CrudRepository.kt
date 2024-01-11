@@ -4,7 +4,8 @@ import kotlinx.coroutines.flow.Flow
 import org.komapper.core.dsl.QueryDsl
 import org.komapper.core.dsl.metamodel.EntityMetamodel
 import org.komapper.core.dsl.metamodel.PropertyMetamodel
-import org.komapper.core.dsl.query.firstOrNull
+import org.komapper.core.dsl.operator.count
+import org.komapper.core.dsl.query.singleOrNull
 import ru.maeasoftworks.normativecontrol.api.infrastructure.database.Database
 
 abstract class CrudRepository<E : Any, ID : Any, M : EntityMetamodel<E, ID, M>>(
@@ -25,7 +26,7 @@ abstract class CrudRepository<E : Any, ID : Any, M : EntityMetamodel<E, ID, M>>(
     open suspend fun getById(id: ID): E? {
         return Database {
             runQuery {
-                QueryDsl.from(meta).where { idColumn eq id }.firstOrNull()
+                QueryDsl.from(meta).where { idColumn eq id }.singleOrNull()
             }
         }
     }
@@ -33,7 +34,7 @@ abstract class CrudRepository<E : Any, ID : Any, M : EntityMetamodel<E, ID, M>>(
     open suspend fun <C : Any> getBy(column: PropertyMetamodel<E, C, C>, value: C): E? {
         return Database {
             runQuery {
-                QueryDsl.from(meta).where { column eq value }.firstOrNull()
+                QueryDsl.from(meta).where { column eq value }.singleOrNull()
             }
         }
     }
@@ -44,6 +45,22 @@ abstract class CrudRepository<E : Any, ID : Any, M : EntityMetamodel<E, ID, M>>(
                 QueryDsl.from(meta).where { column eq value }
             }
         }
+    }
+
+    open suspend fun existById(id: ID): Boolean {
+        return Database {
+            runQuery {
+                QueryDsl.from(meta).where { idColumn eq id }.select(count())
+            }
+        }!! > 0
+    }
+
+    open suspend fun <C : Any> existBy(column: PropertyMetamodel<E, C, C>, value: C): Boolean {
+        return Database {
+            runQuery {
+                QueryDsl.from(meta).where { column eq value }.select(count())
+            }
+        }!! > 0
     }
 
     open suspend fun update(id: ID, throwOnNotFound: (() -> Exception)? = null, fn: E.() -> Unit): E? {

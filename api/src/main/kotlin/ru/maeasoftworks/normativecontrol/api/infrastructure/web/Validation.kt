@@ -6,7 +6,7 @@ import io.ktor.server.plugins.requestvalidation.RequestValidation
 import io.ktor.server.plugins.requestvalidation.ValidationResult
 import ru.maeasoftworks.normativecontrol.api.app.web.dto.RegistrationRequest
 import ru.maeasoftworks.normativecontrol.api.app.web.dto.UpdateEmailStudentRequest
-import ru.maeasoftworks.normativecontrol.api.domain.EmailDomain
+import ru.maeasoftworks.normativecontrol.api.domain.Organization
 import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.Module
 
 object Validation : Module {
@@ -26,10 +26,10 @@ object Validation : Module {
     private fun emailValidation(email: String) =
         if (email.matches(emailRegex)) {
             if (
-                EmailDomain.domainRegex
+                Organization.domainRegex
                     .findAll(email)
-                    .map { match -> match.value }
-                    .any { domain -> domain in EmailDomain.allDomains }
+                    .map { match -> match.groups.last()?.value }
+                    .any { domain -> domain in Organization.allDomains }
             ) {
                 ValidationResult.Valid
             } else {

@@ -8,9 +8,13 @@ import io.ktor.server.plugins.requestvalidation.RequestValidationException
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.plugins.statuspages.StatusPagesConfig
 import io.ktor.server.response.respondText
+import io.ktor.util.logging.error
+import org.slf4j.LoggerFactory
 import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.Module
 
 object StatusPages : Module {
+    private val logger = LoggerFactory.getLogger(this::class.java)
+
     override fun Application.module() {
         install(StatusPages) {
             registerException<NoAccessException>()
@@ -21,9 +25,12 @@ object StatusPages : Module {
             registerException<EntityNotFoundException>()
             registerException<InconsistentStateException>()
             registerException<InvalidRequestException>()
+            registerException<NotFoundException>()
+            registerException<NotApplicableException>()
 
             exception<Throwable> { call, cause ->
                 call.respondText(text = "Unregistered exception: $cause", status = HttpStatusCode.InternalServerError)
+                logger.error(cause)
             }
         }
     }

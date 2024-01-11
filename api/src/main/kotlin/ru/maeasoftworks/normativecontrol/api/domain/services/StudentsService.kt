@@ -53,7 +53,7 @@ object StudentsService {
             throw InvalidRequestException()
         }
         val profile = if (fingerprint == null) {
-            transaction { UserRepository.getById(userId!!)!!.domain }!!.profile
+            transaction { UserRepository.getById(userId!!)!! }.organization!!.profile
         } else {
             Profile.UrFU
         }

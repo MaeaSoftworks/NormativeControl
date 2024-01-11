@@ -7,6 +7,5 @@ import ru.maeasoftworks.normativecontrol.api.domain.dao.users
 
 object UserRepository : CrudRepository<User, String, _User>(Meta.users, Meta.users.id) {
     suspend fun getUserByEmail(email: String): User? = getBy(Meta.users.email, email)
-
-    suspend fun existById(id: String): Boolean = getById(id) != null
+    suspend fun existUserByEmail(email: String): Boolean = existBy(Meta.users.email, email)
 }

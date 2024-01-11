@@ -5,15 +5,14 @@ import io.ktor.server.application.Application
 import org.slf4j.LoggerFactory
 import ru.maeasoftworks.normativecontrol.api.app.web.dto.LoginRequest
 import ru.maeasoftworks.normativecontrol.api.app.web.dto.RegistrationRequest
-import ru.maeasoftworks.normativecontrol.api.domain.EmailDomain
+import ru.maeasoftworks.normativecontrol.api.domain.Organization
 import ru.maeasoftworks.normativecontrol.api.domain.dao.User
 import ru.maeasoftworks.normativecontrol.api.domain.dao.VerificationCode
 import ru.maeasoftworks.normativecontrol.api.infrastructure.database.Database.transaction
 import ru.maeasoftworks.normativecontrol.api.infrastructure.database.repositories.UserRepository
 import ru.maeasoftworks.normativecontrol.api.infrastructure.database.repositories.VerificationCodeRepository
 import ru.maeasoftworks.normativecontrol.api.infrastructure.security.Role
-import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.KeyGenerator
-import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.Module
+import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.*
 import ru.maeasoftworks.normativecontrol.api.infrastructure.web.*
 import java.security.SecureRandom
 import java.time.Instant
@@ -28,7 +27,7 @@ object AccountService : Module {
     }
 
     suspend fun register(registrationRequest: RegistrationRequest): User = transaction {
-        val registered = UserRepository.getUserByEmail(registrationRequest.email)
+        if (UserRepository.existUserByEmail(registrationRequest.email)) throw CredentialsIsAlreadyInUseException()
         var id: String
         while (true) {
             id = KeyGenerator.generate(16)
@@ -36,12 +35,11 @@ object AccountService : Module {
                 break
             }
         }
-        if (registered != null) throw CredentialsIsAlreadyInUseException()
-        return@transaction UserRepository.save(
+        UserRepository.save(
             User(
                 id = id,
                 email = registrationRequest.email,
-                domain = EmailDomain.ofEmail(registrationRequest.email)!!, // validation check in Validation.kt
+                organization = Organization.getByEmail(registrationRequest.email)!!,
                 password = BCrypt.withDefaults().hashToString(10, registrationRequest.password.toCharArray()),
                 roles = arrayOf(Role.STUDENT)
             )
@@ -95,5 +93,11 @@ object AccountService : Module {
             this.isCredentialsVerified = true
         }
         return@transaction true
+    }
+
+    fun shouldBeInSameOrganization(issuerIdProvider: User?, targetIdProvider: User?) {
+        val a = issuerIdProvider ?: throw NotFoundException("User with this email was not found")
+        val b = targetIdProvider ?: throw NotFoundException("User with this id was not found")
+        if (a.organization != b.organization) throw NotApplicableException("User is not a student of your organization")
     }
 }

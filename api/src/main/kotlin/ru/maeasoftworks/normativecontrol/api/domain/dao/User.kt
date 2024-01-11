@@ -1,7 +1,7 @@
 package ru.maeasoftworks.normativecontrol.api.domain.dao
 
 import org.komapper.annotation.*
-import ru.maeasoftworks.normativecontrol.api.domain.EmailDomain
+import ru.maeasoftworks.normativecontrol.api.domain.Organization
 import ru.maeasoftworks.normativecontrol.api.infrastructure.security.Role
 
 @Suppress("ArrayInDataClass")
@@ -13,7 +13,7 @@ data class User internal constructor(
     val id: String = null!!,
     var email: String,
     @KomapperEnum(EnumType.NAME)
-    var domain: EmailDomain?,
+    var organization: Organization,
     var password: String,
     @KomapperColumn("roles")
     var rolesStrings: Array<String> = emptyArray(),
@@ -27,9 +27,9 @@ data class User internal constructor(
     constructor(
         id: String = null!!,
         email: String,
-        domain: EmailDomain,
+        organization: Organization,
         password: String,
         roles: Array<Role> = emptyArray(),
         isCredentialsVerified: Boolean = false
-    ) : this(id, email, domain, password, roles.map { it.name }.toTypedArray(), isCredentialsVerified)
+    ) : this(id, email, organization, password, roles.map { it.name }.toTypedArray(), isCredentialsVerified)
 }

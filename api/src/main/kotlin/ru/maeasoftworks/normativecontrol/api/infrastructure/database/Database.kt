@@ -6,6 +6,7 @@ import org.komapper.core.dsl.Meta
 import org.komapper.core.dsl.QueryDsl
 import org.komapper.r2dbc.R2dbcDatabase
 import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.Module
+import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.Transaction
 import ru.maeasoftworks.normativecontrol.core.annotations.Internal
 
 @OptIn(Internal::class)
@@ -32,11 +33,12 @@ object Database : Module {
 
     inline operator fun <T> invoke(fn: R2dbcDatabase.() -> T): T = instance.fn()
 
-    suspend inline fun <T> transaction(crossinline fn: suspend () -> T): T {
+    suspend inline fun <T> transaction(crossinline fn: suspend Transaction.() -> T): T {
         return Database {
             withTransaction {
-                fn()
+                fn(Transaction)
             }
         }
     }
 }
+

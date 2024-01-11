@@ -4,7 +4,9 @@ import io.ktor.http.HttpStatusCode
 
 open class StatusException(val code: HttpStatusCode, override val message: String) : Throwable(message)
 
-class InvalidRequestException : StatusException(HttpStatusCode.BadRequest, "Bad request")
+class InvalidRequestException(message: String? = null) : StatusException(HttpStatusCode.BadRequest, message ?: "Bad request")
+class NotFoundException(message: String? = null) : StatusException(HttpStatusCode.NotFound, message ?: "Resource not found")
+class NotApplicableException(message: String? = null) : StatusException(HttpStatusCode.Conflict, message ?: "This action is applicable to that entity")
 class NoAccessException(message: String? = null) : StatusException(HttpStatusCode.Forbidden, message ?: "You don't have access to this document")
 class AuthenticationException : StatusException(HttpStatusCode.Unauthorized, "Wrong credentials")
 class OutdatedException(subject: String) : StatusException(HttpStatusCode.BadRequest, "$subject is outdated")

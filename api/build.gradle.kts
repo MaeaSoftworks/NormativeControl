@@ -48,6 +48,7 @@ dependencies {
     implementation("software.amazon.awssdk:s3:2.21.37")
     implementation("ch.qos.logback:logback-classic:1.4.14")
     implementation("software.amazon.awssdk:netty-nio-client:2.21.37")
+    implementation("dev.reformator.stacktracedecoroutinator:stacktrace-decoroutinator-jvm:2.3.8")
 
     runtimeOnly("org.komapper:komapper-dialect-h2-r2dbc")
     // comment this line if it crashed in standalone mode

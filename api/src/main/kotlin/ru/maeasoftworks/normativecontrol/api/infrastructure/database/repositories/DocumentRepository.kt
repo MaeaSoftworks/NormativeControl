@@ -7,4 +7,6 @@ import ru.maeasoftworks.normativecontrol.api.domain.dao.documents
 
 object DocumentRepository : CrudRepository<Document, String, _Document>(Meta.documents, Meta.documents.id) {
     suspend fun getAllByUserId(userId: String) = getAllBy(Meta.documents.userId, userId)
+
+    suspend fun getUserByDocumentId(documentId: String) = getById(documentId)?.userId?.let { UserRepository.getById(it) }
 }
