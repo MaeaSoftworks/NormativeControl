@@ -6,7 +6,6 @@ import org.komapper.core.dsl.Meta
 import org.komapper.core.dsl.QueryDsl
 import org.komapper.r2dbc.R2dbcDatabase
 import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.Module
-import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.Transaction
 import ru.maeasoftworks.normativecontrol.core.annotations.Internal
 
 @OptIn(Internal::class)

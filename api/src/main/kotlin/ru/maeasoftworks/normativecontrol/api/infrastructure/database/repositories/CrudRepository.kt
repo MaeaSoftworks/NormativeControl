@@ -63,11 +63,12 @@ abstract class CrudRepository<E : Any, ID : Any, M : EntityMetamodel<E, ID, M>>(
 
     context(Transaction)
     open suspend fun <C : Any> existBy(column: PropertyMetamodel<E, C, C>, value: C): Boolean {
-        return Database {
+        val count = Database {
             runQuery {
                 QueryDsl.from(meta).where { column eq value }.select(count())
             }
-        }!! > 0
+        }
+        return count!! > 0
     }
 
     context(Transaction)

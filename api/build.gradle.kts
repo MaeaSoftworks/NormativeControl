@@ -55,7 +55,12 @@ dependencies {
     runtimeOnly("org.komapper:komapper-dialect-postgresql-r2dbc")
 
     testImplementation("io.ktor:ktor-server-tests-jvm")
+    testImplementation("io.ktor:ktor-client-websockets")
+    testImplementation("io.ktor:ktor-client-content-negotiation")
+
     testImplementation("io.kotest:kotest-runner-junit5:5.8.0")
+    testImplementation("io.kotest.extensions:kotest-assertions-ktor:2.0.0")
+
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testRuntimeOnly("org.komapper:komapper-dialect-h2-r2dbc")
 }

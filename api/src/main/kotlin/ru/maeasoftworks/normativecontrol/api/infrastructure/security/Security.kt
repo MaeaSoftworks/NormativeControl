@@ -16,6 +16,7 @@ import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.KeyGenerator
 import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.Module
 import ru.maeasoftworks.normativecontrol.api.infrastructure.web.InvalidRefreshToken
 import ru.maeasoftworks.normativecontrol.api.infrastructure.web.OutdatedException
+import java.security.SecureRandom
 import java.time.Instant
 import com.auth0.jwt.JWT as JWTLib
 
@@ -36,10 +37,10 @@ object Security : Module {
         private lateinit var jwtAudience: String
         private lateinit var issuer: String
         private lateinit var jwtRealm: String
-
         private lateinit var jwtSecret: String
-
         private var jwtExpiration: Long = 0
+        private val random = SecureRandom()
+
         override fun Application.module() {
             jwtAudience = environment.config.property("security.jwt.audience").getString()
             issuer = environment.config.property("security.jwt.issuer").getString()
@@ -68,12 +69,15 @@ object Security : Module {
         }
 
         fun createJWTToken(user: User): String {
+            val now = Instant.now()
             return JWTLib.create()
                 .withAudience(jwtAudience)
                 .withIssuer(issuer)
+                .withIssuedAt(now)
                 .withSubject(user.id)
-                .withArrayClaim("role", user.rolesStrings)
-                .withExpiresAt(Instant.now().plusSeconds(jwtExpiration))
+                .withClaim("role", user.serializedRoles)
+                .withClaim("ent", random.nextInt())
+                .withExpiresAt(now.plusSeconds(jwtExpiration))
                 .sign(Algorithm.HMAC256(jwtSecret))
         }
     }

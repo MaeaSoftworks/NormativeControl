@@ -4,6 +4,7 @@ import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.plugins.requestvalidation.RequestValidation
 import io.ktor.server.plugins.requestvalidation.ValidationResult
+import ru.maeasoftworks.normativecontrol.api.app.web.dto.LoginRequest
 import ru.maeasoftworks.normativecontrol.api.app.web.dto.RegistrationRequest
 import ru.maeasoftworks.normativecontrol.api.app.web.dto.UpdateEmailStudentRequest
 import ru.maeasoftworks.normativecontrol.api.domain.Organization
@@ -15,10 +16,17 @@ object Validation : Module {
     override fun Application.module() {
         install(RequestValidation) {
             validate<RegistrationRequest> {
+                if (it.email.isBlank()) return@validate ValidationResult.Invalid("Email was empty")
+                if (it.password.isBlank()) return@validate ValidationResult.Invalid("Password was empty")
                 emailValidation(it.email)
             }
             validate<UpdateEmailStudentRequest> {
                 emailValidation(it.email)
+            }
+            validate<LoginRequest> {
+                if (it.email.isBlank()) return@validate ValidationResult.Invalid("Email was empty")
+                if (it.password.isBlank()) return@validate ValidationResult.Invalid("Password was empty")
+                return@validate ValidationResult.Valid
             }
         }
     }
