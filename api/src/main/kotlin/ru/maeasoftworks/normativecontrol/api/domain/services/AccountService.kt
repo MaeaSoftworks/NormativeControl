@@ -8,7 +8,7 @@ import ru.maeasoftworks.normativecontrol.api.app.web.dto.RegistrationRequest
 import ru.maeasoftworks.normativecontrol.api.domain.Organization
 import ru.maeasoftworks.normativecontrol.api.domain.dao.User
 import ru.maeasoftworks.normativecontrol.api.domain.dao.VerificationCode
-import ru.maeasoftworks.normativecontrol.api.infrastructure.database.Database.transaction
+import ru.maeasoftworks.normativecontrol.api.infrastructure.database.transaction
 import ru.maeasoftworks.normativecontrol.api.infrastructure.database.repositories.UserRepository
 import ru.maeasoftworks.normativecontrol.api.infrastructure.database.repositories.VerificationCodeRepository
 import ru.maeasoftworks.normativecontrol.api.infrastructure.security.Role

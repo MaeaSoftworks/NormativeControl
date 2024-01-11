@@ -28,7 +28,7 @@ import ru.maeasoftworks.normativecontrol.api.app.web.dto.Event
 import ru.maeasoftworks.normativecontrol.api.app.web.dto.Message
 import ru.maeasoftworks.normativecontrol.api.domain.dao.Document
 import ru.maeasoftworks.normativecontrol.api.domain.services.StudentsService
-import ru.maeasoftworks.normativecontrol.api.infrastructure.database.Database.transaction
+import ru.maeasoftworks.normativecontrol.api.infrastructure.database.transaction
 import ru.maeasoftworks.normativecontrol.api.infrastructure.database.repositories.DocumentRepository
 import ru.maeasoftworks.normativecontrol.api.infrastructure.filestorage.FileStorage
 import ru.maeasoftworks.normativecontrol.api.infrastructure.filestorage.conclusion

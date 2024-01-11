@@ -7,6 +7,7 @@ import org.komapper.core.dsl.metamodel.PropertyMetamodel
 import org.komapper.core.dsl.operator.count
 import org.komapper.core.dsl.query.singleOrNull
 import ru.maeasoftworks.normativecontrol.api.infrastructure.database.Database
+import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.Transaction
 
 abstract class CrudRepository<E : Any, ID : Any, M : EntityMetamodel<E, ID, M>>(
     rawMeta: EntityMetamodel<E, ID, M>,
@@ -15,6 +16,7 @@ abstract class CrudRepository<E : Any, ID : Any, M : EntityMetamodel<E, ID, M>>(
     @Suppress("UNCHECKED_CAST")
     private val meta = rawMeta as M
 
+    context(Transaction)
     open suspend fun save(entity: E): E {
         return Database {
             runQuery {
@@ -23,6 +25,7 @@ abstract class CrudRepository<E : Any, ID : Any, M : EntityMetamodel<E, ID, M>>(
         }
     }
 
+    context(Transaction)
     open suspend fun getById(id: ID): E? {
         return Database {
             runQuery {
@@ -31,6 +34,7 @@ abstract class CrudRepository<E : Any, ID : Any, M : EntityMetamodel<E, ID, M>>(
         }
     }
 
+    context(Transaction)
     open suspend fun <C : Any> getBy(column: PropertyMetamodel<E, C, C>, value: C): E? {
         return Database {
             runQuery {
@@ -39,6 +43,7 @@ abstract class CrudRepository<E : Any, ID : Any, M : EntityMetamodel<E, ID, M>>(
         }
     }
 
+    context(Transaction)
     open suspend fun <C : Any> getAllBy(column: PropertyMetamodel<E, C, C>, value: C): Flow<E> {
         return Database {
             flowQuery {
@@ -47,6 +52,7 @@ abstract class CrudRepository<E : Any, ID : Any, M : EntityMetamodel<E, ID, M>>(
         }
     }
 
+    context(Transaction)
     open suspend fun existById(id: ID): Boolean {
         return Database {
             runQuery {
@@ -55,6 +61,7 @@ abstract class CrudRepository<E : Any, ID : Any, M : EntityMetamodel<E, ID, M>>(
         }!! > 0
     }
 
+    context(Transaction)
     open suspend fun <C : Any> existBy(column: PropertyMetamodel<E, C, C>, value: C): Boolean {
         return Database {
             runQuery {
@@ -63,6 +70,7 @@ abstract class CrudRepository<E : Any, ID : Any, M : EntityMetamodel<E, ID, M>>(
         }!! > 0
     }
 
+    context(Transaction)
     open suspend fun update(id: ID, throwOnNotFound: (() -> Exception)? = null, fn: E.() -> Unit): E? {
         val entity = getById(id)
         if (throwOnNotFound != null && entity == null) throw throwOnNotFound()
@@ -76,6 +84,7 @@ abstract class CrudRepository<E : Any, ID : Any, M : EntityMetamodel<E, ID, M>>(
         }
     }
 
+    context(Transaction)
     open suspend fun delete(id: ID): E? {
         return Database {
             runQuery {

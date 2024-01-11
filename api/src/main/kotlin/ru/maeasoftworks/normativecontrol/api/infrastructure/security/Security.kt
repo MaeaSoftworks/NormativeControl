@@ -11,6 +11,7 @@ import ru.maeasoftworks.normativecontrol.api.domain.dao.RefreshToken
 import ru.maeasoftworks.normativecontrol.api.domain.dao.User
 import ru.maeasoftworks.normativecontrol.api.domain.dao.refreshTokens
 import ru.maeasoftworks.normativecontrol.api.infrastructure.database.repositories.RefreshTokenRepository
+import ru.maeasoftworks.normativecontrol.api.infrastructure.database.transaction
 import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.KeyGenerator
 import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.Module
 import ru.maeasoftworks.normativecontrol.api.infrastructure.web.InvalidRefreshToken
@@ -84,20 +85,20 @@ object Security : Module {
             refreshTokenExpiration = environment.config.property("security.jwt.refreshTokenExpirationSeconds").getString().toLong()
         }
 
-        suspend fun updateJwtToken(refreshToken: String, userAgent: String?): RefreshToken {
+        suspend fun updateJwtToken(refreshToken: String, userAgent: String?): RefreshToken = transaction {
             val token = RefreshTokenRepository.getRefreshTokenByValue(refreshToken)
             if (token != null) {
                 RefreshTokenRepository.delete(token.id)
                 if (token.expiresAt >= Instant.now()) {
-                    return createRefreshTokenAndSave(token.userId, userAgent)
+                    return@transaction createRefreshTokenAndSave(token.userId, userAgent)
                 }
                 throw OutdatedException("Refresh token")
             }
             throw InvalidRefreshToken()
         }
 
-        suspend fun createRefreshTokenAndSave(userId: String, userAgent: String?): RefreshToken {
-            return RefreshTokenRepository.save(
+        suspend fun createRefreshTokenAndSave(userId: String, userAgent: String?): RefreshToken = transaction {
+            return@transaction RefreshTokenRepository.save(
                 RefreshToken(
                     refreshToken = createRefreshTokenString(),
                     expiresAt = Instant.now().plusSeconds(refreshTokenExpiration),
@@ -110,6 +111,8 @@ object Security : Module {
 
         private fun createRefreshTokenString(): String = KeyGenerator.generate(32)
 
-        suspend fun getAllRefreshTokensOfUser(userId: String): Flow<RefreshToken> = RefreshTokenRepository.getAllBy(Meta.refreshTokens.userId, userId)
+        suspend fun getAllRefreshTokensOfUser(userId: String): Flow<RefreshToken> = transaction {
+            return@transaction RefreshTokenRepository.getAllBy(Meta.refreshTokens.userId, userId)
+        }
     }
 }

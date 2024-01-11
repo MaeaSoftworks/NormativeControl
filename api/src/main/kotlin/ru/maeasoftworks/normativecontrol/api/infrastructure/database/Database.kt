@@ -32,13 +32,4 @@ object Database : Module {
     }
 
     inline operator fun <T> invoke(fn: R2dbcDatabase.() -> T): T = instance.fn()
-
-    suspend inline fun <T> transaction(crossinline fn: suspend Transaction.() -> T): T {
-        return Database {
-            withTransaction {
-                fn(Transaction)
-            }
-        }
-    }
 }
-

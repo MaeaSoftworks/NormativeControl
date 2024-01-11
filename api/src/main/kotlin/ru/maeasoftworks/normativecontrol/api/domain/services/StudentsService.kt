@@ -11,7 +11,7 @@ import kotlinx.serialization.json.Json
 import ru.maeasoftworks.normativecontrol.api.app.web.dto.DocumentListResponse
 import ru.maeasoftworks.normativecontrol.api.app.web.dto.Message
 import ru.maeasoftworks.normativecontrol.api.app.web.dto.VerificationInitialization
-import ru.maeasoftworks.normativecontrol.api.infrastructure.database.Database.transaction
+import ru.maeasoftworks.normativecontrol.api.infrastructure.database.transaction
 import ru.maeasoftworks.normativecontrol.api.infrastructure.database.repositories.DocumentRepository
 import ru.maeasoftworks.normativecontrol.api.infrastructure.database.repositories.UserRepository
 import ru.maeasoftworks.normativecontrol.api.infrastructure.filestorage.FileStorage
