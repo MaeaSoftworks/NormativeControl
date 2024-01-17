@@ -27,6 +27,7 @@ object StatusPages : Module {
             registerException<InvalidRequestException>()
             registerException<NotFoundException>()
             registerException<NotApplicableException>()
+            registerException<IdentificationException>()
 
             exception<Throwable> { call, cause ->
                 call.respondText(text = "Unregistered exception: $cause", status = HttpStatusCode.InternalServerError)

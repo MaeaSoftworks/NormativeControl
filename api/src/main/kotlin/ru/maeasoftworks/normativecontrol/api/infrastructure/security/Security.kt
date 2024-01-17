@@ -5,11 +5,8 @@ import io.ktor.server.application.Application
 import io.ktor.server.auth.authentication
 import io.ktor.server.auth.jwt.JWTPrincipal
 import io.ktor.server.auth.jwt.jwt
-import kotlinx.coroutines.flow.Flow
-import org.komapper.core.dsl.Meta
 import ru.maeasoftworks.normativecontrol.api.domain.dao.RefreshToken
 import ru.maeasoftworks.normativecontrol.api.domain.dao.User
-import ru.maeasoftworks.normativecontrol.api.domain.dao.refreshTokens
 import ru.maeasoftworks.normativecontrol.api.infrastructure.database.repositories.RefreshTokenRepository
 import ru.maeasoftworks.normativecontrol.api.infrastructure.database.transaction
 import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.KeyGenerator
@@ -114,9 +111,5 @@ object Security : Module {
         }
 
         private fun createRefreshTokenString(): String = KeyGenerator.generate(32)
-
-        suspend fun getAllRefreshTokensOfUser(userId: String): Flow<RefreshToken> = transaction {
-            return@transaction RefreshTokenRepository.getAllBy(Meta.refreshTokens.userId, userId)
-        }
     }
 }

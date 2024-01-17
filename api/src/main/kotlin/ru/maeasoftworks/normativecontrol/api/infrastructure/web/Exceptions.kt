@@ -14,3 +14,4 @@ class InvalidRefreshToken : StatusException(HttpStatusCode.BadRequest, "RefreshT
 class CredentialsIsAlreadyInUseException : StatusException(HttpStatusCode.Conflict, "Credentials is already in use")
 class EntityNotFoundException(entityName: String) : StatusException(HttpStatusCode.NotFound, "$entityName not found")
 class InconsistentStateException(message: String? = null) : StatusException(HttpStatusCode.Conflict, message ?: "Inconsistent state")
+class IdentificationException(message: String? = null) : StatusException(HttpStatusCode.Conflict, message ?: "User was not identified")

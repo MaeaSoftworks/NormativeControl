@@ -13,10 +13,7 @@ import io.ktor.server.request.path
 import io.ktor.server.request.port
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondBytesWriter
-import io.ktor.server.routing.Routing
-import io.ktor.server.routing.get
-import io.ktor.server.routing.post
-import io.ktor.server.routing.route
+import io.ktor.server.routing.*
 import io.ktor.server.websocket.webSocket
 import io.ktor.websocket.*
 import kotlinx.coroutines.channels.Channel
@@ -26,10 +23,12 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import ru.maeasoftworks.normativecontrol.api.app.web.dto.Event
 import ru.maeasoftworks.normativecontrol.api.app.web.dto.Message
+import ru.maeasoftworks.normativecontrol.api.app.web.utlis.header
 import ru.maeasoftworks.normativecontrol.api.domain.dao.Document
 import ru.maeasoftworks.normativecontrol.api.domain.services.StudentsService
 import ru.maeasoftworks.normativecontrol.api.infrastructure.database.transaction
 import ru.maeasoftworks.normativecontrol.api.infrastructure.database.repositories.DocumentRepository
+import ru.maeasoftworks.normativecontrol.api.infrastructure.database.repositories.UserRepository
 import ru.maeasoftworks.normativecontrol.api.infrastructure.filestorage.FileStorage
 import ru.maeasoftworks.normativecontrol.api.infrastructure.filestorage.conclusion
 import ru.maeasoftworks.normativecontrol.api.infrastructure.filestorage.render
@@ -39,61 +38,23 @@ import ru.maeasoftworks.normativecontrol.api.infrastructure.security.withRoles
 import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.*
 import ru.maeasoftworks.normativecontrol.api.infrastructure.web.MultipartExtractor.Companion.extractMultipartParts
 import ru.maeasoftworks.normativecontrol.api.infrastructure.web.NoAccessException
-import ru.maeasoftworks.normativecontrol.api.infrastructure.web.WebSockets
 import ru.maeasoftworks.normativecontrol.api.infrastructure.web.respond
 import java.time.Instant
-import kotlin.math.ceil
 
 object StudentsController : ControllerModule() {
     override fun Routing.register() {
         route("/student") {
             authenticate(Security.JWT.CONFIGURATION_NAME) {
-                withRoles(Role.STUDENT) {
-                    route("/secured") {
+                header("Authorization") {
+                    withRoles(Role.STUDENT) {
                         route("/document") {
                             webSocket("/verify") {
-                                val len = Boxed<Int>()
-                                var file: ByteArray? = null
-                                val pos = Boxed(0)
-                                incoming.receiveAsFlow().collect { frame ->
-                                    if (!len.isInitialized) {
-                                        StudentsService.getMetadata(frame, null, len)
-                                        file = ByteArray(len.value)
-                                        send(
-                                            "Upload was initialized. Waiting for " +
-                                                    "${ceil(len.value * 1.0 / WebSockets.maxFrameSize).toInt()}" +
-                                                    " file frames..."
-                                        )
-                                        return@collect
-                                    }
-                                    if (pos.value < len.value) {
-                                        val added = StudentsService.fillFile(frame, file!!, pos)
-                                        send(Frame.Text("Added $added bytes; received ${pos.value} of ${len.value} bytes."))
-                                    }
-                                    if (pos.value == len.value) {
-                                        send("All data received.")
-                                        val channel = Channel<Message>(Channel.UNLIMITED)
-                                        val documentId = KeyGenerator.generate(32)
-                                        StudentsService.verifyFile(
-                                            this@webSocket,
-                                            documentId,
-                                            file!!,
-                                            channel,
-                                            call.authentication.principal<JWTPrincipal>()!!.subject!!
-                                        )
-                                        transaction {
-                                            DocumentRepository.save(
-                                                Document(
-                                                    documentId,
-                                                    call.authentication.principal<JWTPrincipal>()!!.subject!!,
-                                                    Instant.now()
-                                                )
-                                            )
-                                        }
+                                StudentsService.verification {
+                                    userId = call.authentication.principal<JWTPrincipal>()!!.subject!!
+                                    onVerificationEnded = {
+                                        transaction { DocumentRepository.save(Document(documentId, userId!!, Instant.now())) }
                                         launch {
-                                            channel.receiveAsFlow()
-                                                .map { message -> Frame.Text(message.toString()) }
-                                                .collect { i -> send(i) }
+                                            channel.receiveAsFlow().map { Frame.Text(it.toString()) }.collect(::send)
                                             close()
                                         }
                                     }
@@ -101,90 +62,102 @@ object StudentsController : ControllerModule() {
                             }
 
                             get("/list") {
-                                call.respond(StudentsService.getDocumentsByUser(call.authentication.principal<JWTPrincipal>()!!.subject!!))
+                                transaction {
+                                    call.authentication.identify()
+                                    call.respond(StudentsService.getDocumentsByUser(call.authentication.principal<JWTPrincipal>()!!.subject!!))
+                                }
+                            }
+
+                            get("/conclusion") {
+                                val documentId = call.parameters["documentId"] ?: throw IllegalArgumentException("documentId must be not null")
+                                val isOwner = transaction {
+                                    val user = call.authentication.identify()
+                                    DocumentRepository.isUserOwnerOf(user.id, documentId)
+                                }
+                                if (!isOwner) throw NoAccessException()
+                                val filename = conclusion(documentId)
+                                call.respondBytesWriter(ContentType.defaultForFileExtension("docx"), HttpStatusCode.OK) {
+                                    FileStorage.getObject(filename).collect {
+                                        this.writeFully(it)
+                                    }
+                                }
+                            }
+
+                            get("/render") {
+                                val documentId = call.parameters["documentId"] ?: throw IllegalArgumentException("documentId must be not null")
+                                val isOwner = transaction {
+                                    val user = UserRepository.identify(call.authentication.principal<JWTPrincipal>()!!.subject!!)
+                                    DocumentRepository.isUserOwnerOf(user.id, documentId)
+                                }
+                                if (!isOwner) throw NoAccessException()
+                                val filename = render(documentId)
+                                call.respondBytesWriter(ContentType.defaultForFileExtension("html"), HttpStatusCode.OK) {
+                                    FileStorage.getObject(filename).collect {
+                                        this.writeFully(it)
+                                    }
+                                }
                             }
                         }
                     }
                 }
             }
 
-            route("/anonymous") {
-                route("/document") {
-                    webSocket("/verify") {
-                        val fingerprint = Boxed.Nullable<String>()
-                        val len = Boxed<Int>()
-                        var file: ByteArray? = null
-                        val pos = Boxed(0)
-                        incoming.receiveAsFlow().collect { frame ->
-                            if (!len.isInitialized && !fingerprint.isInitialized) {
-                                StudentsService.getMetadata(frame, fingerprint, len)
-                                file = ByteArray(len.value)
-                                send("Upload was initialized. Waiting for ${ceil(len.value * 1.0 / WebSockets.maxFrameSize).toInt()} file frames...")
-                                return@collect
-                            }
-                            if (pos.value < len.value) {
-                                val added = StudentsService.fillFile(frame, file!!, pos)
-                                send(Frame.Text("Added $added bytes; received ${pos.value} of $len bytes."))
-                            }
-                            if (pos.value == len.value) {
-                                send("All data received.")
-                                val channel = Channel<Message>(Channel.UNLIMITED)
-                                StudentsService.verifyFile(this@webSocket, KeyGenerator.generate(32), file!!, channel, fingerprint = fingerprint.value!!)
-                                launch {
-                                    channel.receiveAsFlow()
-                                        .map { message -> Frame.Text(message.toString()) }
-                                        .collect { i -> send(i) }
-                                    close()
-                                }
+            route("/document") {
+                webSocket("/verify") {
+                    StudentsService.verification {
+                        onVerificationEnded = {
+                            launch {
+                                channel.receiveAsFlow().map { Frame.Text(it.toString()) }.collect(::send)
+                                close()
                             }
                         }
                     }
+                }
 
-                    post("/verify") {
-                        val file = call.extractMultipartParts { file("file") }
-                        val fingerprint = call.request.cookies["fingerprint"]
-                            ?: KeyGenerator.generate(64).also {
-                                call.response.cookies.append(Cookie("fingerprint", value = it, path = "/student/anonymous"))
-                            }
-                        val channel = Channel<Message>(Channel.UNLIMITED)
-                        StudentsService.verifyFile(this@post, KeyGenerator.generate(32), file, channel, fingerprint = fingerprint)
-                        val warn = Message.Warn(
-                            "SSE `${call.request.host()}:${call.request.port()}/${call.request.path()}` is deprecated. " +
-                                    "Please, use WebSocket: `ws://${call.request.host()}:${call.request.port()}/${call.request.path()}` instead."
-                        )
-                        call.respond(
-                            channel.receiveAsFlow().onCompletion { emit(warn) }.map { Event.fromMessage(it) },
-                            HttpStatusCode(299, "Deprecated")
-                        )
-                    }
+                post("/verify") {
+                    val file = call.extractMultipartParts { file("file") }
+                    val fingerprint = call.request.cookies["fingerprint"]
+                        ?: KeyGenerator.generate(64).also {
+                            call.response.cookies.append(Cookie("fingerprint", value = it, path = "/student"))
+                        }
+                    val channel = Channel<Message>(Channel.UNLIMITED)
+                    StudentsService.verifyFile(this@post, KeyGenerator.generate(32), file, channel, fingerprint = fingerprint)
+                    val warn = Message.Warn(
+                        "SSE `${call.request.host()}:${call.request.port()}/${call.request.path()}` is deprecated. " +
+                                "Please, use WebSocket: `ws://${call.request.host()}:${call.request.port()}/${call.request.path()}` instead."
+                    )
+                    call.respond(
+                        channel.receiveAsFlow().onCompletion { emit(warn) }.map { Event.fromMessage(it) },
+                        HttpStatusCode(299, "Deprecated")
+                    )
+                }
 
-                    get("/conclusion") {
-                        val documentId = call.parameters["documentId"] ?: throw IllegalArgumentException("documentId must be not null")
-                        val fingerprint = call.request.cookies["fingerprint"] ?: throw IllegalArgumentException("fingerprint must be not null")
-                        val filename = conclusion(documentId)
+                get("/conclusion") {
+                    val documentId = call.parameters["documentId"] ?: throw IllegalArgumentException("documentId must be not null")
+                    val fingerprint = call.request.cookies["fingerprint"] ?: throw IllegalArgumentException("fingerprint must be not null")
+                    val filename = conclusion(documentId)
 
-                        call.respondBytesWriter(ContentType.defaultForFileExtension("docx"), HttpStatusCode.OK) {
-                            if (FileStorage.getTags(filename)?.get("fingerprint") != fingerprint) {
-                                throw NoAccessException()
-                            }
-                            FileStorage.getObject(filename).collect {
-                                this.writeFully(it)
-                            }
+                    call.respondBytesWriter(ContentType.defaultForFileExtension("docx"), HttpStatusCode.OK) {
+                        if (FileStorage.getTags(filename)?.get("fingerprint") != fingerprint) {
+                            throw NoAccessException()
+                        }
+                        FileStorage.getObject(filename).collect {
+                            this.writeFully(it)
                         }
                     }
+                }
 
-                    get("/render") {
-                        val documentId = call.parameters["documentId"] ?: throw IllegalArgumentException("documentId must be not null")
-                        val fingerprint = call.request.cookies["fingerprint"] ?: throw IllegalArgumentException("fingerprint must be not null")
-                        val filename = render(documentId)
+                get("/render") {
+                    val documentId = call.parameters["documentId"] ?: throw IllegalArgumentException("documentId must be not null")
+                    val fingerprint = call.request.cookies["fingerprint"] ?: throw IllegalArgumentException("fingerprint must be not null")
+                    val filename = render(documentId)
 
-                        call.respondBytesWriter(ContentType.defaultForFileExtension("html"), HttpStatusCode.OK) {
-                            if (FileStorage.getTags(filename)?.get("fingerprint") != fingerprint) {
-                                throw NoAccessException()
-                            }
-                            FileStorage.getObject(filename).collect {
-                                this.writeFully(it)
-                            }
+                    call.respondBytesWriter(ContentType.defaultForFileExtension("html"), HttpStatusCode.OK) {
+                        if (FileStorage.getTags(filename)?.get("fingerprint") != fingerprint) {
+                            throw NoAccessException()
+                        }
+                        FileStorage.getObject(filename).collect {
+                            this.writeFully(it)
                         }
                     }
                 }

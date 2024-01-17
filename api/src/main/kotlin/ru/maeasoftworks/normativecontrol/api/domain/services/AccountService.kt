@@ -8,7 +8,6 @@ import ru.maeasoftworks.normativecontrol.api.app.web.dto.RegistrationRequest
 import ru.maeasoftworks.normativecontrol.api.domain.Organization
 import ru.maeasoftworks.normativecontrol.api.domain.dao.User
 import ru.maeasoftworks.normativecontrol.api.domain.dao.VerificationCode
-import ru.maeasoftworks.normativecontrol.api.infrastructure.database.transaction
 import ru.maeasoftworks.normativecontrol.api.infrastructure.database.repositories.UserRepository
 import ru.maeasoftworks.normativecontrol.api.infrastructure.database.repositories.VerificationCodeRepository
 import ru.maeasoftworks.normativecontrol.api.infrastructure.security.Role
@@ -26,7 +25,8 @@ object AccountService : Module {
         verificationCodeExpiration = environment.config.property("security.verification.expirationSeconds").getString().toLong()
     }
 
-    suspend fun register(registrationRequest: RegistrationRequest): User = transaction {
+    context(Transaction)
+    suspend fun register(registrationRequest: RegistrationRequest): User {
         if (UserRepository.existUserByEmail(registrationRequest.email)) throw CredentialsIsAlreadyInUseException()
         var id: String
         while (true) {
@@ -35,7 +35,7 @@ object AccountService : Module {
                 break
             }
         }
-        UserRepository.save(
+        return UserRepository.save(
             User(
                 id = id,
                 email = registrationRequest.email,
@@ -46,29 +46,33 @@ object AccountService : Module {
         )
     }
 
-    suspend fun authenticate(loginRequest: LoginRequest): User = transaction {
+    context(Transaction)
+    suspend fun authenticate(loginRequest: LoginRequest): User {
         val user = UserRepository.getUserByEmail(loginRequest.email) ?: throw AuthenticationException()
         if (!(BCrypt.verifyer().verify(loginRequest.password.toCharArray(), user.password).verified)) {
             throw AuthenticationException()
         }
-        return@transaction user
+        return user
     }
 
-    suspend fun changePassword(userId: String, newPassword: String) = transaction {
+    context(Transaction)
+    suspend fun changePassword(userId: String, newPassword: String) {
         UserRepository.update(userId) {
             password = BCrypt.withDefaults().hashToString(10, newPassword.toCharArray())
         }
     }
 
-    suspend fun changeEmail(userId: String, newEmail: String) = transaction {
+    context(Transaction)
+    suspend fun changeEmail(userId: String, newEmail: String) {
         UserRepository.update(userId) {
             email = newEmail
             isCredentialsVerified = false
         }
     }
 
-    suspend fun createVerificationCode(userId: String): Pair<Instant, Instant> = transaction {
-        if (UserRepository.getById(userId)?.isCredentialsVerified ?: throw EntityNotFoundException("User")) {
+    context(Transaction)
+    suspend fun createVerificationCode(userId: String): Pair<Instant, Instant> {
+        if (UserRepository.identify(userId).isCredentialsVerified) {
             throw InconsistentStateException("Email is already verified")
         }
         VerificationCodeRepository.deleteAllByUserId(userId)
@@ -77,22 +81,23 @@ object AccountService : Module {
         val createdAt = Instant.now()
         val expiredAt = createdAt.plusSeconds(verificationCodeExpiration)
         VerificationCodeRepository.save(VerificationCode(userId = userId, code = code, createdAt = createdAt, expiresAt = expiredAt))
-        return@transaction createdAt to expiredAt
+        return createdAt to expiredAt
     }
 
-    suspend fun verify(userId: String, verificationCode: Int): Boolean = transaction {
+    context(Transaction)
+    suspend fun verify(userId: String, verificationCode: Int): Boolean {
         val code = VerificationCodeRepository.getByUserId(userId) ?: throw EntityNotFoundException("Valid verification code")
         if (code.expiresAt < Instant.now()) {
             throw OutdatedException("Verification code")
         }
         if (code.code != verificationCode) {
-            return@transaction false
+            return false
         }
         VerificationCodeRepository.delete(code.id)
         UserRepository.update(userId) {
             this.isCredentialsVerified = true
         }
-        return@transaction true
+        return true
     }
 
     fun shouldBeInSameOrganization(issuerIdProvider: User?, targetIdProvider: User?) {

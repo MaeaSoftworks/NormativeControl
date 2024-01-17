@@ -7,6 +7,7 @@ import io.ktor.server.auth.jwt.JWTPrincipal
 import io.ktor.server.auth.principal
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.RouteSelectorEvaluation
+import kotlinx.serialization.json.Json
 import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.createChild
 import ru.maeasoftworks.normativecontrol.api.infrastructure.web.NoAccessException
 
@@ -25,7 +26,7 @@ class RoleBaseAuthorizationConfiguration {
 val RoleBasedAuthorizationPlugin = createRouteScopedPlugin("RoleBasedAuthorization", ::RoleBaseAuthorizationConfiguration) {
     on(AuthenticationChecked) { call ->
         val principal = call.principal<JWTPrincipal>() ?: return@on
-        val roles = principal.payload.getClaim("role").asArray(Role::class.java)
+        val roles = Json.decodeFromString<Array<Role>>(principal.payload.getClaim("role").asString())
 
         if (pluginConfig.requiredRoles.isNotEmpty() && roles.intersect(pluginConfig.requiredRoles).isEmpty()) {
             throw NoAccessException()

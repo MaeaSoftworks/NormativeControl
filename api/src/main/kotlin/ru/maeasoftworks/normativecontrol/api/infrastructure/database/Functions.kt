@@ -13,6 +13,9 @@ suspend inline fun <T> transaction(crossinline fn: suspend Transaction.() -> T):
 @RequiresOptIn(level = RequiresOptIn.Level.WARNING)
 annotation class UnsafeDatabaseUsage
 
+@RequiresOptIn(level = RequiresOptIn.Level.WARNING)
+annotation class UnsafeDataAccess(val description: String)
+
 @UnsafeDatabaseUsage
 suspend inline fun <T> unsafeDatabaseUse(crossinline fn: suspend Transaction.() -> T): T {
     return Database {

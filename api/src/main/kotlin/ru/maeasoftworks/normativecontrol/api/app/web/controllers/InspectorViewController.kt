@@ -40,7 +40,7 @@ object InspectorViewController : ControllerModule() {
                             val documentId = call.parameters["documentId"] ?: throw InvalidRequestException("documentId must be not null")
                             transaction {
                                 AccountService.shouldBeInSameOrganization(
-                                    UserRepository.getById(call.authentication.principal<JWTPrincipal>()!!.subject!!),
+                                    UserRepository.identify(call.authentication.principal<JWTPrincipal>()!!.subject!!),
                                     DocumentRepository.getUserByDocumentId(documentId)
                                 )
                             }
@@ -66,10 +66,10 @@ object InspectorViewController : ControllerModule() {
                     route("/students") {
                         get("/find") {
                             val email = call.request.queryParameters["email"] ?: throw InvalidRequestException("email must be not null")
-                            var targetUser: User?
                             transaction {
+                                var targetUser: User?
                                 AccountService.shouldBeInSameOrganization(
-                                    UserRepository.getById(call.authentication.principal<JWTPrincipal>()!!.subject!!),
+                                    UserRepository.identify(call.authentication.principal<JWTPrincipal>()!!.subject!!),
                                     UserRepository.getUserByEmail(email).also { targetUser = it }
                                 )
                                 if (targetUser?.roles?.contains(Role.STUDENT) != true) throw NotApplicableException("User is not a student")
