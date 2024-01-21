@@ -3,7 +3,7 @@ plugins {
     id("com.google.devtools.ksp") version "1.9.22-1.0.16"
 }
 
-java.sourceCompatibility = JavaVersion.VERSION_21
+java.sourceCompatibility = JavaVersion.VERSION_20
 
 dependencies {
     implementation(kotlin("reflect"))

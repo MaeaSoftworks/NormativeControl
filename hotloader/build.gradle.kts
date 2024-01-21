@@ -6,7 +6,7 @@ repositories {
     mavenCentral()
 }
 
-java.sourceCompatibility = JavaVersion.VERSION_21
+java.sourceCompatibility = JavaVersion.VERSION_20
 
 dependencies {
     implementation("com.google.devtools.ksp:symbol-processing-api:1.9.22-1.0.16")
