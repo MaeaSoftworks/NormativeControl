@@ -17,7 +17,7 @@ annotation class UnsafeDatabaseUsage
 annotation class UnsafeDataAccess(val description: String)
 
 @UnsafeDatabaseUsage
-suspend inline fun <T> unsafeDatabaseUse(crossinline fn: suspend Transaction.() -> T): T {
+suspend inline fun <T> unsafeDatabaseUsage(crossinline fn: suspend Transaction.() -> T): T {
     return Database {
         fn(Transaction)
     }
