@@ -23,7 +23,7 @@ But you can build it manually:
 ./gradlew build
 ```
 Then you **must** set environment variable `NORMATIVECONTROL_PROFILE` to `"standalone"` and 
-launch jar file as commons:
+launch jar file as common:
 ```shell
 java -jar api/build/libs/api-all.jar
 ```
