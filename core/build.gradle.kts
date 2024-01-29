@@ -7,8 +7,7 @@ java.sourceCompatibility = JavaVersion.VERSION_20
 
 dependencies {
     implementation(kotlin("reflect"))
-    implementation(project(":hotloader"))
-    ksp(project(":hotloader"))
+    implementation ("org.reflections:reflections:0.10.2")
     implementation("org.docx4j:docx4j-JAXB-ReferenceImpl:11.4.9")
     constraints {
         implementation("commons-codec:commons-codec:1.16.0") {
@@ -19,10 +18,6 @@ dependencies {
 
     testImplementation("io.kotest:kotest-runner-junit5:5.8.0")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-}
-
-ksp {
-    arg("hotloader.basePackage", "ru.maeasoftworks.normativecontrol.core")
 }
 
 tasks.getByName<Test>("test") {

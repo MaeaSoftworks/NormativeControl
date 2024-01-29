@@ -53,19 +53,10 @@ object StudentsService {
     context(Transaction)
     suspend fun getDocumentsByUser(userId: String) = DocumentRepository.getAllByUserId(userId).map { DocumentListResponse(it) }
 
-    context(WebSocketSession)
-    suspend inline fun verification(verification: VerificationBuilder.() -> Unit) {
-        val builder = VerificationBuilder()
-        verification(builder)
-        builder.apply {
-            launch()
-        }
-    }
-
-    class VerificationBuilder {
+    class Verification {
         private var fingerprint: String? = null
         var userId: String? = null
-        var onVerificationEnded: (suspend VerificationBuilder.() -> Unit)? = null
+        var onVerificationEnded: (suspend Verification.() -> Unit)? = null
         val channel: Channel<Message> = Channel(Channel.UNLIMITED)
         lateinit var documentId: String
 
@@ -102,8 +93,14 @@ object StudentsService {
                     } else if (userId != null) {
                         verifyFile(this, documentId, file!!, channel, userId)
                     }
-                    onVerificationEnded?.invoke(this@VerificationBuilder)
+                    onVerificationEnded?.invoke(this@Verification)
                 }
+            }
+        }
+
+        companion object {
+            context(WebSocketSession) operator fun invoke(verification: Verification.() -> Unit): Verification {
+                return Verification().apply(verification)
             }
         }
     }

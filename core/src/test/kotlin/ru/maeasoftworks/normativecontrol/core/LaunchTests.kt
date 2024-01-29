@@ -10,10 +10,6 @@ import ru.maeasoftworks.normativecontrol.core.model.VerificationContext
 
 class LaunchTests : StringSpec({
 
-    beforeTest {
-        HotLoader.load()
-    }
-
     "context text".config(enabled = false) {
         val ctx = VerificationContext(Profile.UrFU)
         ctx.chapter = BodyChapter

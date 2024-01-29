@@ -7,10 +7,6 @@ import ru.maeasoftworks.normativecontrol.core.model.VerificationContext
 import java.io.File
 
 class DebugTest : ShouldSpec({
-    beforeTest {
-        HotLoader.load()
-    }
-
     should("not throws exceptions") {
         val ctx = VerificationContext(Profile.UrFU)
         withContext(ctx) {

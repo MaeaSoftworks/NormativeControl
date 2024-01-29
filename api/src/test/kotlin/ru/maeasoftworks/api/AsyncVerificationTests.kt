@@ -6,16 +6,11 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.KeyGenerator
 import ru.maeasoftworks.normativecontrol.api.infrastructure.verification.VerificationService
-import ru.maeasoftworks.normativecontrol.core.HotLoader
 import java.io.ByteArrayInputStream
 import java.io.File
 
 class AsyncVerificationTests : ShouldSpec({
     val file = File("src/test/resources/ignore/sample1.docx").readBytes()
-
-    beforeTest {
-        HotLoader.load()
-    }
 
     context("test application with websocket controller") {
         suspend fun verification(id: Int, file: ByteArray) {

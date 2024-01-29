@@ -9,7 +9,6 @@ import ru.maeasoftworks.normativecontrol.api.infrastructure.filestorage.uploadDo
 import ru.maeasoftworks.normativecontrol.api.infrastructure.filestorage.uploadDocumentRender
 import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.Module
 import ru.maeasoftworks.normativecontrol.core.Document
-import ru.maeasoftworks.normativecontrol.core.HotLoader
 import ru.maeasoftworks.normativecontrol.core.abstractions.Profile
 import ru.maeasoftworks.normativecontrol.core.model.VerificationContext
 import java.io.ByteArrayOutputStream
@@ -17,7 +16,6 @@ import java.io.InputStream
 
 object VerificationServiceImpl: VerificationService, Module {
     override fun Application.module() {
-        HotLoader.load()
         VerificationService.initialize(VerificationServiceImpl)
     }
 

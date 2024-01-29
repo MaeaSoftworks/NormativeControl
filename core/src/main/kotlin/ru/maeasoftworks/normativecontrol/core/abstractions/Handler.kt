@@ -1,10 +1,10 @@
 package ru.maeasoftworks.normativecontrol.core.abstractions
 
-import me.prmncr.hotloader.HotLoaded
+import ru.maeasoftworks.normativecontrol.core.annotations.EagerInitialization
 
 /**
  * Parent class for any object handler that verifies and renders docx4j objects.
- * For correct registration use with [HotLoaded] annotation.
+ * For correct registration use with [EagerInitialization] annotation.
  *
  * @constructor Registers extending class to mapper container.
  * @param fn registration body. Must contain a call to [HandlerMapper.register].

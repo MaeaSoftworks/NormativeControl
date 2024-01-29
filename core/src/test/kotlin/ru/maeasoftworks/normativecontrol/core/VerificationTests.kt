@@ -5,10 +5,6 @@ import io.kotest.matchers.shouldBe
 import ru.maeasoftworks.normativecontrol.core.implementations.ufru.PHandler
 
 class VerificationTests : ShouldSpec({
-    beforeTest {
-        HotLoader.load()
-    }
-
     context(PHandler::class.simpleName!!) {
         should("regex works properly") {
             val fn = PHandler { "isChapterBodyHeader" }

@@ -10,10 +10,6 @@ import ru.maeasoftworks.normativecontrol.core.rendering.HtmlElement
 
 @OptIn(Internal::class, ExperimentalKotest::class)
 class RenderingTests : ShouldSpec({
-    beforeTest {
-        HotLoader.load()
-    }
-
     context("simple rendering tests").config(enabled = false) {
         should("p be rendered as html <p>") {
             P()

@@ -2,8 +2,11 @@ package ru.maeasoftworks.normativecontrol.core
 
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
+import org.reflections.Reflections
+import org.slf4j.LoggerFactory
 import ru.maeasoftworks.normativecontrol.core.abstractions.ChapterHeader
 import ru.maeasoftworks.normativecontrol.core.abstractions.HandlerMapper
+import ru.maeasoftworks.normativecontrol.core.annotations.EagerInitialization
 import ru.maeasoftworks.normativecontrol.core.model.VerificationContext
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
@@ -36,5 +39,21 @@ class Document(val ctx: VerificationContext) {
 
     fun writeResult(stream: ByteArrayOutputStream) {
         mlPackage.save(stream)
+    }
+
+    companion object {
+        private var isLoaded = false
+        private val logger = LoggerFactory.getLogger(Document::class.java)
+
+        init {
+            if (!isLoaded) {
+                isLoaded = true
+                val initialized = Reflections("ru.maeasoftworks.normativecontrol.core").getTypesAnnotatedWith(EagerInitialization::class.java)
+                initialized.forEach {
+                    it.kotlin.objectInstance
+                }
+                logger.debug("Loaded handlers: [${initialized.joinToString { it.simpleName }}]")
+            }
+        }
     }
 }

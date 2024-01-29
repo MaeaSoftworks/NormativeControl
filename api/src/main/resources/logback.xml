@@ -20,7 +20,7 @@
     <if condition='property("normativecontrol.profile").contains("production") || property("normativecontrol.profile").contains("standalone")'>
         <!--production config-->
         <then>
-            <root level="info">
+            <root level="debug">
                 <appender-ref ref="STDOUT"/>
             </root>
         </then>

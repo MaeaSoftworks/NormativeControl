@@ -51,6 +51,7 @@ dependencies {
     implementation("dev.reformator.stacktracedecoroutinator:stacktrace-decoroutinator-jvm:2.3.8")
 
     runtimeOnly("org.komapper:komapper-dialect-h2-r2dbc")
+    runtimeOnly("org.komapper:komapper-dialect-postgresql-r2dbc")
 
     testImplementation("io.ktor:ktor-server-tests-jvm")
     testImplementation("io.ktor:ktor-client-websockets")

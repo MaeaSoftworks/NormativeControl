@@ -1,9 +1,9 @@
 package ru.maeasoftworks.normativecontrol.core.implementations.ufru
 
-import me.prmncr.hotloader.HotLoaded
 import org.docx4j.TextUtils
 import org.docx4j.wml.P
 import ru.maeasoftworks.normativecontrol.core.abstractions.*
+import ru.maeasoftworks.normativecontrol.core.annotations.EagerInitialization
 import ru.maeasoftworks.normativecontrol.core.enums.Closure
 import ru.maeasoftworks.normativecontrol.core.enums.MistakeType
 import ru.maeasoftworks.normativecontrol.core.model.Mistake
@@ -12,8 +12,10 @@ import ru.maeasoftworks.normativecontrol.core.rendering.p
 import ru.maeasoftworks.normativecontrol.core.utils.getPropertyValue
 import ru.maeasoftworks.normativecontrol.core.utils.verificationContext
 
-@HotLoaded
-object PHandler : Handler<P>({ register<P>(Profile.UrFU) { PHandler } }), ChapterHeader {
+@EagerInitialization
+object PHandler : Handler<P>(
+    { register<P>(Profile.UrFU) { PHandler } }
+), ChapterHeader {
     override val headerRegex = Regex("""^(\d+(?:\.\d)?)\s(?:\w+\s?)+$""")
 
     override suspend fun handle(element: Any): Unit = verificationContext ctx@{
