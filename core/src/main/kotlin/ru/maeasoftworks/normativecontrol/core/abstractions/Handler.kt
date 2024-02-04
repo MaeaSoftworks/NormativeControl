@@ -6,13 +6,14 @@ import ru.maeasoftworks.normativecontrol.core.annotations.EagerInitialization
  * Parent class for any object handler that verifies and renders docx4j objects.
  * For correct registration use with [EagerInitialization] annotation.
  *
+ * @sample ru.maeasoftworks.normativecontrol.core.implementations.predefined.JAXBElementHandler
  * @constructor Registers extending class to mapper container.
- * @param fn registration body. Must contain a call to [HandlerMapper.register].
+ * @param fn registration body. Must contain a call to [HandlerMapper.map].
  * @param T type of object that will be handled by this handler.
  */
-abstract class Handler<T>(fn: HandlerMapper.() -> Unit) {
+abstract class Handler<T>(profile: Profile, mapping: Mapping<T>) {
     init {
-        fn(HandlerMapper)
+        HandlerMapper.map(profile, mapping)
     }
 
     /**

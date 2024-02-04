@@ -13,7 +13,7 @@ import ru.maeasoftworks.normativecontrol.core.utils.getPropertyValue
 import ru.maeasoftworks.normativecontrol.core.utils.verificationContext
 
 @EagerInitialization
-object PHandler : Handler<P>({ register(Profile.UrFU, mapping<P> { PHandler }) }), ChapterHeader {
+object PHandler : Handler<P>(Profile.UrFU, Mapping.of { PHandler }), ChapterHeader {
     override val headerRegex = Regex("""^(\d+(?:\.\d)?)\s(?:\w+\s?)+$""")
 
     override suspend fun handle(element: Any): Unit = verificationContext ctx@{

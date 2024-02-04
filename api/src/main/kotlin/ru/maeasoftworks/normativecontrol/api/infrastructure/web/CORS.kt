@@ -10,11 +10,14 @@ import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.Module
 object CORS : Module {
     override fun Application.module() {
         install(CORS) {
+            allowMethod(HttpMethod.Get)
+            allowMethod(HttpMethod.Post)
             allowMethod(HttpMethod.Options)
             allowMethod(HttpMethod.Put)
             allowMethod(HttpMethod.Delete)
             allowMethod(HttpMethod.Patch)
             allowHeader(HttpHeaders.Authorization)
+            allowHeader(HttpHeaders.ContentType)
             anyHost()
         }
     }

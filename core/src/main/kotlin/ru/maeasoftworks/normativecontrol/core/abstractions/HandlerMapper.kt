@@ -1,17 +1,20 @@
 package ru.maeasoftworks.normativecontrol.core.abstractions
 
-object HandlerMapper {
-    val builtInChain = mutableListOf<Mapping<*>>()
-    val chain = mutableMapOf<Profile, MutableList<Mapping<*>>>()
+import java.util.Optional
+import kotlin.jvm.optionals.getOrNull
 
-    fun register(profile: Profile, mapping: Mapping<*>) {
+object HandlerMapper {
+    private val implementedChains = mutableMapOf<Profile, MappingChain>()
+    private val predefinedChain: MappingChain = mutableListOf()
+
+    fun map(profile: Profile, mapping: Mapping<*>) {
         if (profile != Profile.BuiltIn) {
-            if (!chain.containsKey(profile)) {
-                chain[profile] = mutableListOf()
+            if (!implementedChains.containsKey(profile)) {
+                implementedChains[profile] = mutableListOf()
             }
-            chain[profile]!! += mapping
+            implementedChains[profile]!! += mapping
         } else {
-            builtInChain += mapping
+            predefinedChain += mapping
         }
     }
 
@@ -23,19 +26,20 @@ object HandlerMapper {
      * @return mapped handler if found, else `null`
      */
     operator fun get(profile: Profile, target: Any): Handler<*>? {
-        if (!chain.containsKey(profile)) {
+        if (!implementedChains.containsKey(profile)) {
             throw IllegalArgumentException("Implementation didn't registered any handler")
         }
-        for (mapping in chain[profile]!!) {
+        return findHandlerOf(target, implementedChains[profile]!!).orElse(findHandlerOf(target, predefinedChain).getOrNull())
+    }
+
+    private fun findHandlerOf(target: Any, mappingChain: MappingChain): Optional<Handler<*>> {
+        for (mapping in mappingChain) {
             if (mapping.test(target)) {
-                return mapping.handler()
+                return Optional.of(mapping.handler())
             }
         }
-        for (mapping in builtInChain) {
-            if (mapping.test(target)) {
-                return mapping.handler()
-            }
-        }
-        return null
+        return Optional.empty()
     }
 }
+
+typealias MappingChain = MutableList<Mapping<*>>

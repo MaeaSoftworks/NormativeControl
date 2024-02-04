@@ -1,17 +1,14 @@
 package ru.maeasoftworks.normativecontrol.core.implementations.ufru
 
 import org.docx4j.wml.R
-import ru.maeasoftworks.normativecontrol.core.abstractions.Handler
-import ru.maeasoftworks.normativecontrol.core.abstractions.HandlerMapper
-import ru.maeasoftworks.normativecontrol.core.abstractions.Profile
-import ru.maeasoftworks.normativecontrol.core.abstractions.mapping
+import ru.maeasoftworks.normativecontrol.core.abstractions.*
 import ru.maeasoftworks.normativecontrol.core.annotations.EagerInitialization
 import ru.maeasoftworks.normativecontrol.core.rendering.span
 import ru.maeasoftworks.normativecontrol.core.utils.getPropertyValue
 import ru.maeasoftworks.normativecontrol.core.utils.verificationContext
 
 @EagerInitialization
-object RHandler : Handler<R>({ register(Profile.UrFU, mapping<R> { RHandler }) }) {
+object RHandler : Handler<R>(Profile.UrFU, Mapping.of { RHandler }) {
     override suspend fun handle(element: Any) = verificationContext ctx@{
         element as R
         render.appender append span {
