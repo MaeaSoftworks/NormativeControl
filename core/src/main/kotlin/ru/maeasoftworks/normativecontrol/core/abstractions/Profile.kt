@@ -20,6 +20,12 @@ sealed class Profile(
             ContentsChapter shouldBeNamed "СОДЕРЖАНИЕ" or "ОГЛАВЛЕНИЕ"
             ContentsChapter shouldBeBefore IntroductionChapter
 
+            DefinitionsChapter shouldBeNamed "ТЕРМИНЫ И ОПРЕДЕЛЕНИЯ"
+            DefinitionsChapter shouldBeBefore AbbreviationsChapter or IntroductionChapter
+
+            AbbreviationsChapter shouldBeNamed "ПЕРЕЧЕНЬ СОКРАЩЕНИЙ И ОБОЗНАЧЕНИЙ"
+            AbbreviationsChapter shouldBeBefore IntroductionChapter
+
             IntroductionChapter shouldBeNamed "ВВЕДЕНИЕ"
             IntroductionChapter shouldBeBefore BodyChapter
 

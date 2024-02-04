@@ -13,14 +13,12 @@ import ru.maeasoftworks.normativecontrol.core.utils.getPropertyValue
 import ru.maeasoftworks.normativecontrol.core.utils.verificationContext
 
 @EagerInitialization
-object PHandler : Handler<P>(
-    { register<P>(Profile.UrFU) { PHandler } }
-), ChapterHeader {
+object PHandler : Handler<P>({ register(Profile.UrFU, mapping<P> { PHandler }) }), ChapterHeader {
     override val headerRegex = Regex("""^(\d+(?:\.\d)?)\s(?:\w+\s?)+$""")
 
     override suspend fun handle(element: Any): Unit = verificationContext ctx@{
         element as P
-        render.currentPage.children += p {
+        render.appender append p {
             style += {
                 marginLeft set element.getPropertyValue { ind?.left }?.toDouble()
                 marginRight set element.getPropertyValue { ind?.right }?.toDouble()
@@ -35,11 +33,15 @@ object PHandler : Handler<P>(
             if (element.content.isEmpty()) {
                 children += br()
             }
-            this@ctx.ptr.childLoop { pos ->
+        }
+        render.appender.inLastElementScope {
+            ptr.childLoop { pos ->
                 val child = element.content[pos]
-                HandlerMapper[this@ctx.profile, child]?.handle(child)
+                HandlerMapper[profile, child]?.handle(child)
             }
         }
+
+
 
 
         /*

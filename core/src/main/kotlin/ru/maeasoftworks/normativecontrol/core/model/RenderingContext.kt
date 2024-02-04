@@ -9,6 +9,7 @@ class RenderingContext(doc: MainDocumentPart?) {
     private val html = htmlTemplate(doc)
     private val body = html.children[1]
     var currentPage: HtmlElement = createPage()
+    val appender = Appender(currentPage)
 
     private fun createPage(): HtmlElement {
         return div { classes += "page" }.also { body.children += it }
@@ -29,5 +30,29 @@ class RenderingContext(doc: MainDocumentPart?) {
 
     fun getString(): String {
         return html.toString()
+    }
+
+    inner class Appender(
+        @PublishedApi
+        internal var pointer: HtmlElement?
+    ) {
+        infix fun append(element: HtmlElement) {
+            pointer?.children?.add(element)
+            element.parent = pointer
+        }
+
+        inline fun inLastElementScope(fn: HtmlElement.() -> Unit) {
+            openLastElementScope()
+            pointer?.fn()
+            closeLastElementScope()
+        }
+
+        fun openLastElementScope() {
+            pointer = pointer?.children?.last()
+        }
+
+        fun closeLastElementScope() {
+            pointer = pointer?.parent
+        }
     }
 }

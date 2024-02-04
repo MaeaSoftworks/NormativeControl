@@ -8,41 +8,32 @@ import ru.maeasoftworks.normativecontrol.core.rendering.css.Stylesheet
 import java.io.Serializable
 
 open class HtmlElement @Internal constructor(
-    private val type: String,
-    private val hasClosingTag: Boolean = true
+    val type: Type,
+    private val hasClosingTag: Boolean = true,
 ) {
     val classes: MutableList<String> = mutableListOf()
     var id: String? = null
     var content: Serializable? = null
     val children: MutableList<HtmlElement> = mutableListOf()
     var style: Style = Style()
+    var parent: HtmlElement? = null
 
-    private val classesString: String
-        get() = if (classes.size > 0) " class='${classes.joinToString(" ")}'" else ""
+    private fun serializeClasses(): String = if (classes.size > 0) " class='${classes.joinToString(" ")}'" else ""
 
-    private val idString: String
-        get() = if (id != null) " id='$id'" else ""
+    private fun serializeId(): String = if (id != null) " id='$id'" else ""
 
-    private val childrenString: String
-        get() = if (children.size > 0) children.joinToString("") { it.toString() } else ""
+    private fun serializeChildren(): String = if (children.size > 0) children.joinToString("") { it.toString() } else ""
 
-    private val styleString: String
-        get() = if (style.size > 0) style.toString().let { if (it != "") " style='$it'" else "" } else ""
+    private fun serializeStyle(): String = if (style.size > 0) style.toString().let { if (it != "") " style='$it'" else "" } else ""
 
-    private val contentString: String
-        get() = content?.toString() ?: ""
+    private fun serializeContent(): String = content?.toString() ?: ""
 
     override fun toString(): String {
         return if (hasClosingTag) {
-            "<$type$idString$classesString$styleString>$contentString$childrenString</$type>"
+            "<${type.serialName}${serializeId()}${serializeClasses()}${serializeStyle()}>${serializeContent()}${serializeChildren()}</${type.serialName}>"
         } else {
-            "<$type$idString$classesString$styleString>"
+            "<${type.serialName}${serializeId()}${serializeClasses()}${serializeStyle()}>"
         }
-    }
-
-    fun withClass(classname: String): HtmlElement {
-        classes.add(classname)
-        return this
     }
 
     @OptIn(Internal::class)
@@ -52,11 +43,6 @@ open class HtmlElement @Internal constructor(
             it.id = id
             it.style = style
         }
-    }
-
-    @HtmlDsl
-    inline operator fun String.invoke(body: HtmlElement.() -> Unit) {
-        children += HtmlElement(this).also(body)
     }
 
     @HtmlDsl
@@ -88,6 +74,17 @@ open class HtmlElement @Internal constructor(
     inline fun style(body: HtmlElement.() -> Unit) {
         children += ru.maeasoftworks.normativecontrol.core.rendering.style(body)
     }
+
+    enum class Type(val serialName: String) {
+        DIV("div"),
+        P("p"),
+        BR("br"),
+        SPAN("span"),
+        HEAD("head"),
+        BODY("body"),
+        HTML("html"),
+        STYLE("style")
+    }
 }
 
 @DslMarker
@@ -100,37 +97,37 @@ inline fun css(body: Stylesheet.Builder.() -> Unit): Stylesheet {
 
 @HtmlDsl
 inline fun div(body: HtmlElement.() -> Unit): HtmlElement {
-    return HtmlElement("div").also(body)
+    return HtmlElement(HtmlElement.Type.DIV).also(body)
 }
 
 @HtmlDsl
 inline fun p(body: HtmlElement.() -> Unit): HtmlElement {
-    return HtmlElement("p").also(body)
+    return HtmlElement(HtmlElement.Type.P).also(body)
 }
 
 @HtmlDsl
 fun br(): HtmlElement {
-    return HtmlElement("br", false)
+    return HtmlElement(HtmlElement.Type.BR, false)
 }
 
 @HtmlDsl
 inline fun span(body: HtmlElement.() -> Unit): HtmlElement {
-    return HtmlElement("span").also(body)
+    return HtmlElement(HtmlElement.Type.SPAN).also(body)
 }
 
 @HtmlDsl
 inline fun head(body: HtmlElement.() -> Unit): HtmlElement {
-    return HtmlElement("head").also(body)
+    return HtmlElement(HtmlElement.Type.HEAD).also(body)
 }
 
 @HtmlDsl
 inline fun body(body: HtmlElement.() -> Unit): HtmlElement {
-    return HtmlElement("body").also(body)
+    return HtmlElement(HtmlElement.Type.BODY).also(body)
 }
 
 @HtmlDsl
 inline fun html(body: HtmlElement.() -> Unit): HtmlElement {
-    return object : HtmlElement("html") {
+    return object : HtmlElement(Type.HTML) {
         override fun toString(): String {
             return "<!doctype html>" + super.toString()
         }
@@ -139,5 +136,5 @@ inline fun html(body: HtmlElement.() -> Unit): HtmlElement {
 
 @HtmlDsl
 inline fun style(body: HtmlElement.() -> Unit): HtmlElement {
-    return HtmlElement("style").also(body)
+    return HtmlElement(HtmlElement.Type.STYLE).also(body)
 }

@@ -75,11 +75,11 @@ object StudentsController : ControllerModule() {
 
                             get("/render") {
                                 val documentId = call.parameters["documentId"] ?: throw IllegalArgumentException("documentId must be not null")
-                                val isOwner = transaction {
-                                    val user = UserRepository.identify(call.authentication.principal<JWTPrincipal>()!!.subject!!)
-                                    DocumentRepository.isUserOwnerOf(user.id, documentId)
-                                }
-                                if (!isOwner) throw NoAccessException()
+                                    val isOwner = transaction {
+                                        val user = UserRepository.identify(call.authentication.principal<JWTPrincipal>()!!.subject!!)
+                                        DocumentRepository.isUserOwnerOf(user.id, documentId)
+                                    }
+                                    if (!isOwner) throw NoAccessException()
                                 val filename = render(documentId)
                                 call.respondBytesWriter(ContentType.defaultForFileExtension("html"), HttpStatusCode.OK) {
                                     FileStorage.getObject(filename).collect {
@@ -106,7 +106,7 @@ object StudentsController : ControllerModule() {
 
                 get("/conclusion") {
                     val documentId = call.parameters["documentId"] ?: throw IllegalArgumentException("documentId must be not null")
-                    val fingerprint = call.request.cookies["fingerprint"] ?: throw IllegalArgumentException("fingerprint must be not null")
+                    val fingerprint = call.parameters["fingerprint"] ?: throw IllegalArgumentException("fingerprint must be not null")
                     val filename = conclusion(documentId)
 
                     call.respondBytesWriter(ContentType.defaultForFileExtension("docx"), HttpStatusCode.OK) {
@@ -121,7 +121,7 @@ object StudentsController : ControllerModule() {
 
                 get("/render") {
                     val documentId = call.parameters["documentId"] ?: throw IllegalArgumentException("documentId must be not null")
-                    val fingerprint = call.request.cookies["fingerprint"] ?: throw IllegalArgumentException("fingerprint must be not null")
+                    val fingerprint = call.parameters["fingerprint"] ?: throw IllegalArgumentException("fingerprint must be not null")
                     val filename = render(documentId)
 
                     call.respondBytesWriter(ContentType.defaultForFileExtension("html"), HttpStatusCode.OK) {

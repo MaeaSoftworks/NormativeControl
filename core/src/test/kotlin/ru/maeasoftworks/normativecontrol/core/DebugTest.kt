@@ -11,9 +11,10 @@ class DebugTest : ShouldSpec({
         val ctx = VerificationContext(Profile.UrFU)
         withContext(ctx) {
             Document(ctx).apply {
-                load(File("src/test/resources/ignore/different sized parts.docx").inputStream())
+                load(File("src/test/resources/ignore/sample1.docx").inputStream())
                 runVerification()
             }
         }
+        println(ctx.render.getString())
     }
 })
