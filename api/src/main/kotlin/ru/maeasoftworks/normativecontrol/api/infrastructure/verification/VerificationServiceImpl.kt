@@ -30,17 +30,15 @@ object VerificationServiceImpl: VerificationService, Module {
         val ctx = VerificationContext(profile)
         val document = Document(ctx)
         val task = launch {
-            withContext(ctx) {
-                withContext(Dispatchers.IO) { document.load(file) }
+            withContext(Dispatchers.IO) { document.load(file) }
 
-                stage = Message.Stage.VERIFICATION
-                document.runVerification()
-                stage = Message.Stage.SAVING
-                val result = withContext(Dispatchers.IO) { ByteArrayOutputStream().also { document.writeResult(it) } }
+            stage = Message.Stage.VERIFICATION
+            document.runVerification()
+            stage = Message.Stage.SAVING
+            val result = withContext(Dispatchers.IO) { ByteArrayOutputStream().also { document.writeResult(it) } }
 
-                FileStorage.uploadDocumentRender(documentId, document.ctx.render.getString().toByteArray(), fingerprint)
-                FileStorage.uploadDocumentConclusion(documentId, result.toByteArray(), fingerprint)
-            }
+            FileStorage.uploadDocumentRender(documentId, document.ctx.render.getString().toByteArray(), fingerprint)
+            FileStorage.uploadDocumentConclusion(documentId, result.toByteArray(), fingerprint)
         }
         while (task.isActive) {
             delay(200)

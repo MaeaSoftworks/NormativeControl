@@ -16,19 +16,19 @@ class PropertyResolver(mlPackage: WordprocessingMLPackage) {
         }
     }
 
-    inline fun <T> getActualProperty(p: P, path: PPr.() -> T?): T? {
-        return p.pPr?.path()
-            ?: styleDefinitionsPart.getStyleById(p.pPr?.pStyle?.`val`)?.pPr?.path()
+    inline fun <T> getActualProperty(pPr: PPr?, path: PPr.() -> T?): T? {
+        return pPr?.path()
+            ?: styleDefinitionsPart.getStyleById(pPr?.pStyle?.`val`)?.pPr?.path()
             ?: dPPr.path()
             ?: styleDefinitionsPart.defaultParagraphStyle?.pPr?.path()
     }
 
-    inline fun <T> getActualProperty(r: R, path: RPr.() -> T?): T? {
-        val p = if (r.parent is P) r.parent as P else null
+    inline fun <T> getActualProperty(rPr: RPr?, path: RPr.() -> T?): T? {
+        val p = (rPr?.parent as? R)?.parent as? P
         val pStyle = styleDefinitionsPart.getStyleById(p?.pPr?.pStyle?.`val`)
-        val rStyle = styleDefinitionsPart.getStyleById(r.rPr?.rStyle?.`val`)
+        val rStyle = styleDefinitionsPart.getStyleById(rPr?.rStyle?.`val`)
 
-        return r.rPr?.path()
+        return rPr?.path()
             ?: rStyle?.rPr?.path()
             ?: pStyle?.rPr?.path()
             ?: styleDefinitionsPart.getStyleById("${p?.pPr?.pStyle?.`val`}Char")?.rPr?.path()

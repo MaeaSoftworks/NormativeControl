@@ -1,6 +1,7 @@
 package ru.maeasoftworks.normativecontrol.core.abstractions
 
 import ru.maeasoftworks.normativecontrol.core.annotations.EagerInitialization
+import ru.maeasoftworks.normativecontrol.core.model.VerificationContext
 
 /**
  * Parent class for any object handler that verifies and renders docx4j objects.
@@ -8,7 +9,8 @@ import ru.maeasoftworks.normativecontrol.core.annotations.EagerInitialization
  *
  * @sample ru.maeasoftworks.normativecontrol.core.implementations.predefined.JAXBElementHandler
  * @constructor Registers extending class to mapper container.
- * @param fn registration body. Must contain a call to [HandlerMapper.map].
+ * @param profile verification profile.
+ * @param mapping handler mapping created by [Mapping.of].
  * @param T type of object that will be handled by this handler.
  */
 abstract class Handler<T>(profile: Profile, mapping: Mapping<T>) {
@@ -23,5 +25,6 @@ abstract class Handler<T>(profile: Profile, mapping: Mapping<T>) {
      *
      * @param element the element to verify
      */
-    abstract suspend fun handle(element: Any)
+    context(VerificationContext)
+    abstract fun handle(element: Any)
 }

@@ -6,15 +6,16 @@ import ru.maeasoftworks.normativecontrol.core.abstractions.Handler
 import ru.maeasoftworks.normativecontrol.core.abstractions.Mapping
 import ru.maeasoftworks.normativecontrol.core.abstractions.Profile
 import ru.maeasoftworks.normativecontrol.core.annotations.EagerInitialization
+import ru.maeasoftworks.normativecontrol.core.model.VerificationContext
 import ru.maeasoftworks.normativecontrol.core.rendering.span
-import ru.maeasoftworks.normativecontrol.core.utils.verificationContext
 
 @EagerInitialization
 object TextHandler: Handler<Text>(Profile.UrFU, Mapping.of { TextHandler }) {
-    override suspend fun handle(element: Any): Unit = verificationContext ctx@{
+    context(VerificationContext)
+    override fun handle(element: Any) {
         element as Text
         render.appender append span {
-            content = TextUtils.getText(element)
+            content = TextUtils.getText(element).replace("<", "&lt;").replace(">", "&gt;")
         }
     }
 }

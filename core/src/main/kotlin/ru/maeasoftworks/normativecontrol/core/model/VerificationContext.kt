@@ -11,35 +11,25 @@ import ru.maeasoftworks.normativecontrol.core.enums.Closure
 import ru.maeasoftworks.normativecontrol.core.utils.PropertyResolver
 import java.math.BigInteger
 import java.util.*
-import kotlin.coroutines.CoroutineContext
 
 @OptIn(Internal::class)
-class VerificationContext(val profile: Profile) : CoroutineContext.Element {
-    override val key: CoroutineContext.Key<*> = Key
-
+class VerificationContext(val profile: Profile) {
+    private lateinit var mlPackage: WordprocessingMLPackage
     val ptr: Pointer = Pointer()
+    val resolver: PropertyResolver by lazy { PropertyResolver(mlPackage) }
+    val render: RenderingContext by lazy { RenderingContext(doc) }
+    var chapter: Chapter = profile.startChapter
+    var lastDefinedChapter: Chapter = profile.startChapter
+    val doc: MainDocumentPart by lazy { mlPackage.mainDocumentPart }
 
-    lateinit var mlPackage: WordprocessingMLPackage
-    lateinit var resolver: PropertyResolver
-    lateinit var render: RenderingContext
-    lateinit var chapter: Chapter
-    lateinit var lastDefinedChapter: Chapter
-    lateinit var doc: MainDocumentPart
-
-    private lateinit var comments: CommentsPart
+    private val comments: CommentsPart by lazy {
+        (doc.commentsPart ?: CommentsPart().apply { jaxbElement = Comments(); doc.addTargetPart(this) })
+            .also { ptr.lastMistake = it.jaxbElement.comment.size.toLong() }
+    }
 
     fun load(mlPackage: WordprocessingMLPackage) {
-        chapter = profile.startChapter
-        lastDefinedChapter = profile.startChapter
         this.mlPackage = mlPackage
-        doc = mlPackage.mainDocumentPart
-        resolver = PropertyResolver(mlPackage)
         ptr.totalChildSize = doc.content.size
-        render = RenderingContext(doc)
-        comments = (doc.commentsPart ?: CommentsPart().apply {
-            jaxbElement = Comments()
-            doc.addTargetPart(this)
-        }).also { ptr.lastMistake = it.jaxbElement.comment.size.toLong() }
     }
 
     fun addMistake(mistake: Mistake) {
@@ -201,6 +191,4 @@ class VerificationContext(val profile: Profile) : CoroutineContext.Element {
             childContentPosition = 0
         }
     }
-
-    companion object Key : CoroutineContext.Key<VerificationContext>
 }

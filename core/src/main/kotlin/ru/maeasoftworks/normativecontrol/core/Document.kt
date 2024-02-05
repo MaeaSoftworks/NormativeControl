@@ -1,7 +1,7 @@
 package ru.maeasoftworks.normativecontrol.core
 
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage
-import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
+import org.jetbrains.annotations.Blocking
 import org.reflections.Reflections
 import org.slf4j.LoggerFactory
 import ru.maeasoftworks.normativecontrol.core.abstractions.ChapterHeader
@@ -13,16 +13,15 @@ import java.io.InputStream
 
 class Document(val ctx: VerificationContext) {
     private lateinit var mlPackage: WordprocessingMLPackage
-    private lateinit var doc: MainDocumentPart
 
+    @Blocking
     fun load(stream: InputStream) {
         mlPackage = WordprocessingMLPackage.load(stream)
-        doc = mlPackage.mainDocumentPart.also { it.styleDefinitionsPart.jaxbElement }
         ctx.load(mlPackage)
     }
 
-    suspend fun runVerification() {
-        ctx.ptr.mainLoop { pos ->
+    fun runVerification() = with(ctx) {
+        ptr.mainLoop { pos ->
             val element = doc.content[pos]
             val handler = HandlerMapper[ctx.profile, element]
             if (handler != null) {

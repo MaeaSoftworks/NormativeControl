@@ -1,5 +1,7 @@
 package ru.maeasoftworks.normativecontrol.core.abstractions
 
+import ru.maeasoftworks.normativecontrol.core.model.VerificationContext
+
 interface ChapterHeader {
     val headerRegex: Regex
 
@@ -7,9 +9,11 @@ interface ChapterHeader {
         return text.matches(headerRegex)
     }
 
-    suspend fun isHeader(element: Any): Boolean
+    context(VerificationContext)
+    fun isHeader(element: Any): Boolean
 
-    suspend fun detectChapterByHeader(element: Any): Chapter
+    context(VerificationContext)
+    fun detectChapterByHeader(element: Any): Chapter
 
     /**
      * This method checks the order of the provided chapter and updates the context accordingly.
@@ -18,7 +22,8 @@ interface ChapterHeader {
      * - add mistakes, if they were found;
      * - update context's `lastDefinedChapter` & `chapter` according to new chapter.
      *
-     * @param chapter The chapter to be checked and that will update context.
+     * @param target The chapter to be checked and that will update context.
      */
-    suspend fun checkChapterOrderAndUpdateContext(chapter: Chapter)
+    context(VerificationContext)
+    fun checkChapterOrderAndUpdateContext(target: Chapter)
 }
