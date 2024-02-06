@@ -10,8 +10,7 @@ import ru.maeasoftworks.normativecontrol.core.model.Mistake
 import ru.maeasoftworks.normativecontrol.core.model.VerificationContext
 import ru.maeasoftworks.normativecontrol.core.rendering.br
 import ru.maeasoftworks.normativecontrol.core.rendering.p
-import ru.maeasoftworks.normativecontrol.core.utils.getPropertyValue
-import ru.maeasoftworks.normativecontrol.core.utils.resolvedNumberingStyle
+import ru.maeasoftworks.normativecontrol.core.utils.*
 
 @EagerInitialization
 object PHandler : Handler<P>(Profile.UrFU, Mapping.of { PHandler }), ChapterHeader {
@@ -20,18 +19,19 @@ object PHandler : Handler<P>(Profile.UrFU, Mapping.of { PHandler }), ChapterHead
     context(VerificationContext)
     override fun handle(element: Any) {
         element as P
+        val pPr = element.resolvedPPr
         render.appender append p {
             style += {
-                marginLeft set element.pPr.getPropertyValue { ind?.left }?.toDouble()
-                marginRight set element.pPr.getPropertyValue { ind?.right }?.toDouble()
-                marginBottom set element.pPr.getPropertyValue { spacing?.after }?.toDouble()
-                marginTop set element.pPr.getPropertyValue { spacing?.before }?.toDouble()
-                lineHeight set element.pPr.getPropertyValue { spacing?.line }?.toDouble()
-                textIndent set element.pPr.getPropertyValue { ind?.firstLine }?.toDouble()
-                textAlign set element.pPr.getPropertyValue { jc?.`val` }
-                backgroundColor set element.pPr.getPropertyValue { shd?.fill }
-                hyphens set element.pPr.getPropertyValue { suppressAutoHyphens }?.isVal.let { if (it == true) true else null }
-                val numbering = element.pPr?.resolvedNumberingStyle
+                marginLeft set pPr.ind?.left?.toDouble()
+                marginRight set pPr.ind?.right?.toDouble()
+                marginBottom set pPr.spacing?.after?.toDouble()
+                marginTop set pPr.spacing?.before?.toDouble()
+                lineHeight set pPr.spacing?.line?.toDouble()
+                textIndent set pPr.ind?.firstLine?.toDouble()
+                textAlign set pPr.jc?.`val`
+                backgroundColor set pPr.shd?.fill
+                hyphens set pPr.suppressAutoHyphens?.isVal.let { if (it == true) true else null }
+                val numbering = pPr.resolvedNumberingStyle
             }
             if (element.content.isEmpty()) {
                 children += br()
@@ -47,7 +47,7 @@ object PHandler : Handler<P>(Profile.UrFU, Mapping.of { PHandler }), ChapterHead
 
     context(VerificationContext)
     override fun isHeader(element: Any): Boolean {
-        return (element as P).pPr?.getPropertyValue { outlineLvl }?.`val` != null
+        return (element as P).resolvedPPr.outlineLvl?.`val` != null
     }
 
     context(VerificationContext)
