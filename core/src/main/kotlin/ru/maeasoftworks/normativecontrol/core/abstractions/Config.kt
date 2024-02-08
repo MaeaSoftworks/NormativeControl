@@ -4,6 +4,7 @@ class Config<T, C: State?>(
     val handler: () -> Handler<T, *>,
     val test: (target: Any) -> Boolean,
     val state: (() -> C)?,
+    val stateKey: State.Key?,
     val profile: Profile
 ) {
     companion object {
@@ -17,13 +18,15 @@ class Config<T, C: State?>(
         private var handler: (() -> Handler<T, *>)? = null
         private var state: (() -> C)? = null
         private var profile: Profile? = null
+        private var stateKey: State.Key? = null
 
         inline fun <reified T> setTarget() {
             test = { it is T }
         }
 
-        fun setState(fn: () -> C) {
-            state = fn
+        fun setState(key: State.Key, factory: () -> C) {
+            state = factory
+            stateKey = key
         }
 
         fun <H: Handler<T, *>> setHandler(fn: () -> H) {
@@ -39,6 +42,7 @@ class Config<T, C: State?>(
                 handler ?: throw NullPointerException("Handler should be not null"),
                 test ?: throw NullPointerException("Target should be not null"),
                 state,
+                stateKey,
                 profile ?: throw NullPointerException("Profile should be not null")
             )
         }

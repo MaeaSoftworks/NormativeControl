@@ -6,7 +6,7 @@ import ru.maeasoftworks.normativecontrol.core.rendering.div
 import ru.maeasoftworks.normativecontrol.core.rendering.htmlTemplate
 
 class RenderingContext(doc: MainDocumentPart?) {
-    var rSinceBr: Int = 0
+
     private val html = htmlTemplate(doc)
     private val body = html.children[1]
     lateinit var currentPage: HtmlElement

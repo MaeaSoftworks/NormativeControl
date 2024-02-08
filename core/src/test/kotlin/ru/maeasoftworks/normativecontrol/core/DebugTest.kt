@@ -9,7 +9,7 @@ class DebugTest : ShouldSpec({
     should("not throws exceptions") {
         val ctx = VerificationContext(Profile.UrFU)
         Document(ctx).apply {
-            load(File("src/test/resources/ignore/lists.docx").inputStream())
+            load(File("src/test/resources/ignore/sample1.docx").inputStream())
             runVerification()
         }
         println(ctx.render.getString())

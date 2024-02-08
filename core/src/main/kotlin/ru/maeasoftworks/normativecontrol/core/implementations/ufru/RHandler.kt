@@ -18,7 +18,7 @@ object RHandler : Handler<R, Nothing>(
     context(VerificationContext)
     override fun handle(element: Any) {
         element as R
-        render.rSinceBr++
+        getSharedStateAs<SharedState>().rSinceBr++
         val rPr = element.resolvedRPr
         render.appender append span {
             style += {

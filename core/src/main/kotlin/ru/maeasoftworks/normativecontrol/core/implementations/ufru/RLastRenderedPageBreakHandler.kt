@@ -17,7 +17,7 @@ object RLastRenderedPageBreakHandler: Handler<R.LastRenderedPageBreak, Nothing>(
 ) {
     context(VerificationContext)
     override fun handle(element: Any) {
-        if (render.rSinceBr > 2)
+        if (getSharedStateAs<SharedState>().rSinceBr > 2)
             render.pageBreak(1)
     }
 }

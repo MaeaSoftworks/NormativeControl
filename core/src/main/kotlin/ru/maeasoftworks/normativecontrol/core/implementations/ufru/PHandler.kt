@@ -17,7 +17,7 @@ import ru.maeasoftworks.normativecontrol.core.utils.*
 object PHandler : Handler<P, PHandler.PState>(
     Config.create {
         setTarget<P>()
-        setState { PState() }
+        setState(PState) { PState() }
         setHandler { PHandler }
         setProfile(Profile.UrFU)
     }
@@ -55,10 +55,12 @@ object PHandler : Handler<P, PHandler.PState>(
 
     context(VerificationContext)
     private fun handleListElement(element: P, lvl: Lvl) {
-        val ctx = state
-        if (ctx.currentListConfig == null) {
-            ctx.currentListConfig = PState.ListConfig(lvl.numFmt?.`val` == NumberFormat.BULLET)
+        with(state) {
+            if (currentListConfig == null) {
+                currentListConfig = PState.ListConfig(lvl.numFmt?.`val` == NumberFormat.BULLET)
+            }
         }
+
         if (chapter == ReferencesChapter) {
             // todo references
         } else {
@@ -141,8 +143,12 @@ object PHandler : Handler<P, PHandler.PState>(
     }
 
     class PState: State {
+        override val key: State.Key = Companion
+
         var currentListConfig: ListConfig? = null
 
         data class ListConfig(val isOrdered: Boolean)
+
+        companion object: State.Key
     }
 }

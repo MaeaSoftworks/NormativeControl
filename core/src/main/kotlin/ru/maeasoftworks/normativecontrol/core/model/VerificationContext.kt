@@ -14,19 +14,17 @@ class VerificationContext(val profile: Profile) {
     val render: RenderingContext by lazy { RenderingContext(doc) }
     var chapter: Chapter = profile.startChapter
     val doc: MainDocumentPart by lazy { mlPackage.mainDocumentPart }
+    val states = mutableMapOf<State.Key, State>()
+
     context(ChapterHeader)
     var lastDefinedChapter: Chapter
         get() = _lastDefinedChapter
         set(value) { _lastDefinedChapter = value }
 
-    context(ProxyContext)
-    val localContexts: MutableMap<Handler<*, *>, State>
-        get() = _localContexts
-
     private var _lastDefinedChapter: Chapter = profile.startChapter
-    private val _localContexts = mutableMapOf<Handler<*, *>, State>()
 
     private lateinit var mlPackage: WordprocessingMLPackage
+
     private lateinit var comments: CommentsPart
 
     private var totalChildSize: Int = 0
@@ -43,6 +41,11 @@ class VerificationContext(val profile: Profile) {
             doc.addTargetPart(this)
         }
         mistakeId = comments.jaxbElement.comment.size.toLong()
+        profile.sharedState
+    }
+
+    inline fun <reified T: AbstractSharedState> getSharedStateAs(): T {
+        return profile.sharedState as? T ?: throw NullPointerException("This profile does not have shared state.")
     }
 
     fun mainLoop(fn: (pos: Int) -> Unit) {

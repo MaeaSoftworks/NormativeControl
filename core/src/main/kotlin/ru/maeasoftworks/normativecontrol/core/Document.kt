@@ -23,7 +23,7 @@ class Document(val ctx: VerificationContext) {
     fun runVerification() = with(ctx) {
         mainLoop { pos ->
             val element = doc.content[pos]
-            val handler = HandlerMapper[ctx.profile, element]
+            val handler = HandlerMapper[profile, element]
             if (handler != null) {
                 if (handler is ChapterHeader) {
                     if (handler.isHeader(element)) {

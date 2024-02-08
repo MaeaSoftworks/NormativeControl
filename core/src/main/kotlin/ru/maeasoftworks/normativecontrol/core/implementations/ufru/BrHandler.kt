@@ -20,7 +20,7 @@ object BrHandler: Handler<Br, Nothing>(
     override fun handle(element: Any) {
         element as Br
         if (element.type == STBrType.PAGE) {
-            render.rSinceBr = 0
+            getSharedStateAs<SharedState>().rSinceBr = 0
             render.pageBreak(1)
         }
     }
