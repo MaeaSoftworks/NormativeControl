@@ -7,7 +7,7 @@ import org.docx4j.wml.*
 import ru.maeasoftworks.normativecontrol.core.abstractions.Chapter
 import ru.maeasoftworks.normativecontrol.core.abstractions.Profile
 import ru.maeasoftworks.normativecontrol.core.annotations.Internal
-import ru.maeasoftworks.normativecontrol.core.enums.Closure
+import ru.maeasoftworks.normativecontrol.core.abstractions.Closure
 import ru.maeasoftworks.normativecontrol.core.utils.PropertyResolver
 import java.math.BigInteger
 import java.util.*
@@ -22,24 +22,28 @@ class VerificationContext(val profile: Profile) {
     var lastDefinedChapter: Chapter = profile.startChapter
     val doc: MainDocumentPart by lazy { mlPackage.mainDocumentPart }
 
-    private val comments: CommentsPart by lazy {
-        (doc.commentsPart ?: CommentsPart().apply { jaxbElement = Comments(); doc.addTargetPart(this) })
-            .also { ptr.lastMistake = it.jaxbElement.comment.size.toLong() }
-    }
+    private lateinit var comments: CommentsPart
+
+    private var mistakeId: Long = 0
 
     fun load(mlPackage: WordprocessingMLPackage) {
         this.mlPackage = mlPackage
         ptr.totalChildSize = doc.content.size
+        comments = doc.commentsPart ?: CommentsPart().apply {
+            jaxbElement = Comments()
+            doc.addTargetPart(this)
+        }
+        mistakeId = comments.jaxbElement.comment.size.toLong()
     }
 
     fun addMistake(mistake: Mistake) {
         val formattedText = if (mistake.actual != null && mistake.expected != null) {
-            "${mistake.mistakeType.ru}: найдено: ${mistake.actual}, требуется: ${mistake.expected}."
+            "${mistake.mistakeReason.ru}: найдено: ${mistake.actual}, требуется: ${mistake.expected}."
         } else {
-            mistake.mistakeType.ru
+            mistake.mistakeReason.ru
         }
 
-        val id = ptr.lastMistake++
+        val id = mistakeId++
         val comment = createComment(id, formattedText)
         comments.jaxbElement.comment.add(comment)
 
@@ -83,7 +87,6 @@ class VerificationContext(val profile: Profile) {
                 if (putInStartToStart) {
                     paragraphStart.content.add(0, commentRangeStart)
                     paragraphStart.content += createRunCommentReference(id)
-                    ptr.childContentPosition += 2
                     ptr.totalChildContentSize += 2
                 } else {
                     paragraphStart.content.add(commentRangeStart)
@@ -92,7 +95,6 @@ class VerificationContext(val profile: Profile) {
 
                 if (putInEndToEnd) {
                     paragraphEnd.content.add(commentRangeEnd)
-                    ptr.childContentPosition++
                     ptr.totalChildContentSize++
                 } else {
                     paragraphEnd.content.add(0, commentRangeEnd)
@@ -171,9 +173,6 @@ class VerificationContext(val profile: Profile) {
 
         var childContentPosition = 0
             @Internal set
-
-        @Internal
-        var lastMistake = 0L
 
         inline fun mainLoop(fn: (pos: Int) -> Unit) {
             while (bodyPosition < totalChildSize) {

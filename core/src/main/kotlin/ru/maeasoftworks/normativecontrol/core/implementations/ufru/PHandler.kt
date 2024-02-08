@@ -1,11 +1,12 @@
 package ru.maeasoftworks.normativecontrol.core.implementations.ufru
 
 import org.docx4j.TextUtils
+import org.docx4j.wml.Lvl
 import org.docx4j.wml.P
 import ru.maeasoftworks.normativecontrol.core.abstractions.*
 import ru.maeasoftworks.normativecontrol.core.annotations.EagerInitialization
-import ru.maeasoftworks.normativecontrol.core.enums.Closure
-import ru.maeasoftworks.normativecontrol.core.enums.MistakeType
+import ru.maeasoftworks.normativecontrol.core.abstractions.Closure
+import ru.maeasoftworks.normativecontrol.core.abstractions.MistakeReason
 import ru.maeasoftworks.normativecontrol.core.model.Mistake
 import ru.maeasoftworks.normativecontrol.core.model.VerificationContext
 import ru.maeasoftworks.normativecontrol.core.rendering.br
@@ -31,7 +32,7 @@ object PHandler : Handler<P>(Profile.UrFU, Mapping.of { PHandler }), ChapterHead
                 textAlign set pPr.jc?.`val`
                 backgroundColor set pPr.shd?.fill
                 hyphens set pPr.suppressAutoHyphens?.isVal.let { if (it == true) true else null }
-                val numbering = pPr.resolvedNumberingStyle
+                pPr.resolvedNumberingStyle?.let { handleListElement(element, it) }
             }
             if (element.content.isEmpty()) {
                 addChild(br())
@@ -41,6 +42,17 @@ object PHandler : Handler<P>(Profile.UrFU, Mapping.of { PHandler }), ChapterHead
             ptr.childLoop { pos ->
                 val child = element.content[pos]
                 HandlerMapper[profile, child]?.handle(child)
+            }
+        }
+    }
+
+    context(VerificationContext)
+    private fun handleListElement(element: P, lvl: Lvl) {
+        if (chapter == ReferencesChapter) {
+            // todo references
+        } else {
+            if (lvl.suff?.`val` != "space") {
+                addMistake(Mistake(Reasons.TabInList, Closure.P))
             }
         }
     }
@@ -74,7 +86,7 @@ object PHandler : Handler<P>(Profile.UrFU, Mapping.of { PHandler }), ChapterHead
         if (target is UndefinedChapter) {
             addMistake(
                 Mistake(
-                    MistakeType.CHAPTER_UNDEFINED_CHAPTER,
+                    Reasons.CHAPTER_UNDEFINED_CHAPTER,
                     Closure.P,
                     profile.chapterConfiguration.names[target]!!.joinToString("/"),
                     profile.chapterConfiguration
@@ -87,7 +99,7 @@ object PHandler : Handler<P>(Profile.UrFU, Mapping.of { PHandler }), ChapterHead
             if (!profile.chapterConfiguration.getPrependChapter(lastDefinedChapter).contains(target)) {
                 addMistake(
                     Mistake(
-                        MistakeType.CHAPTER_ORDER_MISMATCH,
+                        Reasons.CHAPTER_ORDER_MISMATCH,
                         Closure.P,
                         profile.chapterConfiguration.names[target]!!.joinToString("/"),
                         profile.chapterConfiguration
