@@ -6,7 +6,13 @@ import ru.maeasoftworks.normativecontrol.core.annotations.EagerInitialization
 import ru.maeasoftworks.normativecontrol.core.model.VerificationContext
 
 @EagerInitialization
-object JAXBElementHandler : Handler<JAXBElement<*>>(Profile.BuiltIn, Mapping.of { JAXBElementHandler }) {
+object JAXBElementHandler : Handler<JAXBElement<*>, Nothing>(
+    Config.create {
+        setHandler { JAXBElementHandler }
+        setTarget<JAXBElement<*>>()
+        setProfile(Profile.BuiltIn)
+    }
+) {
     context(VerificationContext)
     override fun handle(element: Any) {
         element as JAXBElement<*>

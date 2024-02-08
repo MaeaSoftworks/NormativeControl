@@ -3,13 +3,11 @@ package ru.maeasoftworks.normativecontrol.core
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
-import ru.maeasoftworks.normativecontrol.core.annotations.Internal
 import ru.maeasoftworks.normativecontrol.core.model.RenderingContext
 import ru.maeasoftworks.normativecontrol.core.rendering.HtmlElement
 import ru.maeasoftworks.normativecontrol.core.rendering.div
 import ru.maeasoftworks.normativecontrol.core.rendering.span
 
-@OptIn(Internal::class)
 class RenderingTests : ShouldSpec({
     context("appender") {
         should("append") {

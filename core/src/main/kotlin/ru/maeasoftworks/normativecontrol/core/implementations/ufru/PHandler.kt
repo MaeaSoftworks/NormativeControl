@@ -2,11 +2,11 @@ package ru.maeasoftworks.normativecontrol.core.implementations.ufru
 
 import org.docx4j.TextUtils
 import org.docx4j.wml.Lvl
+import org.docx4j.wml.NumberFormat
 import org.docx4j.wml.P
 import ru.maeasoftworks.normativecontrol.core.abstractions.*
 import ru.maeasoftworks.normativecontrol.core.annotations.EagerInitialization
 import ru.maeasoftworks.normativecontrol.core.abstractions.Closure
-import ru.maeasoftworks.normativecontrol.core.abstractions.MistakeReason
 import ru.maeasoftworks.normativecontrol.core.model.Mistake
 import ru.maeasoftworks.normativecontrol.core.model.VerificationContext
 import ru.maeasoftworks.normativecontrol.core.rendering.br
@@ -14,7 +14,14 @@ import ru.maeasoftworks.normativecontrol.core.rendering.p
 import ru.maeasoftworks.normativecontrol.core.utils.*
 
 @EagerInitialization
-object PHandler : Handler<P>(Profile.UrFU, Mapping.of { PHandler }), ChapterHeader {
+object PHandler : Handler<P, PHandler.PState>(
+    Config.create {
+        setTarget<P>()
+        setState { PState() }
+        setHandler { PHandler }
+        setProfile(Profile.UrFU)
+    }
+), ChapterHeader {
     override val headerRegex = Regex("""^(\d+(?:\.\d)?)\s(?:\w+\s?)+$""")
 
     context(VerificationContext)
@@ -32,14 +39,14 @@ object PHandler : Handler<P>(Profile.UrFU, Mapping.of { PHandler }), ChapterHead
                 textAlign set pPr.jc?.`val`
                 backgroundColor set pPr.shd?.fill
                 hyphens set pPr.suppressAutoHyphens?.isVal.let { if (it == true) true else null }
-                pPr.resolvedNumberingStyle?.let { handleListElement(element, it) }
+                pPr.resolvedNumberingStyle?.let { handleListElement(element, it) } ?: run { state.currentListConfig = null }
             }
             if (element.content.isEmpty()) {
                 addChild(br())
             }
         }
         render.appender.inLastElementScope {
-            ptr.childLoop { pos ->
+            childLoop { pos ->
                 val child = element.content[pos]
                 HandlerMapper[profile, child]?.handle(child)
             }
@@ -48,11 +55,30 @@ object PHandler : Handler<P>(Profile.UrFU, Mapping.of { PHandler }), ChapterHead
 
     context(VerificationContext)
     private fun handleListElement(element: P, lvl: Lvl) {
+        val ctx = state
+        if (ctx.currentListConfig == null) {
+            ctx.currentListConfig = PState.ListConfig(lvl.numFmt?.`val` == NumberFormat.BULLET)
+        }
         if (chapter == ReferencesChapter) {
             // todo references
         } else {
             if (lvl.suff?.`val` != "space") {
                 addMistake(Mistake(Reasons.TabInList, Closure.P))
+            }
+            if (lvl.ilvl.toInt() == 0) {
+                when (lvl.numFmt?.`val`) {
+                    NumberFormat.RUSSIAN_LOWER -> {
+
+                    }
+
+                    NumberFormat.BULLET -> {
+
+                    }
+
+                    else -> {
+                        addMistake(Mistake(Reasons.ForbiddenMarkerTypeLevel1, Closure.P))
+                    }
+                }
             }
         }
     }
@@ -86,7 +112,7 @@ object PHandler : Handler<P>(Profile.UrFU, Mapping.of { PHandler }), ChapterHead
         if (target is UndefinedChapter) {
             addMistake(
                 Mistake(
-                    Reasons.CHAPTER_UNDEFINED_CHAPTER,
+                    Reasons.UndefinedChapterFound,
                     Closure.P,
                     profile.chapterConfiguration.names[target]!!.joinToString("/"),
                     profile.chapterConfiguration
@@ -99,7 +125,7 @@ object PHandler : Handler<P>(Profile.UrFU, Mapping.of { PHandler }), ChapterHead
             if (!profile.chapterConfiguration.getPrependChapter(lastDefinedChapter).contains(target)) {
                 addMistake(
                     Mistake(
-                        Reasons.CHAPTER_ORDER_MISMATCH,
+                        Reasons.ChapterOrderMismatch,
                         Closure.P,
                         profile.chapterConfiguration.names[target]!!.joinToString("/"),
                         profile.chapterConfiguration
@@ -112,5 +138,11 @@ object PHandler : Handler<P>(Profile.UrFU, Mapping.of { PHandler }), ChapterHead
             lastDefinedChapter = target
         }
         chapter = target
+    }
+
+    class PState: State {
+        var currentListConfig: ListConfig? = null
+
+        data class ListConfig(val isOrdered: Boolean)
     }
 }

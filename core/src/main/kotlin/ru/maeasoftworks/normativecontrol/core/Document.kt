@@ -21,7 +21,7 @@ class Document(val ctx: VerificationContext) {
     }
 
     fun runVerification() = with(ctx) {
-        ptr.mainLoop { pos ->
+        mainLoop { pos ->
             val element = doc.content[pos]
             val handler = HandlerMapper[ctx.profile, element]
             if (handler != null) {
@@ -47,11 +47,14 @@ class Document(val ctx: VerificationContext) {
         init {
             if (!isLoaded) {
                 isLoaded = true
+                val start = System.currentTimeMillis()
                 val initialized = Reflections("ru.maeasoftworks.normativecontrol.core").getTypesAnnotatedWith(EagerInitialization::class.java)
                 initialized.forEach {
                     it.kotlin.objectInstance
                 }
-                logger.debug("Loaded handlers: [${initialized.joinToString { it.simpleName }}]")
+                val end = System.currentTimeMillis()
+                logger.info("Loaded handlers: [${initialized.joinToString { it.simpleName }}]")
+                logger.info("Loading was done in ${end - start} ms")
             }
         }
     }

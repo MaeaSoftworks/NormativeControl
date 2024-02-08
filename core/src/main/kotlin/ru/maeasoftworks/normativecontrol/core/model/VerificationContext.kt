@@ -4,31 +4,40 @@ import org.docx4j.openpackaging.packages.WordprocessingMLPackage
 import org.docx4j.openpackaging.parts.WordprocessingML.CommentsPart
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
 import org.docx4j.wml.*
-import ru.maeasoftworks.normativecontrol.core.abstractions.Chapter
-import ru.maeasoftworks.normativecontrol.core.abstractions.Profile
-import ru.maeasoftworks.normativecontrol.core.annotations.Internal
-import ru.maeasoftworks.normativecontrol.core.abstractions.Closure
+import ru.maeasoftworks.normativecontrol.core.abstractions.*
 import ru.maeasoftworks.normativecontrol.core.utils.PropertyResolver
 import java.math.BigInteger
 import java.util.*
 
-@OptIn(Internal::class)
 class VerificationContext(val profile: Profile) {
-    private lateinit var mlPackage: WordprocessingMLPackage
-    val ptr: Pointer = Pointer()
     val resolver: PropertyResolver by lazy { PropertyResolver(mlPackage) }
     val render: RenderingContext by lazy { RenderingContext(doc) }
     var chapter: Chapter = profile.startChapter
-    var lastDefinedChapter: Chapter = profile.startChapter
     val doc: MainDocumentPart by lazy { mlPackage.mainDocumentPart }
+    context(ChapterHeader)
+    var lastDefinedChapter: Chapter
+        get() = _lastDefinedChapter
+        set(value) { _lastDefinedChapter = value }
 
+    context(ProxyContext)
+    val localContexts: MutableMap<Handler<*, *>, State>
+        get() = _localContexts
+
+    private var _lastDefinedChapter: Chapter = profile.startChapter
+    private val _localContexts = mutableMapOf<Handler<*, *>, State>()
+
+    private lateinit var mlPackage: WordprocessingMLPackage
     private lateinit var comments: CommentsPart
 
+    private var totalChildSize: Int = 0
+    private var bodyPosition = 0
+    private var totalChildContentSize: Int = 0
+    private var childContentPosition = 0
     private var mistakeId: Long = 0
 
     fun load(mlPackage: WordprocessingMLPackage) {
         this.mlPackage = mlPackage
-        ptr.totalChildSize = doc.content.size
+        totalChildSize = doc.content.size
         comments = doc.commentsPart ?: CommentsPart().apply {
             jaxbElement = Comments()
             doc.addTargetPart(this)
@@ -36,11 +45,27 @@ class VerificationContext(val profile: Profile) {
         mistakeId = comments.jaxbElement.comment.size.toLong()
     }
 
+    fun mainLoop(fn: (pos: Int) -> Unit) {
+        while (bodyPosition < totalChildSize) {
+            fn(bodyPosition)
+            bodyPosition++
+        }
+    }
+
+    fun childLoop(fn: (pos: Int) -> Unit) {
+        totalChildContentSize = (doc.content[bodyPosition] as ContentAccessor).content.size
+        while (childContentPosition < totalChildContentSize) {
+            fn(childContentPosition)
+            childContentPosition++
+        }
+        childContentPosition = 0
+    }
+
     fun addMistake(mistake: Mistake) {
         val formattedText = if (mistake.actual != null && mistake.expected != null) {
-            "${mistake.mistakeReason.ru}: найдено: ${mistake.actual}, требуется: ${mistake.expected}."
+            "${mistake.mistakeReason.description}: найдено: ${mistake.actual}, требуется: ${mistake.expected}."
         } else {
-            mistake.mistakeReason.ru
+            mistake.mistakeReason.description
         }
 
         val id = mistakeId++
@@ -56,12 +81,12 @@ class VerificationContext(val profile: Profile) {
 
         when (mistake.closure) {
             Closure.SECTOR -> {
-                val paragraph = doc.content[ptr.bodyPosition] as P
+                val paragraph = doc.content[bodyPosition] as P
                 paragraph.content.add(0, commentRangeStart)
                 paragraph.content.add(1, commentRangeEnd)
                 paragraph.content += createRunCommentReference(id)
-                ptr.totalChildContentSize += 3
-                ptr.childContentPosition += 3
+                totalChildContentSize += 3
+                childContentPosition += 3
             }
 
             Closure.P -> {
@@ -71,23 +96,23 @@ class VerificationContext(val profile: Profile) {
                 var putInEndToEnd = false
 
                 try {
-                    paragraphStart = doc.content[ptr.bodyPosition] as P
+                    paragraphStart = doc.content[bodyPosition] as P
                     putInStartToStart = true
                 } catch (e: ClassCastException) {
-                    paragraphStart = doc.content[ptr.bodyPosition - 1] as P
+                    paragraphStart = doc.content[bodyPosition - 1] as P
                 }
 
                 try {
-                    paragraphEnd = doc.content[ptr.bodyPosition] as P
+                    paragraphEnd = doc.content[bodyPosition] as P
                     putInEndToEnd = true
                 } catch (e: ClassCastException) {
-                    paragraphEnd = doc.content[ptr.bodyPosition + 1] as P
+                    paragraphEnd = doc.content[bodyPosition + 1] as P
                 }
 
                 if (putInStartToStart) {
                     paragraphStart.content.add(0, commentRangeStart)
                     paragraphStart.content += createRunCommentReference(id)
-                    ptr.totalChildContentSize += 2
+                    totalChildContentSize += 2
                 } else {
                     paragraphStart.content.add(commentRangeStart)
                     paragraphStart.content += createRunCommentReference(id)
@@ -95,7 +120,7 @@ class VerificationContext(val profile: Profile) {
 
                 if (putInEndToEnd) {
                     paragraphEnd.content.add(commentRangeEnd)
-                    ptr.totalChildContentSize++
+                    totalChildContentSize++
                 } else {
                     paragraphEnd.content.add(0, commentRangeEnd)
                 }
@@ -103,24 +128,24 @@ class VerificationContext(val profile: Profile) {
 
             Closure.R -> {
                 val paragraph: P = try {
-                    doc.content[ptr.bodyPosition] as P
+                    doc.content[bodyPosition] as P
                 } catch (e: ClassCastException) {
-                    ptr.totalChildSize++
-                    P().apply { doc.content.add(ptr.bodyPosition + 1, this) }
+                    totalChildSize++
+                    P().apply { doc.content.add(bodyPosition + 1, this) }
                 }
-                paragraph.content.add(if (ptr.childContentPosition == 0) 0 else ptr.childContentPosition - 1, commentRangeStart)
-                ptr.childContentPosition++
-                ptr.totalChildContentSize++
-                if (ptr.childContentPosition == ptr.totalChildContentSize - 1) {
+                paragraph.content.add(if (childContentPosition == 0) 0 else childContentPosition - 1, commentRangeStart)
+                childContentPosition++
+                totalChildContentSize++
+                if (childContentPosition == totalChildContentSize - 1) {
                     paragraph.content += commentRangeEnd
                     paragraph.content += createRunCommentReference(id)
-                    ptr.childContentPosition += 2
-                    ptr.totalChildContentSize += 2
+                    childContentPosition += 2
+                    totalChildContentSize += 2
                 } else {
-                    paragraph.content.add(ptr.childContentPosition + 1, commentRangeEnd)
-                    paragraph.content.add(ptr.childContentPosition + 2, createRunCommentReference(id))
-                    ptr.childContentPosition += 2
-                    ptr.totalChildContentSize += 2
+                    paragraph.content.add(childContentPosition + 1, commentRangeEnd)
+                    paragraph.content.add(childContentPosition + 2, createRunCommentReference(id))
+                    childContentPosition += 2
+                    totalChildContentSize += 2
                 }
             }
         }
@@ -158,36 +183,6 @@ class VerificationContext(val profile: Profile) {
                     it.id = BigInteger.valueOf(commentId)
                 }
             )
-        }
-    }
-
-
-    inner class Pointer {
-        var totalChildSize: Int = 0
-            @Internal set
-
-        var bodyPosition = 0
-            @Internal set
-
-        var totalChildContentSize: Int = 0
-
-        var childContentPosition = 0
-            @Internal set
-
-        inline fun mainLoop(fn: (pos: Int) -> Unit) {
-            while (bodyPosition < totalChildSize) {
-                fn(bodyPosition)
-                bodyPosition++
-            }
-        }
-
-        inline fun childLoop(fn: (pos: Int) -> Unit) {
-            totalChildContentSize = (doc.content[bodyPosition] as ContentAccessor).content.size
-            while (childContentPosition < totalChildContentSize) {
-                fn(childContentPosition)
-                childContentPosition++
-            }
-            childContentPosition = 0
         }
     }
 }

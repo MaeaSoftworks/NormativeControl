@@ -18,6 +18,7 @@ dependencies {
 
     testImplementation("io.kotest:kotest-runner-junit5:5.8.0")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation("org.slf4j:slf4j-simple:2.0.12")
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {

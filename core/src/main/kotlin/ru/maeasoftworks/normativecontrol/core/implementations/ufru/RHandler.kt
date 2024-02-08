@@ -8,7 +8,13 @@ import ru.maeasoftworks.normativecontrol.core.rendering.span
 import ru.maeasoftworks.normativecontrol.core.utils.resolvedRPr
 
 @EagerInitialization
-object RHandler : Handler<R>(Profile.UrFU, Mapping.of { RHandler }) {
+object RHandler : Handler<R, Nothing>(
+    Config.create {
+        setHandler { RHandler }
+        setTarget<R>()
+        setProfile(Profile.UrFU)
+    }
+) {
     context(VerificationContext)
     override fun handle(element: Any) {
         element as R

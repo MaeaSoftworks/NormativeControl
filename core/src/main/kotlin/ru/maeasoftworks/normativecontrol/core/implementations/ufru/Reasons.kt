@@ -9,10 +9,8 @@ object Reasons {
     object PAGE_MARGIN_LEFT_IS_INCORRECT: MistakeReason("Некорректный левый отступ страницы")
     object PAGE_MARGIN_BOTTOM_IS_INCORRECT: MistakeReason("Некорректный нижний отступ страницы")
     object PAGE_MARGIN_RIGHT_IS_INCORRECT: MistakeReason("Некорректный правый отступ страницы")
-    object CHAPTER_NO_ONE_CHAPTER_FOUND: MistakeReason("Не найдено ни одного раздела")
-    object CHAPTER_UNDEFINED_CHAPTER: MistakeReason("Неопознанная часть")
-    object CHAPTER_EMPTY: MistakeReason("Пустая часть")
-    object CHAPTER_ORDER_MISMATCH: MistakeReason("Неверный порядок разделов")
+    object UndefinedChapterFound: MistakeReason("Неопознанная часть")
+    object ChapterOrderMismatch: MistakeReason("Неверный порядок разделов")
     object CHAPTER_BODY_DISORDER: MistakeReason("Основная часть находится на некорректной позиции")
     object WORD_GRAMMATICAL_ERROR: MistakeReason("Грамматическая ошибка, которую нашел Word")
     object WORD_SPELL_ERROR: MistakeReason("Ошибка правописания, которую нашел Word")
@@ -82,9 +80,6 @@ object Reasons {
     object TEXT_COMMON_USE_FIRST_LINE_INDENT_INSTEAD_OF_TAB: MistakeReason("Используйте отступ первой строки вместо табуляции")
     object TEXT_HEADER_AUTO_HYPHEN: MistakeReason("Не отключен автоматический перенос слов в заголовке")
     object TEXT_HYPERLINK_WARNING: MistakeReason("Найдена гиперссылка. Убедитесь, что есть острая необходимость в ее наличии.")
-    object DOCUMENT_UNEXPECTED_CONTENT: MistakeReason("Неопознанный контент на уровне параграфа")
-    object PARAGRAPH_UNEXPECTED_CONTENT: MistakeReason("Неопознанный контент на уровне рана")
-    object RUN_UNEXPECTED_CONTENT: MistakeReason("Неопознанный контент на уровне текста")
     object TEXT_BODY_SUBHEADER_NUMBER_ORDER_MISMATCH: MistakeReason("Неверный порядок нумерации подразделов")
     object TEXT_BODY_SUBHEADER_LEVEL_WAS_MORE_THAN_3: MistakeReason("Уровень вложенности подразделов больше 3")
     object TEXT_BODY_SUBHEADER_WAS_EMPTY: MistakeReason("Подзаголовок был пустым")
@@ -105,4 +100,7 @@ object Reasons {
     object ORDERED_LIST_INCORRECT_MARKER_FORMAT: MistakeReason("Некорректный формат маркера ненумерованного списка")
     object TEXT_ABANDONED_ABBREVIATION_FOUND: MistakeReason("Сокращения \"к-рый\", \"ур-ие\", \"вм.\", \"напр.\", \"м.б.\" запрещены")
     object TabInList: MistakeReason("Запрещено использование табуляции в качестве разделителя после маркера списка. Методические указания, п. 6.3")
+    object ForbiddenMarkerTypeLevel1 : MistakeReason(
+        "Данный вид маркера списка запрещен. Используйте ненумерованный список либо русские строчные буквы. Методические указания, п. 6.3"
+    )
 }

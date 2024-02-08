@@ -9,13 +9,13 @@ import ru.maeasoftworks.normativecontrol.core.model.VerificationContext
  *
  * @sample ru.maeasoftworks.normativecontrol.core.implementations.predefined.JAXBElementHandler
  * @constructor Registers extending class to mapper container.
- * @param profile verification profile.
- * @param mapping handler mapping created by [Mapping.of].
+ * @param config handler mapping created by [Config.create].
  * @param T type of object that will be handled by this handler.
+ * @param S type of [State] of handler. Pass [Nothing] if handler don't need it.
  */
-abstract class Handler<T>(profile: Profile, mapping: Mapping<T>) {
+abstract class Handler<T, S: State>(private val config: Config<T, S>) {
     init {
-        HandlerMapper.map(profile, mapping)
+        HandlerMapper.map(config)
     }
 
     /**
@@ -27,4 +27,18 @@ abstract class Handler<T>(profile: Profile, mapping: Mapping<T>) {
      */
     context(VerificationContext)
     abstract fun handle(element: Any)
+
+    context(VerificationContext)
+    @Suppress("UNCHECKED_CAST")
+    val state: S
+        get() = (Proxy.localContexts[config.handler()]
+            ?: config.state?.invoke()?.also { Proxy.localContexts[config.handler()] = it }) as? S
+            ?: throw UnsupportedOperationException("This object does not define any LocalContext")
+
+    private object Proxy: ProxyContext {
+        context(VerificationContext)
+        inline val localContexts: MutableMap<Handler<*, *>, State>
+            get() = this@VerificationContext.localContexts
+    }
 }
+
