@@ -108,6 +108,11 @@ open class HtmlElement(
         addChild(ru.maeasoftworks.normativecontrol.core.rendering.style(body))
     }
 
+    @HtmlDsl
+    inline fun script(body: HtmlElement.() -> Unit) {
+        addChild(ru.maeasoftworks.normativecontrol.core.rendering.script(body))
+    }
+
     enum class Type(val serialName: String) {
         DIV("div"),
         P("p"),
@@ -116,7 +121,8 @@ open class HtmlElement(
         HEAD("head"),
         BODY("body"),
         HTML("html"),
-        STYLE("style")
+        STYLE("style"),
+        SCRIPT("script")
     }
 }
 
@@ -170,4 +176,9 @@ inline fun html(body: HtmlElement.() -> Unit): HtmlElement {
 @HtmlDsl
 inline fun style(body: HtmlElement.() -> Unit): HtmlElement {
     return HtmlElement(HtmlElement.Type.STYLE).also(body)
+}
+
+@HtmlDsl
+inline fun script(body: HtmlElement.() -> Unit): HtmlElement {
+    return HtmlElement(HtmlElement.Type.SCRIPT).also(body)
 }

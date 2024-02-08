@@ -33,6 +33,7 @@ class VerificationContext(val profile: Profile) {
     private var childContentPosition = 0
     private var mistakeId: Long = 0
 
+
     fun load(mlPackage: WordprocessingMLPackage) {
         this.mlPackage = mlPackage
         totalChildSize = doc.content.size
@@ -72,6 +73,17 @@ class VerificationContext(val profile: Profile) {
         }
 
         val id = mistakeId++
+
+        val position = mutableListOf(bodyPosition)
+        if (mistake.closure == Closure.R) {
+            position += childContentPosition
+        }
+        render.mistakes += DetailedMistake(
+            mistake.mistakeReason,
+            formattedText,
+            position
+        )
+
         val comment = createComment(id, formattedText)
         comments.jaxbElement.comment.add(comment)
 

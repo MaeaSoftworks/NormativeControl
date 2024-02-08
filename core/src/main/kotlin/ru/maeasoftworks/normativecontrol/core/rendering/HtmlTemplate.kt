@@ -1,9 +1,16 @@
 package ru.maeasoftworks.normativecontrol.core.rendering
 
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
+import ru.maeasoftworks.normativecontrol.core.model.DetailedMistake
 
-fun htmlTemplate(doc: MainDocumentPart?) = html {
+fun htmlTemplate(doc: MainDocumentPart?, mistakes: List<DetailedMistake>) = html {
     head {
+        script {
+            content = lazy { "function mistakes() {return ${Json.encodeToString(mistakes)};}" }
+        }
+
         style {
             content = css {
                 val pageSize = doc?.contents?.body?.sectPr?.pgSz
