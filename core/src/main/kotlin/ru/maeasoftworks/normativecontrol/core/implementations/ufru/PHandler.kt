@@ -34,7 +34,7 @@ object PHandler : Handler<P>(Profile.UrFU, Mapping.of { PHandler }), ChapterHead
                 val numbering = pPr.resolvedNumberingStyle
             }
             if (element.content.isEmpty()) {
-                children += br()
+                addChild(br())
             }
         }
         render.appender.inLastElementScope {

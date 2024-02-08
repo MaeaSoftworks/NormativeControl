@@ -12,6 +12,7 @@ object RHandler : Handler<R>(Profile.UrFU, Mapping.of { RHandler }) {
     context(VerificationContext)
     override fun handle(element: Any) {
         element as R
+        render.rSinceBr++
         val rPr = element.resolvedRPr
         render.appender append span {
             style += {

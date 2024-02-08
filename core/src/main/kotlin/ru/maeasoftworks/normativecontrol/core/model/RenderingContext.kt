@@ -6,13 +6,23 @@ import ru.maeasoftworks.normativecontrol.core.rendering.div
 import ru.maeasoftworks.normativecontrol.core.rendering.htmlTemplate
 
 class RenderingContext(doc: MainDocumentPart?) {
+    var rSinceBr: Int = 0
     private val html = htmlTemplate(doc)
     private val body = html.children[1]
-    var currentPage: HtmlElement = createPage()
-    val appender = Appender(currentPage)
+    lateinit var currentPage: HtmlElement
+        private set
 
-    private fun createPage(): HtmlElement {
-        return div { classes += "page" }.also { body.children += it }
+    val appender = Appender()
+
+    init {
+        createPage()
+    }
+
+    private fun createPage() {
+        val page = div { classes += "page" }
+        body.addChild(page)
+        currentPage = page
+        appender.pointer = page
     }
 
     /**
@@ -20,25 +30,22 @@ class RenderingContext(doc: MainDocumentPart?) {
      * @param copyingLevel level of element nesting that need to be copied, 0 to not copy anything.
      */
     fun pageBreak(copyingLevel: Int) {
-        var root = currentPage
-        currentPage = createPage()
-        var newRoot = currentPage
-        for (i in 1..copyingLevel) {
-            newRoot.children += root.children.last().also { root = it }.duplicate().also { newRoot = it }
-        }
+        val (copy, parent) = appender.pointer!!.duplicateUp(copyingLevel)
+        createPage()
+        currentPage.addChild(parent)
+        appender.pointer = copy
     }
 
     fun getString(): String {
         return html.toString()
     }
 
-    inner class Appender(
+    inner class Appender {
         @PublishedApi
-        internal var pointer: HtmlElement?
-    ) {
+        internal var pointer: HtmlElement? = null
+
         infix fun append(element: HtmlElement) {
-            pointer?.children?.add(element)
-            element.parent = pointer
+            pointer?.addChild(element)
         }
 
         inline fun inLastElementScope(fn: HtmlElement.() -> Unit) {
@@ -48,7 +55,7 @@ class RenderingContext(doc: MainDocumentPart?) {
         }
 
         fun openLastElementScope() {
-            pointer = pointer?.children?.last()
+            pointer = pointer?.children?.lastOrNull() ?: pointer
         }
 
         fun closeLastElementScope() {
