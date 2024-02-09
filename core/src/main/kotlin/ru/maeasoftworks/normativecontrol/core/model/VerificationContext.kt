@@ -27,8 +27,10 @@ class VerificationContext(val profile: Profile) {
 
     private lateinit var comments: CommentsPart
 
-    private var totalChildSize: Int = 0
-    private var bodyPosition = 0
+    var totalChildSize: Int = 0
+        private set
+    var bodyPosition = 0
+        private set
     private var totalChildContentSize: Int = 0
     private var childContentPosition = 0
     private var mistakeId: Long = 0

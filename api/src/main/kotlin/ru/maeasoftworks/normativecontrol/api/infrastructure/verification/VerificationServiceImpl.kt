@@ -42,7 +42,7 @@ object VerificationServiceImpl: VerificationService, Module {
         }
         while (task.isActive) {
             delay(200)
-            val progress = (ctx.ptr.bodyPosition * 1.0 / ctx.ptr.totalChildSize).let { if (it.isNaN()) 0.0 else it }
+            val progress = (ctx.bodyPosition * 1.0 / ctx.totalChildSize).let { if (it.isNaN()) 0.0 else it }
             channel?.send(Message.Progress(progress, stage))
         }
         task.invokeOnCompletion {
