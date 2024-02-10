@@ -12,9 +12,13 @@ import io.ktor.server.response.respondBytesWriter
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.webSocket
 import io.ktor.websocket.*
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
+import ru.maeasoftworks.normativecontrol.api.app.web.dto.Message
+import ru.maeasoftworks.normativecontrol.api.app.web.dto.VerificationInitialization
 import ru.maeasoftworks.normativecontrol.api.app.web.utlis.header
 import ru.maeasoftworks.normativecontrol.api.domain.dao.Document
 import ru.maeasoftworks.normativecontrol.api.domain.services.StudentsService
@@ -28,8 +32,11 @@ import ru.maeasoftworks.normativecontrol.api.infrastructure.security.Role
 import ru.maeasoftworks.normativecontrol.api.infrastructure.security.Security
 import ru.maeasoftworks.normativecontrol.api.infrastructure.security.withRoles
 import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.*
+import ru.maeasoftworks.normativecontrol.api.infrastructure.web.InvalidRequestException
 import ru.maeasoftworks.normativecontrol.api.infrastructure.web.NoAccessException
+import ru.maeasoftworks.normativecontrol.api.infrastructure.web.WebSockets
 import java.time.Instant
+import kotlin.math.ceil
 
 object StudentsController : ControllerModule() {
     override fun Routing.register() {
@@ -38,19 +45,6 @@ object StudentsController : ControllerModule() {
                 header("Authorization") {
                     withRoles(Role.STUDENT) {
                         route("/document") {
-                            webSocket("/verify") {
-                                StudentsService.Verification {
-                                    userId = call.authentication.principal<JWTPrincipal>()!!.subject!!
-                                    onVerificationEnded = {
-                                        transaction { DocumentRepository.save(Document(documentId, userId!!, Instant.now())) }
-                                        launch {
-                                            channel.receiveAsFlow().map { Frame.Text(it.toString()) }.collect(::send)
-                                            close()
-                                        }
-                                    }
-                                }.launch()
-                            }
-
                             get("/list") {
                                 transaction {
                                     call.authentication.identify()
@@ -94,14 +88,60 @@ object StudentsController : ControllerModule() {
 
             route("/document") {
                 webSocket("/verify") {
-                    StudentsService.Verification {
-                        onVerificationEnded = {
+                    var fingerprint: String? = null
+                    var userId: String? = null
+                    val channel: Channel<Message> = Channel(Channel.UNLIMITED)
+                    lateinit var documentId: String
+                    var len = -1
+                    var file: ByteArray? = null
+                    var pos = 0
+                    incoming.receiveAsFlow().collect { frame ->
+                        if (len == -1) {
+                            if (frame !is Frame.Text) return@collect
+                            val initialization = Json.decodeFromString<VerificationInitialization>(frame.readText())
+                            if (initialization.token != null) {
+                                try {
+                                    userId = Security.JWT.authenticateJwt(initialization.token)?.subject
+                                } catch (e: Exception) { //todo more details
+                                    channel.close()
+                                    close(CloseReason(CloseReason.Codes.CANNOT_ACCEPT, "Cannot authorize this token"))
+                                    return@collect
+                                }
+                            }
+                            fingerprint = initialization.fingerprint
+                            len = initialization.length
+                            if (len < 0) throw InvalidRequestException("'length' must be more that 0")
+                            file = ByteArray(len)
+                            send("Upload was initialized. Waiting for ${ceil(len * 1.0 / WebSockets.maxFrameSize).toInt()} file frames...")
+                            return@collect
+                        }
+                        if (pos < len) {
+                            if (frame !is Frame.Binary) return@collect
+                            val bytes = frame.readBytes()
+                            for (i in bytes.indices) {
+                                file!![pos] = bytes[i]
+                                pos += 1
+                            }
+                            val added = bytes.size
+                            send(Frame.Text("Added $added bytes; received $pos of $len bytes."))
+                        }
+                        if (pos == len) {
+                            send("All data received.")
+                            documentId = KeyGenerator.generate(32)
+                            if (fingerprint != null) {
+                                StudentsService.verifyFile(this, documentId, file!!, channel, fingerprint = fingerprint)
+                            } else if (userId != null) {
+                                StudentsService.verifyFile(this, documentId, file!!, channel, userId)
+                            }
+                            if (userId != null) {
+                                transaction { DocumentRepository.save(Document(documentId, userId!!, Instant.now())) }
+                            }
                             launch {
                                 channel.receiveAsFlow().map { Frame.Text(it.toString()) }.collect(::send)
                                 close()
                             }
                         }
-                    }.launch()
+                    }
                 }
 
                 get("/conclusion") {

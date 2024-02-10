@@ -1,8 +1,13 @@
 package ru.maeasoftworks.normativecontrol.api.infrastructure.security
 
+import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
+import com.auth0.jwt.impl.JWTParser
 import io.ktor.server.application.Application
+import io.ktor.server.application.ApplicationCall
+import io.ktor.server.auth.Principal
 import io.ktor.server.auth.authentication
+import io.ktor.server.auth.jwt.JWTCredential
 import io.ktor.server.auth.jwt.JWTPrincipal
 import io.ktor.server.auth.jwt.jwt
 import ru.maeasoftworks.normativecontrol.api.domain.dao.RefreshToken
@@ -15,6 +20,7 @@ import ru.maeasoftworks.normativecontrol.api.infrastructure.web.InvalidRefreshTo
 import ru.maeasoftworks.normativecontrol.api.infrastructure.web.OutdatedException
 import java.security.SecureRandom
 import java.time.Instant
+import java.util.*
 import com.auth0.jwt.JWT as JWTLib
 
 object Security : Module {
@@ -37,6 +43,7 @@ object Security : Module {
         private lateinit var jwtSecret: String
         private var jwtExpiration: Long = 0
         private val random = SecureRandom()
+        private val verifier: JWTVerifier by lazy { JWTLib.require(Algorithm.HMAC256(jwtSecret)).withAudience(jwtAudience).withIssuer(issuer).build() }
 
         override fun Application.module() {
             jwtAudience = environment.config.property("security.jwt.audience").getString()
@@ -48,20 +55,30 @@ object Security : Module {
             authentication {
                 jwt(CONFIGURATION_NAME) {
                     realm = jwtRealm
-                    verifier(JWTLib.require(Algorithm.HMAC256(jwtSecret)).withAudience(jwtAudience).withIssuer(issuer).build())
-                    validate { credential ->
-                        if (credential.payload.audience.size == 1 &&
-                            credential.payload.audience[0] == jwtAudience &&
-                            credential.payload.issuer == issuer &&
-                            credential.payload.subject.isNotBlank() &&
-                            credential.payload.expiresAtAsInstant >= Instant.now()
-                        ) {
-                            JWTPrincipal(credential.payload)
-                        } else {
-                            null
-                        }
-                    }
+                    verifier(verifier)
+                    validate { validate(it) }
                 }
+            }
+        }
+
+        fun authenticateJwt(token: String): JWTPrincipal? {
+            val jwt = verifier.verify(token)
+            val payloadString = String(Base64.getUrlDecoder().decode(jwt.payload))
+            val payload = JWTParser().parsePayload(payloadString)
+            val credentials = JWTCredential(payload)
+            return validate(credentials)
+        }
+
+        private fun validate(credential: JWTCredential): JWTPrincipal? {
+            return if (credential.payload.audience.size == 1 &&
+                credential.payload.audience[0] == jwtAudience &&
+                credential.payload.issuer == issuer &&
+                credential.payload.subject.isNotBlank() &&
+                credential.payload.expiresAtAsInstant >= Instant.now()
+            ) {
+                JWTPrincipal(credential.payload)
+            } else {
+                null
             }
         }
 
