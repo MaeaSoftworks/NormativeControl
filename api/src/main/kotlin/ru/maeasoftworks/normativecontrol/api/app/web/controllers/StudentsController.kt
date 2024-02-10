@@ -134,7 +134,9 @@ object StudentsController : ControllerModule() {
                                 StudentsService.verifyFile(this, documentId, file!!, channel, userId)
                             }
                             if (userId != null) {
-                                transaction { DocumentRepository.save(Document(documentId, userId!!, Instant.now())) }
+                                launch {
+                                    transaction { DocumentRepository.save(Document(documentId, userId!!, Instant.now())) }
+                                }
                             }
                             launch {
                                 channel.receiveAsFlow().map { Frame.Text(it.toString()) }.collect(::send)
