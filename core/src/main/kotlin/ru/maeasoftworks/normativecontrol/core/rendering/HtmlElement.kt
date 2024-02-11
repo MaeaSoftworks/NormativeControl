@@ -1,9 +1,11 @@
 package ru.maeasoftworks.normativecontrol.core.rendering
 
+import ru.maeasoftworks.normativecontrol.core.model.VerificationContext
 import ru.maeasoftworks.normativecontrol.core.rendering.css.Style
 import ru.maeasoftworks.normativecontrol.core.rendering.css.Stylesheet
 import java.io.Serializable
 
+context(VerificationContext)
 open class HtmlElement(
     val type: Type,
     private val hasClosingTag: Boolean = true,
@@ -20,6 +22,11 @@ open class HtmlElement(
         private set
 
     private val _children: MutableList<HtmlElement> = mutableListOf()
+
+    init {
+        id = mistakeUid
+        mistakeUid = null
+    }
 
     private fun serializeClasses(): String = if (classes.size > 0) " class='${classes.joinToString(" ")}'" else ""
 
@@ -39,7 +46,7 @@ open class HtmlElement(
         }
     }
 
-    fun duplicate(): HtmlElement {
+    private fun duplicate(): HtmlElement {
         return HtmlElement(this@HtmlElement.type).also {
             it.classes.addAll(classes)
             it.id = id
@@ -134,36 +141,43 @@ inline fun css(body: Stylesheet.Builder.() -> Unit): Stylesheet {
     return Stylesheet.Builder().apply(body).build()
 }
 
+context(VerificationContext)
 @HtmlDsl
 inline fun div(body: HtmlElement.() -> Unit): HtmlElement {
     return HtmlElement(HtmlElement.Type.DIV).also(body)
 }
 
+context(VerificationContext)
 @HtmlDsl
 inline fun p(body: HtmlElement.() -> Unit): HtmlElement {
     return HtmlElement(HtmlElement.Type.P).also(body)
 }
 
+context(VerificationContext)
 @HtmlDsl
 fun br(): HtmlElement {
     return HtmlElement(HtmlElement.Type.BR, false)
 }
 
+context(VerificationContext)
 @HtmlDsl
 inline fun span(body: HtmlElement.() -> Unit): HtmlElement {
     return HtmlElement(HtmlElement.Type.SPAN).also(body)
 }
 
+context(VerificationContext)
 @HtmlDsl
 inline fun head(body: HtmlElement.() -> Unit): HtmlElement {
     return HtmlElement(HtmlElement.Type.HEAD).also(body)
 }
 
+context(VerificationContext)
 @HtmlDsl
 inline fun body(body: HtmlElement.() -> Unit): HtmlElement {
     return HtmlElement(HtmlElement.Type.BODY).also(body)
 }
 
+context(VerificationContext)
 @HtmlDsl
 inline fun html(body: HtmlElement.() -> Unit): HtmlElement {
     return object : HtmlElement(Type.HTML) {
@@ -173,11 +187,13 @@ inline fun html(body: HtmlElement.() -> Unit): HtmlElement {
     }.also(body)
 }
 
+context(VerificationContext)
 @HtmlDsl
 inline fun style(body: HtmlElement.() -> Unit): HtmlElement {
     return HtmlElement(HtmlElement.Type.STYLE).also(body)
 }
 
+context(VerificationContext)
 @HtmlDsl
 inline fun script(body: HtmlElement.() -> Unit): HtmlElement {
     return HtmlElement(HtmlElement.Type.SCRIPT).also(body)

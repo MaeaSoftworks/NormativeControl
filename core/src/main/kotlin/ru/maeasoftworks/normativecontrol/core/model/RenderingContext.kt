@@ -5,6 +5,7 @@ import ru.maeasoftworks.normativecontrol.core.rendering.HtmlElement
 import ru.maeasoftworks.normativecontrol.core.rendering.div
 import ru.maeasoftworks.normativecontrol.core.rendering.htmlTemplate
 
+context(VerificationContext)
 class RenderingContext(doc: MainDocumentPart?) {
     val mistakes = mutableListOf<DetailedMistake>()
     private val html = htmlTemplate(doc, mistakes)
@@ -19,6 +20,7 @@ class RenderingContext(doc: MainDocumentPart?) {
         createPage()
     }
 
+    context(VerificationContext)
     private fun createPage() {
         val page = div { classes += "page" }
         body.addChild(page)

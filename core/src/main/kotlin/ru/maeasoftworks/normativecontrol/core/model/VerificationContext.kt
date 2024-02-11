@@ -15,6 +15,7 @@ class VerificationContext(val profile: Profile) {
     var chapter: Chapter = profile.startChapter
     val doc: MainDocumentPart by lazy { mlPackage.mainDocumentPart }
     val states = mutableMapOf<State.Key, State>()
+    var mistakeUid: String? = null
 
     context(ChapterHeader)
     var lastDefinedChapter: Chapter
@@ -75,15 +76,12 @@ class VerificationContext(val profile: Profile) {
         }
 
         val id = mistakeId++
+        mistakeUid = "mistake$id"
 
-        val position = mutableListOf(bodyPosition)
-        if (mistake.closure == Closure.R) {
-            position += childContentPosition
-        }
         render.mistakes += DetailedMistake(
             mistake.mistakeReason,
             formattedText,
-            position
+            mistakeUid!!
         )
 
         val comment = createComment(id, formattedText)

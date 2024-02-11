@@ -7,5 +7,5 @@ import ru.maeasoftworks.normativecontrol.core.abstractions.MistakeReason
 data class DetailedMistake(
     val mistakeReason: MistakeReason,
     val description: String,
-    val position: List<Int>
+    val id: String
 )

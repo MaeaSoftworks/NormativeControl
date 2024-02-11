@@ -4,7 +4,9 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
 import ru.maeasoftworks.normativecontrol.core.model.DetailedMistake
+import ru.maeasoftworks.normativecontrol.core.model.VerificationContext
 
+context(VerificationContext)
 fun htmlTemplate(doc: MainDocumentPart?, mistakes: List<DetailedMistake>) = html {
     head {
         script {
