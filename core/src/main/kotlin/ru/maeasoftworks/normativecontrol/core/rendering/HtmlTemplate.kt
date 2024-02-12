@@ -1,16 +1,13 @@
 package ru.maeasoftworks.normativecontrol.core.rendering
 
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
-import ru.maeasoftworks.normativecontrol.core.model.DetailedMistake
 import ru.maeasoftworks.normativecontrol.core.model.VerificationContext
 
 context(VerificationContext)
-fun htmlTemplate(doc: MainDocumentPart?, mistakes: List<DetailedMistake>) = html {
+fun htmlTemplate(doc: MainDocumentPart?, mistakes: MistakeRenderer) = html {
     head {
         script {
-            content = lazy { "function mistakes() {return ${Json.encodeToString(mistakes)};}" }
+            content = lazy { mistakes.serialize() }
         }
 
         style {
@@ -61,11 +58,8 @@ fun htmlTemplate(doc: MainDocumentPart?, mistakes: List<DetailedMistake>) = html
             input {
                 params {
                     "type" set "checkbox"
-                    "onchange" set js("""
-                        document.querySelectorAll('*').forEach(x => 
-                            x.style.boxShadow = (x.style.boxShadow === '' || x.style.boxShadow === 'none' ? 'inset 0px 0px 0px 1px red' : 'none')
-                        );
-                        """.trimIndent())
+                    "onchange" set js("document.querySelectorAll('*').forEach(x => " +
+                            "x.style.boxShadow = (x.style.boxShadow === '' || x.style.boxShadow === 'none' ? 'inset 0px 0px 0px 1px red' : 'none'));")
                     +"checked"
                 }
             }
