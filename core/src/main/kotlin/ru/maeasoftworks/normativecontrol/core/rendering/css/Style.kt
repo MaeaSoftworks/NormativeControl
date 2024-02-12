@@ -65,5 +65,9 @@ class Style {
                 }
             }
         }
+
+        infix fun String.set(value: String) {
+            rules.add(Rule(this, value))
+        }
     }
 }

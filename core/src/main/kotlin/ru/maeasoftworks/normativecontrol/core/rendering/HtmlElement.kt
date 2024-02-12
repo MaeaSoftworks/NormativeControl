@@ -14,6 +14,7 @@ open class HtmlElement(
     var id: String? = null
     var content: Serializable? = null
     var style: Style = Style()
+    val params = mutableMapOf<String, String>()
 
     val children: List<HtmlElement>
         get() = _children
@@ -25,6 +26,9 @@ open class HtmlElement(
 
     init {
         id = mistakeUid
+        if (mistakeUid != null) {
+            classes += "mistake"
+        }
         mistakeUid = null
     }
 
@@ -38,11 +42,13 @@ open class HtmlElement(
 
     private fun serializeContent(): String = content?.toString() ?: ""
 
+    private fun serializeParams(): String = " " + params.map { (key, value) -> "$key=\"$value\"" }.joinToString(" ")
+
     override fun toString(): String {
         return if (hasClosingTag) {
-            "<${type.serialName}${serializeId()}${serializeClasses()}${serializeStyle()}>${serializeContent()}${serializeChildren()}</${type.serialName}>"
+            "<${type.serialName}${serializeId()}${serializeClasses()}${serializeStyle()}${serializeParams()}>${serializeChildren()}${serializeContent()}</${type.serialName}>"
         } else {
-            "<${type.serialName}${serializeId()}${serializeClasses()}${serializeStyle()}>"
+            "<${type.serialName}${serializeId()}${serializeClasses()}${serializeStyle()}${serializeParams()}>"
         }
     }
 
@@ -120,6 +126,16 @@ open class HtmlElement(
         addChild(ru.maeasoftworks.normativecontrol.core.rendering.script(body))
     }
 
+    @HtmlDsl
+    inline fun label(body: HtmlElement.() -> Unit) {
+        addChild(ru.maeasoftworks.normativecontrol.core.rendering.label(body))
+    }
+
+    @HtmlDsl
+    inline fun input(body: HtmlElement.() -> Unit) {
+        addChild(ru.maeasoftworks.normativecontrol.core.rendering.input(body))
+    }
+
     enum class Type(val serialName: String) {
         DIV("div"),
         P("p"),
@@ -129,7 +145,9 @@ open class HtmlElement(
         BODY("body"),
         HTML("html"),
         STYLE("style"),
-        SCRIPT("script")
+        SCRIPT("script"),
+        LABEL("label"),
+        INPUT("input")
     }
 }
 
@@ -197,4 +215,16 @@ context(VerificationContext)
 @HtmlDsl
 inline fun script(body: HtmlElement.() -> Unit): HtmlElement {
     return HtmlElement(HtmlElement.Type.SCRIPT).also(body)
+}
+
+context(VerificationContext)
+@HtmlDsl
+inline fun label(body: HtmlElement.() -> Unit): HtmlElement {
+    return HtmlElement(HtmlElement.Type.LABEL).also(body)
+}
+
+context(VerificationContext)
+@HtmlDsl
+inline fun input(body: HtmlElement.() -> Unit): HtmlElement {
+    return HtmlElement(HtmlElement.Type.INPUT, false).also(body)
 }

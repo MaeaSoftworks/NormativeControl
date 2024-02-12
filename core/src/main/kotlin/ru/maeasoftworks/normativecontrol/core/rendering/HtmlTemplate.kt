@@ -35,6 +35,8 @@ fun htmlTemplate(doc: MainDocumentPart?, mistakes: List<DetailedMistake>) = html
                     paddingBottom set pageMargins?.bottom?.intValueExact()?.toDouble()
                     paddingRight set pageMargins?.right?.intValueExact()?.toDouble()
                     hyphens set doc?.documentSettingsPart?.jaxbElement?.autoHyphenation?.isVal
+                    margin set 10.0
+                    backgroundColor set "ffffff"
                 }
 
                 ".page-size" {
@@ -45,8 +47,23 @@ fun htmlTemplate(doc: MainDocumentPart?, mistakes: List<DetailedMistake>) = html
                     height set pageMargins?.let { (h?.minus(it.top.intValueExact())?.minus(it.bottom.intValueExact()))?.toDouble() }
                     zIndex set -10.0
                 }
+
+                "body" {
+                    "display" set "flex"
+                    "flex-direction" set "column"
+                    backgroundColor set "dedede"
+                    "align-items" set "center"
+                }
             }
         }
     }
-    body { }
+    body {
+        label {
+            input {
+                params += "type" to "checkbox"
+                params += "onchange" to "document.querySelectorAll('*').forEach(x => x.style.boxShadow = (x.style.boxShadow === 'none' ? 'inset 0px 0px 0px 1px red' : 'none'));"
+            }
+            content= "Hide borders"
+        }
+    }
 }
