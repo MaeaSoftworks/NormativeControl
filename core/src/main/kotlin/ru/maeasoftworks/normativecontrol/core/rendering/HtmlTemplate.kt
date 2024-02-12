@@ -21,7 +21,6 @@ fun htmlTemplate(doc: MainDocumentPart?, mistakes: List<DetailedMistake>) = html
                 val pageMargins = doc?.contents?.body?.sectPr?.pgMar
 
                 "*" {
-                    boxShadow set "inset 0px 0px 0px 1px red"
                     boxSizing set "border-box"
                     margin set 0.0
                     padding set 0.0
@@ -60,8 +59,15 @@ fun htmlTemplate(doc: MainDocumentPart?, mistakes: List<DetailedMistake>) = html
     body {
         label {
             input {
-                params += "type" to "checkbox"
-                params += "onchange" to "document.querySelectorAll('*').forEach(x => x.style.boxShadow = (x.style.boxShadow === 'none' ? 'inset 0px 0px 0px 1px red' : 'none'));"
+                params {
+                    "type" set "checkbox"
+                    "onchange" set js("""
+                        document.querySelectorAll('*').forEach(x => 
+                            x.style.boxShadow = (x.style.boxShadow === '' || x.style.boxShadow === 'none' ? 'inset 0px 0px 0px 1px red' : 'none')
+                        );
+                        """.trimIndent())
+                    +"checked"
+                }
             }
             content= "Hide borders"
         }

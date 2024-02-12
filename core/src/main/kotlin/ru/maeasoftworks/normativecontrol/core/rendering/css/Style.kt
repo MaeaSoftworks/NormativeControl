@@ -1,7 +1,12 @@
 package ru.maeasoftworks.normativecontrol.core.rendering.css
 
-class Style {
-    var rules: MutableList<Rule> = mutableListOf()
+import ru.maeasoftworks.normativecontrol.core.model.VerificationContext
+
+class Style(
+    val classes: MutableList<String>? = null,
+    val disableCaching: Boolean = false
+) {
+    val rules: MutableList<Rule> by lazy { mutableListOf() }
     val size: Int
         get() = rules.size
 
@@ -18,12 +23,15 @@ class Style {
     }
 
     inline operator fun plusAssign(fn: Block.() -> Unit) {
-        rules = Block().also(fn).rules
+        val block = Block(disableCaching).also(fn)
+        rules.addAll(block.rules)
+        classes?.addAll(block.classes)
     }
 
     @Suppress("UNUSED")
-    class Block {
+    class Block(private val disableCaching: Boolean) {
         val rules: MutableList<Rule> = mutableListOf()
+        val classes: MutableList<String> = mutableListOf()
         var boxSizing = BoxSizing
         var boxShadow = BoxShadow
         var color = Color
@@ -57,17 +65,36 @@ class Style {
         var letterSpacing = LetterSpacing
         var zIndex = ZIndex
 
+        context(VerificationContext)
         infix fun <T> Property<T>.set(value: T?) {
             if (value != null) {
                 val v = this.converter(value)
                 if (v != null) {
-                    rules.add(Rule(name, v, measure))
+                    addRule(Rule(name, v, measure))
                 }
             }
         }
 
+        context(VerificationContext)
         infix fun String.set(value: String) {
-            rules.add(Rule(this, value))
+            addRule(Rule(this, value))
+        }
+
+        context(VerificationContext)
+        private fun addRule(rule: Rule) {
+            if (disableCaching) {
+                rules.add(rule)
+                return
+            }
+
+            if (rule in render.styleCache.keys) {
+                classes.add(render.styleCache[rule]!!)
+            } else {
+                val key = "s${render.styleCache.size}"
+                render.globalStyle.styles[".$key"] = Style(disableCaching = true).also { it.rules.add(rule) }
+                render.styleCache[rule] = key
+                classes.add(render.styleCache[rule]!!)
+            }
         }
     }
 }

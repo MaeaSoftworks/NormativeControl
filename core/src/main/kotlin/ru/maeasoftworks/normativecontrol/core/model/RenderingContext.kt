@@ -2,6 +2,8 @@ package ru.maeasoftworks.normativecontrol.core.model
 
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
 import ru.maeasoftworks.normativecontrol.core.rendering.HtmlElement
+import ru.maeasoftworks.normativecontrol.core.rendering.css.Rule
+import ru.maeasoftworks.normativecontrol.core.rendering.css.Stylesheet
 import ru.maeasoftworks.normativecontrol.core.rendering.div
 import ru.maeasoftworks.normativecontrol.core.rendering.htmlTemplate
 
@@ -10,6 +12,8 @@ class RenderingContext(doc: MainDocumentPart?) {
     val mistakes = mutableListOf<DetailedMistake>()
     private val html = htmlTemplate(doc, mistakes)
     private val body = html.children[1]
+    val styleCache = mutableMapOf<Rule, String>()
+    val globalStyle = html.children[0].children.first { it.type == HtmlElement.Type.STYLE }.content as Stylesheet
 
     lateinit var currentPage: HtmlElement
         private set

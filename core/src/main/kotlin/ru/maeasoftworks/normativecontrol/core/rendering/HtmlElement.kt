@@ -1,5 +1,6 @@
 package ru.maeasoftworks.normativecontrol.core.rendering
 
+import org.intellij.lang.annotations.Language
 import ru.maeasoftworks.normativecontrol.core.model.VerificationContext
 import ru.maeasoftworks.normativecontrol.core.rendering.css.Style
 import ru.maeasoftworks.normativecontrol.core.rendering.css.Stylesheet
@@ -13,8 +14,8 @@ open class HtmlElement(
     val classes: MutableList<String> = mutableListOf()
     var id: String? = null
     var content: Serializable? = null
-    var style: Style = Style()
-    val params = mutableMapOf<String, String>()
+    var style: Style = Style(classes)
+    private val _params = mutableListOf<String>()
 
     val children: List<HtmlElement>
         get() = _children
@@ -42,7 +43,7 @@ open class HtmlElement(
 
     private fun serializeContent(): String = content?.toString() ?: ""
 
-    private fun serializeParams(): String = " " + params.map { (key, value) -> "$key=\"$value\"" }.joinToString(" ")
+    private fun serializeParams(): String = " " + _params.joinToString("")
 
     override fun toString(): String {
         return if (hasClosingTag) {
@@ -89,6 +90,10 @@ open class HtmlElement(
     fun addChild(child: HtmlElement) {
         this._children.add(child)
         child.parent = this
+    }
+
+    fun params(fn: Params.() -> Unit) {
+        Params(_params).fn()
     }
 
     @HtmlDsl
@@ -148,6 +153,16 @@ open class HtmlElement(
         SCRIPT("script"),
         LABEL("label"),
         INPUT("input")
+    }
+
+    class Params(private val params: MutableList<String>) {
+        operator fun String.unaryPlus() {
+            params += " $this"
+        }
+
+        infix fun String.set(value: String) {
+            params += " $this=\"$value\""
+        }
     }
 }
 
@@ -228,3 +243,6 @@ context(VerificationContext)
 inline fun input(body: HtmlElement.() -> Unit): HtmlElement {
     return HtmlElement(HtmlElement.Type.INPUT, false).also(body)
 }
+
+@HtmlDsl
+fun js(@Language("javascript") code: String) = code
