@@ -11,5 +11,5 @@ data class DocumentListResponse(
     @Serializable(InstantSerializer::class)
     val timestamp: Instant
 ) {
-    constructor(document: Document): this(document.id, document.timestamp)
+    constructor(document: Document) : this(document.id, document.timestamp)
 }

@@ -21,7 +21,7 @@ fun Application.applyModules(vararg module: Module) {
     }
 }
 
-inline fun <T: Module> Application.configuredModule(module: T, config: T.() -> Unit) {
+inline fun <T : Module> Application.configuredModule(module: T, config: T.() -> Unit) {
     this.apply {
         module.apply {
             module()

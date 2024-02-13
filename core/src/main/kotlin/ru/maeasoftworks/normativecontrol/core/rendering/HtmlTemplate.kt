@@ -58,12 +58,14 @@ fun htmlTemplate(doc: MainDocumentPart?, mistakes: MistakeRenderer) = html {
             input {
                 params {
                     "type" set "checkbox"
-                    "onchange" set js("document.querySelectorAll('*').forEach(x => " +
-                            "x.style.boxShadow = (x.style.boxShadow === '' || x.style.boxShadow === 'none' ? 'inset 0px 0px 0px 1px red' : 'none'));")
+                    "onchange" set js(
+                        "document.querySelectorAll('*').forEach(x => " +
+                                "x.style.boxShadow = (x.style.boxShadow === '' || x.style.boxShadow === 'none' ? 'inset 0px 0px 0px 1px red' : 'none'));"
+                    )
                     +"checked"
                 }
             }
-            content= "Hide borders"
+            content = "Hide borders"
         }
     }
 }

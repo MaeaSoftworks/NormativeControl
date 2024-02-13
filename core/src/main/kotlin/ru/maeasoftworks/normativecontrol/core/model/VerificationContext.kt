@@ -20,7 +20,9 @@ class VerificationContext(val profile: Profile) {
     context(ChapterHeader)
     var lastDefinedChapter: Chapter
         get() = _lastDefinedChapter
-        set(value) { _lastDefinedChapter = value }
+        set(value) {
+            _lastDefinedChapter = value
+        }
 
     private var _lastDefinedChapter: Chapter = profile.startChapter
 
@@ -48,7 +50,7 @@ class VerificationContext(val profile: Profile) {
         profile.sharedState
     }
 
-    inline fun <reified T: AbstractSharedState> getSharedStateAs(): T {
+    inline fun <reified T : AbstractSharedState> getSharedStateAs(): T {
         return profile.sharedState as? T ?: throw NullPointerException("This profile does not have shared state.")
     }
 

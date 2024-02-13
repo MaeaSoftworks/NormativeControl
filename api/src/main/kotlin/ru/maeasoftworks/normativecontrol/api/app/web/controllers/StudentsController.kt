@@ -9,7 +9,9 @@ import io.ktor.server.auth.authentication
 import io.ktor.server.auth.jwt.JWTPrincipal
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondBytesWriter
-import io.ktor.server.routing.*
+import io.ktor.server.routing.Routing
+import io.ktor.server.routing.get
+import io.ktor.server.routing.route
 import io.ktor.server.websocket.webSocket
 import io.ktor.websocket.*
 import kotlinx.coroutines.channels.Channel
@@ -22,16 +24,18 @@ import ru.maeasoftworks.normativecontrol.api.app.web.dto.VerificationInitializat
 import ru.maeasoftworks.normativecontrol.api.app.web.utlis.header
 import ru.maeasoftworks.normativecontrol.api.domain.dao.Document
 import ru.maeasoftworks.normativecontrol.api.domain.services.StudentsService
-import ru.maeasoftworks.normativecontrol.api.infrastructure.database.transaction
 import ru.maeasoftworks.normativecontrol.api.infrastructure.database.repositories.DocumentRepository
 import ru.maeasoftworks.normativecontrol.api.infrastructure.database.repositories.UserRepository
+import ru.maeasoftworks.normativecontrol.api.infrastructure.database.transaction
 import ru.maeasoftworks.normativecontrol.api.infrastructure.filestorage.FileStorage
 import ru.maeasoftworks.normativecontrol.api.infrastructure.filestorage.conclusion
 import ru.maeasoftworks.normativecontrol.api.infrastructure.filestorage.render
 import ru.maeasoftworks.normativecontrol.api.infrastructure.security.Role
 import ru.maeasoftworks.normativecontrol.api.infrastructure.security.Security
 import ru.maeasoftworks.normativecontrol.api.infrastructure.security.withRoles
-import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.*
+import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.ControllerModule
+import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.KeyGenerator
+import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.identify
 import ru.maeasoftworks.normativecontrol.api.infrastructure.web.InvalidRequestException
 import ru.maeasoftworks.normativecontrol.api.infrastructure.web.NoAccessException
 import ru.maeasoftworks.normativecontrol.api.infrastructure.web.WebSockets
@@ -69,11 +73,11 @@ object StudentsController : ControllerModule() {
 
                             get("/render") {
                                 val documentId = call.parameters["documentId"] ?: throw IllegalArgumentException("documentId must be not null")
-                                    val isOwner = transaction {
-                                        val user = UserRepository.identify(call.authentication.principal<JWTPrincipal>()!!.subject!!)
-                                        DocumentRepository.isUserOwnerOf(user.id, documentId)
-                                    }
-                                    if (!isOwner) throw NoAccessException()
+                                val isOwner = transaction {
+                                    val user = UserRepository.identify(call.authentication.principal<JWTPrincipal>()!!.subject!!)
+                                    DocumentRepository.isUserOwnerOf(user.id, documentId)
+                                }
+                                if (!isOwner) throw NoAccessException()
                                 val filename = render(documentId)
                                 call.respondBytesWriter(ContentType.defaultForFileExtension("html"), HttpStatusCode.OK) {
                                     FileStorage.getObject(filename).collect {

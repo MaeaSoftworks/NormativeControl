@@ -2,7 +2,7 @@ package ru.maeasoftworks.normativecontrol.core.rendering
 
 import java.io.Serializable
 
-class LazySerializable(private val target: () -> String): Serializable {
+class LazySerializable(private val target: () -> String) : Serializable {
     override fun toString(): String {
         return target()
     }

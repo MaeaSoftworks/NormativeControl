@@ -1,7 +1,10 @@
 package ru.maeasoftworks.normativecontrol.core.implementations.ufru
 
 import org.docx4j.wml.R
-import ru.maeasoftworks.normativecontrol.core.abstractions.*
+import ru.maeasoftworks.normativecontrol.core.abstractions.Config
+import ru.maeasoftworks.normativecontrol.core.abstractions.Handler
+import ru.maeasoftworks.normativecontrol.core.abstractions.HandlerMapper
+import ru.maeasoftworks.normativecontrol.core.abstractions.Profile
 import ru.maeasoftworks.normativecontrol.core.annotations.EagerInitialization
 import ru.maeasoftworks.normativecontrol.core.model.VerificationContext
 import ru.maeasoftworks.normativecontrol.core.rendering.span

@@ -14,7 +14,7 @@ import ru.maeasoftworks.normativecontrol.core.model.VerificationContext
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 
-object VerificationServiceImpl: VerificationService, Module {
+object VerificationServiceImpl : VerificationService, Module {
     override fun Application.module() {
         VerificationService.initialize(VerificationServiceImpl)
     }

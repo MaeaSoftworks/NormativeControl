@@ -44,6 +44,6 @@ sealed class Profile(
 
             UndefinedChapter shouldBeNamed "НЕОПОЗНАННАЯ ЧАСТЬ"
         },
-         SharedState()
+        SharedState()
     )
 }

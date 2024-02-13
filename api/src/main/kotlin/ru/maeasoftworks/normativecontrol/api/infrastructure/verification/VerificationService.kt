@@ -14,7 +14,7 @@ interface VerificationService {
         profile: Profile = Profile.UrFU
     )
 
-    companion object: VerificationService {
+    companion object : VerificationService {
         private lateinit var instance: VerificationService
 
         @JvmStatic

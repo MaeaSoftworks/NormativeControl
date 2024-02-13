@@ -13,7 +13,7 @@ import ru.maeasoftworks.normativecontrol.core.model.VerificationContext
  * @param T type of object that will be handled by this handler.
  * @param S type of [State] of handler. Pass [Nothing] if handler don't need it.
  */
-abstract class Handler<T, S: State>(private val config: Config<T, S>) {
+abstract class Handler<T, S : State>(private val config: Config<T, S>) {
     init {
         HandlerMapper.map(config)
     }

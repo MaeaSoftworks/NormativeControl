@@ -6,12 +6,11 @@ import org.docx4j.wml.NumberFormat
 import org.docx4j.wml.P
 import ru.maeasoftworks.normativecontrol.core.abstractions.*
 import ru.maeasoftworks.normativecontrol.core.annotations.EagerInitialization
-import ru.maeasoftworks.normativecontrol.core.abstractions.Closure
 import ru.maeasoftworks.normativecontrol.core.model.Mistake
 import ru.maeasoftworks.normativecontrol.core.model.VerificationContext
 import ru.maeasoftworks.normativecontrol.core.rendering.br
 import ru.maeasoftworks.normativecontrol.core.rendering.p
-import ru.maeasoftworks.normativecontrol.core.utils.*
+import ru.maeasoftworks.normativecontrol.core.utils.resolvedPPr
 
 @EagerInitialization
 object PHandler : Handler<P, PHandler.PState>(
@@ -142,13 +141,13 @@ object PHandler : Handler<P, PHandler.PState>(
         chapter = target
     }
 
-    class PState: State {
+    class PState : State {
         override val key: State.Key = Companion
 
         var currentListConfig: ListConfig? = null
 
         data class ListConfig(val isOrdered: Boolean)
 
-        companion object: State.Key
+        companion object : State.Key
     }
 }

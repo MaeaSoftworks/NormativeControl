@@ -1,8 +1,10 @@
 package ru.maeasoftworks.api
 
 import io.ktor.server.application.Application
-import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import ru.maeasoftworks.normativecontrol.api.app.web.dto.Message
 import ru.maeasoftworks.normativecontrol.api.infrastructure.filestorage.FileStorage
 import ru.maeasoftworks.normativecontrol.api.infrastructure.filestorage.uploadDocumentConclusion
@@ -12,7 +14,7 @@ import ru.maeasoftworks.normativecontrol.api.infrastructure.verification.Verific
 import ru.maeasoftworks.normativecontrol.core.abstractions.Profile
 import java.io.InputStream
 
-object TestVerificationService: VerificationService, Module {
+object TestVerificationService : VerificationService, Module {
     override fun Application.module() {
         VerificationService.initialize(TestVerificationService)
     }

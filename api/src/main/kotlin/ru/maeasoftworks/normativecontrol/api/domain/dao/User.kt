@@ -23,7 +23,9 @@ data class User internal constructor(
     @setparam:KomapperIgnore
     var roles: Array<Role>
         get() = Json.decodeFromString(serializedRoles)
-        set(value) { serializedRoles = Json.encodeToString(value) }
+        set(value) {
+            serializedRoles = Json.encodeToString(value)
+        }
 
     constructor(
         id: String = null!!,

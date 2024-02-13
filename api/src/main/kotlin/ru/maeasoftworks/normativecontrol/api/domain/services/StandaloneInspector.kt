@@ -12,7 +12,7 @@ import ru.maeasoftworks.normativecontrol.api.infrastructure.database.unsafeDatab
 import ru.maeasoftworks.normativecontrol.api.infrastructure.security.Role
 import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.Module
 
-object StandaloneInspector: Module {
+object StandaloneInspector : Module {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     @OptIn(UnsafeDatabaseUsage::class)

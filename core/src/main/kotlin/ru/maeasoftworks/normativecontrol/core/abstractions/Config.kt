@@ -1,6 +1,6 @@
 package ru.maeasoftworks.normativecontrol.core.abstractions
 
-class Config<T, C: State?>(
+class Config<T, C : State?>(
     val handler: () -> Handler<T, *>,
     val test: (target: Any) -> Boolean,
     val state: (() -> C)?,
@@ -8,12 +8,12 @@ class Config<T, C: State?>(
     val profile: Profile
 ) {
     companion object {
-        inline fun <T, C: State?> create(builder: ConfigBuilder<T, C>.() -> Unit): Config<T, C> {
+        inline fun <T, C : State?> create(builder: ConfigBuilder<T, C>.() -> Unit): Config<T, C> {
             return ConfigBuilder<T, C>().also(builder).build()
         }
     }
 
-    class ConfigBuilder<T, C: State?> {
+    class ConfigBuilder<T, C : State?> {
         var test: ((target: Any) -> Boolean)? = null
         private var handler: (() -> Handler<T, *>)? = null
         private var state: (() -> C)? = null
@@ -29,7 +29,7 @@ class Config<T, C: State?>(
             stateKey = key
         }
 
-        fun <H: Handler<T, *>> setHandler(fn: () -> H) {
+        fun <H : Handler<T, *>> setHandler(fn: () -> H) {
             handler = fn
         }
 

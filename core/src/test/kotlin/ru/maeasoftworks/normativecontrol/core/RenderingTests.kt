@@ -24,7 +24,7 @@ class RenderingTests : ShouldSpec({
                 root?.children?.last()?.classes!!.shouldContain("layer1")
                 ctx.appender.openLastElementScope()
                 ctx.appender.pointer?.classes!!.shouldContain("layer1")
-                ctx.appender append span {  }
+                ctx.appender append span { }
                 ctx.appender.pointer?.type shouldBe HtmlElement.Type.DIV
                 ctx.appender.pointer?.children?.size shouldBe 1
                 ctx.appender.closeLastElementScope()

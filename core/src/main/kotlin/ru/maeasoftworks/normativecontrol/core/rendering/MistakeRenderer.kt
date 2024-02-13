@@ -26,7 +26,7 @@ class MistakeRenderer {
     fun serialize(): String {
         return "let _map = [${foundMistakes.keys.joinToString { "\"${it.description}\"" }}];" +
                 "function mistakes() { " +
-                "return ${ Json.encodeToString(mistakes) }.map(mistake => {" +
+                "return ${Json.encodeToString(mistakes)}.map(mistake => {" +
                 "let description = _map[mistake.code]; " +
                 "return { " +
                 "mistakeReason: description, " +

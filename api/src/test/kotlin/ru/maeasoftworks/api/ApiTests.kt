@@ -22,7 +22,7 @@ import ru.maeasoftworks.normativecontrol.api.app.web.dto.LoginRequest
 import ru.maeasoftworks.normativecontrol.api.app.web.dto.RegistrationRequest
 import ru.maeasoftworks.normativecontrol.api.infrastructure.database.Database
 
-class ApiTests: ShouldSpec({
+class ApiTests : ShouldSpec({
     context("registration") {
         should("register new user") {
             applicationTest {
