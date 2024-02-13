@@ -3,7 +3,6 @@ package ru.maeasoftworks.normativecontrol.core.rendering
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import ru.maeasoftworks.normativecontrol.core.abstractions.MistakeReason
-import ru.maeasoftworks.normativecontrol.core.model.DetailedMistake
 import ru.maeasoftworks.normativecontrol.core.model.ShortMistake
 
 class MistakeRenderer {
@@ -11,15 +10,20 @@ class MistakeRenderer {
     private val foundMistakes = mutableMapOf<MistakeReason, Int>()
     private var last: Int = 0
 
-    fun addMistake(mistake: DetailedMistake) {
-        if (mistake.mistakeReason !in foundMistakes.keys) {
-            foundMistakes[mistake.mistakeReason] = last++
+    fun addMistake(
+        mistakeReason: MistakeReason,
+        id: String,
+        expected: String? = null,
+        actual: String? = null
+    ) {
+        if (mistakeReason !in foundMistakes.keys) {
+            foundMistakes[mistakeReason] = last++
         }
         mistakes += ShortMistake(
-            foundMistakes[mistake.mistakeReason]!!,
-            mistake.id,
-            mistake.expected,
-            mistake.actual
+            foundMistakes[mistakeReason]!!,
+            id,
+            expected,
+            actual
         )
     }
 
@@ -27,11 +31,11 @@ class MistakeRenderer {
         return "let _map = [${foundMistakes.keys.joinToString { "\"${it.description}\"" }}];" +
                 "function mistakes() { " +
                 "return ${Json.encodeToString(mistakes)}.map(mistake => {" +
-                "let description = _map[mistake.code]; " +
+                "let description = _map[mistake.c]; " +
                 "return { " +
                 "mistakeReason: description, " +
-                "description: (mistake.actual !== null && mistake.expected !== null) ? " +
-                "description + \": найдено: \" + mistake.actual + \", требуется: \" + mistake.expected + \".\" : description,id: mistake.id" +
+                "description: (mistake.a !== null && mistake.e !== null) ? " +
+                "description + \": найдено: \" + mistake.a + \", требуется: \" + mistake.e + \".\" : description,id: mistake.i" +
                 "};})}"
     }
 }

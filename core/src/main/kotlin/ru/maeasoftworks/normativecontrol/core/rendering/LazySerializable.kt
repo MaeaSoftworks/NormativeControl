@@ -8,6 +8,6 @@ class LazySerializable(private val target: () -> String) : Serializable {
     }
 }
 
-fun lazy(target: () -> String): LazySerializable {
+fun lazySerializable(target: () -> String): LazySerializable {
     return LazySerializable(target)
 }

@@ -7,7 +7,7 @@ context(VerificationContext)
 fun htmlTemplate(doc: MainDocumentPart?, mistakes: MistakeRenderer) = html {
     head {
         script {
-            content = lazy { mistakes.serialize() }
+            content = lazySerializable { mistakes.serialize() }
         }
 
         style {

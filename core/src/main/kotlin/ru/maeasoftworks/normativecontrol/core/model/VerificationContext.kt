@@ -78,15 +78,13 @@ class VerificationContext(val profile: Profile) {
         }
 
         val id = mistakeId++
-        mistakeUid = "mistake$id"
+        mistakeUid = "m$id"
 
         render.mistakeRenderer.addMistake(
-            DetailedMistake(
-                mistake.mistakeReason,
-                mistakeUid!!,
-                mistake.expected,
-                mistake.actual
-            )
+            mistake.mistakeReason,
+            mistakeUid!!,
+            mistake.expected,
+            mistake.actual
         )
 
         val comment = createComment(id, formattedText)

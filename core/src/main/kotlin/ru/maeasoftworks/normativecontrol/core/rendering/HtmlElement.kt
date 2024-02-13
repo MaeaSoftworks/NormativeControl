@@ -28,7 +28,7 @@ open class HtmlElement(
     init {
         id = mistakeUid
         if (mistakeUid != null) {
-            classes += "mistake"
+            classes += "m"
         }
         mistakeUid = null
     }
