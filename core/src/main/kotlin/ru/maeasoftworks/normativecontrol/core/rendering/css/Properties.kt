@@ -6,10 +6,19 @@ import ru.maeasoftworks.normativecontrol.core.rendering.FONT_SCALING
 import ru.maeasoftworks.normativecontrol.core.rendering.PIXELS_IN_POINT
 import ru.maeasoftworks.normativecontrol.core.rendering.POINTS_IN_LINES
 
+fun colorConverter(color: String?): String? {
+    return try {
+        color?.toLong(16)
+        "#$color"
+    } catch (e: NumberFormatException) {
+        if (color != "null") color else null
+    }
+}
+
 object BoxSizing : Property<String>("box-sizing")
 object BoxShadow : Property<String>("box-shadow")
-object Color : Property<String>("color", { if (it != "null") "#$it" else null })
-object BackgroundColor : Property<String>("background-color", { if (it != null) "#$it" else null })
+object Color : Property<String>("color", ::colorConverter)
+object BackgroundColor : Property<String>("background-color", ::colorConverter)
 object FontFamily : Property<String>("font-family")
 object FontSize : DoubleProperty("font-size", "px", FONT_SCALING)
 object FontStyle : Property<Boolean?>("font-style", { if (it == true) "italic" else null })
