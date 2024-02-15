@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory
 import ru.maeasoftworks.normativecontrol.core.abstractions.ChapterHeader
 import ru.maeasoftworks.normativecontrol.core.abstractions.HandlerMapper
 import ru.maeasoftworks.normativecontrol.core.annotations.EagerInitialization
-import ru.maeasoftworks.normativecontrol.core.model.VerificationContext
+import ru.maeasoftworks.normativecontrol.core.contexts.VerificationContext
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 

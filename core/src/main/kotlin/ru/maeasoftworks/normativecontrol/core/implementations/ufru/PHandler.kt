@@ -7,7 +7,7 @@ import org.docx4j.wml.P
 import ru.maeasoftworks.normativecontrol.core.abstractions.*
 import ru.maeasoftworks.normativecontrol.core.annotations.EagerInitialization
 import ru.maeasoftworks.normativecontrol.core.model.Mistake
-import ru.maeasoftworks.normativecontrol.core.model.VerificationContext
+import ru.maeasoftworks.normativecontrol.core.contexts.VerificationContext
 import ru.maeasoftworks.normativecontrol.core.rendering.br
 import ru.maeasoftworks.normativecontrol.core.rendering.p
 import ru.maeasoftworks.normativecontrol.core.utils.resolvedPPr

@@ -1,4 +1,4 @@
-package ru.maeasoftworks.normativecontrol.core.model
+package ru.maeasoftworks.normativecontrol.core.contexts
 
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
 import ru.maeasoftworks.normativecontrol.core.rendering.HtmlElement

@@ -6,7 +6,7 @@ import ru.maeasoftworks.normativecontrol.core.abstractions.Config
 import ru.maeasoftworks.normativecontrol.core.abstractions.Handler
 import ru.maeasoftworks.normativecontrol.core.abstractions.Profile
 import ru.maeasoftworks.normativecontrol.core.annotations.EagerInitialization
-import ru.maeasoftworks.normativecontrol.core.model.VerificationContext
+import ru.maeasoftworks.normativecontrol.core.contexts.VerificationContext
 import ru.maeasoftworks.normativecontrol.core.rendering.span
 
 @EagerInitialization

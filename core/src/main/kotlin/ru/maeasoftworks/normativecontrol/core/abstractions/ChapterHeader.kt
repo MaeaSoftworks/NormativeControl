@@ -1,6 +1,6 @@
 package ru.maeasoftworks.normativecontrol.core.abstractions
 
-import ru.maeasoftworks.normativecontrol.core.model.VerificationContext
+import ru.maeasoftworks.normativecontrol.core.contexts.VerificationContext
 
 interface ChapterHeader {
     val headerRegex: Regex

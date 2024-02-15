@@ -10,7 +10,7 @@ import ru.maeasoftworks.normativecontrol.api.infrastructure.filestorage.uploadDo
 import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.Module
 import ru.maeasoftworks.normativecontrol.core.Document
 import ru.maeasoftworks.normativecontrol.core.abstractions.Profile
-import ru.maeasoftworks.normativecontrol.core.model.VerificationContext
+import ru.maeasoftworks.normativecontrol.core.contexts.VerificationContext
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 

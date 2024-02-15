@@ -12,10 +12,10 @@ class Stylesheet : Serializable {
     class Builder {
         private val stylesheet = Stylesheet()
 
-        operator fun String.invoke(block: Style.Block.() -> Unit) {
-            val s = Style.Block(true)
-            s.block()
-            stylesheet.styles[this] = Style().also { it.rules.addAll(s.rules) }
+        operator fun String.invoke(builder: context(Style, StyleProperties) StyleBuilder.() -> Unit) {
+            val style = Style(noInline = true)
+            builder(style, StyleProperties, StyleBuilder)
+            stylesheet.styles[this] = style
         }
 
         fun build() = stylesheet

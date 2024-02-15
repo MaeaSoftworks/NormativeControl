@@ -1,7 +1,7 @@
 package ru.maeasoftworks.normativecontrol.core.rendering
 
 import org.intellij.lang.annotations.Language
-import ru.maeasoftworks.normativecontrol.core.model.VerificationContext
+import ru.maeasoftworks.normativecontrol.core.contexts.VerificationContext
 import ru.maeasoftworks.normativecontrol.core.rendering.css.Style
 import ru.maeasoftworks.normativecontrol.core.rendering.css.Stylesheet
 import java.io.Serializable

@@ -2,7 +2,7 @@ package ru.maeasoftworks.normativecontrol.core.utils
 
 import org.docx4j.wml.*
 import org.docx4j.wml.PPrBase.*
-import ru.maeasoftworks.normativecontrol.core.model.VerificationContext
+import ru.maeasoftworks.normativecontrol.core.contexts.VerificationContext
 
 @JvmInline
 @Suppress("unused")

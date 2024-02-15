@@ -6,6 +6,41 @@ import ru.maeasoftworks.normativecontrol.core.rendering.FONT_SCALING
 import ru.maeasoftworks.normativecontrol.core.rendering.PIXELS_IN_POINT
 import ru.maeasoftworks.normativecontrol.core.rendering.POINTS_IN_LINES
 
+object StyleProperties {
+    val boxSizing = BoxSizing
+    val boxShadow = BoxShadow
+    val color = Color
+    val backgroundColor = BackgroundColor
+    val fontFamily = FontFamily
+    val fontSize = FontSize
+    val fontStyle = FontStyle
+    val fontWeight = FontWeight
+    val fontVariantCaps = FontVariantCaps
+    val fontVariantLigatures = FontVariantLigatures
+    val margin = Margin
+    val marginTop = MarginTop
+    val marginLeft = MarginLeft
+    val marginBottom = MarginBottom
+    val marginRight = MarginRight
+    val padding = Padding
+    val paddingTop = PaddingTop
+    val paddingLeft = PaddingLeft
+    val paddingBottom = PaddingBottom
+    val paddingRight = PaddingRight
+    val position = Position
+    val width = Width
+    val minWidth = MinWidth
+    val height = Height
+    val minHeight = MinHeight
+    val lineHeight = LineHeight
+    val textIndent = TextIndent
+    val textAlign = TextAlign
+    val hyphens = Hyphens
+    val textTransform = TextTransform
+    val letterSpacing = LetterSpacing
+    val zIndex = ZIndex
+}
+
 fun colorConverter(color: String?): String? {
     return try {
         color?.toLong(16)

@@ -1,7 +1,7 @@
 package ru.maeasoftworks.normativecontrol.core.abstractions
 
 import ru.maeasoftworks.normativecontrol.core.annotations.EagerInitialization
-import ru.maeasoftworks.normativecontrol.core.model.VerificationContext
+import ru.maeasoftworks.normativecontrol.core.contexts.VerificationContext
 
 /**
  * Parent class for any object handler that verifies and renders docx4j objects.
