@@ -23,7 +23,7 @@ object RHandler : Handler<R, Nothing>(
         element as R
         getSharedStateAs<SharedState>().rSinceBr++
         val rPr = element.resolvedRPr
-        render.appender append span {
+        render append span {
             style += {
                 fontFamily set rPr.rFonts.ascii
                 fontSize set rPr.sz?.`val`?.toDouble()
@@ -37,7 +37,7 @@ object RHandler : Handler<R, Nothing>(
                 letterSpacing set rPr.spacing?.`val`?.toDouble()
             }
         }
-        render.appender.inLastElementScope {
+        render.inLastElementScope {
             element.content.forEach {
                 HandlerMapper[profile, it]?.handle(it)
             }

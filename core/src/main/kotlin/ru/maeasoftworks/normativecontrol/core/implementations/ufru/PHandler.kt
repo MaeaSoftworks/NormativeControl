@@ -27,7 +27,7 @@ object PHandler : Handler<P, PHandler.PState>(
     override fun handle(element: Any) {
         element as P
         val pPr = element.resolvedPPr
-        render.appender append p {
+        render append p {
             style += {
                 marginLeft set pPr.ind?.left?.toDouble()
                 marginRight set pPr.ind?.right?.toDouble()
@@ -44,7 +44,7 @@ object PHandler : Handler<P, PHandler.PState>(
                 addChild(br())
             }
         }
-        render.appender.inLastElementScope {
+        render.inLastElementScope {
             childLoop { pos ->
                 val child = element.content[pos]
                 HandlerMapper[profile, child]?.handle(child)

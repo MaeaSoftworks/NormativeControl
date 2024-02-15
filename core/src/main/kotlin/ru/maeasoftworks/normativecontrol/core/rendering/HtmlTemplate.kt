@@ -23,6 +23,12 @@ fun htmlTemplate(doc: MainDocumentPart?, mistakes: MistakeRenderer) = html {
                     padding set 0.0
                 }
 
+                "body" {
+                    "display" set "grid"
+                    "grid-template-rows" set "auto auto"
+                    "height" set "100vh"
+                }
+
                 ".page" {
                     width set w?.toDouble()
                     minHeight set h?.toDouble()
@@ -32,7 +38,7 @@ fun htmlTemplate(doc: MainDocumentPart?, mistakes: MistakeRenderer) = html {
                     paddingRight set pageMargins?.right?.intValueExact()?.toDouble()
                     hyphens set doc?.documentSettingsPart?.jaxbElement?.autoHyphenation?.isVal
                     margin set 10.0
-                    backgroundColor set "ffffff"
+                    backgroundColor set "white"
                 }
 
                 ".page-size" {
@@ -44,28 +50,43 @@ fun htmlTemplate(doc: MainDocumentPart?, mistakes: MistakeRenderer) = html {
                     zIndex set -10.0
                 }
 
-                "body" {
+                ".container" {
                     "display" set "flex"
                     "flex-direction" set "column"
                     backgroundColor set "dedede"
                     "align-items" set "center"
+                    "overflow" set "auto"
+                }
+
+                ".bordered *" {
+                    "box-shadow" set "inset 0px 0px 0px 1px red"
                 }
             }
         }
     }
     body {
-        label {
-            input {
-                params {
-                    "type" set "checkbox"
-                    "onchange" set js(
-                        "document.querySelectorAll('*').forEach(x => " +
-                                "x.style.boxShadow = (x.style.boxShadow === '' || x.style.boxShadow === 'none' ? 'inset 0px 0px 0px 1px red' : 'none'));"
-                    )
-                    +"checked"
-                }
+        div {
+            classes += "render-settings"
+            p {
+                content = "Render settings"
             }
-            content = "Hide borders"
+            br()
+            label {
+                input {
+                    params {
+                        "type" set "checkbox"
+                        "onchange" set js("document.querySelector('$CONTAINER_SELECTOR').classList.toggle('bordered');")
+                        +"checked"
+                    }
+                }
+                content = "Hide borders"
+            }
+        }
+        div {
+            classes += CONTAINER_CLASS_NAME
         }
     }
 }
+
+const val CONTAINER_CLASS_NAME = "container"
+const val CONTAINER_SELECTOR = ".$CONTAINER_CLASS_NAME"

@@ -11,26 +11,19 @@ import ru.maeasoftworks.normativecontrol.core.rendering.htmlTemplate
 context(VerificationContext)
 class RenderingContext(doc: MainDocumentPart?) {
     val mistakeRenderer = MistakeRenderer()
-    private val html = htmlTemplate(doc, mistakeRenderer)
-    private val body = html.children[1]
     val styleCache = mutableMapOf<Rule, String>()
-    val globalStyle = html.children[0].children.first { it.type == HtmlElement.Type.STYLE }.content as Stylesheet
+    val globalStyle by lazy { html.children[0]!!.children.list.first { it.type == HtmlElement.Type.STYLE }.content as Stylesheet }
+    private val html = htmlTemplate(doc, mistakeRenderer)
+    private val root = html.children[1]!!.children[".container"]!!
 
     lateinit var currentPage: HtmlElement
         private set
 
-    val appender = Appender()
+    var pointer: HtmlElement? = null
+        private set
 
     init {
         createPage()
-    }
-
-    context(VerificationContext)
-    private fun createPage() {
-        val page = div { classes += "page" }
-        body.addChild(page)
-        currentPage = page
-        appender.pointer = page
     }
 
     /**
@@ -38,36 +31,38 @@ class RenderingContext(doc: MainDocumentPart?) {
      * @param copyingLevel level of element nesting that need to be copied, 0 to not copy anything.
      */
     fun pageBreak(copyingLevel: Int) {
-        val (copy, parent) = appender.pointer!!.duplicateUp(copyingLevel)
+        val (copy, parent) = pointer!!.duplicateUp(copyingLevel)
         createPage()
         currentPage.addChild(parent)
-        appender.pointer = copy
+        pointer = copy
     }
 
     fun getString(): String {
         return html.toString()
     }
 
-    inner class Appender {
-        @PublishedApi
-        internal var pointer: HtmlElement? = null
+    infix fun append(element: HtmlElement) {
+        pointer?.addChild(element)
+    }
 
-        infix fun append(element: HtmlElement) {
-            pointer?.addChild(element)
-        }
+    inline fun inLastElementScope(fn: HtmlElement.() -> Unit) {
+        openLastElementScope()
+        pointer?.fn()
+        closeLastElementScope()
+    }
 
-        inline fun inLastElementScope(fn: HtmlElement.() -> Unit) {
-            openLastElementScope()
-            pointer?.fn()
-            closeLastElementScope()
-        }
+    fun openLastElementScope() {
+        pointer = pointer?.children?.list?.lastOrNull() ?: pointer
+    }
 
-        fun openLastElementScope() {
-            pointer = pointer?.children?.lastOrNull() ?: pointer
-        }
+    fun closeLastElementScope() {
+        pointer = pointer?.parent
+    }
 
-        fun closeLastElementScope() {
-            pointer = pointer?.parent
-        }
+    private fun createPage() {
+        val page = div { classes += "page" }
+        root.addChild(page)
+        currentPage = page
+        pointer = page
     }
 }

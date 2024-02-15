@@ -20,7 +20,7 @@ object TextHandler : Handler<Text, Nothing>(
     context(VerificationContext)
     override fun handle(element: Any) {
         element as Text
-        render.appender append span {
+        render append span {
             content = TextUtils.getText(element).replace("<", "&lt;").replace(">", "&gt;")
         }
     }

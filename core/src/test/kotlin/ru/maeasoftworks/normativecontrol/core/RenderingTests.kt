@@ -15,20 +15,20 @@ class RenderingTests : ShouldSpec({
         should("append") {
             with(VerificationContext(Profile.UrFU)) {
                 val ctx = RenderingContext(null)
-                ctx.appender.pointer?.type shouldBe HtmlElement.Type.DIV
-                ctx.appender.pointer?.classes!!.shouldContain("page")
-                val root = ctx.appender.pointer
-                ctx.appender append div { classes += "layer1" }
+                ctx.pointer?.type shouldBe HtmlElement.Type.DIV
+                ctx.pointer?.classes!!.shouldContain("page")
+                val root = ctx.pointer
+                ctx append div { classes += "layer1" }
                 root?.children?.size shouldBe 1
-                root?.children?.last()?.type shouldBe HtmlElement.Type.DIV
-                root?.children?.last()?.classes!!.shouldContain("layer1")
-                ctx.appender.openLastElementScope()
-                ctx.appender.pointer?.classes!!.shouldContain("layer1")
-                ctx.appender append span { }
-                ctx.appender.pointer?.type shouldBe HtmlElement.Type.DIV
-                ctx.appender.pointer?.children?.size shouldBe 1
-                ctx.appender.closeLastElementScope()
-                ctx.appender.pointer?.classes!!.shouldContain("page")
+                root?.children?.list?.last()?.type shouldBe HtmlElement.Type.DIV
+                root?.children?.list?.last()?.classes!!.shouldContain("layer1")
+                ctx.openLastElementScope()
+                ctx.pointer?.classes!!.shouldContain("layer1")
+                ctx append span { }
+                ctx.pointer?.type shouldBe HtmlElement.Type.DIV
+                ctx.pointer?.children?.size shouldBe 1
+                ctx.closeLastElementScope()
+                ctx.pointer?.classes!!.shouldContain("page")
             }
         }
     }
@@ -59,7 +59,7 @@ class RenderingTests : ShouldSpec({
                     }
                 }
                 ctx.pageBreak(2)
-                ctx.currentPage.children[0].children[0].toString() shouldBe HtmlElement(HtmlElement.Type.DIV).also { it.classes += "22" }.toString()
+                ctx.currentPage.children[0]!!.children[0].toString() shouldBe HtmlElement(HtmlElement.Type.DIV).also { it.classes += "22" }.toString()
             }
         }
 
