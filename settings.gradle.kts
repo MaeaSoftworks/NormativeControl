@@ -4,4 +4,4 @@ plugins {
 rootProject.name = "normative-control-core"
 include("core")
 include("api")
-include("hotloader")
+include("rendering-test-server")
