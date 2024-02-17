@@ -1,4 +1,4 @@
-package ru.maeasoftworks.api
+package ru.maeasoftworks.normativecontrol.api
 
 import io.kotest.assertions.ktor.client.shouldHaveStatus
 import io.kotest.core.spec.style.ShouldSpec

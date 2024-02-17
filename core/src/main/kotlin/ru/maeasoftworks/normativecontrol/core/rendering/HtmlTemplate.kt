@@ -30,12 +30,6 @@ fun htmlTemplate(doc: MainDocumentPart?, mistakes: MistakeRenderer) = html {
                 }
 
                 ".page" {
-                    width set w?.toDouble()
-                    minHeight set h?.toDouble()
-                    paddingTop set pageMargins?.top?.intValueExact()?.toDouble()
-                    paddingLeft set pageMargins?.left?.intValueExact()?.toDouble()
-                    paddingBottom set pageMargins?.bottom?.intValueExact()?.toDouble()
-                    paddingRight set pageMargins?.right?.intValueExact()?.toDouble()
                     hyphens set doc?.documentSettingsPart?.jaxbElement?.autoHyphenation?.isVal
                     margin set 10.0
                     backgroundColor set "white"

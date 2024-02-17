@@ -1,4 +1,4 @@
-package ru.maeasoftworks.api
+package ru.maeasoftworks.normativecontrol.api
 
 import io.ktor.server.application.Application
 import kotlinx.coroutines.channels.Channel

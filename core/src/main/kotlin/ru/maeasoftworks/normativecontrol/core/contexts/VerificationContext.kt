@@ -17,6 +17,7 @@ class VerificationContext(val profile: Profile) {
     val doc: MainDocumentPart by lazy { mlPackage.mainDocumentPart }
     val states = mutableMapOf<State.Key, State>()
     var mistakeUid: String? = null
+    val sharedState: AbstractSharedState? = profile.sharedState?.invoke()
 
     context(ChapterHeader)
     var lastDefinedChapter: Chapter
@@ -52,7 +53,7 @@ class VerificationContext(val profile: Profile) {
     }
 
     inline fun <reified T : AbstractSharedState> getSharedStateAs(): T {
-        return profile.sharedState as? T ?: throw NullPointerException("This profile does not have shared state.")
+        return sharedState as? T ?: throw NullPointerException("This profile does not have shared state.")
     }
 
     fun mainLoop(fn: (pos: Int) -> Unit) {

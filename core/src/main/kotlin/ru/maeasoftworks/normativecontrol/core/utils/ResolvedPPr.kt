@@ -142,9 +142,9 @@ value class ResolvedPPr(private val p: P) {
     context(VerificationContext)
     val resolvedNumberingStyle: Lvl?
         get() {
-            val numbering = doc.numberingDefinitionsPart.jaxbElement
-            val abstractNumId = numbering.num.firstOrNull { it.numId == numPr?.numId?.`val` }?.abstractNumId?.`val`
-            val abstract = numbering.abstractNum.firstOrNull { it.abstractNumId == abstractNumId }
+            val numbering = doc.numberingDefinitionsPart?.jaxbElement
+            val abstractNumId = numbering?.num?.firstOrNull { it.numId == numPr?.numId?.`val` }?.abstractNumId?.`val`
+            val abstract = numbering?.abstractNum?.firstOrNull { it.abstractNumId == abstractNumId }
             return numPr?.ilvl?.`val`?.toInt()?.let { abstract?.lvl?.get(it) }
         }
 }

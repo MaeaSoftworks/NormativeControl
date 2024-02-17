@@ -32,7 +32,7 @@ object StyleBuilder {
             classes.add(render.styleCache[rule]!!)
         } else {
             val key = "s${render.styleCache.size}"
-            render.globalStyle.styles[".$key"] = Style(noInline = true).also { it.rules.add(rule) }
+            render.globalStylesheet.styles[".$key"] = Style(noInline = true).also { it.rules.add(rule) }
             render.styleCache[rule] = key
             classes.add(render.styleCache[rule]!!)
         }

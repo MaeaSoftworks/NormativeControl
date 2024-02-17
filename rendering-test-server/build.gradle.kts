@@ -27,6 +27,4 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:0.11.0")
     implementation("io.ktor:ktor-server-netty-jvm")
     implementation("ch.qos.logback:logback-classic:1.4.14")
-    testImplementation("io.ktor:ktor-server-tests-jvm")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.9.22")
 }

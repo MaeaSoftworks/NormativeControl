@@ -5,7 +5,7 @@ import ru.maeasoftworks.normativecontrol.core.implementations.ufru.*
 sealed class Profile(
     val startChapter: Chapter,
     val chapterConfiguration: ChapterConfiguration,
-    val sharedState: AbstractSharedState? = null
+    val sharedState: (() -> AbstractSharedState?)? = null
 ) {
     data object BuiltIn : Profile(UndefinedChapter, ChapterConfiguration { })
 
@@ -44,6 +44,6 @@ sealed class Profile(
 
             UndefinedChapter shouldBeNamed "НЕОПОЗНАННАЯ ЧАСТЬ"
         },
-        SharedState()
+        { SharedState() }
     )
 }

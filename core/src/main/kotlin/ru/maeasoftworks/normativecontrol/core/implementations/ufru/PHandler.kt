@@ -9,6 +9,7 @@ import ru.maeasoftworks.normativecontrol.core.annotations.EagerInitialization
 import ru.maeasoftworks.normativecontrol.core.model.Mistake
 import ru.maeasoftworks.normativecontrol.core.contexts.VerificationContext
 import ru.maeasoftworks.normativecontrol.core.rendering.br
+import ru.maeasoftworks.normativecontrol.core.rendering.createPageStyle
 import ru.maeasoftworks.normativecontrol.core.rendering.p
 import ru.maeasoftworks.normativecontrol.core.utils.resolvedPPr
 
@@ -27,6 +28,11 @@ object PHandler : Handler<P, PHandler.PState>(
     override fun handle(element: Any) {
         element as P
         val pPr = element.resolvedPPr
+        if (element.pPr.sectPr != null) {
+            render.pageBreak(-1, createPageStyle(element.pPr.sectPr))
+            getSharedStateAs<SharedState>().foldStylesheet(render.globalStylesheet)
+            getSharedStateAs<SharedState>().rSinceBr = 0
+        }
         render append p {
             style += {
                 marginLeft set pPr.ind?.left?.toDouble()

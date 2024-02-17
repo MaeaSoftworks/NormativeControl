@@ -1,18 +1,16 @@
 package ru.maeasoftworks.normativecontrol.core.contexts
 
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
-import ru.maeasoftworks.normativecontrol.core.rendering.HtmlElement
-import ru.maeasoftworks.normativecontrol.core.rendering.MistakeRenderer
+import ru.maeasoftworks.normativecontrol.core.implementations.ufru.SharedState
+import ru.maeasoftworks.normativecontrol.core.rendering.*
 import ru.maeasoftworks.normativecontrol.core.rendering.css.Rule
 import ru.maeasoftworks.normativecontrol.core.rendering.css.Stylesheet
-import ru.maeasoftworks.normativecontrol.core.rendering.div
-import ru.maeasoftworks.normativecontrol.core.rendering.htmlTemplate
 
 context(VerificationContext)
 class RenderingContext(doc: MainDocumentPart?) {
     val mistakeRenderer = MistakeRenderer()
     val styleCache = mutableMapOf<Rule, String>()
-    val globalStyle by lazy { html.children[0]!!.children.list.first { it.type == HtmlElement.Type.STYLE }.content as Stylesheet }
+    val globalStylesheet by lazy { html.children[0]!!.children.list.first { it.type == HtmlElement.Type.STYLE }.content as Stylesheet }
     private val html = htmlTemplate(doc, mistakeRenderer)
     private val root = html.children[1]!!.children[".container"]!!
 
@@ -23,18 +21,20 @@ class RenderingContext(doc: MainDocumentPart?) {
         private set
 
     init {
-        createPage()
+        createPage(createPageStyle(doc?.contents?.body?.sectPr))
+        getSharedStateAs<SharedState>().foldStylesheet(globalStylesheet)
     }
 
-    /**
-     * Breaks page and copies last element if needed.
-     * @param copyingLevel level of element nesting that need to be copied, 0 to not copy anything.
-     */
-    fun pageBreak(copyingLevel: Int) {
-        val (copy, parent) = pointer!!.duplicateUp(copyingLevel)
-        createPage()
-        currentPage.addChild(parent)
-        pointer = copy
+    fun pageBreak(copyingLevel: Int, pageStyleId: String? = null) {
+        if (copyingLevel != -1) {
+            val (copy, parent) = pointer!!.duplicateUp(copyingLevel)
+            createPage(pageStyleId)
+            currentPage.addChild(parent)
+            pointer = copy
+        }
+        else {
+            pointer = createPage(pageStyleId)
+        }
     }
 
     fun getString(): String {
@@ -59,10 +59,16 @@ class RenderingContext(doc: MainDocumentPart?) {
         pointer = pointer?.parent
     }
 
-    private fun createPage() {
-        val page = div { classes += "page" }
+    private fun createPage(pageStyleId: String? = null): HtmlElement {
+        val page = div {
+            classes += "page"
+            if (pageStyleId != null) {
+                classes += pageStyleId
+            }
+        }
         root.addChild(page)
         currentPage = page
         pointer = page
+        return page
     }
 }

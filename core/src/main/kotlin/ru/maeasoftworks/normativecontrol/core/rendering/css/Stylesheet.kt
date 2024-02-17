@@ -9,6 +9,10 @@ class Stylesheet : Serializable {
         return styles.toList().joinToString("") { "${it.first}{${it.second}}" }
     }
 
+    fun fold(another: Stylesheet) {
+        styles.putAll(another.styles)
+    }
+
     class Builder {
         private val stylesheet = Stylesheet()
 

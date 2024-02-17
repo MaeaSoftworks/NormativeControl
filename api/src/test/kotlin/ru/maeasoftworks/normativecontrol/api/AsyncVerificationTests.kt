@@ -1,4 +1,4 @@
-package ru.maeasoftworks.api
+package ru.maeasoftworks.normativecontrol.api
 
 import io.kotest.core.spec.style.ShouldSpec
 import kotlinx.coroutines.CoroutineStart
