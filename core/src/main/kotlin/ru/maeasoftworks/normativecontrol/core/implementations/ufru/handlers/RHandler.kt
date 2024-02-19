@@ -6,9 +6,9 @@ import ru.maeasoftworks.normativecontrol.core.abstractions.handlers.HandlerConfi
 import ru.maeasoftworks.normativecontrol.core.abstractions.handlers.HandlerMapper
 import ru.maeasoftworks.normativecontrol.core.annotations.EagerInitialization
 import ru.maeasoftworks.normativecontrol.core.contexts.VerificationContext
-import ru.maeasoftworks.normativecontrol.core.implementations.ufru.RuntimeState
 import ru.maeasoftworks.normativecontrol.core.implementations.ufru.UrFUProfile
 import ru.maeasoftworks.normativecontrol.core.html.span
+import ru.maeasoftworks.normativecontrol.core.implementations.ufru.UrFUProfile.globalState
 import ru.maeasoftworks.normativecontrol.core.utils.resolvedRPr
 
 @EagerInitialization
@@ -22,7 +22,7 @@ object RHandler : Handler<R, Nothing>(
     context(VerificationContext)
     override fun handle(element: Any) {
         element as R
-        getSharedStateAs<RuntimeState>().rSinceBr++
+        globalState.rSinceBr++
         val rPr = element.resolvedRPr
         render append span {
             style += {

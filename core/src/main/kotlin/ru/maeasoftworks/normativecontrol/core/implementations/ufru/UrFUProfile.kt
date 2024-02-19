@@ -3,6 +3,7 @@ package ru.maeasoftworks.normativecontrol.core.implementations.ufru
 import ru.maeasoftworks.normativecontrol.core.abstractions.Profile
 import ru.maeasoftworks.normativecontrol.core.abstractions.chapters.ChapterConfiguration
 import ru.maeasoftworks.normativecontrol.core.abstractions.chapters.UndefinedChapter
+import ru.maeasoftworks.normativecontrol.core.contexts.VerificationContext
 
 data object UrFUProfile: Profile(
     FrontPageChapter,
@@ -39,5 +40,8 @@ data object UrFUProfile: Profile(
 
         UndefinedChapter shouldBeNamed "НЕОПОЗНАННАЯ ЧАСТЬ"
     },
-    { RuntimeState() }
-)
+    { GlobalState() }
+) {
+    override val VerificationContext.globalState: GlobalState
+        get() = globalStateHolder as GlobalState
+}

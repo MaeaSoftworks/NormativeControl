@@ -2,10 +2,14 @@ package ru.maeasoftworks.normativecontrol.core.abstractions
 
 import ru.maeasoftworks.normativecontrol.core.abstractions.chapters.Chapter
 import ru.maeasoftworks.normativecontrol.core.abstractions.chapters.ChapterConfiguration
-import ru.maeasoftworks.normativecontrol.core.abstractions.states.AbstractRuntimeState
+import ru.maeasoftworks.normativecontrol.core.abstractions.states.AbstractGlobalState
+import ru.maeasoftworks.normativecontrol.core.contexts.VerificationContext
 
-open class Profile(
+abstract class Profile(
     val startChapter: Chapter,
     val chapterConfiguration: ChapterConfiguration,
-    val sharedStateFactory: (() -> AbstractRuntimeState?)? = null
-)
+    val sharedStateFactory: (() -> AbstractGlobalState?)? = null
+) {
+    open val VerificationContext.globalState: AbstractGlobalState
+        get() = throw NotImplementedError()
+}

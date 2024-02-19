@@ -6,7 +6,6 @@ import ru.maeasoftworks.normativecontrol.core.abstractions.handlers.HandlerConfi
 import ru.maeasoftworks.normativecontrol.core.annotations.EagerInitialization
 import ru.maeasoftworks.normativecontrol.core.contexts.VerificationContext
 import ru.maeasoftworks.normativecontrol.core.html.create
-import ru.maeasoftworks.normativecontrol.core.html.span
 import ru.maeasoftworks.normativecontrol.core.implementations.ufru.UrFUProfile
 
 @EagerInitialization

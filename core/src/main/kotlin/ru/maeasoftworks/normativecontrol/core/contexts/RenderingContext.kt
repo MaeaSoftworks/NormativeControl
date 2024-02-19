@@ -6,9 +6,9 @@ import ru.maeasoftworks.normativecontrol.core.html.HtmlElement
 import ru.maeasoftworks.normativecontrol.core.html.createPageStyle
 import ru.maeasoftworks.normativecontrol.core.html.div
 import ru.maeasoftworks.normativecontrol.core.html.htmlTemplate
-import ru.maeasoftworks.normativecontrol.core.implementations.ufru.RuntimeState
 import ru.maeasoftworks.normativecontrol.core.css.Rule
 import ru.maeasoftworks.normativecontrol.core.css.Stylesheet
+import ru.maeasoftworks.normativecontrol.core.implementations.ufru.UrFUProfile.globalState
 
 context(VerificationContext)
 class RenderingContext(doc: MainDocumentPart?) {
@@ -27,7 +27,7 @@ class RenderingContext(doc: MainDocumentPart?) {
 
     init {
         createPage(createPageStyle(doc?.contents?.body?.sectPr).also { lastPageStyleId = it })
-        getSharedStateAs<RuntimeState>().foldStylesheet(globalStylesheet)
+        globalState.foldStylesheet(globalStylesheet)
     }
 
     fun pageBreak(copyingLevel: Int, pageStyleId: String? = null) {

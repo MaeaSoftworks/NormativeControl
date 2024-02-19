@@ -18,6 +18,7 @@ import ru.maeasoftworks.normativecontrol.core.abstractions.mistakes.Mistake
 import ru.maeasoftworks.normativecontrol.core.html.br
 import ru.maeasoftworks.normativecontrol.core.html.createPageStyle
 import ru.maeasoftworks.normativecontrol.core.html.p
+import ru.maeasoftworks.normativecontrol.core.implementations.ufru.UrFUProfile.globalState
 import ru.maeasoftworks.normativecontrol.core.utils.resolvedPPr
 
 @EagerInitialization
@@ -37,8 +38,8 @@ object PHandler : Handler<P, PHandler.PState>(
         val pPr = element.resolvedPPr
         if (element.pPr?.sectPr != null) {
             render.pageBreak(-1, createPageStyle(element.pPr.sectPr))
-            getSharedStateAs<RuntimeState>().foldStylesheet(render.globalStylesheet)
-            getSharedStateAs<RuntimeState>().rSinceBr = 0
+            globalState.foldStylesheet(render.globalStylesheet)
+            globalState.rSinceBr = 0
         }
         render append p {
             style += {

@@ -7,7 +7,7 @@ import org.docx4j.wml.*
 import ru.maeasoftworks.normativecontrol.core.abstractions.*
 import ru.maeasoftworks.normativecontrol.core.abstractions.chapters.Chapter
 import ru.maeasoftworks.normativecontrol.core.abstractions.chapters.ChapterHeader
-import ru.maeasoftworks.normativecontrol.core.abstractions.states.AbstractRuntimeState
+import ru.maeasoftworks.normativecontrol.core.abstractions.states.AbstractGlobalState
 import ru.maeasoftworks.normativecontrol.core.abstractions.states.State
 import ru.maeasoftworks.normativecontrol.core.abstractions.mistakes.Mistake
 import ru.maeasoftworks.normativecontrol.core.utils.PropertyResolver
@@ -21,7 +21,7 @@ class VerificationContext(val profile: Profile) {
     val doc: MainDocumentPart by lazy { mlPackage.mainDocumentPart }
     val states = mutableMapOf<State.Key, State>()
     var mistakeUid: String? = null
-    val sharedState: AbstractRuntimeState? = profile.sharedStateFactory?.invoke()
+    val globalStateHolder: AbstractGlobalState? = profile.sharedStateFactory?.invoke()
 
     context(ChapterHeader)
     var lastDefinedChapter: Chapter
@@ -62,10 +62,6 @@ class VerificationContext(val profile: Profile) {
             }
         }
         return element
-    }
-
-    inline fun <reified T : AbstractRuntimeState> getSharedStateAs(): T {
-        return sharedState as? T ?: throw NullPointerException("This profile does not have shared state.")
     }
 
     inline fun List<*>.iterate(fn: (pos: Int) -> Unit) {

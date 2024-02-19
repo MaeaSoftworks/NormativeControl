@@ -1,9 +1,9 @@
 package ru.maeasoftworks.normativecontrol.core.implementations.ufru
 
-import ru.maeasoftworks.normativecontrol.core.abstractions.states.AbstractRuntimeState
+import ru.maeasoftworks.normativecontrol.core.abstractions.states.AbstractGlobalState
 import ru.maeasoftworks.normativecontrol.core.css.Stylesheet
 
-class RuntimeState : AbstractRuntimeState() {
+class GlobalState : AbstractGlobalState() {
     var rSinceBr: Int = 0
     var pageStyleId: Int = 0
     var externalGlobalStylesheet = Stylesheet()

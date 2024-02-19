@@ -8,6 +8,7 @@ import ru.maeasoftworks.normativecontrol.core.annotations.EagerInitialization
 import ru.maeasoftworks.normativecontrol.core.contexts.VerificationContext
 import ru.maeasoftworks.normativecontrol.core.implementations.ufru.UrFUProfile
 import ru.maeasoftworks.normativecontrol.core.html.span
+import ru.maeasoftworks.normativecontrol.core.implementations.ufru.UrFUProfile.globalState
 
 @EagerInitialization
 object TextHandler : Handler<Text, Nothing>(
@@ -23,5 +24,6 @@ object TextHandler : Handler<Text, Nothing>(
         render append span {
             content = TextUtils.getText(element).replace("<", "&lt;").replace(">", "&gt;")
         }
+        globalState
     }
 }

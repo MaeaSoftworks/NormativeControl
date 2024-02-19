@@ -23,6 +23,7 @@ fun htmlTemplate(doc: MainDocumentPart?, mistakes: MistakeSerializer) = html {
                     boxSizing set "border-box"
                     margin set 0.0
                     padding set 0.0
+                    "white-space" set "pre-wrap"
                 }
 
                 "body" {
