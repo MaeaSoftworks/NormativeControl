@@ -57,6 +57,9 @@ fun htmlTemplate(doc: MainDocumentPart?, mistakes: MistakeSerializer) = html {
                 ".bordered *" {
                     "box-shadow" set "inset 0px 0px 0px 1px red"
                 }
+
+                "p tab:last-of-type" {
+                }
             }
         }
     }
