@@ -5,7 +5,11 @@ import org.docx4j.openpackaging.parts.WordprocessingML.CommentsPart
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
 import org.docx4j.wml.*
 import ru.maeasoftworks.normativecontrol.core.abstractions.*
-import ru.maeasoftworks.normativecontrol.core.model.Mistake
+import ru.maeasoftworks.normativecontrol.core.abstractions.chapters.Chapter
+import ru.maeasoftworks.normativecontrol.core.abstractions.chapters.ChapterHeader
+import ru.maeasoftworks.normativecontrol.core.abstractions.states.AbstractRuntimeState
+import ru.maeasoftworks.normativecontrol.core.abstractions.states.State
+import ru.maeasoftworks.normativecontrol.core.abstractions.mistakes.Mistake
 import ru.maeasoftworks.normativecontrol.core.utils.PropertyResolver
 import java.math.BigInteger
 import java.util.*
@@ -17,7 +21,7 @@ class VerificationContext(val profile: Profile) {
     val doc: MainDocumentPart by lazy { mlPackage.mainDocumentPart }
     val states = mutableMapOf<State.Key, State>()
     var mistakeUid: String? = null
-    val sharedState: AbstractSharedState? = profile.sharedState?.invoke()
+    val sharedState: AbstractRuntimeState? = profile.sharedStateFactory?.invoke()
 
     context(ChapterHeader)
     var lastDefinedChapter: Chapter
@@ -45,7 +49,7 @@ class VerificationContext(val profile: Profile) {
             doc.addTargetPart(this)
         }
         mistakeId = comments.jaxbElement.comment.size.toLong()
-        profile.sharedState
+        profile.sharedStateFactory
     }
 
     fun getCurrentElement(): Any? {
@@ -60,7 +64,7 @@ class VerificationContext(val profile: Profile) {
         return element
     }
 
-    inline fun <reified T : AbstractSharedState> getSharedStateAs(): T {
+    inline fun <reified T : AbstractRuntimeState> getSharedStateAs(): T {
         return sharedState as? T ?: throw NullPointerException("This profile does not have shared state.")
     }
 
@@ -93,7 +97,7 @@ class VerificationContext(val profile: Profile) {
         val id = BigInteger.valueOf(mistakeId++)
         mistakeUid = "m$id"
 
-        render.mistakeRenderer.addMistake(
+        render.mistakeSerializer.addMistake(
             mistake.mistakeReason,
             mistakeUid!!,
             mistake.expected,

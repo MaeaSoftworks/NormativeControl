@@ -8,6 +8,7 @@ import ru.maeasoftworks.normativecontrol.core.Document
 import ru.maeasoftworks.normativecontrol.core.abstractions.Profile
 import ru.maeasoftworks.normativecontrol.core.configurations.VerificationConfiguration
 import ru.maeasoftworks.normativecontrol.core.contexts.VerificationContext
+import ru.maeasoftworks.normativecontrol.core.implementations.ufru.UrFUProfile
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -17,9 +18,9 @@ fun main(): Unit = runBlocking {
         forceStyleInlining = false
     }
 
-    val ctx = VerificationContext(Profile.UrFU)
+    val ctx = VerificationContext(UrFUProfile)
     Document(ctx).apply {
-        load(File("core-launcher/src/main/resources/ignore/different sized parts.docx").inputStream())
+        load(File("core-launcher/src/main/resources/ignore/sample1.docx").inputStream())
         runVerification()
         val stream = ByteArrayOutputStream()
         writeResult(stream)

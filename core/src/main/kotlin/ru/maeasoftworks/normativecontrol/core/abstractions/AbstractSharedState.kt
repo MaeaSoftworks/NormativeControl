@@ -1,3 +1,0 @@
-package ru.maeasoftworks.normativecontrol.core.abstractions
-
-abstract class AbstractSharedState

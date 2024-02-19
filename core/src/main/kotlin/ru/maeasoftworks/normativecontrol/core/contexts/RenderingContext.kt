@@ -1,17 +1,21 @@
 package ru.maeasoftworks.normativecontrol.core.contexts
 
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
-import ru.maeasoftworks.normativecontrol.core.implementations.ufru.SharedState
-import ru.maeasoftworks.normativecontrol.core.rendering.*
-import ru.maeasoftworks.normativecontrol.core.rendering.css.Rule
-import ru.maeasoftworks.normativecontrol.core.rendering.css.Stylesheet
+import ru.maeasoftworks.normativecontrol.core.abstractions.mistakes.MistakeSerializer
+import ru.maeasoftworks.normativecontrol.core.html.HtmlElement
+import ru.maeasoftworks.normativecontrol.core.html.createPageStyle
+import ru.maeasoftworks.normativecontrol.core.html.div
+import ru.maeasoftworks.normativecontrol.core.html.htmlTemplate
+import ru.maeasoftworks.normativecontrol.core.implementations.ufru.RuntimeState
+import ru.maeasoftworks.normativecontrol.core.css.Rule
+import ru.maeasoftworks.normativecontrol.core.css.Stylesheet
 
 context(VerificationContext)
 class RenderingContext(doc: MainDocumentPart?) {
-    val mistakeRenderer = MistakeRenderer()
+    val mistakeSerializer = MistakeSerializer()
     val styleCache = mutableMapOf<Rule, String>()
     val globalStylesheet by lazy { html.children[0]!!.children.list.first { it.type == HtmlElement.Type.STYLE }.content as Stylesheet }
-    private val html = htmlTemplate(doc, mistakeRenderer)
+    private val html = htmlTemplate(doc, mistakeSerializer)
     private val root = html.children[1]!!.children[".container"]!!
     private var lastPageStyleId: String? = null
 
@@ -23,7 +27,7 @@ class RenderingContext(doc: MainDocumentPart?) {
 
     init {
         createPage(createPageStyle(doc?.contents?.body?.sectPr).also { lastPageStyleId = it })
-        getSharedStateAs<SharedState>().foldStylesheet(globalStylesheet)
+        getSharedStateAs<RuntimeState>().foldStylesheet(globalStylesheet)
     }
 
     fun pageBreak(copyingLevel: Int, pageStyleId: String? = null) {

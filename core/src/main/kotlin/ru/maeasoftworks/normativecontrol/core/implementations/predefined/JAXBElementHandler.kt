@@ -1,9 +1,9 @@
 package ru.maeasoftworks.normativecontrol.core.implementations.predefined
 
 import jakarta.xml.bind.JAXBElement
-import ru.maeasoftworks.normativecontrol.core.abstractions.Handler
-import ru.maeasoftworks.normativecontrol.core.abstractions.HandlerConfig
-import ru.maeasoftworks.normativecontrol.core.abstractions.HandlerMapper
+import ru.maeasoftworks.normativecontrol.core.abstractions.handlers.Handler
+import ru.maeasoftworks.normativecontrol.core.abstractions.handlers.HandlerConfig
+import ru.maeasoftworks.normativecontrol.core.abstractions.handlers.HandlerMapper
 import ru.maeasoftworks.normativecontrol.core.abstractions.Profile
 import ru.maeasoftworks.normativecontrol.core.annotations.EagerInitialization
 import ru.maeasoftworks.normativecontrol.core.contexts.VerificationContext
@@ -13,7 +13,7 @@ object JAXBElementHandler : Handler<JAXBElement<*>, Nothing>(
     HandlerConfig.create {
         setHandler { JAXBElementHandler }
         setTarget<JAXBElement<*>>()
-        setProfile(Profile.BuiltIn)
+        setProfile(BuiltInProfile)
     }
 ) {
     context(VerificationContext)

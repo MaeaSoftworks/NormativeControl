@@ -4,8 +4,8 @@ import org.docx4j.openpackaging.packages.WordprocessingMLPackage
 import org.jetbrains.annotations.Blocking
 import org.reflections.Reflections
 import org.slf4j.LoggerFactory
-import ru.maeasoftworks.normativecontrol.core.abstractions.ChapterHeader
-import ru.maeasoftworks.normativecontrol.core.abstractions.HandlerMapper
+import ru.maeasoftworks.normativecontrol.core.abstractions.chapters.ChapterHeader
+import ru.maeasoftworks.normativecontrol.core.abstractions.handlers.HandlerMapper
 import ru.maeasoftworks.normativecontrol.core.annotations.EagerInitialization
 import ru.maeasoftworks.normativecontrol.core.contexts.VerificationContext
 import java.io.ByteArrayOutputStream

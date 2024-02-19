@@ -1,6 +1,6 @@
 package ru.maeasoftworks.normativecontrol.core.implementations.ufru
 
-import ru.maeasoftworks.normativecontrol.core.abstractions.Chapter
+import ru.maeasoftworks.normativecontrol.core.abstractions.chapters.Chapter
 
 object FrontPageChapter : Chapter
 object AnnotationChapter : Chapter

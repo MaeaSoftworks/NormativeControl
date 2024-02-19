@@ -6,9 +6,9 @@ import io.kotest.matchers.shouldBe
 import ru.maeasoftworks.normativecontrol.core.abstractions.Profile
 import ru.maeasoftworks.normativecontrol.core.contexts.RenderingContext
 import ru.maeasoftworks.normativecontrol.core.contexts.VerificationContext
-import ru.maeasoftworks.normativecontrol.core.rendering.HtmlElement
-import ru.maeasoftworks.normativecontrol.core.rendering.div
-import ru.maeasoftworks.normativecontrol.core.rendering.span
+import ru.maeasoftworks.normativecontrol.core.html.HtmlElement
+import ru.maeasoftworks.normativecontrol.core.html.div
+import ru.maeasoftworks.normativecontrol.core.html.span
 
 class RenderingTests : ShouldSpec({
     context("appender") {

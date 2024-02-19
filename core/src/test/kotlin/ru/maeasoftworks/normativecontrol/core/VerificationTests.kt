@@ -2,7 +2,7 @@ package ru.maeasoftworks.normativecontrol.core
 
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
-import ru.maeasoftworks.normativecontrol.core.implementations.ufru.PHandler
+import ru.maeasoftworks.normativecontrol.core.implementations.ufru.handlers.PHandler
 
 class VerificationTests : ShouldSpec({
     context(PHandler::class.simpleName!!) {
