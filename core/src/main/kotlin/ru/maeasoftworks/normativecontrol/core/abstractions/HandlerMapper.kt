@@ -4,14 +4,14 @@ object HandlerMapper {
     private val implementedChains = mutableMapOf<Profile, MappingChain>()
     private val predefinedChain: MappingChain = mutableListOf()
 
-    fun map(config: Config<*, *>) {
-        if (config.profile != Profile.BuiltIn) {
-            if (!implementedChains.containsKey(config.profile)) {
-                implementedChains[config.profile] = mutableListOf()
+    fun map(handlerConfig: HandlerConfig<*, *>) {
+        if (handlerConfig.profile != Profile.BuiltIn) {
+            if (!implementedChains.containsKey(handlerConfig.profile)) {
+                implementedChains[handlerConfig.profile] = mutableListOf()
             }
-            implementedChains[config.profile]!! += config
+            implementedChains[handlerConfig.profile]!! += handlerConfig
         } else {
-            predefinedChain += config
+            predefinedChain += handlerConfig
         }
     }
 
@@ -39,4 +39,4 @@ object HandlerMapper {
     }
 }
 
-typealias MappingChain = MutableList<Config<*, *>>
+typealias MappingChain = MutableList<HandlerConfig<*, *>>

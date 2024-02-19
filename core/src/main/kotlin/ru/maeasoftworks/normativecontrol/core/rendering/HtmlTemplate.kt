@@ -2,6 +2,7 @@ package ru.maeasoftworks.normativecontrol.core.rendering
 
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
 import ru.maeasoftworks.normativecontrol.core.contexts.VerificationContext
+import ru.maeasoftworks.normativecontrol.core.utils.lazySerializable
 
 context(VerificationContext)
 fun htmlTemplate(doc: MainDocumentPart?, mistakes: MistakeRenderer) = html {

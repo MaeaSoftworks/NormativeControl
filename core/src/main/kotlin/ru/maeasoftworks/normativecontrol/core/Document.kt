@@ -21,7 +21,7 @@ class Document(val ctx: VerificationContext) {
     }
 
     fun runVerification() = with(ctx) {
-        mainLoop { pos ->
+        doc.content.iterate { pos ->
             val element = doc.content[pos]
             val handler = HandlerMapper[profile, element]
             if (handler != null) {

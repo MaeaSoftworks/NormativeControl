@@ -1,4 +1,4 @@
-package ru.maeasoftworks.normativecontrol.core.rendering
+package ru.maeasoftworks.normativecontrol.core.utils
 
 import java.io.Serializable
 

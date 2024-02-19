@@ -1,8 +1,8 @@
 package ru.maeasoftworks.normativecontrol.core.implementations.ufru
 
 import org.docx4j.wml.R
-import ru.maeasoftworks.normativecontrol.core.abstractions.Config
 import ru.maeasoftworks.normativecontrol.core.abstractions.Handler
+import ru.maeasoftworks.normativecontrol.core.abstractions.HandlerConfig
 import ru.maeasoftworks.normativecontrol.core.abstractions.HandlerMapper
 import ru.maeasoftworks.normativecontrol.core.abstractions.Profile
 import ru.maeasoftworks.normativecontrol.core.annotations.EagerInitialization
@@ -12,7 +12,7 @@ import ru.maeasoftworks.normativecontrol.core.utils.resolvedRPr
 
 @EagerInitialization
 object RHandler : Handler<R, Nothing>(
-    Config.create {
+    HandlerConfig.create {
         setHandler { RHandler }
         setTarget<R>()
         setProfile(Profile.UrFU)

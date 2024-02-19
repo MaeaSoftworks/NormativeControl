@@ -34,12 +34,8 @@ class VerificationContext(val profile: Profile) {
 
     var totalChildSize: Int = 0
         private set
-    var bodyPosition = 0
-        private set
-    private var totalChildContentSize: Int = 0
-    private var childContentPosition = 0
+    var pointer = Pointer()
     private var mistakeId: Long = 0
-
 
     fun load(mlPackage: WordprocessingMLPackage) {
         this.mlPackage = mlPackage
@@ -52,24 +48,39 @@ class VerificationContext(val profile: Profile) {
         profile.sharedState
     }
 
+    fun getCurrentElement(): Any? {
+        var element: Any? = doc.content
+        for (i in pointer.value) {
+            when (element) {
+                null -> return null
+                is List<*> -> element = element[i]
+                is ContentAccessor -> element = element.content[i]
+            }
+        }
+        return element
+    }
+
     inline fun <reified T : AbstractSharedState> getSharedStateAs(): T {
         return sharedState as? T ?: throw NullPointerException("This profile does not have shared state.")
     }
 
-    fun mainLoop(fn: (pos: Int) -> Unit) {
-        while (bodyPosition < totalChildSize) {
-            fn(bodyPosition)
-            bodyPosition++
+    inline fun List<*>.iterate(fn: (pos: Int) -> Unit) {
+        val level = pointer.size
+        pointer[level] = 0
+        while (pointer[level] < this.size) {
+            fn(pointer[level])
+            pointer[level]++
         }
     }
 
-    fun childLoop(fn: (pos: Int) -> Unit) {
-        totalChildContentSize = (doc.content[bodyPosition] as ContentAccessor).content.size
-        while (childContentPosition < totalChildContentSize) {
-            fn(childContentPosition)
-            childContentPosition++
+    inline fun ContentAccessor.iterate(fn: (pos: Int) -> Unit) {
+        val level = pointer.size
+        pointer[level] = 0
+        while (pointer[level] < this.content.size) {
+            fn(pointer[level])
+            pointer[level]++
         }
-        childContentPosition = 0
+        pointer.clearTo(level)
     }
 
     fun addMistake(mistake: Mistake) {
@@ -79,7 +90,7 @@ class VerificationContext(val profile: Profile) {
             mistake.mistakeReason.description
         }
 
-        val id = mistakeId++
+        val id = BigInteger.valueOf(mistakeId++)
         mistakeUid = "m$id"
 
         render.mistakeRenderer.addMistake(
@@ -92,88 +103,39 @@ class VerificationContext(val profile: Profile) {
         val comment = createComment(id, formattedText)
         comments.jaxbElement.comment.add(comment)
 
-        val commentRangeStart = CommentRangeStart().apply {
-            this.id = BigInteger.valueOf(id)
+        val commentRangeStart = CommentRangeStart().apply { this.id = id }
+        val commentRangeEnd = CommentRangeEnd().apply { this.id = id }
+        val runCommentReference = createRunCommentReference(id)
+        val target = getCurrentElement()
+
+
+        if (target is P) {
+            val parent = target.parent as ContentAccessor
+            insertComment(target, parent, commentRangeStart, commentRangeEnd, runCommentReference)
         }
-        val commentRangeEnd = CommentRangeEnd().apply {
-            this.id = BigInteger.valueOf(id)
-        }
 
-        when (mistake.closure) {
-            Closure.SECTOR -> {
-                val paragraph = doc.content[bodyPosition] as P
-                paragraph.content.add(0, commentRangeStart)
-                paragraph.content.add(1, commentRangeEnd)
-                paragraph.content += createRunCommentReference(id)
-                totalChildContentSize += 3
-                childContentPosition += 3
-            }
-
-            Closure.P -> {
-                var paragraphStart: P
-                var putInStartToStart = false
-                var paragraphEnd: P
-                var putInEndToEnd = false
-
-                try {
-                    paragraphStart = doc.content[bodyPosition] as P
-                    putInStartToStart = true
-                } catch (e: ClassCastException) {
-                    paragraphStart = doc.content[bodyPosition - 1] as P
-                }
-
-                try {
-                    paragraphEnd = doc.content[bodyPosition] as P
-                    putInEndToEnd = true
-                } catch (e: ClassCastException) {
-                    paragraphEnd = doc.content[bodyPosition + 1] as P
-                }
-
-                if (putInStartToStart) {
-                    paragraphStart.content.add(0, commentRangeStart)
-                    paragraphStart.content += createRunCommentReference(id)
-                    totalChildContentSize += 2
-                } else {
-                    paragraphStart.content.add(commentRangeStart)
-                    paragraphStart.content += createRunCommentReference(id)
-                }
-
-                if (putInEndToEnd) {
-                    paragraphEnd.content.add(commentRangeEnd)
-                    totalChildContentSize++
-                } else {
-                    paragraphEnd.content.add(0, commentRangeEnd)
-                }
-            }
-
-            Closure.R -> {
-                val paragraph: P = try {
-                    doc.content[bodyPosition] as P
-                } catch (e: ClassCastException) {
-                    totalChildSize++
-                    P().apply { doc.content.add(bodyPosition + 1, this) }
-                }
-                paragraph.content.add(if (childContentPosition == 0) 0 else childContentPosition - 1, commentRangeStart)
-                childContentPosition++
-                totalChildContentSize++
-                if (childContentPosition == totalChildContentSize - 1) {
-                    paragraph.content += commentRangeEnd
-                    paragraph.content += createRunCommentReference(id)
-                    childContentPosition += 2
-                    totalChildContentSize += 2
-                } else {
-                    paragraph.content.add(childContentPosition + 1, commentRangeEnd)
-                    paragraph.content.add(childContentPosition + 2, createRunCommentReference(id))
-                    childContentPosition += 2
-                    totalChildContentSize += 2
-                }
-            }
+        if (target is R) {
+            val parent = target.parent as ContentAccessor
+            insertComment(parent, parent, commentRangeStart, commentRangeEnd, runCommentReference)
         }
     }
 
-    private fun createComment(commentId: Long, message: String): Comments.Comment {
+    private fun insertComment(
+        target: ContentAccessor,
+        parent: ContentAccessor,
+        commentRangeStart: CommentRangeStart,
+        commentRangeEnd: CommentRangeEnd,
+        runCommentReference: R
+    ) {
+        target.content?.add(runCommentReference)
+        parent.content?.add(pointer.last(), commentRangeStart)
+        parent.content?.add(pointer.last() + 2, commentRangeEnd)
+        pointer[pointer.depth]++
+    }
+
+    private fun createComment(commentId: BigInteger, message: String): Comments.Comment {
         return Comments.Comment().apply {
-            id = BigInteger.valueOf(commentId)
+            id = commentId
             author = "normative control"
             content.add(
                 P().apply {
@@ -196,11 +158,11 @@ class VerificationContext(val profile: Profile) {
         }
     }
 
-    private fun createRunCommentReference(commentId: Long): R {
+    private fun createRunCommentReference(commentId: BigInteger): R {
         return R().also { run ->
             run.content.add(
                 R.CommentReference().also {
-                    it.id = BigInteger.valueOf(commentId)
+                    it.id = commentId
                 }
             )
         }

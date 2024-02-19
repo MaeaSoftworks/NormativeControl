@@ -30,7 +30,7 @@ open class HtmlElement(
         mistakeUid = null
     }
 
-    constructor(type: String, hasClosingTag: Boolean = true): this(Type.CUSTOM, hasClosingTag) {
+    constructor(type: String, hasClosingTag: Boolean = true) : this(Type.CUSTOM, hasClosingTag) {
         unsafeType = type
     }
 

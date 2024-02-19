@@ -13,6 +13,7 @@ class RenderingContext(doc: MainDocumentPart?) {
     val globalStylesheet by lazy { html.children[0]!!.children.list.first { it.type == HtmlElement.Type.STYLE }.content as Stylesheet }
     private val html = htmlTemplate(doc, mistakeRenderer)
     private val root = html.children[1]!!.children[".container"]!!
+    private var lastPageStyleId: String? = null
 
     lateinit var currentPage: HtmlElement
         private set
@@ -21,19 +22,21 @@ class RenderingContext(doc: MainDocumentPart?) {
         private set
 
     init {
-        createPage(createPageStyle(doc?.contents?.body?.sectPr))
+        createPage(createPageStyle(doc?.contents?.body?.sectPr).also { lastPageStyleId = it })
         getSharedStateAs<SharedState>().foldStylesheet(globalStylesheet)
     }
 
     fun pageBreak(copyingLevel: Int, pageStyleId: String? = null) {
         if (copyingLevel != -1) {
             val (copy, parent) = pointer!!.duplicateUp(copyingLevel)
-            createPage(pageStyleId)
+            createPage(pageStyleId ?: lastPageStyleId)
             currentPage.addChild(parent)
             pointer = copy
-        }
-        else {
+        } else {
             pointer = createPage(pageStyleId)
+        }
+        if (pageStyleId != null) {
+            lastPageStyleId = pageStyleId
         }
     }
 

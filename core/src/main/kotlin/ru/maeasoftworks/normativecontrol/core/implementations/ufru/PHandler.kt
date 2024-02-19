@@ -6,8 +6,8 @@ import org.docx4j.wml.NumberFormat
 import org.docx4j.wml.P
 import ru.maeasoftworks.normativecontrol.core.abstractions.*
 import ru.maeasoftworks.normativecontrol.core.annotations.EagerInitialization
-import ru.maeasoftworks.normativecontrol.core.model.Mistake
 import ru.maeasoftworks.normativecontrol.core.contexts.VerificationContext
+import ru.maeasoftworks.normativecontrol.core.model.Mistake
 import ru.maeasoftworks.normativecontrol.core.rendering.br
 import ru.maeasoftworks.normativecontrol.core.rendering.createPageStyle
 import ru.maeasoftworks.normativecontrol.core.rendering.p
@@ -15,7 +15,7 @@ import ru.maeasoftworks.normativecontrol.core.utils.resolvedPPr
 
 @EagerInitialization
 object PHandler : Handler<P, PHandler.PState>(
-    Config.create {
+    HandlerConfig.create {
         setTarget<P>()
         setState(PState) { PState() }
         setHandler { PHandler }
@@ -28,7 +28,7 @@ object PHandler : Handler<P, PHandler.PState>(
     override fun handle(element: Any) {
         element as P
         val pPr = element.resolvedPPr
-        if (element.pPr.sectPr != null) {
+        if (element.pPr?.sectPr != null) {
             render.pageBreak(-1, createPageStyle(element.pPr.sectPr))
             getSharedStateAs<SharedState>().foldStylesheet(render.globalStylesheet)
             getSharedStateAs<SharedState>().rSinceBr = 0
@@ -51,7 +51,7 @@ object PHandler : Handler<P, PHandler.PState>(
             }
         }
         render.inLastElementScope {
-            childLoop { pos ->
+            element.iterate { pos ->
                 val child = element.content[pos]
                 HandlerMapper[profile, child]?.handle(child)
             }
@@ -70,7 +70,7 @@ object PHandler : Handler<P, PHandler.PState>(
             // todo references
         } else {
             if (lvl.suff?.`val` != "space") {
-                addMistake(Mistake(Reasons.TabInList, Closure.P))
+                addMistake(Mistake(Reasons.TabInList))
             }
             if (lvl.ilvl.toInt() == 0) {
                 when (lvl.numFmt?.`val`) {
@@ -83,7 +83,7 @@ object PHandler : Handler<P, PHandler.PState>(
                     }
 
                     else -> {
-                        addMistake(Mistake(Reasons.ForbiddenMarkerTypeLevel1, Closure.P))
+                        addMistake(Mistake(Reasons.ForbiddenMarkerTypeLevel1))
                     }
                 }
             }
@@ -120,7 +120,6 @@ object PHandler : Handler<P, PHandler.PState>(
             addMistake(
                 Mistake(
                     Reasons.UndefinedChapterFound,
-                    Closure.P,
                     profile.chapterConfiguration.names[target]!!.joinToString("/"),
                     profile.chapterConfiguration
                         .getPrependChapter(lastDefinedChapter)
@@ -133,7 +132,6 @@ object PHandler : Handler<P, PHandler.PState>(
                 addMistake(
                     Mistake(
                         Reasons.ChapterOrderMismatch,
-                        Closure.P,
                         profile.chapterConfiguration.names[target]!!.joinToString("/"),
                         profile.chapterConfiguration
                             .getPrependChapter(lastDefinedChapter)

@@ -8,7 +8,9 @@ import ru.maeasoftworks.normativecontrol.core.Document
 import ru.maeasoftworks.normativecontrol.core.abstractions.Profile
 import ru.maeasoftworks.normativecontrol.core.configurations.VerificationConfiguration
 import ru.maeasoftworks.normativecontrol.core.contexts.VerificationContext
+import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.FileOutputStream
 
 fun main(): Unit = runBlocking {
     VerificationConfiguration.initialize {
@@ -19,6 +21,11 @@ fun main(): Unit = runBlocking {
     Document(ctx).apply {
         load(File("core-launcher/src/main/resources/ignore/different sized parts.docx").inputStream())
         runVerification()
+        val stream = ByteArrayOutputStream()
+        writeResult(stream)
+        FileOutputStream("core-launcher/src/main/resources/ignore/latest-result.docx").use {
+            stream.writeTo(it)
+        }
     }
     HttpClient().use { client ->
         client.post("http://localhost:8081/set") {

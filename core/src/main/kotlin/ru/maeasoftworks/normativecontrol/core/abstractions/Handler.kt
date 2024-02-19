@@ -9,13 +9,13 @@ import ru.maeasoftworks.normativecontrol.core.contexts.VerificationContext
  *
  * @sample ru.maeasoftworks.normativecontrol.core.implementations.predefined.JAXBElementHandler
  * @constructor Registers extending class to mapper container.
- * @param config handler configuration created by [Config.create].
+ * @param handlerConfig handler configuration created by [HandlerConfig.create].
  * @param T type of object that will be handled by this handler.
  * @param S type of [State] of handler. Pass [Nothing] if handler don't need it.
  */
-abstract class Handler<T, S : State>(private val config: Config<T, S>) {
+abstract class Handler<T, S : State>(private val handlerConfig: HandlerConfig<T, S>) {
     init {
-        HandlerMapper.map(config)
+        HandlerMapper.map(handlerConfig)
     }
 
     /**
@@ -32,9 +32,9 @@ abstract class Handler<T, S : State>(private val config: Config<T, S>) {
     @Suppress("UNCHECKED_CAST")
     val state: S
         get() {
-            val key = config.stateKey ?: throw UnsupportedOperationException("This object does not define any State")
+            val key = handlerConfig.stateKey ?: throw UnsupportedOperationException("This object does not define any State")
             return states[key] as? S
-                ?: config.state?.invoke()?.also { states[key] = it }
+                ?: handlerConfig.state?.invoke()?.also { states[key] = it }
                 ?: throw UnsupportedOperationException("This object does not define any State")
         }
 }
