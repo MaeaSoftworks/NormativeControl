@@ -87,6 +87,3 @@ fun htmlTemplate(doc: MainDocumentPart?, mistakes: MistakeSerializer) = html {
         }
     }
 }
-
-const val CONTAINER_CLASS_NAME = "container"
-const val CONTAINER_SELECTOR = ".$CONTAINER_CLASS_NAME"

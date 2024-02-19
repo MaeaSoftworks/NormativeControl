@@ -9,11 +9,12 @@ import ru.maeasoftworks.normativecontrol.core.contexts.VerificationContext
 import ru.maeasoftworks.normativecontrol.core.html.HtmlElement
 import ru.maeasoftworks.normativecontrol.core.html.div
 import ru.maeasoftworks.normativecontrol.core.html.span
+import ru.maeasoftworks.normativecontrol.core.implementations.ufru.UrFUProfile
 
 class RenderingTests : ShouldSpec({
     context("appender") {
         should("append") {
-            with(VerificationContext(Profile.UrFU)) {
+            with(VerificationContext(UrFUProfile)) {
                 val ctx = RenderingContext(null)
                 ctx.pointer?.type shouldBe HtmlElement.Type.DIV
                 ctx.pointer?.classes!!.shouldContain("page")
@@ -35,7 +36,7 @@ class RenderingTests : ShouldSpec({
 
     context("html element duplication") {
         should("duplicate 1st element at 1") {
-            with(VerificationContext(Profile.UrFU)) {
+            with(VerificationContext(UrFUProfile)) {
                 val ctx = RenderingContext(null)
                 ctx.currentPage.apply {
                     div { classes += "1" }
@@ -47,7 +48,7 @@ class RenderingTests : ShouldSpec({
         }
 
         should("duplicate 2nd element at 2") {
-            with(VerificationContext(Profile.UrFU)) {
+            with(VerificationContext(UrFUProfile)) {
                 val ctx = RenderingContext(null)
                 ctx.currentPage.apply {
                     div { classes += "1" }
@@ -64,7 +65,7 @@ class RenderingTests : ShouldSpec({
         }
 
         should("duplicate 1st element without 2nd at 1") {
-            with(VerificationContext(Profile.UrFU)) {
+            with(VerificationContext(UrFUProfile)) {
                 val ctx = RenderingContext(null)
                 ctx.currentPage.apply {
                     div { classes += "1" }

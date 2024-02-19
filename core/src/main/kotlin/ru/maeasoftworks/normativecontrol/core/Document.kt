@@ -8,6 +8,8 @@ import ru.maeasoftworks.normativecontrol.core.abstractions.chapters.ChapterHeade
 import ru.maeasoftworks.normativecontrol.core.abstractions.handlers.HandlerMapper
 import ru.maeasoftworks.normativecontrol.core.annotations.EagerInitialization
 import ru.maeasoftworks.normativecontrol.core.contexts.VerificationContext
+import ru.maeasoftworks.normativecontrol.core.implementations.ufru.GlobalState
+import ru.maeasoftworks.normativecontrol.core.implementations.ufru.UrFUProfile.globalState
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 

@@ -7,6 +7,7 @@ class GlobalState : AbstractGlobalState() {
     var rSinceBr: Int = 0
     var pageStyleId: Int = 0
     var externalGlobalStylesheet = Stylesheet()
+    val referencesInText = mutableSetOf<Int>()
 
     fun foldStylesheet(target: Stylesheet) {
         target.fold(externalGlobalStylesheet)

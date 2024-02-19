@@ -18,12 +18,54 @@ object TextHandler : Handler<Text, Nothing>(
         setProfile(UrFUProfile)
     }
 ) {
+    private val inBrackets = """\[(.*?)]""".toRegex()
+    private val removePages = """,\s*[сС]\.(?:.*)*""".toRegex()
+    private val removeAndMatchRanges = """(\d+)\s*-\s*(\d+)""".toRegex()
+    private val matchReference = """(\d+)""".toRegex()
+
     context(VerificationContext)
     override fun handle(element: Any) {
         element as Text
+        val rawText = TextUtils.getText(element)
+
+        globalState.referencesInText.addAll(getAllReferences(rawText))
         render append span {
-            content = TextUtils.getText(element).replace("<", "&lt;").replace(">", "&gt;")
+            content = rawText.replace("<", "&lt;").replace(">", "&gt;")
         }
-        globalState
+    }
+
+    fun getAllReferences(text: String): Set<Int> {
+        val set = mutableSetOf<Int>()
+        val (refs, ranges) = findAllRanges(clearPages(findAllInBrackets(text))).let { it.first.toList() to it.second }
+        ranges.forEach {
+            for (i in it) {
+                set += i
+            }
+        }
+        findAllReferences(refs).forEach(set::add)
+        return set
+    }
+
+    fun findAllInBrackets(text: String): Sequence<String> {
+        return inBrackets.findAll(text).map { it.groups[1]!!.value }
+    }
+
+    fun clearPages(refs: Sequence<String>): Sequence<String> {
+        return refs.map { removePages.replace(it, "") }
+    }
+
+    fun findAllRanges(refs: Sequence<String>): Pair<Sequence<String>, List<IntRange>> {
+        val ranges = mutableListOf<IntRange>()
+        return refs.map {
+            val r = removeAndMatchRanges.findAll(it)
+            for (matchResult in r) {
+                ranges += matchResult.groups[1]!!.value.toInt() .. matchResult.groups[2]!!.value.toInt()
+            }
+            removeAndMatchRanges.replace(it, "")
+        } to ranges
+    }
+
+    fun findAllReferences(refs: List<String>): List<Int> {
+        return refs.flatMap { line -> matchReference.findAll(line).map { it.groups[1]!!.value.toInt() } }
     }
 }
