@@ -75,7 +75,24 @@ object PHandler : Handler<P, PHandler.PState>(
         }
 
         if (chapter == ReferencesChapter) {
-            // todo references
+            if (lvl.numFmt?.`val` != NumberFormat.DECIMAL) {
+                addMistake(Mistake(Reason.ForbiddenMarkerTypeReferences))
+            }
+            with(state) {
+                if ((currentListConfig!!.listPosition == -1 && currentListConfig!!.start == -1) || currentListConfig!!.start != lvl.start.`val`.toInt()) {
+                    currentListConfig!!.listPosition = lvl.start.`val`.toInt()
+                    currentListConfig!!.start = currentListConfig!!.listPosition
+                    if (currentListConfig!!.listPosition !in globalState.referencesInText) {
+                        addMistake(Mistake(Reason.ReferenceNotMentionedInText))
+                    }
+                    return@with
+                } else {
+                    currentListConfig!!.listPosition++
+                    if (currentListConfig!!.listPosition !in globalState.referencesInText) {
+                        addMistake(Mistake(Reason.ReferenceNotMentionedInText))
+                    }
+                }
+            }
         } else {
             if (lvl.suff?.`val` != "space") {
                 addMistake(Mistake(Reason.TabInList))
@@ -158,7 +175,12 @@ object PHandler : Handler<P, PHandler.PState>(
 
         var currentListConfig: ListConfig? = null
 
-        data class ListConfig(val isOrdered: Boolean)
+        data class ListConfig(
+            val isOrdered: Boolean
+        ) {
+            var listPosition: Int = -1
+            var start: Int = -1
+        }
 
         companion object : State.Key
     }
