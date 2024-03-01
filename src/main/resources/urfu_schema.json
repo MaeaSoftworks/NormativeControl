@@ -1,0 +1,55 @@
+{
+  "name": "UrFU",
+  "chapters": [
+    {
+      "code": "1",
+      "validNames" : ["ТИТУЛЬНЫЙ ЛИСТ"],
+      "validNextChapterCodes" : ["2"]
+    },
+    {
+      "code": "2",
+      "validNames": ["РЕФЕРАТ"],
+      "validNextChapterCodes": ["3"]
+    },
+    {
+      "code": "3",
+      "validNames": ["СОДЕРЖАНИЕ", "ОГЛАВЛЕНИЕ"],
+      "validNextChapterCodes": ["4"]
+    },
+    {
+      "code": "4",
+      "validNames": ["ТЕРМИНЫ И ОПРЕДЕЛЕНИЯ"],
+      "validNextChapterCodes": ["5", "6"]
+    },
+    {
+      "code": "5",
+      "validNames": ["ПЕРЕЧЕНЬ СОКРАЩЕНИЙ И ОБОЗНАЧЕНИЙ"],
+      "validNextChapterCodes": ["6"]
+    },
+    {
+      "code" : "6",
+      "validNames" : ["ВВЕДЕНИЕ"],
+      "validNextChapterCodes" : ["7"]
+    },
+    {
+      "code" : "7",
+      "validNames" : ["ОСНОВНОЙ РАЗДЕЛ"],
+      "validNextChapterCodes" : ["7", "8"]
+    },
+    {
+      "code" : "8",
+      "validNames" : ["ЗАКЛЮЧЕНИЕ"],
+      "validNextChapterCodes" : ["9"]
+    },
+    {
+      "code" : "9",
+      "validNames" : ["БИБЛИОГРАФИЧЕСКИЙ СПИСОК", "СПИСОК ИСПОЛЬЗОВАННОЙ ЛИТЕРАТУРЫ", "СПИСОК ЛИТЕРАТУРЫ", "СПИСОК ИСТОЧНИКОВ"],
+      "validNextChapterCodes" : ["10"]
+    },
+    {
+      "code" : "10",
+      "validNames" : ["ПРИЛОЖЕНИЕ"],
+      "validNextChapterCodes" : ["10"]
+    }
+  ]
+}

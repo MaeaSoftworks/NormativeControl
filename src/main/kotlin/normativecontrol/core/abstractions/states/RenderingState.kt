@@ -1,10 +1,8 @@
-package normativecontrol.core.implementations.ufru
+package normativecontrol.core.abstractions.states
 
-import normativecontrol.core.abstractions.states.AbstractGlobalState
 import normativecontrol.core.css.Stylesheet
 
-class GlobalState : AbstractGlobalState() {
-    var rSinceBr: Int = 0
+class RenderingState {
     var pageStyleId: Int = 0
     var externalGlobalStylesheet = Stylesheet()
     val referencesInText = mutableSetOf<Int>()

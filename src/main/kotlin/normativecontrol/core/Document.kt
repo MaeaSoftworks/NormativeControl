@@ -1,17 +1,21 @@
 package normativecontrol.core
 
+import normativecontrol.core.abstractions.Profile
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage
 import org.jetbrains.annotations.Blocking
 import org.reflections.Reflections
 import org.slf4j.LoggerFactory
 import normativecontrol.core.abstractions.chapters.ChapterHeader
 import normativecontrol.core.abstractions.handlers.HandlerMapper
+import normativecontrol.core.abstractions.schema.Schema
 import normativecontrol.core.annotations.EagerInitialization
 import normativecontrol.core.contexts.VerificationContext
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 
-class Document(val ctx: VerificationContext) {
+class Document(schema: Schema) {
+    private val profile = Profile(schema)
+    val ctx = VerificationContext(profile)
     private lateinit var mlPackage: WordprocessingMLPackage
 
     @Blocking
@@ -23,7 +27,7 @@ class Document(val ctx: VerificationContext) {
     fun runVerification() = with(ctx) {
         doc.content.iterate { pos ->
             val element = doc.content[pos]
-            val handler = HandlerMapper[profile, element]
+            val handler = HandlerMapper[profile.name, element]
             if (handler != null) {
                 if (handler is ChapterHeader) {
                     if (handler.isHeader(element)) {

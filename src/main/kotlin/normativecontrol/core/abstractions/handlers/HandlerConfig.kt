@@ -1,6 +1,5 @@
 package normativecontrol.core.abstractions.handlers
 
-import normativecontrol.core.abstractions.Profile
 import normativecontrol.core.abstractions.states.State
 
 class HandlerConfig<T, C : State?>(
@@ -8,7 +7,7 @@ class HandlerConfig<T, C : State?>(
     val test: (target: Any) -> Boolean,
     val state: (() -> C)?,
     val stateKey: State.Key?,
-    val profile: Profile
+    val profile: String?
 ) {
     companion object {
         inline fun <T, C : State?> create(builder: ConfigBuilder<T, C>.() -> Unit): HandlerConfig<T, C> {
@@ -20,7 +19,7 @@ class HandlerConfig<T, C : State?>(
         var test: ((target: Any) -> Boolean)? = null
         private var handler: (() -> Handler<T, *>)? = null
         private var state: (() -> C)? = null
-        private var profile: Profile? = null
+        private var profile: String? = null
         private var stateKey: State.Key? = null
 
         inline fun <reified T> setTarget() {
@@ -36,8 +35,8 @@ class HandlerConfig<T, C : State?>(
             handler = fn
         }
 
-        fun setProfile(profile: Profile) {
-            this.profile = profile
+        fun setProfile(profileName: String) {
+            this.profile = profileName
         }
 
         fun build(): HandlerConfig<T, C> {
@@ -46,7 +45,7 @@ class HandlerConfig<T, C : State?>(
                 test ?: throw NullPointerException("Target should be not null"),
                 state,
                 stateKey,
-                profile ?: throw NullPointerException("Profile should be not null")
+                profile
             )
         }
     }

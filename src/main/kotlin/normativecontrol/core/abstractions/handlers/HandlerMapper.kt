@@ -1,18 +1,15 @@
 package normativecontrol.core.abstractions.handlers
 
-import normativecontrol.core.abstractions.Profile
-import normativecontrol.core.implementations.predefined.BuiltInProfile
-
 object HandlerMapper {
-    private val implementedChains = mutableMapOf<Profile, MappingChain>()
+    private val implementedChains = mutableMapOf<String, MappingChain>()
     private val predefinedChain: MappingChain = mutableListOf()
 
     fun map(handlerConfig: HandlerConfig<*, *>) {
-        if (handlerConfig.profile != BuiltInProfile) {
+        if (handlerConfig.profile != "_predefined") {
             if (!implementedChains.containsKey(handlerConfig.profile)) {
-                implementedChains[handlerConfig.profile] = mutableListOf()
+                implementedChains[handlerConfig.profile ?: "_"] = mutableListOf()
             }
-            implementedChains[handlerConfig.profile]!! += handlerConfig
+            implementedChains[handlerConfig.profile ?: "_"]!! += handlerConfig
         } else {
             predefinedChain += handlerConfig
         }
@@ -25,7 +22,7 @@ object HandlerMapper {
      * @param target object that requires handler
      * @return mapped handler if found, else `null`
      */
-    operator fun get(profile: Profile, target: Any): Handler<*, *>? {
+    operator fun get(profile: String, target: Any): Handler<*, *>? {
         if (!implementedChains.containsKey(profile)) {
             throw IllegalArgumentException("Implementation didn't registered any handler")
         }

@@ -3,11 +3,10 @@ package normativecontrol.core.html
 import org.docx4j.wml.SectPr
 import normativecontrol.core.contexts.VerificationContext
 import normativecontrol.core.css.Style
-import normativecontrol.core.implementations.ufru.UrFUProfile.globalState
 
 context(VerificationContext)
 fun createPageStyle(sectPr: SectPr?): String {
-    val styleId = "page${globalState.pageStyleId++}"
+    val styleId = "page${renderingState.pageStyleId++}"
 
     val style = Style(noInline = true)
     style += {
@@ -19,6 +18,6 @@ fun createPageStyle(sectPr: SectPr?): String {
         paddingBottom set sectPr?.pgMar?.bottom?.toDouble()
         paddingRight set sectPr?.pgMar?.right?.toDouble()
     }
-    globalState.externalGlobalStylesheet.styles[".$styleId"] = style
+    renderingState.externalGlobalStylesheet.styles[".$styleId"] = style
     return styleId
 }

@@ -8,7 +8,6 @@ import normativecontrol.core.html.div
 import normativecontrol.core.html.htmlTemplate
 import normativecontrol.core.css.Rule
 import normativecontrol.core.css.Stylesheet
-import normativecontrol.core.implementations.ufru.UrFUProfile.globalState
 
 context(VerificationContext)
 class RenderingContext(doc: MainDocumentPart?) {
@@ -27,7 +26,7 @@ class RenderingContext(doc: MainDocumentPart?) {
 
     init {
         createPage(createPageStyle(doc?.contents?.body?.sectPr).also { lastPageStyleId = it })
-        globalState.foldStylesheet(globalStylesheet)
+        renderingState.foldStylesheet(globalStylesheet)
     }
 
     fun pageBreak(copyingLevel: Int, pageStyleId: String? = null) {

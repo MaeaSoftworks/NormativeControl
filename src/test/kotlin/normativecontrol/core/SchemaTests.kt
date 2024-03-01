@@ -19,4 +19,9 @@ class SchemaTests: ShouldSpec({
         val config = ChapterConfiguration(objects)
         config.names.size shouldBe 10
     }
+
+    should("detect first chapter properly") {
+        val objects = Json.decodeFromString<Array<Chapter>>(File("src/test/resources/chapters.json").readText())
+        ChapterConfiguration(objects).startChapter.code shouldBe "1"
+    }
 })

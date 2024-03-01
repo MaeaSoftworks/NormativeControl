@@ -7,9 +7,9 @@ import org.docx4j.wml.*
 import normativecontrol.core.abstractions.*
 import normativecontrol.core.abstractions.chapters.Chapter
 import normativecontrol.core.abstractions.chapters.ChapterHeader
-import normativecontrol.core.abstractions.states.AbstractGlobalState
 import normativecontrol.core.abstractions.states.State
 import normativecontrol.core.abstractions.mistakes.Mistake
+import normativecontrol.core.abstractions.states.RenderingState
 import normativecontrol.core.utils.PropertyResolver
 import java.math.BigInteger
 import java.util.*
@@ -17,11 +17,17 @@ import java.util.*
 class VerificationContext(val profile: Profile) {
     val resolver: PropertyResolver by lazy { PropertyResolver(mlPackage) }
     val render: RenderingContext by lazy { RenderingContext(doc) }
+    val renderingState = RenderingState()
     var chapter: Chapter = profile.startChapter
     val doc: MainDocumentPart by lazy { mlPackage.mainDocumentPart }
     val states = mutableMapOf<State.Key, State>()
     var mistakeUid: String? = null
-    val globalStateHolder: AbstractGlobalState? = profile.sharedStateFactory?.invoke()
+
+    @Deprecated("Remove unsafe access")
+    val globalState = mutableMapOf<String, Any>().apply {
+        put("referencesInText", mutableListOf<Int>())
+        put("rSinceBr", 0)
+    }
 
     context(ChapterHeader)
     var lastDefinedChapter: Chapter
@@ -49,7 +55,6 @@ class VerificationContext(val profile: Profile) {
             doc.addTargetPart(this)
         }
         mistakeId = comments.jaxbElement.comment.size.toLong()
-        profile.sharedStateFactory
     }
 
     fun getCurrentElement(): Any? {

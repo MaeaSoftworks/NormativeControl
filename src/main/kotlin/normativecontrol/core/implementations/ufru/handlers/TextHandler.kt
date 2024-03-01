@@ -6,16 +6,13 @@ import normativecontrol.core.abstractions.handlers.Handler
 import normativecontrol.core.abstractions.handlers.HandlerConfig
 import normativecontrol.core.annotations.EagerInitialization
 import normativecontrol.core.contexts.VerificationContext
-import normativecontrol.core.implementations.ufru.UrFUProfile
 import normativecontrol.core.html.span
-import normativecontrol.core.implementations.ufru.UrFUProfile.globalState
 
 @EagerInitialization
 object TextHandler : Handler<Text, Nothing>(
     HandlerConfig.create {
         setHandler { TextHandler }
         setTarget<Text>()
-        setProfile(UrFUProfile)
     }
 ) {
     private val inBrackets = """\[(.*?)]""".toRegex()
@@ -28,7 +25,7 @@ object TextHandler : Handler<Text, Nothing>(
         element as Text
         val rawText = TextUtils.getText(element)
 
-        globalState.referencesInText.addAll(getAllReferences(rawText))
+        (globalState["referencesInText"] as MutableList<Int>).addAll(getAllReferences(rawText))
         render append span {
             content = rawText.replace("<", "&lt;").replace(">", "&gt;")
         }

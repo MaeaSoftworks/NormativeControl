@@ -18,8 +18,6 @@ import normativecontrol.core.abstractions.mistakes.Mistake
 import normativecontrol.core.html.br
 import normativecontrol.core.html.createPageStyle
 import normativecontrol.core.html.p
-import normativecontrol.core.implementations.ufru.UrFUProfile
-import normativecontrol.core.implementations.ufru.UrFUProfile.globalState
 import normativecontrol.core.utils.resolvedPPr
 
 @EagerInitialization
@@ -28,7 +26,6 @@ object PHandler : Handler<P, PHandler.PState>(
         setTarget<P>()
         setState(PState) { PState() }
         setHandler { PHandler }
-        setProfile(UrFUProfile)
     }
 ), ChapterHeader {
     override val headerRegex = Regex("""^(\d+(?:\.\d)?)\s(?:\w+\s?)+$""")
@@ -39,8 +36,6 @@ object PHandler : Handler<P, PHandler.PState>(
         val pPr = element.resolvedPPr
         if (element.pPr?.sectPr != null) {
             render.pageBreak(-1, createPageStyle(element.pPr.sectPr))
-            globalState.foldStylesheet(render.globalStylesheet)
-            globalState.rSinceBr = 0
         }
         render append p {
             style += {
@@ -62,7 +57,7 @@ object PHandler : Handler<P, PHandler.PState>(
         render.inLastElementScope {
             element.iterate { pos ->
                 val child = element.content[pos]
-                HandlerMapper[profile, child]?.handle(child)
+                HandlerMapper["_", child]?.handle(child)
             }
         }
     }
@@ -83,13 +78,13 @@ object PHandler : Handler<P, PHandler.PState>(
                 if ((currentListConfig!!.listPosition == -1 && currentListConfig!!.start == -1) || currentListConfig!!.start != lvl.start.`val`.toInt()) {
                     currentListConfig!!.listPosition = lvl.start.`val`.toInt()
                     currentListConfig!!.start = currentListConfig!!.listPosition
-                    if (currentListConfig!!.listPosition !in globalState.referencesInText) {
+                    if (currentListConfig!!.listPosition !in globalState["referencesInText"] as MutableList<*>) {
                         addMistake(Mistake(Reason.ReferenceNotMentionedInText))
                     }
                     return@with
                 } else {
                     currentListConfig!!.listPosition++
-                    if (currentListConfig!!.listPosition !in globalState.referencesInText) {
+                    if (currentListConfig!!.listPosition !in globalState["referencesInText"] as MutableList<*>) {
                         addMistake(Mistake(Reason.ReferenceNotMentionedInText))
                     }
                 }

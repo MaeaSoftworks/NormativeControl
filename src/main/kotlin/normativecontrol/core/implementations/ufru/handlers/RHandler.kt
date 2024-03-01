@@ -6,9 +6,7 @@ import normativecontrol.core.abstractions.handlers.HandlerConfig
 import normativecontrol.core.abstractions.handlers.HandlerMapper
 import normativecontrol.core.annotations.EagerInitialization
 import normativecontrol.core.contexts.VerificationContext
-import normativecontrol.core.implementations.ufru.UrFUProfile
 import normativecontrol.core.html.span
-import normativecontrol.core.implementations.ufru.UrFUProfile.globalState
 import normativecontrol.core.utils.resolvedRPr
 
 @EagerInitialization
@@ -16,13 +14,12 @@ object RHandler : Handler<R, Nothing>(
     HandlerConfig.create {
         setHandler { RHandler }
         setTarget<R>()
-        setProfile(UrFUProfile)
     }
 ) {
     context(VerificationContext)
     override fun handle(element: Any) {
         element as R
-        globalState.rSinceBr++
+        globalState["rSinceBr"] = globalState["rSinceBr"] as Int + 1
         val rPr = element.resolvedRPr
         render append span {
             style += {
@@ -40,7 +37,7 @@ object RHandler : Handler<R, Nothing>(
         }
         render.inLastElementScope {
             element.content.forEach {
-                HandlerMapper[profile, it]?.handle(it)
+                HandlerMapper["_", it]?.handle(it)
             }
         }
     }

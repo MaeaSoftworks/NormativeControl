@@ -4,6 +4,8 @@ class ChapterConfiguration {
     val headers = mutableMapOf<String, Chapter>()
     val names = mutableMapOf<Chapter, MutableList<String>>()
     val order = mutableMapOf<Chapter, MutableList<Chapter>>()
+    lateinit var startChapter: Chapter
+        private set
 
     @Deprecated("Use schema initialization")
     constructor(initialize: ChapterConfiguration.() -> Unit) {
@@ -15,12 +17,20 @@ class ChapterConfiguration {
     }
 
     private fun initializeChapter(chapters: Map<String, Chapter>) {
+        val links = mutableSetOf<String>()
         chapters.values.forEach { chapter ->
             chapter.validNames.forEach {
                 chapter shouldBeNamed it
             }
             chapter.validNextChapterCodes.forEach { code ->
                 chapters[code]?.let { chapter shouldBeBefore it }
+                links += code
+            }
+        }
+        for ((key, value) in chapters) {
+            if (key !in links) {
+                startChapter = value
+                break
             }
         }
     }
