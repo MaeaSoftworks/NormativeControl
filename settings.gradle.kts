@@ -3,6 +3,5 @@ plugins {
 }
 rootProject.name = "normative-control-core"
 include("core")
-include("api")
 include("rendering-test-server")
 include("core-launcher")
