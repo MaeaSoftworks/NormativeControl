@@ -14,7 +14,7 @@ import ru.maeasoftworks.normativecontrol.api.infrastructure.filestorage.uploadSo
 import ru.maeasoftworks.normativecontrol.api.infrastructure.utils.Transaction
 import ru.maeasoftworks.normativecontrol.api.infrastructure.verification.VerificationService
 import ru.maeasoftworks.normativecontrol.api.infrastructure.web.InvalidRequestException
-import ru.maeasoftworks.normativecontrol.core.abstractions.Profile
+import ru.maeasoftworks.normativecontrol.core.implementations.ufru.UrFUProfile
 import java.io.ByteArrayInputStream
 
 object StudentsService {
@@ -29,7 +29,7 @@ object StudentsService {
         if (userId == null && fingerprint == null) {
             throw InvalidRequestException()
         }
-        val profile = if (fingerprint == null) transaction { UserRepository.identify(userId!!) }.organization.profile else Profile.UrFU
+        val profile = if (fingerprint == null) transaction { UserRepository.identify(userId!!) }.organization.profile else UrFUProfile
         val uploading = scope.launch { FileStorage.uploadSourceDocument(documentId, file, fingerprint) }
         val verification = scope.launch { VerificationService.startVerification(documentId, fingerprint, ByteArrayInputStream(file), channel, profile) }
         channel.invokeOnClose {

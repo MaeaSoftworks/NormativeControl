@@ -3,6 +3,7 @@ package ru.maeasoftworks.normativecontrol.api.infrastructure.verification
 import kotlinx.coroutines.channels.Channel
 import ru.maeasoftworks.normativecontrol.api.app.web.dto.Message
 import ru.maeasoftworks.normativecontrol.core.abstractions.Profile
+import ru.maeasoftworks.normativecontrol.core.implementations.ufru.UrFUProfile
 import java.io.InputStream
 
 interface VerificationService {
@@ -11,7 +12,7 @@ interface VerificationService {
         fingerprint: String?,
         file: InputStream,
         channel: Channel<Message>? = null,
-        profile: Profile = Profile.UrFU
+        profile: Profile = UrFUProfile
     )
 
     companion object : VerificationService {

@@ -1,9 +1,10 @@
 package ru.maeasoftworks.normativecontrol.api.domain
 
 import ru.maeasoftworks.normativecontrol.core.abstractions.Profile
+import ru.maeasoftworks.normativecontrol.core.implementations.ufru.UrFUProfile
 
 enum class Organization(val domains: Set<String>, val profile: Profile) {
-    UrFU(setOf("urfu.me", "at.urfu.ru"), Profile.UrFU);
+    UrFU(setOf("urfu.me", "at.urfu.ru"), UrFUProfile);
 
     companion object {
         val allDomains = entries.flatMap { it.domains }
