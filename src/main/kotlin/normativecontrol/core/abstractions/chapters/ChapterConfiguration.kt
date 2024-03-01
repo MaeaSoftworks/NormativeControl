@@ -1,12 +1,28 @@
 package normativecontrol.core.abstractions.chapters
 
-class ChapterConfiguration(initialize: ChapterConfiguration.() -> Unit) {
+class ChapterConfiguration {
     val headers = mutableMapOf<String, Chapter>()
     val names = mutableMapOf<Chapter, MutableList<String>>()
     val order = mutableMapOf<Chapter, MutableList<Chapter>>()
 
-    init {
+    @Deprecated("Use schema initialization")
+    constructor(initialize: ChapterConfiguration.() -> Unit) {
         initialize()
+    }
+
+    constructor(chapters: Array<Chapter>) {
+        initializeChapter(chapters.associateBy { it.code })
+    }
+
+    private fun initializeChapter(chapters: Map<String, Chapter>) {
+        chapters.values.forEach { chapter ->
+            chapter.validNames.forEach {
+                chapter shouldBeNamed it
+            }
+            chapter.validNextChapterCodes.forEach { code ->
+                chapters[code]?.let { chapter shouldBeBefore it }
+            }
+        }
     }
 
     /**

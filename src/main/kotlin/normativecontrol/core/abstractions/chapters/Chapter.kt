@@ -1,3 +1,10 @@
 package normativecontrol.core.abstractions.chapters
 
-interface Chapter
+import kotlinx.serialization.Serializable
+
+@Serializable
+open class Chapter(
+    val code: String,
+    val validNames: Array<String>,
+    val validNextChapterCodes: Array<String>
+)

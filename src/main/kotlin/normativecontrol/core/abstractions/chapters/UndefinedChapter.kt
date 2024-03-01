@@ -1,3 +1,7 @@
 package normativecontrol.core.abstractions.chapters
 
-object UndefinedChapter : Chapter
+object UndefinedChapter : Chapter(
+    "undefined",
+    arrayOf("НЕОПОЗНАННАЯ ЧАСТЬ"),
+    arrayOf()
+)
