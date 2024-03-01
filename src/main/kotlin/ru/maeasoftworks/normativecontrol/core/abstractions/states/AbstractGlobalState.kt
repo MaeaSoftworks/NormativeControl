@@ -1,3 +1,0 @@
-package ru.maeasoftworks.normativecontrol.core.abstractions.states
-
-abstract class AbstractGlobalState
