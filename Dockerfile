@@ -3,7 +3,7 @@ RUN mkdir -p /home/gradle/cache
 RUN mkdir -p /app/sources
 RUN mkdir -p /app/built
 ENV GRADLE_USER_HOME /home/gradle/cache
-COPY build.gradle.kts /app/sources
+COPY core/build.gradle.kts /app/sources
 WORKDIR /app/sources
 RUN gradle build
 
