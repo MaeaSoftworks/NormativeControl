@@ -1,4 +1,4 @@
-package normativecontrol.core.cli
+package normativecontrol.launcher
 
 enum class BootOptions(val option: String, val description: String, val hasArg: Boolean, val argName: String? = null) {
     Help("h", "print this message", false),

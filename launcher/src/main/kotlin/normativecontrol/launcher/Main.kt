@@ -1,10 +1,7 @@
-package normativecontrol.core
+package normativecontrol.launcher
 
+import normativecontrol.core.Document
 import org.apache.commons.cli.*
-import normativecontrol.core.cli.BootOptions
-import normativecontrol.core.cli.OptionsComposer
-import normativecontrol.core.cli.getOptionValue
-import normativecontrol.core.cli.hasOption
 import normativecontrol.core.configurations.VerificationConfiguration
 import normativecontrol.core.contexts.VerificationContext
 import normativecontrol.core.implementations.ufru.UrFUProfile

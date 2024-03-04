@@ -1,7 +1,6 @@
 package normativecontrol.core
 
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage
-import org.jetbrains.annotations.Blocking
 import org.reflections.Reflections
 import org.slf4j.LoggerFactory
 import normativecontrol.core.abstractions.chapters.ChapterHeader
@@ -14,7 +13,6 @@ import java.io.InputStream
 class Document(val ctx: VerificationContext) {
     private lateinit var mlPackage: WordprocessingMLPackage
 
-    @Blocking
     fun load(stream: InputStream) {
         mlPackage = WordprocessingMLPackage.load(stream)
         ctx.load(mlPackage)
