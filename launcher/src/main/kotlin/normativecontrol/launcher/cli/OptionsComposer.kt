@@ -1,4 +1,4 @@
-package normativecontrol.launcher
+package normativecontrol.launcher.cli
 
 import org.apache.commons.cli.Option
 import org.apache.commons.cli.Options
