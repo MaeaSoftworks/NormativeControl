@@ -1,4 +1,4 @@
-package normativecontrol.launcher.client.environment
+package normativecontrol.launcher.cli.environment
 
 import org.apache.commons.cli.MissingOptionException
 import kotlin.reflect.KProperty

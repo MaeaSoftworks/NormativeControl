@@ -1,4 +1,4 @@
-package normativecontrol.launcher.client.environment
+package normativecontrol.launcher.cli.environment
 
 object Environment {
     operator fun get(path: String) = EnvironmentVariable(path)

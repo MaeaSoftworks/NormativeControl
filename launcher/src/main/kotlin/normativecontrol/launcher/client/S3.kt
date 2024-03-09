@@ -1,6 +1,6 @@
 package normativecontrol.launcher.client
 
-import normativecontrol.launcher.client.environment.environment
+import normativecontrol.launcher.cli.environment.environment
 import org.slf4j.LoggerFactory
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials
 import software.amazon.awssdk.core.sync.RequestBody

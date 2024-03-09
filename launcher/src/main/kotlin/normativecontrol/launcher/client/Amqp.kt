@@ -4,7 +4,7 @@ import com.rabbitmq.client.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import normativecontrol.launcher.client.environment.environment
+import normativecontrol.launcher.cli.environment.environment
 import org.slf4j.LoggerFactory
 import java.io.Closeable
 

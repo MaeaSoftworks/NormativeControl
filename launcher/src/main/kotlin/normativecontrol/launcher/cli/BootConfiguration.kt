@@ -1,13 +1,11 @@
 package normativecontrol.launcher.cli
 
 import normativecontrol.launcher.Lambda
-import org.apache.commons.cli.DefaultParser
-import org.apache.commons.cli.HelpFormatter
-import org.apache.commons.cli.MissingOptionException
-import org.apache.commons.cli.Options
+import org.apache.commons.cli.*
 
 class BootConfiguration(args: Array<String>) {
-    private val options: Options = OptionsComposer.composeOptions()
+    private val options: Options = createOptions()
+
     val bootMode: BootMode
 
     init {
@@ -30,5 +28,19 @@ class BootConfiguration(args: Array<String>) {
 
     fun printHelp(syntax: String) {
         HelpFormatter().printHelp(syntax, options)
+    }
+
+    private fun createOptions(): Options {
+        return Options().apply {
+            BootOptions.entries
+                .map {
+                    Option.builder(it.option)
+                        .desc(it.description)
+                        .hasArg(it.hasArg)
+                        .apply { if (it.hasArg) argName(it.argName) }
+                        .build()
+                }
+                .forEach(::addOption)
+        }
     }
 }
