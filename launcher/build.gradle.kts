@@ -1,9 +1,15 @@
 plugins {
+    application
+    id("com.github.johnrengelman.shadow") version("8.1.1")
     kotlin("jvm") version "1.9.22"
     id("org.jetbrains.kotlin.plugin.serialization") version "1.9.22"
 }
 
 java.sourceCompatibility = JavaVersion.VERSION_20
+
+application {
+    mainClass.set("normativecontrol.launcher.MainKt")
+}
 
 dependencies {
     implementation(project(":core"))
