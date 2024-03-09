@@ -1,28 +1,34 @@
 package normativecontrol.launcher.client
 
+import normativecontrol.launcher.client.environment.environment
+import org.slf4j.LoggerFactory
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials
 import software.amazon.awssdk.core.sync.RequestBody
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.s3.S3Client
 import software.amazon.awssdk.services.s3.S3Configuration
 import software.amazon.awssdk.services.s3.model.*
+import java.io.Closeable
 import java.net.URI
 
-object S3 {
-    private lateinit var bucket: String
-    private lateinit var s3Client: S3Client
+object S3: Closeable {
+    private val logger = LoggerFactory.getLogger(this::class.java)
 
-    fun initialize() {
-        val region = Region.of(EnvironmentVariables.S3_REGION.get() ?: throw NullPointerException("S3 region was not specified"))
-        val endpoint = URI(EnvironmentVariables.S3_ENDPOINT.get() ?: throw NullPointerException("S3 endpoint was not specified"))
-        val accessKeyId = EnvironmentVariables.S3_ACCESS_KEY_ID.get() ?: throw NullPointerException("S3 access key id was not specified")
-        val secretAccessKey = EnvironmentVariables.S3_SECRET_KEY_ID.get() ?: throw NullPointerException("S3 secret access key was not specified")
-        bucket = EnvironmentVariables.S3_BUCKET.get() ?: throw NullPointerException("S3 bucket was not specified")
+    private val region: String by environment["nc_s3_region"]
+    private val bucket: String by environment["nc_s3_bucket"]
+    private val endpoint: String by environment["nc_s3_endpoint"]
+    private val accessKeyId: String by environment["nc_s3_access_key_id"]
+    private val secretAccessKey: String by environment["nc_s3_secret_key_id"]
+
+    private val s3Client: S3Client
+
+    init {
+        ApplicationFinalizer.add(this)
         s3Client = S3Client
             .builder()
-            .region(region)
+            .region(Region.of(region))
             .credentialsProvider { AwsBasicCredentials.create(accessKeyId, secretAccessKey) }
-            .endpointOverride(endpoint)
+            .endpointOverride(URI(endpoint))
             .serviceConfiguration(
                 S3Configuration.builder()
                     .checksumValidationEnabled(false)
@@ -31,6 +37,7 @@ object S3 {
                     .build()
             )
             .build()
+        logger.info("Connected S3 storage: [region: '$region', endpoint: '$endpoint', bucket: '$bucket']")
     }
 
     fun putObject(file: ByteArray, objectName: String, vararg tags: Pair<String, String>) {
@@ -65,5 +72,9 @@ object S3 {
                 .key(objectName)
                 .build(),
         ).asByteArray()
+    }
+
+    override fun close() {
+        s3Client.close()
     }
 }

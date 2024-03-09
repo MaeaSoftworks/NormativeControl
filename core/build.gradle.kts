@@ -14,7 +14,7 @@ dependencies {
     }
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
     implementation("org.apache.commons:commons-collections4:4.4")
-    implementation("org.slf4j:slf4j-simple:2.0.12")
+    implementation("org.slf4j:slf4j-api:2.0.12")
 
     testImplementation("io.kotest:kotest-runner-junit5:5.8.0")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")

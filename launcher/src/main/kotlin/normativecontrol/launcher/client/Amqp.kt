@@ -4,43 +4,47 @@ import com.rabbitmq.client.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import org.apache.commons.cli.MissingArgumentException
+import normativecontrol.launcher.client.environment.environment
 import org.slf4j.LoggerFactory
+import java.io.Closeable
 
-object Amqp {
-    private lateinit var connection: Connection
-    private lateinit var queueName: String
-    lateinit var channel: Channel
+object Amqp: Closeable {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
-    fun initialize() {
-        Runtime.getRuntime().addShutdownHook(Thread(::close))
-        val uri = EnvironmentVariables.AMQP_URL.get() ?: throw MissingArgumentException("Client Mode requires amqp_url environment variable.")
-        queueName = EnvironmentVariables.AMQP_QUEUE_NAME.get() ?: throw MissingArgumentException("Client Mode requires amqp_queue_name environment variable.")
-        val factory = ConnectionFactory().apply {
-            setUri(uri)
-        }
+    private val url: String? by environment["nc_amqp_url"]
+    private val queueName: String? by environment["nc_amqp_queue_name"]
+
+    private val connection: Connection
+    private val channel: Channel
+
+    init {
+        ApplicationFinalizer.add(this)
+        val factory = ConnectionFactory().apply { setUri(url) }
         connection = factory.newConnection()
         logger.info("AMQP connected to ${factory.host}:${factory.port}")
         channel = connection.createChannel()
     }
 
-    inline fun <reified T> send(queueName: String, correlationId: String, body: @Serializable T) {
+    fun send(queueName: String, correlationId: String, body: String) {
         channel.basicPublish(
             "",
             queueName,
             AMQP.BasicProperties.Builder().correlationId(correlationId).build(),
-            Json.encodeToString(body).toByteArray()
+            body.toByteArray()
         )
     }
+
+    inline fun <reified T> send(queueName: String, correlationId: String, body: @Serializable T)
+        = send(queueName, correlationId, Json.encodeToString(body))
 
     fun listen() {
         channel.queueDeclare(queueName, true, false, false, null)
         channel.basicConsume(queueName, true, JobLauncher(channel))
     }
 
-    private fun close() {
-        logger.info("Shutting down...")
+    override fun close() {
+        channel.close()
         connection.close()
+        logger.info("AMQP connection closed")
     }
 }

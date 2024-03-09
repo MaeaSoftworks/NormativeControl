@@ -18,11 +18,11 @@ class JobLauncher(channel: Channel): DefaultConsumer(channel) {
     override fun handleDelivery(consumerTag: String, envelope: Envelope, properties: AMQP.BasicProperties, body: ByteArray?) {
         val jobId = properties.correlationId
         val stringBody = String(body!!)
-        logger.info("Received job $jobId with body: $stringBody")
+        logger.debug("Received job $jobId with body: $stringBody")
         val message = try {
             Json.decodeFromString<JobMessage>(stringBody)
         } catch (e: Exception) {
-            logger.warn("Job $jobId: unrecognized message body")
+            logger.warn("Job $jobId: unrecognized message body: $stringBody")
             return
         }
         val document = S3.getObject(message.document)
