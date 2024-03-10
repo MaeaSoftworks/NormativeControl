@@ -9,6 +9,7 @@ import normativecontrol.core.Document
 import normativecontrol.core.contexts.VerificationContext
 import normativecontrol.core.implementations.ufru.UrFUProfile
 import normativecontrol.launcher.client.messages.JobMessage
+import normativecontrol.launcher.client.messages.ResultMessage
 import normativecontrol.launcher.client.messages.okResult
 import org.slf4j.LoggerFactory
 import java.io.ByteArrayInputStream
@@ -25,15 +26,27 @@ class JobLauncher(channel: Channel): DefaultConsumer(channel) {
             logger.warn("Job $jobId: unrecognized message body: $stringBody")
             return
         }
-        val document = S3.getObject(message.document)
-        Document(VerificationContext(UrFUProfile)).apply {
-            load(ByteArrayInputStream(document))
-            runVerification()
-            val result = ByteArrayOutputStream()
-            writeResult(result)
-            S3.putObject(result.toByteArray(), message.resultDocx)
-            S3.putObject(ctx.render.getString().toByteArray(), message.resultHtml)
+        val source = S3.getObject(message.document)
+        val document = Document(VerificationContext(UrFUProfile))
+        document.load(ByteArrayInputStream(source))
+
+        try {
+            document.runVerification()
+        } catch (e: Exception) {
+            Amqp.send(message.replyTo, properties.correlationId, ResultMessage("ERROR", "Error during document verification"))
+            return
         }
+
+        try {
+            val result = ByteArrayOutputStream()
+            document.writeResult(result)
+            S3.putObject(result.toByteArray(), message.resultDocx)
+            S3.putObject(document.ctx.render.getString().toByteArray(), message.resultHtml)
+        } catch (e: Exception) {
+            Amqp.send(message.replyTo, properties.correlationId, ResultMessage("ERROR", "Saving or uploading error"))
+            return
+        }
+
         Amqp.send(message.replyTo, properties.correlationId, okResult)
     }
 
