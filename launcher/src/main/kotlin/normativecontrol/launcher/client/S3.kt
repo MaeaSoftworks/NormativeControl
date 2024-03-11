@@ -3,6 +3,8 @@ package normativecontrol.launcher.client
 import normativecontrol.launcher.cli.environment.environment
 import org.slf4j.LoggerFactory
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials
+import software.amazon.awssdk.awscore.exception.AwsServiceException
+import software.amazon.awssdk.core.exception.SdkClientException
 import software.amazon.awssdk.core.sync.RequestBody
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.s3.S3Client
@@ -75,12 +77,16 @@ object S3: Closeable {
     }
 
     fun getObject(objectName: String): ByteArray? {
-        return s3Client.getObjectAsBytes(
-            GetObjectRequest.builder()
-                .bucket(bucket)
-                .key(objectName)
-                .build(),
-        ).asByteArray()
+        return try {
+            s3Client.getObjectAsBytes(
+                GetObjectRequest.builder()
+                    .bucket(bucket)
+                    .key(objectName)
+                    .build(),
+            ).asByteArray()
+        } catch (e: NoSuchKeyException) {
+            null
+        }
     }
 
     override fun close() {

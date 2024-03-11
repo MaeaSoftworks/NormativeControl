@@ -3,7 +3,7 @@ package normativecontrol.launcher.client.messages
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class JobMessage(
+data class JobConfiguration(
     val document: String,
     val replyTo: String,
     val resultDocx: String,

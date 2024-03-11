@@ -39,7 +39,7 @@ object Amqp: Closeable {
 
     fun listen() {
         channel.queueDeclare(queueName, true, false, false, null)
-        channel.basicConsume(queueName, true, JobLauncher(channel))
+        channel.basicConsume(queueName, true, JobConsumer(channel))
     }
 
     override fun close() {
