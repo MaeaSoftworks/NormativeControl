@@ -3,7 +3,7 @@ package normativecontrol.launcher.utils
 object Interruptable
 
 context(Interruptable)
-class Interruption : Exception() {
+class Interruption private constructor(): Exception() {
     companion object {
         fun interrupt(): Nothing {
             throw with(Interruptable) { Interruption() }
@@ -14,10 +14,10 @@ class Interruption : Exception() {
 @JvmInline
 value class Interrupter(val call: () -> Nothing)
 
-inline fun interrupter(crossinline fn: Interruption.Companion.() -> Unit): Interrupter {
+inline fun interrupter(crossinline fn: () -> Unit): Interrupter {
     return Interrupter {
-        fn(Interruption.Companion)
-        throw with(Interruptable) { Interruption() }
+        fn()
+        Interruption.interrupt()
     }
 }
 

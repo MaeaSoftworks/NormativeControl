@@ -45,7 +45,6 @@ class JobConsumer(channel: Channel): DefaultConsumer(channel) {
 
     private fun Job.interrupt(status: String, description: String? = null) = interrupter {
         reply(status, description)
-        interrupt()
     }
 
     private fun Job.reply(status: String, description: String? = null)  {
