@@ -37,7 +37,16 @@ object S3: Closeable {
                     .build()
             )
             .build()
-        logger.info("Connected S3 storage: [region: '$region', endpoint: '$endpoint', bucket: '$bucket']")
+        logger.info("Connected S3 storage: [region: '$region', endpoint: '$endpoint']")
+        if (!s3Client.listBuckets().buckets().any { it.name() == bucket }) {
+            logger.info("S3 bucket '$bucket' not found, creating a new bucket with name '$bucket'...")
+            s3Client.createBucket(
+                CreateBucketRequest.builder()
+                    .bucket(bucket)
+                    .build()
+            )
+            logger.info("S3 bucket '$bucket' created!")
+        }
     }
 
     fun putObject(file: ByteArray, objectName: String, vararg tags: Pair<String, String>) {
