@@ -11,8 +11,8 @@ import java.io.Closeable
 object Amqp: Closeable {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
-    private val url: String? by environment["nc_amqp_url"]
-    private val queueName: String? by environment["nc_amqp_queue_name"]
+    private val url: String? by environment.variable("nc_amqp_url")
+    private val queueName: String? by environment.variable("nc_amqp_queue_name")
 
     private val connection: Connection
     private val channel: Channel

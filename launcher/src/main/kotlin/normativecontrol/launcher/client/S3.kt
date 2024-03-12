@@ -3,33 +3,41 @@ package normativecontrol.launcher.client
 import normativecontrol.launcher.cli.environment.environment
 import org.slf4j.LoggerFactory
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials
-import software.amazon.awssdk.awscore.exception.AwsServiceException
-import software.amazon.awssdk.core.exception.SdkClientException
 import software.amazon.awssdk.core.sync.RequestBody
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.s3.S3Client
 import software.amazon.awssdk.services.s3.S3Configuration
 import software.amazon.awssdk.services.s3.model.*
 import java.io.Closeable
+import java.io.File
 import java.net.URI
 
 object S3: Closeable {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
-    private val region: String by environment["nc_s3_region"]
-    private val bucket: String by environment["nc_s3_bucket"]
-    private val endpoint: String by environment["nc_s3_endpoint"]
-    private val accessKeyId: String by environment["nc_s3_access_key_id"]
-    private val secretAccessKey: String by environment["nc_s3_secret_key_id"]
+    private val region: String by environment.variable("nc_s3_region")
+    private val bucket: String by environment.variable("nc_s3_bucket")
+    private val endpoint: String by environment.variable("nc_s3_endpoint")
+    private val accessKeyId: String? by environment.optionalVariable("nc_s3_access_key_id")
+    private val secretAccessKey: String? by environment.optionalVariable("nc_s3_secret_key_id")
+
+    private val accessKeyIdFile: String? by environment.optionalVariable("nc_s3_access_key_id_file")
+    private val secretAccessKeyFile: String? by environment.optionalVariable("nc_s3_secret_key_id_file")
 
     private val s3Client: S3Client
 
     init {
+        val accessKey = accessKeyId
+            ?: File(accessKeyIdFile ?: throw IllegalArgumentException("accessKeyId or accessKeyIdFile must be set")).readText()
+
+        val secretKey = secretAccessKey
+            ?: File(secretAccessKeyFile ?: throw IllegalArgumentException("secretAccessKey or secretAccessKeyFile must be set")).readText()
+
         ApplicationFinalizer.add(this)
         s3Client = S3Client
             .builder()
             .region(Region.of(region))
-            .credentialsProvider { AwsBasicCredentials.create(accessKeyId, secretAccessKey) }
+            .credentialsProvider { AwsBasicCredentials.create(accessKey, secretKey) }
             .endpointOverride(URI(endpoint))
             .serviceConfiguration(
                 S3Configuration.builder()
