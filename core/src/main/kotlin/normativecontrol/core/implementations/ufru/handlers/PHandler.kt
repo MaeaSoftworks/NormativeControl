@@ -6,7 +6,6 @@ import org.docx4j.wml.NumberFormat
 import org.docx4j.wml.P
 import normativecontrol.core.abstractions.chapters.Chapter
 import normativecontrol.core.abstractions.chapters.ChapterHeader
-import normativecontrol.core.abstractions.chapters.UndefinedChapter
 import normativecontrol.core.abstractions.handlers.Handler
 import normativecontrol.core.abstractions.handlers.HandlerConfig
 import normativecontrol.core.abstractions.handlers.HandlerMapper
@@ -21,6 +20,7 @@ import normativecontrol.core.html.p
 import normativecontrol.core.implementations.ufru.UrFUProfile
 import normativecontrol.core.implementations.ufru.UrFUProfile.globalState
 import normativecontrol.core.utils.resolvedPPr
+import normativecontrol.core.utils.flatMap
 
 @EagerInitialization
 object PHandler : Handler<P, PHandler.PState>(
@@ -75,7 +75,7 @@ object PHandler : Handler<P, PHandler.PState>(
             }
         }
 
-        if (chapter == ReferencesChapter) {
+        if (chapter == Chapters.References) {
             if (lvl.numFmt?.`val` != NumberFormat.DECIMAL) {
                 addMistake(Mistake(Reason.ForbiddenMarkerTypeReferences))
             }
@@ -125,7 +125,7 @@ object PHandler : Handler<P, PHandler.PState>(
     override fun detectChapterByHeader(element: Any): Chapter {
         val text = TextUtils.getText(element)
         if (isChapterBodyHeader(text)) {
-            return BodyChapter
+            return Chapters.Body
         }
         for (keys in 0 until profile.chapterConfiguration.headers.size) {
             for ((title, chapter) in profile.chapterConfiguration.headers) {
@@ -134,33 +134,33 @@ object PHandler : Handler<P, PHandler.PState>(
                 }
             }
         }
-        if (profile.chapterConfiguration.names[AppendixChapter]?.any { text.uppercase().startsWith(it) } == true) {
-            return AppendixChapter
+        if (profile.chapterConfiguration.names[Chapters.Appendix]?.any { text.uppercase().startsWith(it) } == true) {
+            return Chapters.Appendix
         }
-        return UndefinedChapter
+        return Chapter.Undefined
     }
 
     context(VerificationContext)
     override fun checkChapterOrderAndUpdateContext(target: Chapter) {
-        if (target is UndefinedChapter) {
+        if (target is Chapter.Undefined) {
             addMistake(
                 Mistake(
                     Reason.UndefinedChapterFound,
-                    profile.chapterConfiguration.names[target]!!.joinToString("/"),
+                    target.names.first(),
                     profile.chapterConfiguration
-                        .getPrependChapter(lastDefinedChapter)
+                        .getPrependChapters(lastDefinedChapter)
                         .flatMap { profile.chapterConfiguration.names[it]!! }
                         .joinToString("/")
                 )
             )
         } else {
-            if (!profile.chapterConfiguration.getPrependChapter(lastDefinedChapter).contains(target)) {
+            if (!profile.chapterConfiguration.getPrependChapters(lastDefinedChapter).contains(target)) {
                 addMistake(
                     Mistake(
                         Reason.ChapterOrderMismatch,
                         profile.chapterConfiguration.names[target]!!.joinToString("/"),
                         profile.chapterConfiguration
-                            .getPrependChapter(lastDefinedChapter)
+                            .getPrependChapters(lastDefinedChapter)
                             .flatMap { profile.chapterConfiguration.names[it]!! }
                             .joinToString("/")
                     )

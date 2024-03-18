@@ -1,83 +1,35 @@
 package normativecontrol.core.abstractions.chapters
 
-class ChapterConfiguration(initialize: ChapterConfiguration.() -> Unit) {
-    val headers = mutableMapOf<String, Chapter>()
-    val names = mutableMapOf<Chapter, MutableList<String>>()
-    val order = mutableMapOf<Chapter, MutableList<Chapter>>()
+import kotlin.enums.enumEntries
 
-    init {
-        initialize()
+data class ChapterConfiguration(
+    val headers: Map<String, Chapter>,
+    val names: Map<Chapter, Array<String>>,
+    val order: Map<Chapter, Array<Chapter>?>
+) {
+    fun getPrependChapters(chapter: Chapter): Array<Chapter> {
+        return order[chapter] ?: emptyArray()
     }
 
-    /**
-     * Retrieves the list of ChapterVerifier objects that must be prepended before the given chapter.
-     *
-     * @param chapter The chapter for which the prepended chapters are to be retrieved.
-     * @return The list of ChapterVerifier objects that must be prepended before the given chapter.
-     */
-    fun getPrependChapter(chapter: Chapter): List<Chapter> {
-        return order[chapter] ?: emptyList()
-    }
+    companion object {
+        val empty: ChapterConfiguration
+            get() = ChapterConfiguration(emptyMap(), emptyMap(), emptyMap())
 
-    /**
-     * Sets the name for the chapter verifier.
-     *
-     * @param name The name to set for the chapter verifier.
-     * @return The ShouldBeNamedPipe object for fluent method chaining.
-     */
-    infix fun Chapter.shouldBeNamed(name: String): ShouldBeNamedPipe {
-        names[this] = mutableListOf(name)
-        headers += name to this
-        return ShouldBeNamedPipe(this)
-    }
+        @OptIn(ExperimentalStdlibApi::class)
+        inline fun <reified T> create(): ChapterConfiguration where T: Enum<T>, T: Chapter {
+            val calculatedNames = mutableMapOf<Chapter, Array<String>>()
+            val calculatedHeaders = mutableMapOf<String, Chapter>()
+            val calculatedOrder = mutableMapOf<Chapter, Array<Chapter>?>()
 
-    /**
-     * Represents a class for set multiple chapter names in a pipeline.
-     *
-     * @property target The target ChapterVerifier to be combined with.
-     */
-    inner class ShouldBeNamedPipe(private val target: Chapter) {
-        /**
-         * Adds another string to the "names" map and updates the "headers" list.
-         *
-         * @param another the string to be added to the "names" map.
-         * @return Pipe with the same target.
-         */
-        infix fun or(another: String): ShouldBeNamedPipe {
-            names[target]!! += another
-            headers += another to target
-            return this
-        }
-    }
+            enumEntries<T>().forEach { chapter ->
+                calculatedNames[chapter] = chapter.names
+                chapter.names.forEach {
+                    calculatedHeaders += it to chapter
+                }
+                chapter.canBeAfterChapters.let { if (it != null) calculatedOrder[chapter] = it() }
+            }
 
-    /**
-     * Sets the order in which a chapter should appear after another chapter.
-     *
-     * @param chapter The chapter that should appear after the specified chapter.
-     * @return The CanBeAfterPipe object for fluent method chaining.
-     */
-    infix fun Chapter.shouldBeBefore(chapter: Chapter): ShouldBeAfterPipe {
-        order[this] = mutableListOf(chapter)
-        return ShouldBeAfterPipe(this)
-    }
-
-    /**
-     * Class representing a pipe that can be used to combine ChapterVerifier objects using the logical or operator.
-     *
-     * @property target The target ChapterVerifier to be combined with.
-     * @constructor Creates a CanBeAfterPipe object with the specified target ChapterVerifier.
-     */
-    inner class ShouldBeAfterPipe(private val target: Chapter) {
-        /**
-         * Combines the current ChapterVerifier with another ChapterVerifier using the logical or operator.
-         * The other ChapterVerifier is specified as the parameter of this method.
-         *
-         * @param another Another ChapterVerifier to be combined with the current ChapterVerifier.
-         * @return Pipe with the same target.
-         */
-        infix fun or(another: Chapter): ShouldBeAfterPipe {
-            order[target]!! += another
-            return this
+            return ChapterConfiguration(calculatedHeaders, calculatedNames, calculatedOrder)
         }
     }
 }
