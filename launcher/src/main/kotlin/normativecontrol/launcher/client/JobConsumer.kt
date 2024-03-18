@@ -21,21 +21,21 @@ class JobConsumer(channel: Channel): DefaultConsumer(channel) {
     private fun proceedJob(job: Job) = interruptable {
         logger.debug { "Received job '${job.properties.correlationId}' with body: ${ Json.encodeToString(job.jobConfiguration) }" }
 
-        val source = S3.getObject(job.source).interruptIfNullWith(job.interrupt("ERROR", "Error during document downloading"))
+        val source = S3.getObject(job.source).interruptIfNullWith { job.interrupt("ERROR", "Error during document downloading") }
 
         val document = Document(VerificationContext(UrFUProfile))
         document.load(ByteArrayInputStream(source))
 
-        interruptOnAnyException(job.interrupt("ERROR", "Error during document verification")) {
+        interruptOnAnyException({ job.interrupt("ERROR", "Error during document verification") }) {
             document.runVerification()
         }
 
         val result = ByteArrayOutputStream()
-        interruptOnAnyException(job.interrupt("ERROR", "Error during document saving")) {
+        interruptOnAnyException({ job.interrupt("ERROR", "Error during document saving") }) {
             document.writeResult(result)
         }
 
-        interruptOnAnyException(job.interrupt("ERROR", "Error during document uploading")) {
+        interruptOnAnyException({ job.interrupt("ERROR", "Error during document uploading") }) {
             S3.putObject(result.toByteArray(), job.docxName)
             S3.putObject(document.ctx.render.getString().toByteArray(), job.htmlName)
         }
@@ -48,7 +48,12 @@ class JobConsumer(channel: Channel): DefaultConsumer(channel) {
     }
 
     private fun Job.reply(status: String, description: String? = null)  {
-        logger.debug { "Job ${properties.correlationId}: $status: $description" }
+        logger.debug {
+            description.let {
+                if (description != null) "Job ${properties.correlationId}: $status: $description"
+                else "Job ${properties.correlationId}: $status"
+            }
+        }
         Amqp.send(replyTo, properties.correlationId, JobResult(status, description))
     }
 
