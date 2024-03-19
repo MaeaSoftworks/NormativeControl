@@ -26,10 +26,10 @@ class Document(profile: Profile) {
             val handler = HandlerMapper[profile, element]
             if (handler != null) {
                 if (handler is ChapterHeader) {
-                    if (handler.isHeader(element)) {
+                    val chapter = handler.checkChapterStart(element)
+                    if (chapter != null) {
                         isHeader = true
                         sinceHeader = 0
-                        val chapter = handler.detectChapterByHeader(element)
                         handler.checkChapterOrderAndUpdateContext(chapter)
                     } else {
                         isHeader = false

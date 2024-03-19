@@ -8,6 +8,10 @@ value class Twip(val value: BigInteger)
 
 fun BigInteger.asTwip(): Twip = Twip(this)
 
+fun BigInteger.asPointsToLine(): Double {
+    return this.toDouble() / Constants.POINTS_IN_LINES
+}
+
 @JvmInline
 value class Inch(val value: Double)
 

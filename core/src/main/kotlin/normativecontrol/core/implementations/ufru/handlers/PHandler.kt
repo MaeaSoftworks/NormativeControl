@@ -20,6 +20,7 @@ import normativecontrol.core.implementations.ufru.UrFUProfile
 import normativecontrol.core.implementations.ufru.UrFUProfile.globalState
 import normativecontrol.core.implementations.ufru.describeState
 import normativecontrol.core.math.abs
+import normativecontrol.core.math.asPointsToLine
 import normativecontrol.core.math.asTwip
 import normativecontrol.core.math.cm
 import normativecontrol.core.utils.flatMap
@@ -28,8 +29,11 @@ import org.docx4j.TextUtils
 import org.docx4j.wml.Lvl
 import org.docx4j.wml.NumberFormat
 import org.docx4j.wml.P
+import org.docx4j.wml.PPrBase.Spacing
+import org.docx4j.wml.STLineSpacingRule
 import org.slf4j.LoggerFactory
 import java.math.BigInteger
+import kotlin.math.abs
 
 @EagerInitialization
 object PHandler : Handler<P, PHandler.PState>(
@@ -41,7 +45,7 @@ object PHandler : Handler<P, PHandler.PState>(
     }
 ), ChapterHeader {
     private val logger = LoggerFactory.getLogger(this::class.java)
-    override val headerRegex = Regex("""^(\d+(?:\.\d)?)\s(?:\w+\s?)+$""")
+    override val headerRegex = Regex("""^(\d+(?:\.\d)*)\s*.*$""")
 
     context(VerificationContext)
     override fun handle(element: Any) {
@@ -57,9 +61,9 @@ object PHandler : Handler<P, PHandler.PState>(
             style += {
                 marginLeft set (pPr.ind?.left verifyBy Rules.leftIndent)
                 marginRight set (pPr.ind?.right verifyBy Rules.rightIndent)
-                marginBottom set pPr.spacing?.after
-                marginTop set pPr.spacing?.before
-                lineHeight set pPr.spacing?.line
+                marginBottom set (pPr.spacing?.after verifyBy Rules.spacingAfter)
+                marginTop set (pPr.spacing?.before verifyBy Rules.spacingBefore)
+                lineHeight set (pPr.spacing verifyBy Rules.spacingLine)?.line
                 textIndent set (pPr.ind?.firstLine verifyBy Rules.firstLineIndent)
                 textAlign set pPr.jc?.`val`
                 backgroundColor set pPr.shd?.fill
@@ -127,54 +131,22 @@ object PHandler : Handler<P, PHandler.PState>(
     }
 
     context(VerificationContext)
-    override fun isHeader(element: Any): Boolean {
-        return profile.verificationConfiguration.chapterConfiguration.headers.containsKey(TextUtils.getText(element as P).trim())
-    }
-
-    context(VerificationContext)
-    override fun detectChapterByHeader(element: Any): Chapter {
-        val text = TextUtils.getText(element)
-        if (isChapterBodyHeader(text)) {
-            return Chapters.Body
-        }
-        for (keys in 0 until profile.verificationConfiguration.chapterConfiguration.headers.size) {
-            for ((title, chapter) in profile.verificationConfiguration.chapterConfiguration.headers) {
-                if (text.uppercase() == title) {
-                    return chapter
-                }
-            }
-        }
-        if (profile.verificationConfiguration.chapterConfiguration.names[Chapters.Appendix]?.any { text.uppercase().startsWith(it) } == true) {
-            return Chapters.Appendix
-        }
-        return Chapter.Undefined
+    override fun checkChapterStart(element: Any): Chapter? {
+        val text = TextUtils.getText(element as P).trim().uppercase()
+        return profile.verificationConfiguration.chapterConfiguration.headers[text] ?: if (isChapterBodyHeader(text)) Chapters.Body else null
     }
 
     context(VerificationContext)
     override fun checkChapterOrderAndUpdateContext(target: Chapter) {
-        if (target is Chapter.Undefined) {
+        val nextChapters = profile.verificationConfiguration.chapterConfiguration.getNextChapters(lastDefinedChapter)
+        if (target !in nextChapters) {
             mistake(
-                Reason.UndefinedChapterFound,
-                target.names.first(),
-                profile.verificationConfiguration
-                    .chapterConfiguration
-                    .getNextChapters(lastDefinedChapter)
-                    .flatMap { profile.verificationConfiguration.chapterConfiguration.names[it]!! }
-                    .joinToString("/")
+                Reason.ChapterOrderMismatch,
+                target.names.joinToString("/"),
+                nextChapters.flatMap { profile.verificationConfiguration.chapterConfiguration.names[it]!! }.joinToString("/")
             )
-        } else {
-            if (!profile.verificationConfiguration.chapterConfiguration.getNextChapters(lastDefinedChapter).contains(target)) {
-                mistake(
-                    Reason.ChapterOrderMismatch,
-                    profile.verificationConfiguration.chapterConfiguration.names[target]!!.joinToString("/"),
-                    profile.verificationConfiguration.chapterConfiguration
-                        .getNextChapters(lastDefinedChapter)
-                        .flatMap { profile.verificationConfiguration.chapterConfiguration.names[it]!! }
-                        .joinToString("/")
-                )
-            }
-            lastDefinedChapter = target
         }
+        lastDefinedChapter = target
         chapter = target
     }
 
@@ -209,6 +181,31 @@ object PHandler : Handler<P, PHandler.PState>(
                 PointerState.UnderPicture -> TODO()
                 PointerState.PictureDescription -> TODO()
                 else -> Unit
+            }
+        }
+
+        val spacingBefore = verifier<BigInteger> {
+
+        }
+
+        val spacingAfter = verifier<BigInteger> {
+
+        }
+
+        val spacingLine = verifier<Spacing> {
+            val line = it?.line?.asPointsToLine() ?: 0.0
+            when (describeState()) {
+                PointerState.Header -> {
+                    if (abs(line - 1.0) >= 0.001)
+                        mistake(Reason.IncorrectLineSpacingHeader, line.toString(), "1")
+                }
+                PointerState.UnderHeader,
+                PointerState.Text -> {
+                    if (it?.lineRule == STLineSpacingRule.AUTO && abs(line - 1.5) >= 0.001)
+                        mistake(Reason.IncorrectLineSpacingText, line.toString(), "1.5")
+                }
+                PointerState.UnderPicture -> TODO()
+                PointerState.PictureDescription -> TODO()
             }
         }
     }

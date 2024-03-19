@@ -10,10 +10,7 @@ interface ChapterHeader {
     }
 
     context(VerificationContext)
-    fun isHeader(element: Any): Boolean
-
-    context(VerificationContext)
-    fun detectChapterByHeader(element: Any): Chapter
+    fun checkChapterStart(element: Any): Chapter?
 
     /**
      * This method checks the order of the provided chapter and updates the context accordingly.
