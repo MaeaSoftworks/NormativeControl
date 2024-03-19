@@ -25,8 +25,13 @@ class Document(val ctx: VerificationContext) {
             if (handler != null) {
                 if (handler is ChapterHeader) {
                     if (handler.isHeader(element)) {
+                        isHeader = true
+                        sinceHeader = 0
                         val chapter = handler.detectChapterByHeader(element)
                         handler.checkChapterOrderAndUpdateContext(chapter)
+                    } else {
+                        isHeader = false
+                        sinceHeader++
                     }
                 }
                 handler.handle(element)

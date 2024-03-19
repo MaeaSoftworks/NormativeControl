@@ -4,7 +4,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 class MistakeSerializer {
-    private val mistakes = mutableListOf<SerializableMistake>()
+    private val mistakes = mutableListOf<Mistake>()
     private val foundMistakes = mutableMapOf<MistakeReason, Int>()
     private var last: Int = 0
 
@@ -17,7 +17,7 @@ class MistakeSerializer {
         if (mistakeReason !in foundMistakes.keys) {
             foundMistakes[mistakeReason] = last++
         }
-        mistakes += SerializableMistake(
+        mistakes += Mistake(
             foundMistakes[mistakeReason]!!,
             id,
             expected,

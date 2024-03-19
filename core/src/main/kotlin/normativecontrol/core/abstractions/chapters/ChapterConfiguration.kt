@@ -7,7 +7,7 @@ data class ChapterConfiguration(
     val names: Map<Chapter, Array<String>>,
     val order: Map<Chapter, Array<Chapter>?>
 ) {
-    fun getPrependChapters(chapter: Chapter): Array<Chapter> {
+    fun getNextChapters(chapter: Chapter): Array<Chapter> {
         return order[chapter] ?: emptyArray()
     }
 
@@ -26,7 +26,7 @@ data class ChapterConfiguration(
                 chapter.names.forEach {
                     calculatedHeaders += it to chapter
                 }
-                chapter.canBeAfterChapters.let { if (it != null) calculatedOrder[chapter] = it() }
+                chapter.nextChapters.let { if (it != null) calculatedOrder[chapter] = it() }
             }
 
             return ChapterConfiguration(calculatedHeaders, calculatedNames, calculatedOrder)

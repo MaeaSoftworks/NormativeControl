@@ -9,7 +9,8 @@ import normativecontrol.core.abstractions.chapters.Chapter
 import normativecontrol.core.abstractions.chapters.ChapterHeader
 import normativecontrol.core.abstractions.states.AbstractGlobalState
 import normativecontrol.core.abstractions.states.State
-import normativecontrol.core.abstractions.mistakes.Mistake
+import normativecontrol.core.abstractions.mistakes.MistakeReason
+import normativecontrol.core.abstractions.states.PointerState
 import normativecontrol.core.utils.PropertyResolver
 import java.math.BigInteger
 import java.util.*
@@ -22,6 +23,8 @@ class VerificationContext(val profile: Profile) {
     val states = mutableMapOf<State.Key, State>()
     var mistakeUid: String? = null
     val globalStateHolder: AbstractGlobalState? = profile.sharedStateFactory?.invoke()
+    var isHeader = false
+    var sinceHeader = -1
 
     context(ChapterHeader)
     var lastDefinedChapter: Chapter
@@ -73,31 +76,31 @@ class VerificationContext(val profile: Profile) {
         }
     }
 
-    inline fun ContentAccessor.iterate(fn: (pos: Int) -> Unit) {
+    inline fun ContentAccessor.iterate(fn: (element: Any, pos: Int) -> Unit) {
         val level = pointer.size
         pointer[level] = 0
         while (pointer[level] < this.content.size) {
-            fn(pointer[level])
+            fn(content[pointer[level]], pointer[level])
             pointer[level]++
         }
         pointer.clearTo(level)
     }
 
-    fun addMistake(mistake: Mistake) {
-        val formattedText = if (mistake.actual != null && mistake.expected != null) {
-            "${mistake.mistakeReason.description}: найдено: ${mistake.actual}, требуется: ${mistake.expected}."
+    fun mistake(mistakeReason: MistakeReason, actual: String? = null, expected: String? = null) {
+        val formattedText = if (actual != null && expected != null) {
+            "${mistakeReason.description}: найдено: ${actual}, требуется: ${expected}."
         } else {
-            mistake.mistakeReason.description
+            mistakeReason.description
         }
 
         val id = BigInteger.valueOf(mistakeId++)
         mistakeUid = "m$id"
 
         render.mistakeSerializer.addMistake(
-            mistake.mistakeReason,
+            mistakeReason,
             mistakeUid!!,
-            mistake.expected,
-            mistake.actual
+            expected,
+            actual
         )
 
         val comment = createComment(id, formattedText)

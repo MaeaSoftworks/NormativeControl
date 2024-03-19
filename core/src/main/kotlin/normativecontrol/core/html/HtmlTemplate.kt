@@ -75,7 +75,7 @@ fun htmlTemplate(doc: MainDocumentPart?, mistakes: MistakeSerializer) = html {
                 input {
                     params {
                         "type" set "checkbox"
-                        "onchange" set js("document.querySelector('$CONTAINER_SELECTOR').classList.toggle('bordered');")
+                        "onchange" set js("document.querySelector('${Constants.CONTAINER_SELECTOR}').classList.toggle('bordered');")
                         +"checked"
                     }
                 }
@@ -83,7 +83,7 @@ fun htmlTemplate(doc: MainDocumentPart?, mistakes: MistakeSerializer) = html {
             }
         }
         div {
-            classes += CONTAINER_CLASS_NAME
+            classes += Constants.CONTAINER_CLASS_NAME
         }
     }
 }

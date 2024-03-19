@@ -2,15 +2,15 @@ package normativecontrol.core.implementations.ufru
 
 import normativecontrol.core.abstractions.chapters.Chapter
 
-enum class Chapters(override val names: Array<String>, override val canBeAfterChapters: (() -> Array<Chapter>)? = null): Chapter {
-    FrontPage(arrayOf("ТИТУЛЬНЫЙ ЛИСТ")),
-    Annotation(arrayOf("РЕФЕРАТ"), { arrayOf(FrontPage) }),
-    Contents(arrayOf("СОДЕРЖАНИЕ", "ОГЛАВЛЕНИЕ"), { arrayOf(Annotation) }),
-    Definitions(arrayOf("ТЕРМИНЫ И ОПРЕДЕЛЕНИЯ"), { arrayOf(Contents) }),
-    Abbreviations(arrayOf("ПЕРЕЧЕНЬ СОКРАЩЕНИЙ И ОБОЗНАЧЕНИЙ"), { arrayOf(Contents, Definitions) }),
-    Introduction(arrayOf("ВВЕДЕНИЕ"), { arrayOf(Contents, Definitions, Abbreviations) }),
-    Body(arrayOf("ОСНОВНОЙ РАЗДЕЛ"), { arrayOf(Introduction, Body) }),
-    Conclusion(arrayOf("ЗАКЛЮЧЕНИЕ"), { arrayOf(Body) }),
-    References(arrayOf("БИБЛИОГРАФИЧЕСКИЙ СПИСОК", "СПИСОК ИСПОЛЬЗОВАННОЙ ЛИТЕРАТУРЫ", "СПИСОК ЛИТЕРАТУРЫ", "СПИСОК ИСТОЧНИКОВ"), { arrayOf(Conclusion) }),
-    Appendix(arrayOf("ПРИЛОЖЕНИЕ"), { arrayOf(References, Appendix) })
+enum class Chapters(override val names: Array<String>, override val nextChapters: (() -> Array<Chapter>)? = null): Chapter {
+    FrontPage(arrayOf("ТИТУЛЬНЫЙ ЛИСТ"), { arrayOf(Annotation) }),
+    Annotation(arrayOf("РЕФЕРАТ"), { arrayOf(Contents) }),
+    Contents(arrayOf("СОДЕРЖАНИЕ", "ОГЛАВЛЕНИЕ"), { arrayOf(Definitions, Abbreviations, Introduction) }),
+    Definitions(arrayOf("ТЕРМИНЫ И ОПРЕДЕЛЕНИЯ"), { arrayOf(Abbreviations, Introduction) }),
+    Abbreviations(arrayOf("ПЕРЕЧЕНЬ СОКРАЩЕНИЙ И ОБОЗНАЧЕНИЙ"), { arrayOf(Introduction) }),
+    Introduction(arrayOf("ВВЕДЕНИЕ"), { arrayOf(Body) }),
+    Body(arrayOf("ОСНОВНОЙ РАЗДЕЛ"), { arrayOf(Conclusion, Body) }),
+    Conclusion(arrayOf("ЗАКЛЮЧЕНИЕ"), { arrayOf(References) }),
+    References(arrayOf("БИБЛИОГРАФИЧЕСКИЙ СПИСОК", "СПИСОК ИСПОЛЬЗОВАННОЙ ЛИТЕРАТУРЫ", "СПИСОК ЛИТЕРАТУРЫ", "СПИСОК ИСТОЧНИКОВ"), { arrayOf(Appendix, References) }),
+    Appendix(arrayOf("ПРИЛОЖЕНИЕ"))
 }

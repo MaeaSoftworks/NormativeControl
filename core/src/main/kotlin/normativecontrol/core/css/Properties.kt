@@ -1,10 +1,8 @@
 package normativecontrol.core.css
 
+import normativecontrol.core.html.Constants
 import org.docx4j.w14.STLigatures
 import org.docx4j.wml.JcEnumeration
-import normativecontrol.core.html.FONT_SCALING
-import normativecontrol.core.html.PIXELS_IN_POINT
-import normativecontrol.core.html.POINTS_IN_LINES
 
 object StyleProperties {
     val boxSizing = BoxSizing
@@ -55,31 +53,31 @@ object BoxShadow : Property<String>("box-shadow")
 object Color : Property<String>("color", ::colorConverter)
 object BackgroundColor : Property<String>("background-color", ::colorConverter)
 object FontFamily : Property<String>("font-family")
-object FontSize : DoubleProperty("font-size", "px", FONT_SCALING)
+object FontSize : DoubleProperty("font-size", "px", Constants.FONT_SCALING)
 object FontStyle : Property<Boolean?>("font-style", { if (it == true) "italic" else null })
 object FontWeight : Property<Boolean?>("font-weight", { if (it == true) "bold" else null })
 object FontVariantCaps : Property<Boolean?>("font-variant-caps", { if (it == true) "small-caps" else null })
 object Margin : DoubleProperty("margin", "px", 1.0)
-object MarginTop : DoubleProperty("margin-top", "px", PIXELS_IN_POINT)
-object MarginLeft : DoubleProperty("margin-left", "px", PIXELS_IN_POINT)
-object MarginBottom : DoubleProperty("margin-bottom", "px", PIXELS_IN_POINT)
-object MarginRight : DoubleProperty("margin-right", "px", PIXELS_IN_POINT)
+object MarginTop : BigIntegerProperty("margin-top", "px", Constants.PIXELS_IN_POINT)
+object MarginLeft : BigIntegerProperty("margin-left", "px", Constants.PIXELS_IN_POINT)
+object MarginBottom : BigIntegerProperty("margin-bottom", "px", Constants.PIXELS_IN_POINT)
+object MarginRight : BigIntegerProperty("margin-right", "px", Constants.PIXELS_IN_POINT)
 object Padding : DoubleProperty("padding")
-object PaddingTop : DoubleProperty("padding-top", "px", PIXELS_IN_POINT)
-object PaddingLeft : DoubleProperty("padding-left", "px", PIXELS_IN_POINT)
-object PaddingBottom : DoubleProperty("padding-bottom", "px", PIXELS_IN_POINT)
-object PaddingRight : DoubleProperty("padding-right", "px", PIXELS_IN_POINT)
+object PaddingTop : DoubleProperty("padding-top", "px", Constants.PIXELS_IN_POINT)
+object PaddingLeft : DoubleProperty("padding-left", "px", Constants.PIXELS_IN_POINT)
+object PaddingBottom : DoubleProperty("padding-bottom", "px", Constants.PIXELS_IN_POINT)
+object PaddingRight : DoubleProperty("padding-right", "px", Constants.PIXELS_IN_POINT)
 object Position : Property<String>("position")
 object ZIndex : DoubleProperty("z-index")
-object Width : DoubleProperty("width", "px", PIXELS_IN_POINT)
-object MinWidth : DoubleProperty("min-width", "px", PIXELS_IN_POINT)
-object Height : DoubleProperty("height", "px", PIXELS_IN_POINT)
-object MinHeight : DoubleProperty("min-height", "px", PIXELS_IN_POINT)
-object LineHeight : DoubleProperty("line-height", POINTS_IN_LINES)
-object TextIndent : DoubleProperty("text-indent", "px", PIXELS_IN_POINT)
+object Width : DoubleProperty("width", "px", Constants.PIXELS_IN_POINT)
+object MinWidth : DoubleProperty("min-width", "px", Constants.PIXELS_IN_POINT)
+object Height : DoubleProperty("height", "px", Constants.PIXELS_IN_POINT)
+object MinHeight : DoubleProperty("min-height", "px", Constants.PIXELS_IN_POINT)
+object LineHeight : BigIntegerProperty("line-height", Constants.POINTS_IN_LINES)
+object TextIndent : BigIntegerProperty("text-indent", "px", Constants.PIXELS_IN_POINT)
 object Hyphens : Property<Boolean?>("hyphens", { if (it == true) "auto" else "none" })
 object TextTransform : Property<Boolean?>("text-transform", { if (it == true) "uppercase" else null })
-object LetterSpacing : DoubleProperty("letter-spacing", "px", PIXELS_IN_POINT)
+object LetterSpacing : DoubleProperty("letter-spacing", "px", Constants.PIXELS_IN_POINT)
 
 object TextAlign : Property<JcEnumeration>(
     "text-align",

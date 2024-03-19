@@ -7,7 +7,7 @@ import normativecontrol.core.contexts.VerificationContext
  * Parent class for any object handler that verifies and renders docx4j objects.
  * For correct registration use with [EagerInitialization] annotation.
  *
- * @sample ru.maeasoftworks.normativecontrol.core.implementations.predefined.JAXBElementHandler
+ * @sample normativecontrol.core.implementations.predefined.JAXBElementHandler
  * @constructor Registers extending class to mapper container.
  * @param handlerConfig handler configuration created by [HandlerConfig.create].
  * @param T type of object that will be handled by this handler.
