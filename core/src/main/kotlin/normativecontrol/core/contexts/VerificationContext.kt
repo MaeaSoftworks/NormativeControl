@@ -1,17 +1,17 @@
 package normativecontrol.core.contexts
 
+import normativecontrol.core.abstractions.Pointer
+import normativecontrol.core.abstractions.Profile
+import normativecontrol.core.abstractions.chapters.Chapter
+import normativecontrol.core.abstractions.chapters.ChapterHeader
+import normativecontrol.core.abstractions.mistakes.MistakeReason
+import normativecontrol.core.abstractions.states.AbstractGlobalState
+import normativecontrol.core.abstractions.states.State
+import normativecontrol.core.utils.PropertyResolver
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage
 import org.docx4j.openpackaging.parts.WordprocessingML.CommentsPart
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
 import org.docx4j.wml.*
-import normativecontrol.core.abstractions.*
-import normativecontrol.core.abstractions.chapters.Chapter
-import normativecontrol.core.abstractions.chapters.ChapterHeader
-import normativecontrol.core.abstractions.states.AbstractGlobalState
-import normativecontrol.core.abstractions.states.State
-import normativecontrol.core.abstractions.mistakes.MistakeReason
-import normativecontrol.core.abstractions.states.PointerState
-import normativecontrol.core.utils.PropertyResolver
 import java.math.BigInteger
 import java.util.*
 

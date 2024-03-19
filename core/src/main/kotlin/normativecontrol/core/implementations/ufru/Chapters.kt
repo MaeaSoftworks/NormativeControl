@@ -6,7 +6,7 @@ enum class Chapters(
     override val names: Array<String>,
     override val shouldBeVerified: Boolean,
     override val nextChapters: (() -> Array<Chapter>)? = null
-): Chapter {
+) : Chapter {
     FrontPage(
         arrayOf("ТИТУЛЬНЫЙ ЛИСТ"),
         false,

@@ -1,6 +1,5 @@
 package normativecontrol.core.abstractions
 
-import kotlin.collections.ArrayDeque
 import kotlin.math.max
 
 class Pointer {

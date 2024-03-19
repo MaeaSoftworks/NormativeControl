@@ -19,7 +19,7 @@ data class Job(
     val htmlName: String
         get() = jobConfiguration.resultHtml
 
-    constructor(properties: AMQP.BasicProperties, body: ByteArray?): this(
+    constructor(properties: AMQP.BasicProperties, body: ByteArray?) : this(
         properties,
         body?.let { String(it) } ?: throw NullPointerException("Job ${properties.correlationId} had empty body"),
         exceptionToNullable { Json.decodeFromString<JobConfiguration>(String(body)) }

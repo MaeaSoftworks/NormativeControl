@@ -2,7 +2,6 @@ package normativecontrol.core.html
 
 import normativecontrol.core.contexts.VerificationContext
 import normativecontrol.core.css.Style
-import normativecontrol.core.css.Stylesheet
 import java.io.Serializable
 
 context(VerificationContext)

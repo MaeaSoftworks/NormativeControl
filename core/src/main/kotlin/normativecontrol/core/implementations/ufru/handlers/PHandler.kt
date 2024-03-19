@@ -1,9 +1,5 @@
 package normativecontrol.core.implementations.ufru.handlers
 
-import org.docx4j.TextUtils
-import org.docx4j.wml.Lvl
-import org.docx4j.wml.NumberFormat
-import org.docx4j.wml.P
 import normativecontrol.core.abstractions.chapters.Chapter
 import normativecontrol.core.abstractions.chapters.ChapterHeader
 import normativecontrol.core.abstractions.handlers.Handler
@@ -11,19 +7,27 @@ import normativecontrol.core.abstractions.handlers.HandlerConfig
 import normativecontrol.core.abstractions.handlers.HandlerMapper
 import normativecontrol.core.abstractions.states.PointerState
 import normativecontrol.core.abstractions.states.State
-import normativecontrol.core.annotations.EagerInitialization
-import normativecontrol.core.contexts.VerificationContext
-import normativecontrol.core.implementations.ufru.*
 import normativecontrol.core.abstractions.verifier
 import normativecontrol.core.abstractions.verifyBy
+import normativecontrol.core.annotations.EagerInitialization
+import normativecontrol.core.contexts.VerificationContext
 import normativecontrol.core.html.br
 import normativecontrol.core.html.createPageStyle
 import normativecontrol.core.html.p
+import normativecontrol.core.implementations.ufru.Chapters
+import normativecontrol.core.implementations.ufru.Reason
 import normativecontrol.core.implementations.ufru.UrFUProfile
 import normativecontrol.core.implementations.ufru.UrFUProfile.globalState
-import normativecontrol.core.math.*
-import normativecontrol.core.utils.resolvedPPr
+import normativecontrol.core.implementations.ufru.describeState
+import normativecontrol.core.math.abs
+import normativecontrol.core.math.asTwip
+import normativecontrol.core.math.cm
 import normativecontrol.core.utils.flatMap
+import normativecontrol.core.utils.resolvedPPr
+import org.docx4j.TextUtils
+import org.docx4j.wml.Lvl
+import org.docx4j.wml.NumberFormat
+import org.docx4j.wml.P
 import org.slf4j.LoggerFactory
 import java.math.BigInteger
 
@@ -200,6 +204,7 @@ object PHandler : Handler<P, PHandler.PState>(
                         else -> if (abs(value - 1.25.cm) <= 0.01.cm) mistake(Reason.IncorrectFirstLineIndentInHeader, value.double.toString(), "0")
                     }
                 }
+
                 PointerState.Text -> if (abs(value - 1.25.cm) >= 0.01.cm) mistake(Reason.IncorrectFirstLineIndentInText, value.double.toString(), "1.25")
                 PointerState.UnderPicture -> TODO()
                 PointerState.PictureDescription -> TODO()

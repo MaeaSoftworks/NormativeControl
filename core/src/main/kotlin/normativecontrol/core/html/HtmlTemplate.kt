@@ -1,9 +1,9 @@
 package normativecontrol.core.html
 
-import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
 import normativecontrol.core.abstractions.mistakes.MistakeSerializer
 import normativecontrol.core.contexts.VerificationContext
 import normativecontrol.core.utils.lazySerializable
+import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
 
 context(VerificationContext)
 fun htmlTemplate(doc: MainDocumentPart?, mistakes: MistakeSerializer) = html {

@@ -1,13 +1,13 @@
 package normativecontrol.core
 
 import normativecontrol.core.abstractions.Profile
-import org.docx4j.openpackaging.packages.WordprocessingMLPackage
-import org.reflections.Reflections
-import org.slf4j.LoggerFactory
 import normativecontrol.core.abstractions.chapters.ChapterHeader
 import normativecontrol.core.abstractions.handlers.HandlerMapper
 import normativecontrol.core.annotations.EagerInitialization
 import normativecontrol.core.contexts.VerificationContext
+import org.docx4j.openpackaging.packages.WordprocessingMLPackage
+import org.reflections.Reflections
+import org.slf4j.LoggerFactory
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 

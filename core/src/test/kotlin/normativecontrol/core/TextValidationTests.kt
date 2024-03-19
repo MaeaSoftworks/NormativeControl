@@ -6,7 +6,7 @@ import io.kotest.matchers.sequences.shouldHaveCount
 import io.kotest.matchers.shouldBe
 import normativecontrol.core.implementations.ufru.handlers.TextHandler
 
-class TextValidationTests: ShouldSpec({
+class TextValidationTests : ShouldSpec({
     context("references") {
         val text = """
         Разрешено использовать только внутритекстовые ссылки на литературу.

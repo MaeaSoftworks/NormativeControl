@@ -12,7 +12,7 @@ import java.io.Closeable
 import java.io.File
 import java.net.URI
 
-object S3: Closeable {
+object S3 : Closeable {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     private val region: String by environment.variable("nc_s3_region")

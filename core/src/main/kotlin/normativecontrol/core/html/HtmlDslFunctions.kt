@@ -1,8 +1,8 @@
 package normativecontrol.core.html
 
-import org.intellij.lang.annotations.Language
 import normativecontrol.core.contexts.VerificationContext
 import normativecontrol.core.css.Stylesheet
+import org.intellij.lang.annotations.Language
 
 @HtmlDsl
 inline fun css(body: Stylesheet.Builder.() -> Unit): Stylesheet {

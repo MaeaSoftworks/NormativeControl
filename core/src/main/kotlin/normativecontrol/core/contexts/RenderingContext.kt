@@ -1,14 +1,14 @@
 package normativecontrol.core.contexts
 
-import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
 import normativecontrol.core.abstractions.mistakes.MistakeSerializer
+import normativecontrol.core.css.Rule
+import normativecontrol.core.css.Stylesheet
 import normativecontrol.core.html.HtmlElement
 import normativecontrol.core.html.createPageStyle
 import normativecontrol.core.html.div
 import normativecontrol.core.html.htmlTemplate
-import normativecontrol.core.css.Rule
-import normativecontrol.core.css.Stylesheet
 import normativecontrol.core.implementations.ufru.UrFUProfile.globalState
+import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
 
 context(VerificationContext)
 class RenderingContext(doc: MainDocumentPart?) {

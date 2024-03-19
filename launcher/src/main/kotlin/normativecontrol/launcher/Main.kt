@@ -6,7 +6,7 @@ import normativecontrol.launcher.client.Client
 
 fun main(args: Array<String>) {
     val configuration = BootConfiguration(args)
-    when(configuration.bootMode) {
+    when (configuration.bootMode) {
         is BootMode.Lambda -> Lambda(configuration.bootMode.configuration).run()
         is BootMode.Client -> Client().run()
         is BootMode.Help -> configuration.printHelp("core [OPTION]...")

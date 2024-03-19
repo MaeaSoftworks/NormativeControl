@@ -1,7 +1,7 @@
 package normativecontrol.core.css
 
-import org.jetbrains.annotations.Contract
 import normativecontrol.core.contexts.VerificationContext
+import org.jetbrains.annotations.Contract
 
 class Style(
     val classes: MutableList<String> = mutableListOf(),

@@ -16,7 +16,7 @@ data class ChapterConfiguration(
             get() = ChapterConfiguration(emptyMap(), emptyMap(), emptyMap())
 
         @OptIn(ExperimentalStdlibApi::class)
-        inline fun <reified T> create(): ChapterConfiguration where T: Enum<T>, T: Chapter {
+        inline fun <reified T> create(): ChapterConfiguration where T : Enum<T>, T : Chapter {
             val calculatedNames = mutableMapOf<Chapter, Array<String>>()
             val calculatedHeaders = mutableMapOf<String, Chapter>()
             val calculatedOrder = mutableMapOf<Chapter, Array<Chapter>?>()

@@ -3,7 +3,7 @@ package normativecontrol.launcher.utils
 object Interruptable
 
 context(Interruptable)
-class Interruption private constructor(): Exception() {
+class Interruption private constructor() : Exception() {
     companion object {
         fun interrupt(): Nothing {
             throw with(Interruptable) { Interruption() }

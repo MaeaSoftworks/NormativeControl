@@ -16,7 +16,7 @@ interface AbstractEnvironmentVariable<T> {
     operator fun getValue(obj: Any, property: KProperty<*>): T
 }
 
-class EnvironmentVariable(private val path: String): AbstractEnvironmentVariable<String> {
+class EnvironmentVariable(private val path: String) : AbstractEnvironmentVariable<String> {
     private var value: String? = null
 
     override operator fun getValue(obj: Any, property: KProperty<*>): String {
@@ -27,7 +27,7 @@ class EnvironmentVariable(private val path: String): AbstractEnvironmentVariable
     }
 }
 
-class EnvironmentVariableNullable(private val path: String): AbstractEnvironmentVariable<String?> {
+class EnvironmentVariableNullable(private val path: String) : AbstractEnvironmentVariable<String?> {
     private var value: String? = null
     private var initialized = false
 

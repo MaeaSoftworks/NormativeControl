@@ -2,7 +2,7 @@ package normativecontrol.core.implementations.ufru
 
 import normativecontrol.core.abstractions.mistakes.MistakeReason
 
-enum class Reason(override val description: String): MistakeReason {
+enum class Reason(override val description: String) : MistakeReason {
     PAGE_WIDTH_IS_INCORRECT("Некорректная высота страницы"),
     PAGE_HEIGHT_IS_INCORRECT("Некорректная ширина страницы"),
     PAGE_MARGIN_TOP_IS_INCORRECT("Некорректный верхний отступ страницы"),

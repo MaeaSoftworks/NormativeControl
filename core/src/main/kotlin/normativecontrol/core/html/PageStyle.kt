@@ -1,9 +1,9 @@
 package normativecontrol.core.html
 
-import org.docx4j.wml.SectPr
 import normativecontrol.core.contexts.VerificationContext
 import normativecontrol.core.css.Style
 import normativecontrol.core.implementations.ufru.UrFUProfile.globalState
+import org.docx4j.wml.SectPr
 
 context(VerificationContext)
 fun createPageStyle(sectPr: SectPr?): String {

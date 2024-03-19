@@ -1,8 +1,8 @@
 package normativecontrol.core.utils
 
+import normativecontrol.core.contexts.VerificationContext
 import org.docx4j.w14.*
 import org.docx4j.wml.*
-import normativecontrol.core.contexts.VerificationContext
 
 @JvmInline
 @Suppress("unused")

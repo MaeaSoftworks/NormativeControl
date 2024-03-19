@@ -7,7 +7,6 @@ import com.rabbitmq.client.Envelope
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import normativecontrol.core.Document
-import normativecontrol.core.contexts.VerificationContext
 import normativecontrol.core.implementations.ufru.UrFUProfile
 import normativecontrol.launcher.client.messages.JobResult
 import normativecontrol.launcher.utils.*
@@ -15,11 +14,11 @@ import org.slf4j.LoggerFactory
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 
-class JobConsumer(channel: Channel): DefaultConsumer(channel) {
+class JobConsumer(channel: Channel) : DefaultConsumer(channel) {
     override fun handleDelivery(consumerTag: String, envelope: Envelope, properties: AMQP.BasicProperties, body: ByteArray?) = proceedJob(Job(properties, body))
 
     private fun proceedJob(job: Job) = interruptable {
-        logger.debug { "Received job '${job.properties.correlationId}' with body: ${ Json.encodeToString(job.jobConfiguration) }" }
+        logger.debug { "Received job '${job.properties.correlationId}' with body: ${Json.encodeToString(job.jobConfiguration)}" }
 
         val source = S3.getObject(job.source).interruptIfNullWith { job.interrupt("ERROR", "Error during document downloading") }
 
@@ -47,7 +46,7 @@ class JobConsumer(channel: Channel): DefaultConsumer(channel) {
         reply(status, description)
     }
 
-    private fun Job.reply(status: String, description: String? = null)  {
+    private fun Job.reply(status: String, description: String? = null) {
         logger.debug {
             description.let {
                 if (description != null) "Job ${properties.correlationId}: $status: $description"

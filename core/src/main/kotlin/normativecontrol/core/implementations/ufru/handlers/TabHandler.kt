@@ -1,15 +1,15 @@
 package normativecontrol.core.implementations.ufru.handlers
 
-import org.docx4j.wml.R.Tab
 import normativecontrol.core.abstractions.handlers.Handler
 import normativecontrol.core.abstractions.handlers.HandlerConfig
 import normativecontrol.core.annotations.EagerInitialization
 import normativecontrol.core.contexts.VerificationContext
 import normativecontrol.core.html.create
 import normativecontrol.core.implementations.ufru.UrFUProfile
+import org.docx4j.wml.R.Tab
 
 @EagerInitialization
-object TabHandler: Handler<Tab, Nothing>(
+object TabHandler : Handler<Tab, Nothing>(
     HandlerConfig.create {
         setTarget<Tab>()
         setHandler { TabHandler }

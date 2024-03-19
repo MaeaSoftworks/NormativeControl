@@ -1,14 +1,14 @@
 package normativecontrol.core.implementations.ufru.handlers
 
-import org.docx4j.TextUtils
-import org.docx4j.wml.Text
 import normativecontrol.core.abstractions.handlers.Handler
 import normativecontrol.core.abstractions.handlers.HandlerConfig
 import normativecontrol.core.annotations.EagerInitialization
 import normativecontrol.core.contexts.VerificationContext
-import normativecontrol.core.implementations.ufru.UrFUProfile
 import normativecontrol.core.html.span
+import normativecontrol.core.implementations.ufru.UrFUProfile
 import normativecontrol.core.implementations.ufru.UrFUProfile.globalState
+import org.docx4j.TextUtils
+import org.docx4j.wml.Text
 
 @EagerInitialization
 object TextHandler : Handler<Text, Nothing>(
@@ -59,7 +59,7 @@ object TextHandler : Handler<Text, Nothing>(
         return refs.map {
             val r = removeAndMatchRanges.findAll(it)
             for (matchResult in r) {
-                ranges += matchResult.groups[1]!!.value.toInt() .. matchResult.groups[2]!!.value.toInt()
+                ranges += matchResult.groups[1]!!.value.toInt()..matchResult.groups[2]!!.value.toInt()
             }
             removeAndMatchRanges.replace(it, "")
         } to ranges
