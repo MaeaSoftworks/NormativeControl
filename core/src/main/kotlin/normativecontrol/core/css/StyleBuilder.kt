@@ -1,11 +1,8 @@
 package normativecontrol.core.css
 
-import normativecontrol.core.configurations.VerificationConfiguration
 import normativecontrol.core.contexts.VerificationContext
 
 object StyleBuilder {
-    private val forceStyleInlining by lazy { VerificationConfiguration.forceStyleInlining }
-
     context(VerificationContext, Style)
     infix fun <T> Property<T>.set(value: T?) {
         if (value != null) {
@@ -23,7 +20,7 @@ object StyleBuilder {
 
     context(VerificationContext, Style)
     private fun addRule(rule: Rule) {
-        if (forceStyleInlining || noInline) {
+        if (profile.verificationConfiguration.forceStyleInlining || noInline) {
             rules.add(rule)
             return
         }

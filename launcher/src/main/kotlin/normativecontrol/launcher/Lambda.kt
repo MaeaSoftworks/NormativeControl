@@ -1,8 +1,6 @@
 package normativecontrol.launcher
 
 import normativecontrol.core.Document
-import normativecontrol.core.configurations.VerificationConfiguration
-import normativecontrol.core.contexts.VerificationContext
 import normativecontrol.core.implementations.ufru.UrFUProfile
 import java.awt.Desktop
 import java.io.ByteArrayOutputStream
@@ -14,9 +12,7 @@ class Lambda(private val configuration: Configuration) {
     fun run() {
         val file = File(configuration.source)
 
-        VerificationConfiguration.initialize { forceStyleInlining = false }
-
-        Document(VerificationContext(UrFUProfile)).apply {
+        Document(UrFUProfile).apply {
             load(file.inputStream())
             runVerification()
             val stream = ByteArrayOutputStream()

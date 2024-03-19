@@ -1,11 +1,13 @@
 package normativecontrol.core.configurations
 
+import normativecontrol.core.abstractions.chapters.ChapterConfiguration
 import normativecontrol.core.utils.lateinitVal
 
-object VerificationConfiguration {
-    var forceStyleInlining: Boolean by lateinitVal()
+class VerificationConfiguration {
+    var chapterConfiguration: ChapterConfiguration by lateinitVal()
+    var forceStyleInlining: Boolean by lateinitVal(false)
 
-    inline fun initialize(fn: VerificationConfiguration.() -> Unit) {
-        fn.invoke(VerificationConfiguration)
+    inline fun initialize(fn: VerificationConfiguration.() -> Unit): VerificationConfiguration {
+        return VerificationConfiguration().apply(fn)
     }
 }

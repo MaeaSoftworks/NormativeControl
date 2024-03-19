@@ -11,6 +11,7 @@ fun <T> verifier(verification: context(VerificationContext) (T?) -> Unit): Verif
 
 context(VerificationContext)
 infix fun <T> T?.verifyBy(verifier: Verifier<T>): T? {
+    if (!chapter.shouldBeVerified) return this
     verifier.verification(this@VerificationContext, this)
     return this
 }

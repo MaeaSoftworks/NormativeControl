@@ -124,7 +124,7 @@ object PHandler : Handler<P, PHandler.PState>(
 
     context(VerificationContext)
     override fun isHeader(element: Any): Boolean {
-        return profile.chapterConfiguration.headers.containsKey(TextUtils.getText(element as P).trim())
+        return profile.verificationConfiguration.chapterConfiguration.headers.containsKey(TextUtils.getText(element as P).trim())
     }
 
     context(VerificationContext)
@@ -133,14 +133,14 @@ object PHandler : Handler<P, PHandler.PState>(
         if (isChapterBodyHeader(text)) {
             return Chapters.Body
         }
-        for (keys in 0 until profile.chapterConfiguration.headers.size) {
-            for ((title, chapter) in profile.chapterConfiguration.headers) {
+        for (keys in 0 until profile.verificationConfiguration.chapterConfiguration.headers.size) {
+            for ((title, chapter) in profile.verificationConfiguration.chapterConfiguration.headers) {
                 if (text.uppercase() == title) {
                     return chapter
                 }
             }
         }
-        if (profile.chapterConfiguration.names[Chapters.Appendix]?.any { text.uppercase().startsWith(it) } == true) {
+        if (profile.verificationConfiguration.chapterConfiguration.names[Chapters.Appendix]?.any { text.uppercase().startsWith(it) } == true) {
             return Chapters.Appendix
         }
         return Chapter.Undefined
@@ -152,19 +152,20 @@ object PHandler : Handler<P, PHandler.PState>(
             mistake(
                 Reason.UndefinedChapterFound,
                 target.names.first(),
-                profile.chapterConfiguration
+                profile.verificationConfiguration
+                    .chapterConfiguration
                     .getNextChapters(lastDefinedChapter)
-                    .flatMap { profile.chapterConfiguration.names[it]!! }
+                    .flatMap { profile.verificationConfiguration.chapterConfiguration.names[it]!! }
                     .joinToString("/")
             )
         } else {
-            if (!profile.chapterConfiguration.getNextChapters(lastDefinedChapter).contains(target)) {
+            if (!profile.verificationConfiguration.chapterConfiguration.getNextChapters(lastDefinedChapter).contains(target)) {
                 mistake(
                     Reason.ChapterOrderMismatch,
-                    profile.chapterConfiguration.names[target]!!.joinToString("/"),
-                    profile.chapterConfiguration
+                    profile.verificationConfiguration.chapterConfiguration.names[target]!!.joinToString("/"),
+                    profile.verificationConfiguration.chapterConfiguration
                         .getNextChapters(lastDefinedChapter)
-                        .flatMap { profile.chapterConfiguration.names[it]!! }
+                        .flatMap { profile.verificationConfiguration.chapterConfiguration.names[it]!! }
                         .joinToString("/")
                 )
             }

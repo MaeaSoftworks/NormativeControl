@@ -1,5 +1,6 @@
 package normativecontrol.core
 
+import normativecontrol.core.abstractions.Profile
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage
 import org.reflections.Reflections
 import org.slf4j.LoggerFactory
@@ -10,8 +11,9 @@ import normativecontrol.core.contexts.VerificationContext
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 
-class Document(val ctx: VerificationContext) {
+class Document(profile: Profile) {
     private lateinit var mlPackage: WordprocessingMLPackage
+    val ctx = VerificationContext(profile)
 
     fun load(stream: InputStream) {
         mlPackage = WordprocessingMLPackage.load(stream)

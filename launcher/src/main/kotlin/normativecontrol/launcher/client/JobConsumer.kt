@@ -23,7 +23,7 @@ class JobConsumer(channel: Channel): DefaultConsumer(channel) {
 
         val source = S3.getObject(job.source).interruptIfNullWith { job.interrupt("ERROR", "Error during document downloading") }
 
-        val document = Document(VerificationContext(UrFUProfile))
+        val document = Document(UrFUProfile)
         document.load(ByteArrayInputStream(source))
 
         interruptOnAnyException({ job.interrupt("ERROR", "Error during document verification") }) {

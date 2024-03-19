@@ -2,8 +2,9 @@ package normativecontrol.core.utils
 
 import kotlin.reflect.KProperty
 
-class LateInitReadonlyDelegate<V>(private var value: V? = null) {
+class LateInitReadonlyDelegate<V>(defaultValue: V? = null) {
     private var initialized = false
+    private var value: V? = defaultValue
 
     operator fun <T : Any> getValue(target: T, property: KProperty<*>): V {
         return value!!
@@ -18,4 +19,4 @@ class LateInitReadonlyDelegate<V>(private var value: V? = null) {
     }
 }
 
-fun <V> lateinitVal(value: V? = null) = LateInitReadonlyDelegate(value)
+fun <V> lateinitVal(defaultValue: V? = null) = LateInitReadonlyDelegate(defaultValue)
