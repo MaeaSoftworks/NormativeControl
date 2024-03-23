@@ -51,6 +51,6 @@ class JobRunnable(private val jobData: JobData): Runnable {
     }
 
     companion object {
-        private val logger = LoggerFactory.getLogger(this::class.java)
+        private val logger = LoggerFactory.getLogger(JobRunnable::class.java)
     }
 }
