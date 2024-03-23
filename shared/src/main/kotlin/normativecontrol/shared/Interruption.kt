@@ -1,58 +1,70 @@
 package normativecontrol.shared
 
-object Interruptable
+/**
+ * Context for all actions that can be interrupted.
+ */
+object InterruptableContext
 
-context(Interruptable)
+/**
+ * Function that can be interrupted by [Interrupter] or [Interruption.interrupt].
+ */
+typealias Interruptable = context(InterruptableContext) () -> Unit
+
+/**
+ * Exception class for interruption. Should be used only in [InterruptableContext].
+ */
+context(InterruptableContext)
 class Interruption private constructor() : Exception() {
     companion object {
+
+        /**
+         * Throws new [Interruption]. Can be called only from [InterruptableContext].
+         */
         fun interrupt(): Nothing {
-            throw with(Interruptable) { Interruption() }
+            throw with(InterruptableContext) { Interruption() }
         }
     }
 }
 
-@JvmInline
-value class Interrupter(val call: () -> Nothing)
+/**
+ * Function that should interrupt [Interruptable].
+ */
+typealias Interrupter = () -> Nothing
 
-inline fun interrupter(crossinline fn: () -> Unit): Interrupter {
-    return Interrupter {
-        fn()
+/**
+ * Creates a new [Interrupter].
+ * @param action will be executed before interruption.
+ * @return new [Interrupter] function.
+ */
+inline fun interrupter(crossinline action: () -> Unit): Interrupter {
+    return {
+        action()
         Interruption.interrupt()
     }
 }
 
-inline fun <T> interruptable(fn: context(Interruptable) () -> T) {
+/**
+ * Starts [interruptable] function and stops when it was interrupted.
+ * @param interruptable function that can be interrupted by [Interrupter].
+ */
+inline fun interruptable(interruptable: Interruptable) {
     try {
-        fn(Interruptable)
+        interruptable(InterruptableContext)
     } catch (e: Interruption) {
         return
     }
 }
 
-context(Interruptable)
-fun <T> T?.interruptIfNullWith(interrupter: Interrupter): T {
-    return this ?: run { interrupter.call() }
+context(InterruptableContext)
+inline fun <T> T?.interruptIfNullWith(lazyInterrupter: () -> Interrupter): T {
+    return this ?: run { lazyInterrupter().invoke() }
 }
 
-context(Interruptable)
-fun <T> T?.interruptIfNullWith(lazyInterrupter: () -> Interrupter): T {
-    return this ?: run { lazyInterrupter().call() }
-}
-
-context(Interruptable)
+context(InterruptableContext)
 inline fun <T> interruptOnAnyException(lazyInterrupter: () -> Interrupter, body: () -> T): T {
     return try {
         body()
     } catch (e: Exception) {
-        lazyInterrupter().call()
-    }
-}
-
-context(Interruptable)
-inline fun <T> interruptOnAnyException(interrupter: Interrupter, body: () -> T): T {
-    return try {
-        body()
-    } catch (e: Exception) {
-        interrupter.call()
+        lazyInterrupter().invoke()
     }
 }
