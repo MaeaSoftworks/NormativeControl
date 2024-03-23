@@ -1,2 +1,2 @@
 rootProject.name = "normative-control-core"
-include("core", "launcher")
+include("core", "launcher", "shared")

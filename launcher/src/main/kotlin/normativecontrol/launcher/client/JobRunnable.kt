@@ -5,7 +5,7 @@ import kotlinx.serialization.json.Json
 import normativecontrol.core.Document
 import normativecontrol.core.implementations.ufru.UrFUProfile
 import normativecontrol.launcher.client.messages.JobResult
-import normativecontrol.launcher.utils.*
+import normativecontrol.shared.*
 import org.slf4j.LoggerFactory
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream

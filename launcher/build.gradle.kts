@@ -13,6 +13,7 @@ application {
 
 dependencies {
     implementation(project(":core"))
+    implementation(project(":shared"))
 
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.7.3")

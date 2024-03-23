@@ -1,8 +1,8 @@
-package normativecontrol.core.utils
+package normativecontrol.shared
 
 import kotlin.reflect.KProperty
 
-class LateInitReadonlyDelegate<V>(defaultValue: V? = null) {
+class ReadonlyLateInit<V>(defaultValue: V? = null) {
     private var initialized = false
     private var value: V? = defaultValue
 
@@ -19,4 +19,4 @@ class LateInitReadonlyDelegate<V>(defaultValue: V? = null) {
     }
 }
 
-fun <V> lateinitVal(defaultValue: V? = null) = LateInitReadonlyDelegate(defaultValue)
+fun <V> lateinitVal(defaultValue: V? = null) = ReadonlyLateInit(defaultValue)

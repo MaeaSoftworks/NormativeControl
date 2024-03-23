@@ -3,7 +3,7 @@ package normativecontrol.launcher.client
 import com.rabbitmq.client.AMQP
 import kotlinx.serialization.json.Json
 import normativecontrol.launcher.client.messages.JobConfiguration
-import normativecontrol.launcher.utils.exceptionToNullable
+import normativecontrol.shared.exceptionToNullable
 
 data class JobData(
     val properties: AMQP.BasicProperties,

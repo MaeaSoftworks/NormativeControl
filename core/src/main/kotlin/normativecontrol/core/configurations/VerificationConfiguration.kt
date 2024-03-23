@@ -1,7 +1,7 @@
 package normativecontrol.core.configurations
 
 import normativecontrol.core.abstractions.chapters.ChapterConfiguration
-import normativecontrol.core.utils.lateinitVal
+import normativecontrol.shared.lateinitVal
 
 class VerificationConfiguration {
     var chapterConfiguration: ChapterConfiguration by lateinitVal()

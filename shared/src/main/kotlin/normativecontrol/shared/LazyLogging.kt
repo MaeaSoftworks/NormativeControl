@@ -1,4 +1,4 @@
-package normativecontrol.launcher.utils
+package normativecontrol.shared
 
 import org.slf4j.Logger
 

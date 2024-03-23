@@ -6,6 +6,7 @@ plugins {
 java.sourceCompatibility = JavaVersion.VERSION_20
 
 dependencies {
+    implementation(project(":shared"))
     implementation(kotlin("reflect"))
     implementation("org.reflections:reflections:0.10.2")
     implementation("org.docx4j:docx4j-JAXB-ReferenceImpl:11.4.10")

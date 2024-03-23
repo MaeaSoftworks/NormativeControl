@@ -51,6 +51,7 @@ object PHandler : Handler<P, PHandler.PState>(
     override fun handle(element: Any) {
         element as P
         val pPr = element.resolvedPPr
+        state.currentText = TextUtils.getText(element)
 
         if (element.pPr?.sectPr != null) {
             render.pageBreak(-1, createPageStyle(element.pPr.sectPr))
@@ -132,7 +133,7 @@ object PHandler : Handler<P, PHandler.PState>(
 
     context(VerificationContext)
     override fun checkChapterStart(element: Any): Chapter? {
-        val text = TextUtils.getText(element as P).trim().uppercase()
+        val text = state.currentText.trim().uppercase()
         return profile.verificationConfiguration.chapterConfiguration.headers[text] ?: if (isChapterBodyHeader(text)) Chapters.Body else null
     }
 
@@ -223,6 +224,7 @@ object PHandler : Handler<P, PHandler.PState>(
         override val key: State.Key = Companion
 
         var currentListConfig: ListConfig? = null
+        var currentText: String = ""
 
         data class ListConfig(
             val isOrdered: Boolean
