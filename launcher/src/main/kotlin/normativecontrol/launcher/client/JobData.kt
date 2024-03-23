@@ -5,7 +5,7 @@ import kotlinx.serialization.json.Json
 import normativecontrol.launcher.client.messages.JobConfiguration
 import normativecontrol.launcher.utils.exceptionToNullable
 
-data class Job(
+data class JobData(
     val properties: AMQP.BasicProperties,
     val message: String,
     val jobConfiguration: JobConfiguration

@@ -1,6 +1,8 @@
 package normativecontrol.launcher.client
 
 import normativecontrol.launcher.cli.environment.environment
+import normativecontrol.launcher.cli.environment.optionalVariable
+import normativecontrol.launcher.cli.environment.variable
 import org.slf4j.LoggerFactory
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials
 import software.amazon.awssdk.core.sync.RequestBody
@@ -15,14 +17,14 @@ import java.net.URI
 object S3 : Closeable {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
-    private val region: String by environment.variable("nc_s3_region")
-    private val bucket: String by environment.variable("nc_s3_bucket")
-    private val endpoint: String by environment.variable("nc_s3_endpoint")
-    private val accessKeyId: String? by environment.optionalVariable("nc_s3_access_key_id")
-    private val secretAccessKey: String? by environment.optionalVariable("nc_s3_secret_key_id")
+    private val region = environment.variable("nc_s3_region")
+    private val bucket = environment.variable("nc_s3_bucket")
+    private val endpoint = environment.variable("nc_s3_endpoint")
+    private val accessKeyId = environment.optionalVariable("nc_s3_access_key_id")
+    private val secretAccessKey = environment.optionalVariable("nc_s3_secret_key_id")
 
-    private val accessKeyIdFile: String? by environment.optionalVariable("nc_s3_access_key_id_file")
-    private val secretAccessKeyFile: String? by environment.optionalVariable("nc_s3_secret_key_id_file")
+    private val accessKeyIdFile = environment.optionalVariable("nc_s3_access_key_id_file")
+    private val secretAccessKeyFile = environment.optionalVariable("nc_s3_secret_key_id_file")
 
     private val s3Client: S3Client
 
