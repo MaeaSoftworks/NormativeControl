@@ -151,7 +151,7 @@ object PHandler : Handler<P, PHandler.PState>(
     }
 
     object Rules {
-        val leftIndent = verifier<BigInteger> {
+        val leftIndent = verifier<BigInteger?> {
             if (isHeader) {
                 if (it != null && it.asTwip().cm != 0.0.cm) mistake(Reason.LeftIndentOnHeader)
             } else {
@@ -159,7 +159,7 @@ object PHandler : Handler<P, PHandler.PState>(
             }
         }
 
-        val rightIndent = verifier<BigInteger> {
+        val rightIndent = verifier<BigInteger?> {
             if (isHeader) {
                 if (it != null && it.asTwip().cm != 0.0.cm) mistake(Reason.RightIndentOnHeader)
             } else {
@@ -167,32 +167,41 @@ object PHandler : Handler<P, PHandler.PState>(
             }
         }
 
-        val firstLineIndent = verifier<BigInteger> {
+        val firstLineIndent = verifier<BigInteger?> {
             val value = it?.asTwip()?.cm ?: 0.0.cm
             when (describeState()) {
                 PointerState.Header -> {
                     when (chapter) {
-                        Chapters.Body -> if (abs(value - 1.25.cm) >= 0.01.cm) mistake(Reason.IncorrectFirstLineIndentInHeader, value.double.toString(), "1.25")
-                        else -> if (abs(value - 1.25.cm) <= 0.01.cm) mistake(Reason.IncorrectFirstLineIndentInHeader, value.double.toString(), "0")
+                        Chapters.Body -> {
+                            if (abs(value - 1.25.cm) >= 0.01.cm)
+                                mistake(Reason.IncorrectFirstLineIndentInHeader, value.double.toString(), "1.25")
+                        }
+                        else -> {
+                            if (abs(value - 1.25.cm) <= 0.01.cm)
+                                mistake(Reason.IncorrectFirstLineIndentInHeader, value.double.toString(), "0")
+                        }
                     }
                 }
 
-                PointerState.Text -> if (abs(value - 1.25.cm) >= 0.01.cm) mistake(Reason.IncorrectFirstLineIndentInText, value.double.toString(), "1.25")
+                PointerState.Text -> {
+                    if (abs(value - 1.25.cm) >= 0.01.cm)
+                        mistake(Reason.IncorrectFirstLineIndentInText, value.double.toString(), "1.25")
+                }
                 PointerState.UnderPicture -> TODO()
                 PointerState.PictureDescription -> TODO()
                 else -> Unit
             }
         }
 
-        val spacingBefore = verifier<BigInteger> {
+        val spacingBefore = verifier<BigInteger?> {
 
         }
 
-        val spacingAfter = verifier<BigInteger> {
+        val spacingAfter = verifier<BigInteger?> {
 
         }
 
-        val spacingLine = verifier<Spacing> {
+        val spacingLine = verifier<Spacing?> {
             val line = it?.line?.asPointsToLine() ?: 0.0
             when (describeState()) {
                 PointerState.Header -> {
