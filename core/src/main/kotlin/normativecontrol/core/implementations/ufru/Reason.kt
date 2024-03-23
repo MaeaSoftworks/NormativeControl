@@ -105,6 +105,7 @@ enum class Reason(override val description: String) : MistakeReason {
     ReferenceNotMentionedInText("Не найдено ссылок для этого источника. Если они есть, убедитесь, что ссылки соответствуют правилам оформления. Методические указания, п. 6.10"),
     LeftIndentOnHeader("Обнаружен отступ слева у заголовка раздела."),
     LeftIndentOnText("Обнаружен отступ слева у текста."),
+    LeftIndentOnPictureDescription("Обнаружен отступ слева у подписи рисунка."),
     RightIndentOnHeader("Обнаружен отступ справа у заголовка раздела."),
     RightIndentOnText("Обнаружен отступ справа у текста."),
     IncorrectFirstLineIndentInText("Неверный отступ первой строки у текста"),

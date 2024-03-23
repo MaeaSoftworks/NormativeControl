@@ -4,6 +4,5 @@ enum class PointerState {
     Header,
     UnderHeader,
     Text,
-    UnderPicture,
     PictureDescription
 }

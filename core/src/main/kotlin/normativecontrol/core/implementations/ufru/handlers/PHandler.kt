@@ -25,6 +25,8 @@ import normativecontrol.core.math.asTwip
 import normativecontrol.core.math.cm
 import normativecontrol.core.utils.flatMap
 import normativecontrol.core.utils.resolvedPPr
+import normativecontrol.shared.Interruption
+import normativecontrol.shared.interrupter
 import org.docx4j.TextUtils
 import org.docx4j.wml.Lvl
 import org.docx4j.wml.NumberFormat
@@ -152,15 +154,33 @@ object PHandler : Handler<P, PHandler.PState>(
     }
 
     object Rules {
+        context(VerificationContext)
+        private fun interruptIfIsEmpty() {
+            if (state.currentText.isBlank()) {
+                Interruption.interrupt()
+            }
+        }
+
         val leftIndent = verifier<BigInteger?> {
-            if (isHeader) {
-                if (it != null && it.asTwip().cm != 0.0.cm) mistake(Reason.LeftIndentOnHeader)
-            } else {
-                if (it != null && it.asTwip().cm != 0.0.cm) mistake(Reason.LeftIndentOnText)
+            interruptIfIsEmpty()
+            when(describeState()) {
+                PointerState.Header -> {
+                    if (it != null && it.asTwip().cm != 0.0.cm) mistake(Reason.LeftIndentOnHeader)
+                }
+                PointerState.UnderHeader -> {
+                    return@verifier
+                }
+                PointerState.Text -> {
+                    if (it != null && it.asTwip().cm != 0.0.cm) mistake(Reason.LeftIndentOnText)
+                }
+                PointerState.PictureDescription -> {
+                    if (it != null && it.asTwip().cm != 0.0.cm) mistake(Reason.LeftIndentOnPictureDescription)
+                }
             }
         }
 
         val rightIndent = verifier<BigInteger?> {
+            interruptIfIsEmpty()
             if (isHeader) {
                 if (it != null && it.asTwip().cm != 0.0.cm) mistake(Reason.RightIndentOnHeader)
             } else {
@@ -169,6 +189,7 @@ object PHandler : Handler<P, PHandler.PState>(
         }
 
         val firstLineIndent = verifier<BigInteger?> {
+            interruptIfIsEmpty()
             val value = it?.asTwip()?.cm ?: 0.0.cm
             when (describeState()) {
                 PointerState.Header -> {
@@ -188,7 +209,6 @@ object PHandler : Handler<P, PHandler.PState>(
                     if (abs(value - 1.25.cm) >= 0.01.cm)
                         mistake(Reason.IncorrectFirstLineIndentInText, value.double.toString(), "1.25")
                 }
-                PointerState.UnderPicture -> TODO()
                 PointerState.PictureDescription -> TODO()
                 else -> Unit
             }
@@ -214,7 +234,6 @@ object PHandler : Handler<P, PHandler.PState>(
                     if (it?.lineRule == STLineSpacingRule.AUTO && abs(line - 1.5) >= 0.001)
                         mistake(Reason.IncorrectLineSpacingText, line.toString(), "1.5")
                 }
-                PointerState.UnderPicture -> TODO()
                 PointerState.PictureDescription -> TODO()
             }
         }
