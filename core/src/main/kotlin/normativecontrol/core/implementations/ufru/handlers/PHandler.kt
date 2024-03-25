@@ -53,7 +53,6 @@ object PHandler : Handler<P, PHandler.PState>(
     override fun handle(element: Any) {
         element as P
         val pPr = element.resolvedPPr
-        state.currentText = TextUtils.getText(element)
 
         if (element.pPr?.sectPr != null) {
             render.pageBreak(-1, createPageStyle(element.pPr.sectPr))
@@ -71,12 +70,12 @@ object PHandler : Handler<P, PHandler.PState>(
                 textAlign set pPr.jc?.`val`
                 backgroundColor set pPr.shd?.fill
                 hyphens set pPr.suppressAutoHyphens?.isVal.let { if (it == true) true else null }
-                pPr.resolvedNumberingStyle?.let { handleListElement(element, it) } ?: run { state.currentListConfig = null }
             }
             if (element.content.isEmpty()) {
                 addChild(br())
             }
         }
+        pPr.resolvedNumberingStyle?.let { handleListElement(element, it) } ?: run { state.currentListConfig = null }
         render.inLastElementScope {
             element.iterate { child, _ ->
                 HandlerMapper[profile, child]?.handle(child)
@@ -135,7 +134,7 @@ object PHandler : Handler<P, PHandler.PState>(
 
     context(VerificationContext)
     override fun checkChapterStart(element: Any): Chapter? {
-        val text = state.currentText.trim().uppercase()
+        val text = state.getText(element).trim().uppercase()
         return profile.verificationConfiguration.chapterConfiguration.headers[text] ?: if (isChapterBodyHeader(text)) Chapters.Body else null
     }
 
@@ -156,7 +155,7 @@ object PHandler : Handler<P, PHandler.PState>(
     object Rules {
         context(VerificationContext)
         private fun interruptIfIsEmpty() {
-            if (state.currentText.isBlank()) {
+            if (state.currentText!!.isBlank()) {
                 Interruption.interrupt()
             }
         }
@@ -204,12 +203,14 @@ object PHandler : Handler<P, PHandler.PState>(
                         }
                     }
                 }
-
                 PointerState.Text -> {
                     if (abs(value - 1.25.cm) >= 0.01.cm)
                         mistake(Reason.IncorrectFirstLineIndentInText, value.double.toString(), "1.25")
                 }
-                PointerState.PictureDescription -> TODO()
+                PointerState.PictureDescription -> {
+                    if (abs(value - 1.25.cm) <= 0.01.cm)
+                        mistake(Reason.IncorrectFirstLineIndentInHeader, value.double.toString(), "0")
+                }
                 else -> Unit
             }
         }
@@ -243,7 +244,19 @@ object PHandler : Handler<P, PHandler.PState>(
         override val key: State.Key = Companion
 
         var currentListConfig: ListConfig? = null
-        var currentText: String = ""
+        var currentText: String? = null
+            private set
+
+        override fun reset() {
+            currentText = null
+        }
+
+        fun getText(element: Any): String {
+            if (currentText == null) {
+                currentText = TextUtils.getText(element)
+            }
+            return currentText!!
+        }
 
         data class ListConfig(
             val isOrdered: Boolean

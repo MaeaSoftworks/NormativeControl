@@ -4,4 +4,6 @@ interface State {
     val key: Key
 
     interface Key
+
+    fun reset() { }
 }

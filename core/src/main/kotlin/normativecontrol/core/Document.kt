@@ -37,6 +37,7 @@ class Document(profile: Profile) {
                     }
                 }
                 handler.handle(element)
+                handler.state.reset()
             }
         }
     }
