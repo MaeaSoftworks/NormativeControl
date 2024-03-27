@@ -1,5 +1,7 @@
-package normativecontrol.launcher.client
+package normativecontrol.launcher.client.components
 
+import normativecontrol.launcher.client.JobRunnable
+import normativecontrol.launcher.client.messages.Job
 import java.io.Closeable
 import java.util.concurrent.Executors
 
@@ -11,8 +13,8 @@ object JobPool: Closeable {
         ApplicationFinalizer.add(this)
     }
 
-    fun run(jobData: JobData) {
-        executor.submit(JobRunnable(jobData))
+    fun run(job: Job) {
+        executor.submit(JobRunnable(job))
     }
 
     override fun close() {

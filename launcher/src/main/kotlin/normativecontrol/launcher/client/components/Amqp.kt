@@ -1,11 +1,11 @@
-package normativecontrol.launcher.client
+package normativecontrol.launcher.client.components
 
 import com.rabbitmq.client.*
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import normativecontrol.launcher.cli.environment.environment
 import normativecontrol.launcher.cli.environment.variable
+import normativecontrol.launcher.client.messages.Job
+import normativecontrol.shared.warn
 import org.slf4j.LoggerFactory
 import java.io.Closeable
 
@@ -29,17 +29,6 @@ object Amqp : Closeable {
         jobConsumer = JobConsumer(channel)
     }
 
-    fun send(queueName: String, correlationId: String, body: String) {
-        channel.basicPublish(
-            "",
-            queueName,
-            AMQP.BasicProperties.Builder().correlationId(correlationId).build(),
-            body.toByteArray()
-        )
-    }
-
-    inline fun <reified T> send(queueName: String, correlationId: String, body: @Serializable T) = send(queueName, correlationId, Json.encodeToString(body))
-
     fun listen() {
         channel.queueDeclare(queueName, true, false, false, null)
         channel.basicConsume(queueName, true, JobConsumer(channel))
@@ -53,7 +42,22 @@ object Amqp : Closeable {
 
     private class JobConsumer(channel: Channel) : DefaultConsumer(channel) {
         override fun handleDelivery(consumerTag: String, envelope: Envelope, properties: AMQP.BasicProperties, body: ByteArray?) {
-            JobPool.run(JobData(properties, body))
+            if (body == null) return
+
+            val message = try {
+                String(body)
+            } catch (e: Exception) {
+                logger.warn { "Message body was not a string" }
+                return
+            }
+
+            val job: Job = try {
+                Json.decodeFromString(message)
+            } catch (e: Exception) {
+                logger.warn { "Unrecognized message body: $message" }
+                return
+            }
+            JobPool.run(job)
         }
     }
 }

@@ -1,4 +1,4 @@
-package normativecontrol.launcher.client
+package normativecontrol.launcher.client.components
 
 import org.slf4j.LoggerFactory
 import java.io.Closeable
@@ -8,7 +8,7 @@ object ApplicationFinalizer {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     init {
-        Runtime.getRuntime().addShutdownHook(Thread(::close, "finalizer"))
+        Runtime.getRuntime().addShutdownHook(Thread(ApplicationFinalizer::close, "finalizer"))
     }
 
     fun add(closeable: Closeable) {

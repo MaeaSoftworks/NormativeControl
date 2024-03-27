@@ -2,6 +2,7 @@ plugins {
     application
     id("com.github.johnrengelman.shadow") version ("8.1.1")
     kotlin("jvm") version "1.9.22"
+    id("com.google.devtools.ksp") version "1.9.22-1.0.16"
     id("org.jetbrains.kotlin.plugin.serialization") version "1.9.22"
 }
 
@@ -15,11 +16,17 @@ dependencies {
     implementation(project(":core"))
     implementation(project(":shared"))
 
+    implementation(kotlin("reflect"))
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.7.3")
 
     implementation("org.apache.logging.log4j:log4j-api:2.23.0")
     implementation("org.apache.logging.log4j:log4j-core:2.23.0")
+
+    ksp("org.komapper:komapper-processor")
+    ksp(platform("org.komapper:komapper-platform:1.15.0"))
+    implementation("org.komapper:komapper-starter-jdbc")
+    implementation(platform("org.komapper:komapper-platform:1.15.0"))
 
     implementation("software.amazon.awssdk:s3:2.21.37")
 
@@ -30,8 +37,18 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.23.0")
 
     implementation("com.rabbitmq:amqp-client:5.20.0")
+
+    runtimeOnly("org.komapper:komapper-dialect-postgresql-jdbc")
 }
 
 tasks.getByName<Test>("test") {
     useJUnitPlatform()
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+    kotlinOptions.freeCompilerArgs += listOf("-opt-in=org.komapper.annotation.KomapperExperimentalAssociation")
+}
+
+ksp {
+    arg("komapper.enableEntityMetamodelListing", "true")
 }

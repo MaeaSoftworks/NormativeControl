@@ -1,4 +1,4 @@
-package normativecontrol.launcher.client
+package normativecontrol.launcher.client.components
 
 import normativecontrol.launcher.cli.environment.environment
 import normativecontrol.launcher.cli.environment.optionalVariable
