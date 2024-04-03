@@ -37,4 +37,13 @@ abstract class Handler<T, S : State>(private val handlerConfig: HandlerConfig<T,
                 ?: handlerConfig.state?.invoke()?.also { states[key] = it }
                 ?: throw UnsupportedOperationException("This object does not define any State")
         }
+
+    context(VerificationContext)
+    @Suppress("UNCHECKED_CAST")
+    val nullableState: S?
+        get() {
+            val key = handlerConfig.stateKey ?: return null
+            return states[key] as? S
+                ?: handlerConfig.state?.invoke()?.also { states[key] = it }
+        }
 }

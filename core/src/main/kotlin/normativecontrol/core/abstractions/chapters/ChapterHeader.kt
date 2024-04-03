@@ -3,12 +3,6 @@ package normativecontrol.core.abstractions.chapters
 import normativecontrol.core.contexts.VerificationContext
 
 interface ChapterHeader {
-    val headerRegex: Regex
-
-    fun isChapterBodyHeader(text: String): Boolean {
-        return text.matches(headerRegex)
-    }
-
     context(VerificationContext)
     fun checkChapterStart(element: Any): Chapter?
 

@@ -5,6 +5,7 @@ import normativecontrol.core.abstractions.chapters.ChapterHeader
 import normativecontrol.core.abstractions.handlers.Handler
 import normativecontrol.core.abstractions.handlers.HandlerConfig
 import normativecontrol.core.abstractions.handlers.HandlerMapper
+import normativecontrol.core.abstractions.mistakes.MistakeReason
 import normativecontrol.core.abstractions.states.PointerState
 import normativecontrol.core.abstractions.states.State
 import normativecontrol.core.abstractions.verifier
@@ -47,7 +48,7 @@ object PHandler : Handler<P, PHandler.PState>(
     }
 ), ChapterHeader {
     private val logger = LoggerFactory.getLogger(this::class.java)
-    override val headerRegex = Regex("""^(\d+(?:\.\d)*)\s*.*$""")
+    private val headerRegex = Regex("""^(\d+(?:\.\d)*)\s*.*$""")
 
     context(VerificationContext)
     override fun handle(element: Any) {
@@ -132,10 +133,26 @@ object PHandler : Handler<P, PHandler.PState>(
         }
     }
 
+    private fun isChapterBodyHeader(text: String): Boolean {
+        return text.matches(headerRegex)
+    }
+
+    private fun isAppendixHeader(text: String): Boolean {
+        return Chapters.Appendix.prefixes?.any { text.startsWith(it) } == true
+    }
+
     context(VerificationContext)
     override fun checkChapterStart(element: Any): Chapter? {
         val text = state.getText(element).trim().uppercase()
-        return profile.verificationConfiguration.chapterConfiguration.headers[text] ?: if (isChapterBodyHeader(text)) Chapters.Body else null
+        val result = profile.verificationConfiguration.chapterConfiguration.headers[text]
+        if (result != null) return result
+        if (isChapterBodyHeader(text)) {
+           return Chapters.Body
+        }
+        if (isAppendixHeader(text)) {
+            return Chapters.Appendix
+        }
+        return null
     }
 
     context(VerificationContext)
@@ -144,7 +161,7 @@ object PHandler : Handler<P, PHandler.PState>(
         if (target !in nextChapters) {
             mistake(
                 Reason.ChapterOrderMismatch,
-                target.names.joinToString("/"),
+                target.names?.joinToString("/"),
                 nextChapters.flatMap { profile.verificationConfiguration.chapterConfiguration.names[it]!! }.joinToString("/")
             )
         }

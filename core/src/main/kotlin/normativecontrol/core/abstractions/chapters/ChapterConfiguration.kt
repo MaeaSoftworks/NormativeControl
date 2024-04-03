@@ -22,8 +22,8 @@ data class ChapterConfiguration(
             val calculatedOrder = mutableMapOf<Chapter, Array<Chapter>?>()
 
             enumEntries<T>().forEach { chapter ->
-                calculatedNames[chapter] = chapter.names
-                chapter.names.forEach {
+                chapter.names?.let { calculatedNames[chapter] = it }
+                chapter.names?.forEach {
                     calculatedHeaders += it to chapter
                 }
                 chapter.nextChapters.let { if (it != null) calculatedOrder[chapter] = it() }

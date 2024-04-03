@@ -5,6 +5,8 @@ import normativecontrol.core.abstractions.chapters.ChapterHeader
 import normativecontrol.core.abstractions.handlers.HandlerMapper
 import normativecontrol.core.annotations.EagerInitialization
 import normativecontrol.core.contexts.VerificationContext
+import normativecontrol.shared.debug
+import org.docx4j.TextUtils
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage
 import org.reflections.Reflections
 import org.slf4j.LoggerFactory
@@ -28,6 +30,7 @@ class Document(profile: Profile) {
                 if (handler is ChapterHeader) {
                     val chapter = handler.checkChapterStart(element)
                     if (chapter != null) {
+                        logger.debug { "Header '${TextUtils.getText(element)}' - $chapter" }
                         isHeader = true
                         sinceHeader = 0
                         handler.checkChapterOrderAndUpdateContext(chapter)
@@ -37,7 +40,7 @@ class Document(profile: Profile) {
                     }
                 }
                 handler.handle(element)
-                handler.state.reset()
+                handler.nullableState?.reset()
             }
         }
     }
@@ -47,23 +50,19 @@ class Document(profile: Profile) {
     }
 
     companion object {
-        private var isLoaded = false
         private val logger = LoggerFactory.getLogger(Document::class.java)
 
         init {
-            if (!isLoaded) {
-                isLoaded = true
-                val packageName = this::class.java.`package`.name
-                logger.info("Searching handlers at '$packageName'...")
-                val start = System.currentTimeMillis()
-                val initialized = Reflections(packageName).getTypesAnnotatedWith(EagerInitialization::class.java)
-                initialized.forEach {
-                    it.kotlin.objectInstance
-                }
-                val end = System.currentTimeMillis()
-                logger.info("Loaded handlers: [${initialized.joinToString { it.simpleName }}]")
-                logger.info("Loading was done in ${end - start} ms")
+            val packageName = this::class.java.`package`.name
+            logger.info("Searching handlers at '$packageName'...")
+            val start = System.currentTimeMillis()
+            val initialized = Reflections(packageName).getTypesAnnotatedWith(EagerInitialization::class.java)
+            initialized.forEach {
+                it.kotlin.objectInstance
             }
+            val end = System.currentTimeMillis()
+            logger.info("Loaded handlers: [${initialized.joinToString { it.simpleName }}]")
+            logger.info("Loading was done in ${end - start} ms")
         }
     }
 }

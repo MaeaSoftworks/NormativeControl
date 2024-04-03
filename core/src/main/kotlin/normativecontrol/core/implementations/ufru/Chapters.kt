@@ -3,66 +3,65 @@ package normativecontrol.core.implementations.ufru
 import normativecontrol.core.abstractions.chapters.Chapter
 
 enum class Chapters(
-    override val names: Array<String>,
-    override val shouldBeVerified: Boolean,
-    override val nextChapters: (() -> Array<Chapter>)? = null
+    override val names: Array<String>? = null,
+    override val nextChapters: (() -> Array<Chapter>)? = null,
+    override val prefixes: Array<String>? = null,
+    override val shouldBeVerified: Boolean = true
 ) : Chapter {
     FrontPage(
         arrayOf("ТИТУЛЬНЫЙ ЛИСТ"),
-        false,
-        { arrayOf(Annotation) }
+        { arrayOf(Annotation) },
+        shouldBeVerified = false
     ),
 
     Annotation(
         arrayOf("РЕФЕРАТ"),
-        false,
-        { arrayOf(Contents) }
+        { arrayOf(Contents) },
+        shouldBeVerified = false
     ),
 
     Contents(
         arrayOf("СОДЕРЖАНИЕ", "ОГЛАВЛЕНИЕ"),
-        false,
-        { arrayOf(Definitions, Abbreviations, Introduction) }
+        { arrayOf(Definitions, Abbreviations, Introduction) },
+        shouldBeVerified = false
     ),
 
     Definitions(
         arrayOf("ТЕРМИНЫ И ОПРЕДЕЛЕНИЯ"),
-        false,
-        { arrayOf(Abbreviations, Introduction) }
+        { arrayOf(Abbreviations, Introduction) },
+        shouldBeVerified = false
     ),
 
     Abbreviations(
         arrayOf("ПЕРЕЧЕНЬ СОКРАЩЕНИЙ И ОБОЗНАЧЕНИЙ"),
-        false,
-        { arrayOf(Introduction) }
+        { arrayOf(Introduction) },
+        shouldBeVerified = false
     ),
 
     Introduction(
         arrayOf("ВВЕДЕНИЕ"),
-        true,
         { arrayOf(Body) }
     ),
 
     Body(
         arrayOf("ОСНОВНОЙ РАЗДЕЛ"),
-        true,
         { arrayOf(Conclusion, Body) }
     ),
 
     Conclusion(
         arrayOf("ЗАКЛЮЧЕНИЕ"),
-        true,
         { arrayOf(References) }
     ),
 
     References(
         arrayOf("БИБЛИОГРАФИЧЕСКИЙ СПИСОК", "СПИСОК ИСПОЛЬЗОВАННОЙ ЛИТЕРАТУРЫ", "СПИСОК ЛИТЕРАТУРЫ", "СПИСОК ИСТОЧНИКОВ"),
-        false,
-        { arrayOf(Appendix, References) }
+        { arrayOf(Appendix, References) },
+        shouldBeVerified = false
     ),
 
     Appendix(
         arrayOf("ПРИЛОЖЕНИЕ"),
-        false
+        prefixes = arrayOf("ПРИЛОЖЕНИЕ"),
+        shouldBeVerified = false
     )
 }

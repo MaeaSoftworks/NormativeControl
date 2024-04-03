@@ -19,7 +19,7 @@ object TextHandler : Handler<Text, Nothing>(
     }
 ) {
     private val inBrackets = """\[(.*?)]""".toRegex()
-    private val removePages = """,\s*[сС]\.(?:.*)*""".toRegex()
+    private val removePages = """,\s*С\.(?:.*)*""".toRegex()
     private val removeAndMatchRanges = """(\d+)\s*-\s*(\d+)""".toRegex()
     private val matchReference = """(\d+)""".toRegex()
 
