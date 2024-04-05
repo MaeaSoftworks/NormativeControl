@@ -23,11 +23,6 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-api:2.23.0")
     implementation("org.apache.logging.log4j:log4j-core:2.23.0")
 
-    ksp("org.komapper:komapper-processor")
-    ksp(platform("org.komapper:komapper-platform:1.15.0"))
-    implementation("org.komapper:komapper-starter-jdbc")
-    implementation(platform("org.komapper:komapper-platform:1.15.0"))
-
     implementation("software.amazon.awssdk:s3:2.21.37")
 
     implementation("commons-cli:commons-cli:1.6.0")
@@ -38,7 +33,7 @@ dependencies {
 
     implementation("com.rabbitmq:amqp-client:5.20.0")
 
-    runtimeOnly("org.komapper:komapper-dialect-postgresql-jdbc")
+    runtimeOnly("org.postgresql:postgresql:42.7.3")
 }
 
 tasks.getByName<Test>("test") {

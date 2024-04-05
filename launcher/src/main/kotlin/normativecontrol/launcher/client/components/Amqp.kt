@@ -57,7 +57,7 @@ object Amqp : Closeable {
                 logger.warn { "Unrecognized message body: $message" }
                 return
             }
-            JobPool.run(job)
+            JobPool.instance.run(job)
         }
     }
 }

@@ -22,7 +22,7 @@ class BootConfiguration(args: Array<String>) {
         } else if (cli.hasOption(BootOptions.Help.option)) {
             BootMode.Help
         } else {
-            BootMode.Client
+            BootMode.Client(cli.hasOption(BootOptions.Blocking.option))
         }
     }
 
