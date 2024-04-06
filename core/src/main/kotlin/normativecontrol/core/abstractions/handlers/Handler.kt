@@ -13,10 +13,7 @@ import normativecontrol.core.contexts.VerificationContext
  * @param T type of object that will be handled by this handler.
  * @param S type of [State] of handler. Pass [Nothing] if handler don't need it.
  */
-abstract class Handler<T, S : State>(private val handlerConfig: HandlerConfig<T, S>) {
-    init {
-        HandlerMapper.map(handlerConfig)
-    }
+abstract class Handler<T, S, F>(private val stateFactory: F? = null) where S : State, F: State.Factory<S>, F : State.Key {
 
     /**
      * Handles the given element: verification & rendering.
@@ -32,18 +29,16 @@ abstract class Handler<T, S : State>(private val handlerConfig: HandlerConfig<T,
     @Suppress("UNCHECKED_CAST")
     val state: S
         get() {
-            val key = handlerConfig.stateKey ?: throw UnsupportedOperationException("This object does not define any State")
-            return states[key] as? S
-                ?: handlerConfig.state?.invoke()?.also { states[key] = it }
-                ?: throw UnsupportedOperationException("This object does not define any State")
+            val key = stateFactory ?: throw UnsupportedOperationException("This object does not define any State")
+            return (states[key] ?: stateFactory.build().also { states[key] = it }) as? S
+            ?: throw UnsupportedOperationException("This object does not define any State")
         }
 
     context(VerificationContext)
     @Suppress("UNCHECKED_CAST")
     val nullableState: S?
         get() {
-            val key = handlerConfig.stateKey ?: return null
-            return states[key] as? S
-                ?: handlerConfig.state?.invoke()?.also { states[key] = it }
+            val key = stateFactory ?: return null
+            return (states[key] ?: stateFactory.build().also { states[key] = it }) as? S
         }
 }

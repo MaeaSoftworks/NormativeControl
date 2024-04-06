@@ -20,7 +20,7 @@ object StyleBuilder {
 
     context(VerificationContext, Style)
     private fun addRule(rule: Rule) {
-        if (profile.verificationConfiguration.forceStyleInlining || noInline) {
+        if (configuration.verificationConfiguration.forceStyleInlining || noInline) {
             rules.add(rule)
             return
         }

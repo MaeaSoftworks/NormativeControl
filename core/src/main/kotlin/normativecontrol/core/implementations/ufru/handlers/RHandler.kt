@@ -1,24 +1,14 @@
 package normativecontrol.core.implementations.ufru.handlers
 
 import normativecontrol.core.abstractions.handlers.Handler
-import normativecontrol.core.abstractions.handlers.HandlerConfig
 import normativecontrol.core.abstractions.handlers.HandlerMapper
-import normativecontrol.core.annotations.EagerInitialization
 import normativecontrol.core.contexts.VerificationContext
 import normativecontrol.core.html.span
-import normativecontrol.core.implementations.ufru.UrFUProfile
-import normativecontrol.core.implementations.ufru.UrFUProfile.globalState
+import normativecontrol.core.implementations.ufru.UrFUConfiguration.globalState
 import normativecontrol.core.utils.resolvedRPr
 import org.docx4j.wml.R
 
-@EagerInitialization
-object RHandler : Handler<R, Nothing>(
-    HandlerConfig.create {
-        setHandler { RHandler }
-        setTarget<R>()
-        setProfile(UrFUProfile)
-    }
-) {
+object RHandler : Handler<R, Nothing, Nothing>() {
     context(VerificationContext)
     override fun handle(element: Any) {
         element as R
@@ -40,7 +30,7 @@ object RHandler : Handler<R, Nothing>(
         }
         render.inLastElementScope {
             element.content.forEach {
-                HandlerMapper[profile, it]?.handle(it)
+                HandlerMapper[configuration, it]?.handle(it)
             }
         }
     }

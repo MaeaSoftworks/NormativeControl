@@ -2,7 +2,7 @@ package normativecontrol.core.html
 
 import normativecontrol.core.contexts.VerificationContext
 import normativecontrol.core.css.Style
-import normativecontrol.core.implementations.ufru.UrFUProfile.globalState
+import normativecontrol.core.implementations.ufru.UrFUConfiguration.globalState
 import org.docx4j.wml.SectPr
 
 context(VerificationContext)

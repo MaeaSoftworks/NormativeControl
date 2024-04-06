@@ -1,7 +1,7 @@
 package normativecontrol.launcher
 
 import normativecontrol.core.Document
-import normativecontrol.core.implementations.ufru.UrFUProfile
+import normativecontrol.core.implementations.ufru.UrFUConfiguration
 import java.awt.Desktop
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -12,7 +12,7 @@ class Lambda(private val configuration: Configuration) {
     fun run() {
         val file = File(configuration.source)
 
-        Document(UrFUProfile).apply {
+        Document(UrFUConfiguration).apply {
             load(file.inputStream())
             runVerification()
             val stream = ByteArrayOutputStream()

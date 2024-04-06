@@ -1,9 +1,11 @@
 package normativecontrol.core.abstractions.states
 
 interface State {
-    val key: Key
+    fun reset() { }
 
     interface Key
 
-    fun reset() { }
+    interface Factory<T: State> {
+        fun build(): State
+    }
 }
