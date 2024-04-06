@@ -2,11 +2,12 @@ package normativecontrol.launcher.client.components
 
 import normativecontrol.launcher.client.messages.Job
 import normativecontrol.shared.info
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.Closeable
 
 class JobPool(isBlocking: Boolean) : Closeable {
-    val logger = LoggerFactory.getLogger(this::class.java)
+    private val logger: Logger = LoggerFactory.getLogger(this::class.java)
     private val runner: Runner
 
     init {
