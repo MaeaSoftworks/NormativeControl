@@ -1,6 +1,5 @@
 package normativecontrol.core.utils
 
-
 inline fun <T> timer(out: (String) -> Unit, body: () -> T): T {
     val start = System.currentTimeMillis()
     val result = body()

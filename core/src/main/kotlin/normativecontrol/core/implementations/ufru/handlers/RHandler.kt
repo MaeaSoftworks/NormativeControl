@@ -1,9 +1,8 @@
 package normativecontrol.core.implementations.ufru.handlers
 
-import normativecontrol.core.abstractions.handlers.Handler
-import normativecontrol.core.abstractions.handlers.HandlerConfig
+import normativecontrol.core.abstractions.handlers.AbstractHandler
 import normativecontrol.core.abstractions.handlers.HandlerMapper
-import normativecontrol.core.annotations.EagerInitialization
+import normativecontrol.core.annotations.Handler
 import normativecontrol.core.contexts.VerificationContext
 import normativecontrol.core.html.span
 import normativecontrol.core.implementations.ufru.UrFUConfiguration
@@ -11,14 +10,8 @@ import normativecontrol.core.implementations.ufru.UrFUConfiguration.globalState
 import normativecontrol.core.utils.resolvedRPr
 import org.docx4j.wml.R
 
-@EagerInitialization
-object RHandler : Handler<R, Nothing>(
-    HandlerConfig.create {
-        setHandler { RHandler }
-        setTarget<R>()
-        setProfile(UrFUConfiguration)
-    }
-) {
+@Handler(R::class, UrFUConfiguration::class)
+object RHandler : AbstractHandler() {
     context(VerificationContext)
     override fun handle(element: Any) {
         element as R

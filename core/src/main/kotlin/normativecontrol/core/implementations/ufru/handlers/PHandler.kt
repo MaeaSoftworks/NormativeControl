@@ -2,14 +2,13 @@ package normativecontrol.core.implementations.ufru.handlers
 
 import normativecontrol.core.abstractions.chapters.Chapter
 import normativecontrol.core.abstractions.chapters.ChapterHeader
-import normativecontrol.core.abstractions.handlers.Handler
-import normativecontrol.core.abstractions.handlers.HandlerConfig
+import normativecontrol.core.abstractions.handlers.AbstractHandler
 import normativecontrol.core.abstractions.handlers.HandlerMapper
 import normativecontrol.core.abstractions.states.PointerState
 import normativecontrol.core.abstractions.states.State
 import normativecontrol.core.abstractions.verifier
 import normativecontrol.core.abstractions.verifyBy
-import normativecontrol.core.annotations.EagerInitialization
+import normativecontrol.core.annotations.Handler
 import normativecontrol.core.contexts.VerificationContext
 import normativecontrol.core.html.br
 import normativecontrol.core.html.createPageStyle
@@ -32,21 +31,16 @@ import org.docx4j.wml.NumberFormat
 import org.docx4j.wml.P
 import org.docx4j.wml.PPrBase.Spacing
 import org.docx4j.wml.STLineSpacingRule
-import org.slf4j.LoggerFactory
 import java.math.BigInteger
 import kotlin.math.abs
 
-@EagerInitialization
-object PHandler : Handler<P, PHandler.PState>(
-    HandlerConfig.create {
-        setTarget<P>()
-        setState(PState) { PState() }
-        setHandler { PHandler }
-        setProfile(UrFUConfiguration)
-    }
-), ChapterHeader {
-    private val logger = LoggerFactory.getLogger(this::class.java)
+@Handler(P::class, UrFUConfiguration::class, PHandler.PState::class)
+object PHandler : AbstractHandler(), ChapterHeader {
     private val headerRegex = Regex("""^(\d+(?:\.\d)*)\s*.*$""")
+
+    context(VerificationContext)
+    override val state: PState
+        get() = abstractState as PState
 
     context(VerificationContext)
     override fun handle(element: Any) {
@@ -280,6 +274,10 @@ object PHandler : Handler<P, PHandler.PState>(
             var start: Int = -1
         }
 
-        companion object : State.Key
+        companion object : State.Key {
+            override fun createState(): State {
+                return PState()
+            }
+        }
     }
 }

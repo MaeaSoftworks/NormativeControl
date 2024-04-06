@@ -1,5 +1,5 @@
 package normativecontrol.core.annotations
 
-@Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
-annotation class EagerInitialization
+@Target(AnnotationTarget.PROPERTY)
+annotation class StateFactory

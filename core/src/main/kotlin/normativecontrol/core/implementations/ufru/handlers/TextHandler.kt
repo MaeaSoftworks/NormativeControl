@@ -1,8 +1,7 @@
 package normativecontrol.core.implementations.ufru.handlers
 
-import normativecontrol.core.abstractions.handlers.Handler
-import normativecontrol.core.abstractions.handlers.HandlerConfig
-import normativecontrol.core.annotations.EagerInitialization
+import normativecontrol.core.abstractions.handlers.AbstractHandler
+import normativecontrol.core.annotations.Handler
 import normativecontrol.core.contexts.VerificationContext
 import normativecontrol.core.html.span
 import normativecontrol.core.implementations.ufru.UrFUConfiguration
@@ -10,14 +9,8 @@ import normativecontrol.core.implementations.ufru.UrFUConfiguration.globalState
 import org.docx4j.TextUtils
 import org.docx4j.wml.Text
 
-@EagerInitialization
-object TextHandler : Handler<Text, Nothing>(
-    HandlerConfig.create {
-        setHandler { TextHandler }
-        setTarget<Text>()
-        setProfile(UrFUConfiguration)
-    }
-) {
+@Handler(Text::class, UrFUConfiguration::class)
+object TextHandler : AbstractHandler() {
     private val inBrackets = """\[(.*?)]""".toRegex()
     private val removePages = """,\s*С\.(?:.*)*""".toRegex()
     private val removeAndMatchRanges = """(\d+)\s*-\s*(\d+)""".toRegex()

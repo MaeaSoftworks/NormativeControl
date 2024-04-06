@@ -22,26 +22,27 @@ class Document(configuration: Configuration) {
         }
     }
 
-    fun runVerification() = timer({ logger.debug { "Verification: $it ms" } }) {
-        with(ctx) {
-            doc.content.iterate { pos ->
-                val element = doc.content[pos]
-                val handler = HandlerMapper[configuration, element]
-                if (handler != null) {
-                    if (handler is ChapterHeader) {
-                        val chapter = handler.checkChapterStart(element)
-                        if (chapter != null) {
-                            //logger.debug { "Header '${TextUtils.getText(element)}' - $chapter" }
-                            isHeader = true
-                            sinceHeader = 0
-                            handler.checkChapterOrderAndUpdateContext(chapter)
-                        } else {
-                            isHeader = false
-                            sinceHeader++
+    fun runVerification() {
+        timer({ logger.debug { "Verification: $it ms" } }) {
+            with(ctx) {
+                doc.content.iterate { pos ->
+                    val element = doc.content[pos]
+                    val handler = HandlerMapper[configuration, element]
+                    if (handler != null) {
+                        if (handler is ChapterHeader) {
+                            val chapter = handler.checkChapterStart(element)
+                            if (chapter != null) {
+                                isHeader = true
+                                sinceHeader = 0
+                                handler.checkChapterOrderAndUpdateContext(chapter)
+                            } else {
+                                isHeader = false
+                                sinceHeader++
+                            }
                         }
+                        handler.handle(element)
+                        handler.state?.reset()
                     }
-                    handler.handle(element)
-                    handler.nullableState?.reset()
                 }
             }
         }
