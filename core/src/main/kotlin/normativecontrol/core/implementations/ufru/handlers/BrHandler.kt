@@ -4,8 +4,8 @@ import normativecontrol.core.abstractions.handlers.Handler
 import normativecontrol.core.abstractions.handlers.HandlerConfig
 import normativecontrol.core.annotations.EagerInitialization
 import normativecontrol.core.contexts.VerificationContext
-import normativecontrol.core.implementations.ufru.UrFUProfile
-import normativecontrol.core.implementations.ufru.UrFUProfile.globalState
+import normativecontrol.core.implementations.ufru.UrFUConfiguration
+import normativecontrol.core.implementations.ufru.UrFUConfiguration.globalState
 import org.docx4j.wml.Br
 import org.docx4j.wml.STBrType
 
@@ -14,7 +14,7 @@ object BrHandler : Handler<Br, Nothing>(
     HandlerConfig.create {
         setHandler { BrHandler }
         setTarget<Br>()
-        setProfile(UrFUProfile)
+        setProfile(UrFUConfiguration)
     }
 ) {
     context(VerificationContext)

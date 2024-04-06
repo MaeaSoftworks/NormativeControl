@@ -1,7 +1,7 @@
 package normativecontrol.core.contexts
 
 import normativecontrol.core.abstractions.Pointer
-import normativecontrol.core.abstractions.Profile
+import normativecontrol.core.abstractions.Configuration
 import normativecontrol.core.abstractions.chapters.Chapter
 import normativecontrol.core.abstractions.chapters.ChapterHeader
 import normativecontrol.core.abstractions.mistakes.MistakeReason
@@ -15,14 +15,14 @@ import org.docx4j.wml.*
 import java.math.BigInteger
 import java.util.*
 
-class VerificationContext(val profile: Profile) {
+class VerificationContext(val configuration: Configuration) {
     val resolver: PropertyResolver by lazy { PropertyResolver(mlPackage) }
     val render: RenderingContext by lazy { RenderingContext(doc) }
-    var chapter: Chapter = profile.startChapter
+    var chapter: Chapter = configuration.startChapter
     val doc: MainDocumentPart by lazy { mlPackage.mainDocumentPart }
     val states = mutableMapOf<State.Key, State>()
     var mistakeUid: String? = null
-    val globalStateHolder: AbstractGlobalState? = profile.sharedStateFactory?.invoke()
+    val globalStateHolder: AbstractGlobalState? = configuration.sharedStateFactory?.invoke()
     var isHeader = false
     var sinceHeader = -1
 
@@ -33,7 +33,7 @@ class VerificationContext(val profile: Profile) {
             _lastDefinedChapter = value
         }
 
-    private var _lastDefinedChapter: Chapter = profile.startChapter
+    private var _lastDefinedChapter: Chapter = configuration.startChapter
 
     private lateinit var mlPackage: WordprocessingMLPackage
 
@@ -52,7 +52,7 @@ class VerificationContext(val profile: Profile) {
             doc.addTargetPart(this)
         }
         mistakeId = comments.jaxbElement.comment.size.toLong()
-        profile.sharedStateFactory
+        configuration.sharedStateFactory
     }
 
     fun getCurrentElement(): Any? {

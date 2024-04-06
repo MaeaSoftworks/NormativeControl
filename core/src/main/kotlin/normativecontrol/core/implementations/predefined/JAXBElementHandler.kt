@@ -12,12 +12,12 @@ object JAXBElementHandler : Handler<JAXBElement<*>, Nothing>(
     HandlerConfig.create {
         setHandler { JAXBElementHandler }
         setTarget<JAXBElement<*>>()
-        setProfile(BuiltInProfile)
+        setProfile(BuiltInConfiguration)
     }
 ) {
     context(VerificationContext)
     override fun handle(element: Any) {
         element as JAXBElement<*>
-        HandlerMapper[profile, element.value]?.handle(element.value)
+        HandlerMapper[configuration, element.value]?.handle(element.value)
     }
 }

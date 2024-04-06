@@ -15,7 +15,10 @@
         <Logger name="org.docx4j" level="error" additivity="false">
             <AppenderRef ref="Console"/>
         </Logger>
-        <Logger name="org.apache.http" level="warn" additivity="false">
+        <Logger name="org.docx4j" level="error" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+        <Logger name="org.reflections" level="warn" additivity="false">
             <AppenderRef ref="Console"/>
         </Logger>
     </Loggers>

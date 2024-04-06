@@ -5,7 +5,7 @@ import normativecontrol.core.abstractions.states.AbstractGlobalState
 import normativecontrol.core.configurations.VerificationConfiguration
 import normativecontrol.core.contexts.VerificationContext
 
-abstract class Profile(
+abstract class Configuration(
     val startChapter: Chapter,
     val verificationConfiguration: VerificationConfiguration,
     val sharedStateFactory: (() -> AbstractGlobalState?)? = null

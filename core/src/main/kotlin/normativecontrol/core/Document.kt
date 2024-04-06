@@ -1,68 +1,63 @@
 package normativecontrol.core
 
-import normativecontrol.core.abstractions.Profile
+import normativecontrol.core.abstractions.Configuration
 import normativecontrol.core.abstractions.chapters.ChapterHeader
 import normativecontrol.core.abstractions.handlers.HandlerMapper
-import normativecontrol.core.annotations.EagerInitialization
 import normativecontrol.core.contexts.VerificationContext
+import normativecontrol.core.utils.timer
 import normativecontrol.shared.debug
-import org.docx4j.TextUtils
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage
-import org.reflections.Reflections
 import org.slf4j.LoggerFactory
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 
-class Document(profile: Profile) {
+class Document(configuration: Configuration) {
     private lateinit var mlPackage: WordprocessingMLPackage
-    val ctx = VerificationContext(profile)
+    val ctx = VerificationContext(configuration)
 
     fun load(stream: InputStream) {
-        mlPackage = WordprocessingMLPackage.load(stream)
-        ctx.load(mlPackage)
+        timer({ logger.debug { "Unpacking: $it ms" } }) {
+            mlPackage = WordprocessingMLPackage.load(stream)
+            ctx.load(mlPackage)
+        }
     }
 
-    fun runVerification() = with(ctx) {
-        doc.content.iterate { pos ->
-            val element = doc.content[pos]
-            val handler = HandlerMapper[profile, element]
-            if (handler != null) {
-                if (handler is ChapterHeader) {
-                    val chapter = handler.checkChapterStart(element)
-                    if (chapter != null) {
-                        logger.debug { "Header '${TextUtils.getText(element)}' - $chapter" }
-                        isHeader = true
-                        sinceHeader = 0
-                        handler.checkChapterOrderAndUpdateContext(chapter)
-                    } else {
-                        isHeader = false
-                        sinceHeader++
+    fun runVerification() = timer({ logger.debug { "Verification: $it ms" } }) {
+        with(ctx) {
+            doc.content.iterate { pos ->
+                val element = doc.content[pos]
+                val handler = HandlerMapper[configuration, element]
+                if (handler != null) {
+                    if (handler is ChapterHeader) {
+                        val chapter = handler.checkChapterStart(element)
+                        if (chapter != null) {
+                            //logger.debug { "Header '${TextUtils.getText(element)}' - $chapter" }
+                            isHeader = true
+                            sinceHeader = 0
+                            handler.checkChapterOrderAndUpdateContext(chapter)
+                        } else {
+                            isHeader = false
+                            sinceHeader++
+                        }
                     }
+                    handler.handle(element)
+                    handler.nullableState?.reset()
                 }
-                handler.handle(element)
-                handler.nullableState?.reset()
             }
         }
     }
 
     fun writeResult(stream: ByteArrayOutputStream) {
-        mlPackage.save(stream)
+        timer({ logger.debug { "Saving: $it ms" } }) {
+            mlPackage.save(stream)
+        }
     }
 
     companion object {
         private val logger = LoggerFactory.getLogger(Document::class.java)
 
         init {
-            val packageName = this::class.java.`package`.name
-            logger.info("Searching handlers at '$packageName'...")
-            val start = System.currentTimeMillis()
-            val initialized = Reflections(packageName).getTypesAnnotatedWith(EagerInitialization::class.java)
-            initialized.forEach {
-                it.kotlin.objectInstance
-            }
-            val end = System.currentTimeMillis()
-            logger.info("Loaded handlers: [${initialized.joinToString { it.simpleName }}]")
-            logger.info("Loading was done in ${end - start} ms")
+            Loader
         }
     }
 }

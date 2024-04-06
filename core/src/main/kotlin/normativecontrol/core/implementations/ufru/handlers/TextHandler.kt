@@ -5,8 +5,8 @@ import normativecontrol.core.abstractions.handlers.HandlerConfig
 import normativecontrol.core.annotations.EagerInitialization
 import normativecontrol.core.contexts.VerificationContext
 import normativecontrol.core.html.span
-import normativecontrol.core.implementations.ufru.UrFUProfile
-import normativecontrol.core.implementations.ufru.UrFUProfile.globalState
+import normativecontrol.core.implementations.ufru.UrFUConfiguration
+import normativecontrol.core.implementations.ufru.UrFUConfiguration.globalState
 import org.docx4j.TextUtils
 import org.docx4j.wml.Text
 
@@ -15,7 +15,7 @@ object TextHandler : Handler<Text, Nothing>(
     HandlerConfig.create {
         setHandler { TextHandler }
         setTarget<Text>()
-        setProfile(UrFUProfile)
+        setProfile(UrFUConfiguration)
     }
 ) {
     private val inBrackets = """\[(.*?)]""".toRegex()

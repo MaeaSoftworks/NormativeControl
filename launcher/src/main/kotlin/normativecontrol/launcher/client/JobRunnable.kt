@@ -3,7 +3,7 @@ package normativecontrol.launcher.client
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import normativecontrol.core.Document
-import normativecontrol.core.implementations.ufru.UrFUProfile
+import normativecontrol.core.implementations.ufru.UrFUConfiguration
 import normativecontrol.launcher.client.components.Database
 import normativecontrol.launcher.client.components.S3
 import normativecontrol.launcher.client.entities.Result
@@ -20,7 +20,7 @@ class JobRunnable(private val job: Job): Runnable {
 
         val source = S3.getObject(job.source).interruptIfNullWith { job.interrupt(Status.ERROR, "Error during document downloading") }
 
-        val document = Document(UrFUProfile)
+        val document = Document(UrFUConfiguration)
         document.load(ByteArrayInputStream(source))
 
         interruptOnAnyException({ job.interrupt(Status.ERROR, "Error during document verification") }) {

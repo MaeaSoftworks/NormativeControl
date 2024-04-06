@@ -8,12 +8,12 @@ import normativecontrol.core.contexts.VerificationContext
 import normativecontrol.core.html.HtmlElement
 import normativecontrol.core.html.div
 import normativecontrol.core.html.span
-import normativecontrol.core.implementations.ufru.UrFUProfile
+import normativecontrol.core.implementations.ufru.UrFUConfiguration
 
 class RenderingTests : ShouldSpec({
     context("appender") {
         should("append") {
-            with(VerificationContext(UrFUProfile)) {
+            with(VerificationContext(UrFUConfiguration)) {
                 val ctx = RenderingContext(null)
                 ctx.pointer?.type shouldBe HtmlElement.Type.DIV
                 ctx.pointer?.classes!!.shouldContain("page")
@@ -35,7 +35,7 @@ class RenderingTests : ShouldSpec({
 
     context("html element duplication") {
         should("duplicate 1st element at 1") {
-            with(VerificationContext(UrFUProfile)) {
+            with(VerificationContext(UrFUConfiguration)) {
                 val ctx = RenderingContext(null)
                 ctx.currentPage.apply {
                     div { classes += "1" }
@@ -47,7 +47,7 @@ class RenderingTests : ShouldSpec({
         }
 
         should("duplicate 2nd element at 2") {
-            with(VerificationContext(UrFUProfile)) {
+            with(VerificationContext(UrFUConfiguration)) {
                 val ctx = RenderingContext(null)
                 ctx.currentPage.apply {
                     div { classes += "1" }
@@ -64,7 +64,7 @@ class RenderingTests : ShouldSpec({
         }
 
         should("duplicate 1st element without 2nd at 1") {
-            with(VerificationContext(UrFUProfile)) {
+            with(VerificationContext(UrFUConfiguration)) {
                 val ctx = RenderingContext(null)
                 ctx.currentPage.apply {
                     div { classes += "1" }

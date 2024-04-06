@@ -5,7 +5,6 @@ import normativecontrol.core.abstractions.chapters.ChapterHeader
 import normativecontrol.core.abstractions.handlers.Handler
 import normativecontrol.core.abstractions.handlers.HandlerConfig
 import normativecontrol.core.abstractions.handlers.HandlerMapper
-import normativecontrol.core.abstractions.mistakes.MistakeReason
 import normativecontrol.core.abstractions.states.PointerState
 import normativecontrol.core.abstractions.states.State
 import normativecontrol.core.abstractions.verifier
@@ -17,8 +16,8 @@ import normativecontrol.core.html.createPageStyle
 import normativecontrol.core.html.p
 import normativecontrol.core.implementations.ufru.Chapters
 import normativecontrol.core.implementations.ufru.Reason
-import normativecontrol.core.implementations.ufru.UrFUProfile
-import normativecontrol.core.implementations.ufru.UrFUProfile.globalState
+import normativecontrol.core.implementations.ufru.UrFUConfiguration
+import normativecontrol.core.implementations.ufru.UrFUConfiguration.globalState
 import normativecontrol.core.implementations.ufru.describeState
 import normativecontrol.core.math.abs
 import normativecontrol.core.math.asPointsToLine
@@ -27,7 +26,6 @@ import normativecontrol.core.math.cm
 import normativecontrol.core.utils.flatMap
 import normativecontrol.core.utils.resolvedPPr
 import normativecontrol.shared.Interruption
-import normativecontrol.shared.interrupter
 import org.docx4j.TextUtils
 import org.docx4j.wml.Lvl
 import org.docx4j.wml.NumberFormat
@@ -44,7 +42,7 @@ object PHandler : Handler<P, PHandler.PState>(
         setTarget<P>()
         setState(PState) { PState() }
         setHandler { PHandler }
-        setProfile(UrFUProfile)
+        setProfile(UrFUConfiguration)
     }
 ), ChapterHeader {
     private val logger = LoggerFactory.getLogger(this::class.java)
@@ -79,7 +77,7 @@ object PHandler : Handler<P, PHandler.PState>(
         pPr.resolvedNumberingStyle?.let { handleListElement(element, it) } ?: run { state.currentListConfig = null }
         render.inLastElementScope {
             element.iterate { child, _ ->
-                HandlerMapper[profile, child]?.handle(child)
+                HandlerMapper[configuration, child]?.handle(child)
             }
         }
     }
@@ -144,7 +142,7 @@ object PHandler : Handler<P, PHandler.PState>(
     context(VerificationContext)
     override fun checkChapterStart(element: Any): Chapter? {
         val text = state.getText(element).trim().uppercase()
-        val result = profile.verificationConfiguration.chapterConfiguration.headers[text]
+        val result = configuration.verificationConfiguration.chapterConfiguration.headers[text]
         if (result != null) return result
         if (isChapterBodyHeader(text)) {
            return Chapters.Body
@@ -157,12 +155,12 @@ object PHandler : Handler<P, PHandler.PState>(
 
     context(VerificationContext)
     override fun checkChapterOrderAndUpdateContext(target: Chapter) {
-        val nextChapters = profile.verificationConfiguration.chapterConfiguration.getNextChapters(lastDefinedChapter)
+        val nextChapters = configuration.verificationConfiguration.chapterConfiguration.getNextChapters(lastDefinedChapter)
         if (target !in nextChapters) {
             mistake(
                 Reason.ChapterOrderMismatch,
                 target.names?.joinToString("/"),
-                nextChapters.flatMap { profile.verificationConfiguration.chapterConfiguration.names[it]!! }.joinToString("/")
+                nextChapters.flatMap { configuration.verificationConfiguration.chapterConfiguration.names[it]!! }.joinToString("/")
             )
         }
         lastDefinedChapter = target
