@@ -1,4 +1,4 @@
-package normativecontrol.core.abstractions.states
+package normativecontrol.core.implementations.ufru.utils
 
 enum class PointerState {
     Header,

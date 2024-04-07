@@ -1,6 +1,6 @@
-package normativecontrol.core.css
+package normativecontrol.core.rendering.css
 
-import normativecontrol.core.html.Constants
+import normativecontrol.core.rendering.html.Constants
 import org.docx4j.w14.STLigatures
 import org.docx4j.wml.JcEnumeration
 

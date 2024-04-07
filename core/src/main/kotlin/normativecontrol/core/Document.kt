@@ -3,6 +3,7 @@ package normativecontrol.core
 import normativecontrol.core.abstractions.Configuration
 import normativecontrol.core.abstractions.chapters.ChapterHeader
 import normativecontrol.core.abstractions.handlers.HandlerMapper
+import normativecontrol.core.abstractions.handlers.StatefulHandler
 import normativecontrol.core.contexts.VerificationContext
 import normativecontrol.core.utils.timer
 import normativecontrol.shared.debug
@@ -15,14 +16,14 @@ class Document(configuration: Configuration<*>) {
     private lateinit var mlPackage: WordprocessingMLPackage
     val ctx = VerificationContext(configuration)
 
-    fun load(stream: InputStream) {
+    internal fun load(stream: InputStream) {
         timer({ logger.debug { "Unpacking: $it ms" } }) {
             mlPackage = WordprocessingMLPackage.load(stream)
             ctx.load(mlPackage)
         }
     }
 
-    fun runVerification() {
+    internal fun runVerification() {
         timer({ logger.debug { "Verification: $it ms" } }) {
             with(ctx) {
                 doc.content.iterate { pos ->
@@ -40,15 +41,17 @@ class Document(configuration: Configuration<*>) {
                                 sinceHeader++
                             }
                         }
-                        handler.handle(element)
-                        handler.state?.reset()
+                        handler.handleElement(element)
+                        if (handler is StatefulHandler<*, *>) {
+                            handler.state.reset()
+                        }
                     }
                 }
             }
         }
     }
 
-    fun writeResult(stream: ByteArrayOutputStream) {
+    internal fun writeResult(stream: ByteArrayOutputStream) {
         timer({ logger.debug { "Saving: $it ms" } }) {
             mlPackage.save(stream)
         }
@@ -56,9 +59,5 @@ class Document(configuration: Configuration<*>) {
 
     companion object {
         private val logger = LoggerFactory.getLogger(Document::class.java)
-
-        init {
-            Loader
-        }
     }
 }

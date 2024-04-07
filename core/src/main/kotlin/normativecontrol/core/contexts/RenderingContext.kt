@@ -1,13 +1,13 @@
 package normativecontrol.core.contexts
 
 import normativecontrol.core.abstractions.mistakes.MistakeSerializer
-import normativecontrol.core.css.Rule
-import normativecontrol.core.css.Stylesheet
-import normativecontrol.core.html.HtmlElement
-import normativecontrol.core.html.createPageStyle
-import normativecontrol.core.html.div
-import normativecontrol.core.html.htmlTemplate
-import normativecontrol.core.implementations.ufru.UrFUConfiguration.runState
+import normativecontrol.core.rendering.css.Rule
+import normativecontrol.core.rendering.css.Stylesheet
+import normativecontrol.core.rendering.html.HtmlElement
+import normativecontrol.core.rendering.html.createPageStyle
+import normativecontrol.core.rendering.html.div
+import normativecontrol.core.rendering.html.htmlTemplate
+import normativecontrol.core.implementations.ufru.UrFUConfiguration.state as runState
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
 
 context(VerificationContext)

@@ -3,7 +3,6 @@ package normativecontrol.launcher.client.components
 import com.rabbitmq.client.*
 import kotlinx.serialization.json.Json
 import normativecontrol.launcher.cli.environment.environment
-import normativecontrol.launcher.cli.environment.variable
 import normativecontrol.launcher.client.messages.Job
 import normativecontrol.shared.warn
 import org.slf4j.LoggerFactory

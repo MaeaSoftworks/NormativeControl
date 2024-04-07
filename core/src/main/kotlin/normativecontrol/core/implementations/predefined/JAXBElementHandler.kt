@@ -1,16 +1,15 @@
 package normativecontrol.core.implementations.predefined
 
 import jakarta.xml.bind.JAXBElement
-import normativecontrol.core.abstractions.handlers.AbstractHandler
+import normativecontrol.core.abstractions.handlers.Handler
 import normativecontrol.core.abstractions.handlers.HandlerMapper
-import normativecontrol.core.annotations.Handler
+import normativecontrol.core.annotations.ReflectHandler
 import normativecontrol.core.contexts.VerificationContext
 
-@Handler(JAXBElement::class, Predefined::class)
-object JAXBElementHandler : AbstractHandler() {
+@ReflectHandler(JAXBElement::class, Predefined::class)
+object JAXBElementHandler : Handler<JAXBElement<*>> {
     context(VerificationContext)
-    override fun handle(element: Any) {
-        element as JAXBElement<*>
-        HandlerMapper[configuration, element.value]?.handle(element.value)
+    override fun handle(element: JAXBElement<*>) {
+        HandlerMapper[configuration, element.value]?.handleElement(element.value)
     }
 }

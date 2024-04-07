@@ -1,19 +1,18 @@
 package normativecontrol.core.abstractions
 
 import normativecontrol.core.abstractions.chapters.Chapter
+import normativecontrol.core.abstractions.handlers.HandlerCollection
 import normativecontrol.core.abstractions.states.RunState
-import normativecontrol.core.abstractions.states.State
-import normativecontrol.core.configurations.VerificationConfiguration
+import normativecontrol.core.abstractions.states.Stateful
+import normativecontrol.core.configurations.VerificationSettings
 import normativecontrol.core.contexts.VerificationContext
 
 abstract class Configuration<S: RunState>(
     val startChapter: Chapter,
-    val verificationConfiguration: VerificationConfiguration
-) : HandlerCollection {
-    abstract fun createRunState(): S
-
+    val verificationSettings: VerificationSettings
+) : HandlerCollection, Stateful<S> {
     context(VerificationContext)
     @Suppress("UNCHECKED_CAST")
-    val runState: S
+    override val state: S
         get() = globalStateHolder as S
 }

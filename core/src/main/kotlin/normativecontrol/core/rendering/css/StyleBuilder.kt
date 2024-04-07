@@ -1,4 +1,4 @@
-package normativecontrol.core.css
+package normativecontrol.core.rendering.css
 
 import normativecontrol.core.contexts.VerificationContext
 
@@ -20,7 +20,7 @@ object StyleBuilder {
 
     context(VerificationContext, Style)
     private fun addRule(rule: Rule) {
-        if (configuration.verificationConfiguration.forceStyleInlining || noInline) {
+        if (configuration.verificationSettings.forceStyleInlining || noInline) {
             rules.add(rule)
             return
         }

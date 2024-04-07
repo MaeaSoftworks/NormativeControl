@@ -1,24 +1,23 @@
 package normativecontrol.core.implementations.ufru.handlers
 
-import normativecontrol.core.abstractions.handlers.AbstractHandler
-import normativecontrol.core.annotations.Handler
+import normativecontrol.core.abstractions.handlers.Handler
+import normativecontrol.core.annotations.ReflectHandler
 import normativecontrol.core.contexts.VerificationContext
-import normativecontrol.core.html.span
+import normativecontrol.core.rendering.html.span
 import normativecontrol.core.implementations.ufru.UrFUConfiguration
-import normativecontrol.core.implementations.ufru.UrFUConfiguration.runState
+import normativecontrol.core.implementations.ufru.UrFUConfiguration.state as runState
 import org.docx4j.TextUtils
 import org.docx4j.wml.Text
 
-@Handler(Text::class, UrFUConfiguration::class)
-object TextHandler : AbstractHandler() {
+@ReflectHandler(Text::class, UrFUConfiguration::class)
+object TextHandler : Handler<Text> {
     private val inBrackets = """\[(.*?)]""".toRegex()
     private val removePages = """,\s*С\.(?:.*)*""".toRegex()
     private val removeAndMatchRanges = """(\d+)\s*-\s*(\d+)""".toRegex()
     private val matchReference = """(\d+)""".toRegex()
 
     context(VerificationContext)
-    override fun handle(element: Any) {
-        element as Text
+    override fun handle(element: Text) {
         val rawText = TextUtils.getText(element)
 
         runState.referencesInText.addAll(getAllReferences(rawText))

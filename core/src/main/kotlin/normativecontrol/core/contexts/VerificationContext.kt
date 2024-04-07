@@ -5,10 +5,9 @@ import normativecontrol.core.abstractions.Configuration
 import normativecontrol.core.abstractions.chapters.Chapter
 import normativecontrol.core.abstractions.chapters.ChapterHeader
 import normativecontrol.core.abstractions.mistakes.MistakeReason
-import normativecontrol.core.abstractions.states.RunState
 import normativecontrol.core.abstractions.states.State
 import normativecontrol.core.abstractions.states.StateFactory
-import normativecontrol.core.utils.PropertyResolver
+import normativecontrol.core.wrappers.PropertyResolver
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage
 import org.docx4j.openpackaging.parts.WordprocessingML.CommentsPart
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
@@ -23,7 +22,7 @@ class VerificationContext(val configuration: Configuration<*>) {
     val doc: MainDocumentPart by lazy { mlPackage.mainDocumentPart }
     val states = mutableMapOf<StateFactory, State>()
     var mistakeUid: String? = null
-    val globalStateHolder = configuration.createRunState()
+    val globalStateHolder = configuration.stateFactory.createState()
     var isHeader = false
     var sinceHeader = -1
 

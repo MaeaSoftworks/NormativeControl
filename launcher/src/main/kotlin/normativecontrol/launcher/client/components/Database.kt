@@ -1,7 +1,6 @@
 package normativecontrol.launcher.client.components
 
 import normativecontrol.launcher.cli.environment.environment
-import normativecontrol.launcher.cli.environment.variable
 import normativecontrol.launcher.client.entities.Result
 import normativecontrol.shared.debug
 import normativecontrol.shared.warn

@@ -12,9 +12,6 @@ data class ChapterConfiguration(
     }
 
     companion object {
-        val empty: ChapterConfiguration
-            get() = ChapterConfiguration(emptyMap(), emptyMap(), emptyMap())
-
         @OptIn(ExperimentalStdlibApi::class)
         inline fun <reified T> create(): ChapterConfiguration where T : Enum<T>, T : Chapter {
             val calculatedNames = mutableMapOf<Chapter, Array<String>>()

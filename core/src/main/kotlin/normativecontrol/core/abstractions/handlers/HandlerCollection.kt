@@ -1,0 +1,3 @@
+package normativecontrol.core.abstractions.handlers
+
+interface HandlerCollection

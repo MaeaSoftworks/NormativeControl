@@ -1,4 +1,4 @@
-package normativecontrol.core.utils
+package normativecontrol.core.wrappers
 
 import normativecontrol.core.contexts.VerificationContext
 import org.docx4j.w14.*

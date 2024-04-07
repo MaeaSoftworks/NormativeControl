@@ -5,9 +5,9 @@ import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
 import normativecontrol.core.contexts.RenderingContext
 import normativecontrol.core.contexts.VerificationContext
-import normativecontrol.core.html.HtmlElement
-import normativecontrol.core.html.div
-import normativecontrol.core.html.span
+import normativecontrol.core.rendering.html.HtmlElement
+import normativecontrol.core.rendering.html.div
+import normativecontrol.core.rendering.html.span
 import normativecontrol.core.implementations.ufru.UrFUConfiguration
 
 class RenderingTests : ShouldSpec({

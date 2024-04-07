@@ -1,7 +1,7 @@
-package normativecontrol.core.html
+package normativecontrol.core.rendering.html
 
 import normativecontrol.core.contexts.VerificationContext
-import normativecontrol.core.css.Style
+import normativecontrol.core.rendering.css.Style
 import java.io.Serializable
 
 context(VerificationContext)
@@ -93,52 +93,52 @@ open class HtmlElement(
 
     @HtmlDsl
     inline fun div(body: HtmlElement.() -> Unit) {
-        addChild(normativecontrol.core.html.div(body))
+        addChild(normativecontrol.core.rendering.html.div(body))
     }
 
     @HtmlDsl
     inline fun p(body: HtmlElement.() -> Unit) {
-        addChild(normativecontrol.core.html.p(body))
+        addChild(normativecontrol.core.rendering.html.p(body))
     }
 
     @HtmlDsl
     inline fun span(body: HtmlElement.() -> Unit) {
-        addChild(normativecontrol.core.html.span(body))
+        addChild(normativecontrol.core.rendering.html.span(body))
     }
 
     @HtmlDsl
     inline fun head(body: HtmlElement.() -> Unit) {
-        addChild(normativecontrol.core.html.head(body))
+        addChild(normativecontrol.core.rendering.html.head(body))
     }
 
     @HtmlDsl
     inline fun body(body: HtmlElement.() -> Unit) {
-        addChild(normativecontrol.core.html.body(body))
+        addChild(normativecontrol.core.rendering.html.body(body))
     }
 
     @HtmlDsl
     inline fun style(body: HtmlElement.() -> Unit) {
-        addChild(normativecontrol.core.html.style(body))
+        addChild(normativecontrol.core.rendering.html.style(body))
     }
 
     @HtmlDsl
     inline fun script(body: HtmlElement.() -> Unit) {
-        addChild(normativecontrol.core.html.script(body))
+        addChild(normativecontrol.core.rendering.html.script(body))
     }
 
     @HtmlDsl
     inline fun label(body: HtmlElement.() -> Unit) {
-        addChild(normativecontrol.core.html.label(body))
+        addChild(normativecontrol.core.rendering.html.label(body))
     }
 
     @HtmlDsl
     inline fun input(body: HtmlElement.() -> Unit) {
-        addChild(normativecontrol.core.html.input(body))
+        addChild(normativecontrol.core.rendering.html.input(body))
     }
 
     @HtmlDsl
     inline fun create(type: String, hasClosingTag: Boolean = true, body: HtmlElement.() -> Unit) {
-        addChild(normativecontrol.core.html.create(type, hasClosingTag, body))
+        addChild(normativecontrol.core.rendering.html.create(type, hasClosingTag, body))
     }
 
     enum class Type(val serialName: String) {

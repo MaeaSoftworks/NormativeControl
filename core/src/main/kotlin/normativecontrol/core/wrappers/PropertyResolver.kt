@@ -1,4 +1,4 @@
-package normativecontrol.core.utils
+package normativecontrol.core.wrappers
 
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage
 import org.docx4j.openpackaging.parts.WordprocessingML.StyleDefinitionsPart

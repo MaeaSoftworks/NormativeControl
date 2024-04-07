@@ -2,30 +2,29 @@ package normativecontrol.core.implementations.ufru.handlers
 
 import normativecontrol.core.abstractions.chapters.Chapter
 import normativecontrol.core.abstractions.chapters.ChapterHeader
-import normativecontrol.core.abstractions.handlers.AbstractHandler
+import normativecontrol.core.abstractions.handlers.StatefulHandler
 import normativecontrol.core.abstractions.handlers.HandlerMapper
-import normativecontrol.core.abstractions.states.PointerState
+import normativecontrol.core.implementations.ufru.utils.PointerState
 import normativecontrol.core.abstractions.states.State
 import normativecontrol.core.abstractions.states.StateFactory
 import normativecontrol.core.abstractions.verifier
 import normativecontrol.core.abstractions.verifyBy
-import normativecontrol.core.annotations.Handler
+import normativecontrol.core.annotations.ReflectHandler
 import normativecontrol.core.contexts.VerificationContext
-import normativecontrol.core.html.br
-import normativecontrol.core.html.createPageStyle
-import normativecontrol.core.html.p
+import normativecontrol.core.rendering.html.br
+import normativecontrol.core.rendering.html.createPageStyle
+import normativecontrol.core.rendering.html.p
 import normativecontrol.core.implementations.ufru.Chapters
 import normativecontrol.core.implementations.ufru.Reason
 import normativecontrol.core.implementations.ufru.UrFUConfiguration
-import normativecontrol.core.implementations.ufru.UrFUConfiguration.runState
-import normativecontrol.core.implementations.ufru.describeState
+import normativecontrol.core.implementations.ufru.UrFUConfiguration.state as runState
+import normativecontrol.core.implementations.ufru.utils.describeState
 import normativecontrol.core.math.abs
 import normativecontrol.core.math.asPointsToLine
 import normativecontrol.core.math.asTwip
 import normativecontrol.core.math.cm
 import normativecontrol.core.utils.flatMap
-import normativecontrol.core.utils.resolvedPPr
-import normativecontrol.shared.Interruption
+import normativecontrol.core.wrappers.resolvedPPr
 import org.docx4j.TextUtils
 import org.docx4j.wml.Lvl
 import org.docx4j.wml.NumberFormat
@@ -35,17 +34,14 @@ import org.docx4j.wml.STLineSpacingRule
 import java.math.BigInteger
 import kotlin.math.abs
 
-@Handler(P::class, UrFUConfiguration::class, PHandler.PState::class)
-object PHandler : AbstractHandler(), ChapterHeader {
+@ReflectHandler(P::class, UrFUConfiguration::class)
+object PHandler : StatefulHandler<P, PHandler.PState>, ChapterHeader {
     private val headerRegex = Regex("""^(\d+(?:\.\d)*)\s*.*$""")
 
-    context(VerificationContext)
-    override val state: PState
-        get() = abstractState as PState
+    override var stateFactory: StateFactory = PState
 
     context(VerificationContext)
-    override fun handle(element: Any) {
-        element as P
+    override fun handle(element: P) {
         val pPr = element.resolvedPPr
 
         if (element.pPr?.sectPr != null) {
@@ -72,7 +68,7 @@ object PHandler : AbstractHandler(), ChapterHeader {
         pPr.resolvedNumberingStyle?.let { handleListElement(element, it) } ?: run { state.currentListConfig = null }
         render.inLastElementScope {
             element.iterate { child, _ ->
-                HandlerMapper[configuration, child]?.handle(child)
+                HandlerMapper[configuration, child]?.handleElement(child)
             }
         }
     }
@@ -137,7 +133,7 @@ object PHandler : AbstractHandler(), ChapterHeader {
     context(VerificationContext)
     override fun checkChapterStart(element: Any): Chapter? {
         val text = state.getText(element).trim().uppercase()
-        val result = configuration.verificationConfiguration.chapterConfiguration.headers[text]
+        val result = configuration.verificationSettings.chapterConfiguration.headers[text]
         if (result != null) return result
         if (isChapterBodyHeader(text)) {
            return Chapters.Body
@@ -150,12 +146,12 @@ object PHandler : AbstractHandler(), ChapterHeader {
 
     context(VerificationContext)
     override fun checkChapterOrderAndUpdateContext(target: Chapter) {
-        val nextChapters = configuration.verificationConfiguration.chapterConfiguration.getNextChapters(lastDefinedChapter)
+        val nextChapters = configuration.verificationSettings.chapterConfiguration.getNextChapters(lastDefinedChapter)
         if (target !in nextChapters) {
             mistake(
                 Reason.ChapterOrderMismatch,
                 target.names?.joinToString("/"),
-                nextChapters.flatMap { configuration.verificationConfiguration.chapterConfiguration.names[it]!! }.joinToString("/")
+                nextChapters.flatMap { configuration.verificationSettings.chapterConfiguration.names[it]!! }.joinToString("/")
             )
         }
         lastDefinedChapter = target
@@ -163,15 +159,8 @@ object PHandler : AbstractHandler(), ChapterHeader {
     }
 
     object Rules {
-        context(VerificationContext)
-        private fun interruptIfIsEmpty() {
-            if (state.currentText!!.isBlank()) {
-                Interruption.interrupt()
-            }
-        }
-
         val leftIndent = verifier<BigInteger?> {
-            interruptIfIsEmpty()
+            if (state.currentText!!.isBlank()) return@verifier
             when(describeState()) {
                 PointerState.Header -> {
                     if (it != null && it.asTwip().cm != 0.0.cm) mistake(Reason.LeftIndentOnHeader)
@@ -189,7 +178,7 @@ object PHandler : AbstractHandler(), ChapterHeader {
         }
 
         val rightIndent = verifier<BigInteger?> {
-            interruptIfIsEmpty()
+            if (state.currentText!!.isBlank()) return@verifier
             if (isHeader) {
                 if (it != null && it.asTwip().cm != 0.0.cm) mistake(Reason.RightIndentOnHeader)
             } else {
@@ -198,7 +187,7 @@ object PHandler : AbstractHandler(), ChapterHeader {
         }
 
         val firstLineIndent = verifier<BigInteger?> {
-            interruptIfIsEmpty()
+            if (state.currentText!!.isBlank()) return@verifier
             val value = it?.asTwip()?.cm ?: 0.0.cm
             when (describeState()) {
                 PointerState.Header -> {

@@ -1,9 +1,8 @@
 package normativecontrol.core.configurations
 
 import normativecontrol.core.abstractions.chapters.ChapterConfiguration
-import normativecontrol.shared.lateinitVal
 
-class VerificationConfiguration(
+data class VerificationSettings(
     val chapterConfiguration: ChapterConfiguration,
     val forceStyleInlining: Boolean = false
 )

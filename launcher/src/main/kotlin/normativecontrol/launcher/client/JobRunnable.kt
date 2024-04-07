@@ -2,7 +2,7 @@ package normativecontrol.launcher.client
 
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import normativecontrol.core.Document
+import normativecontrol.core.Core
 import normativecontrol.core.implementations.ufru.UrFUConfiguration
 import normativecontrol.launcher.client.components.Database
 import normativecontrol.launcher.client.components.S3
@@ -12,39 +12,37 @@ import normativecontrol.launcher.client.messages.Job
 import normativecontrol.shared.*
 import org.slf4j.LoggerFactory
 import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
 
 class JobRunnable(private val job: Job): Runnable {
-    override fun run() = interruptable {
+    override fun run() {
         logger.debug { "Received job '${job.id}' with body: ${Json.encodeToString(job)}" }
 
-        val source = S3.getObject(job.source).interruptIfNullWith { job.interrupt(Status.ERROR, "Error during document downloading") }
-
-        val document = Document(UrFUConfiguration)
-        document.load(ByteArrayInputStream(source))
-
-        interruptOnAnyException({ job.interrupt(Status.ERROR, "Error during document verification") }) {
-            document.runVerification()
+        val source = try {
+            S3.getObject(job.source)
+        } catch (_: Exception) {
+            job.sendResult(Status.ERROR, "Error during document downloading")
+            return
         }
 
-        val result = ByteArrayOutputStream()
-        interruptOnAnyException({ job.interrupt(Status.ERROR, "Error during document saving") }) {
-            document.writeResult(result)
+        val results = try {
+            Core.verify(ByteArrayInputStream(source), UrFUConfiguration)
+        } catch (_: Exception) {
+            job.sendResult(Status.ERROR, "Error during document verification")
+            return
         }
 
-        interruptOnAnyException({ job.interrupt(Status.ERROR, "Error during document uploading") }) {
-            S3.putObject(result.toByteArray(), job.results.docx)
-            S3.putObject(document.ctx.render.getString().toByteArray(), job.results.html)
+        try {
+            S3.putObject(results.first.toByteArray(), job.results.docx)
+            S3.putObject(results.second.toByteArray(), job.results.html)
+        } catch (_: Exception) {
+            job.sendResult(Status.ERROR, "Error during document uploading")
+            return
         }
 
-        job.reply(Status.OK)
+        job.sendResult(Status.OK)
     }
 
-    private fun Job.interrupt(status: Status, description: String? = null) = interrupter {
-        reply(status, description)
-    }
-
-    private fun Job.reply(status: Status, description: String? = null) {
+    private fun Job.sendResult(status: Status, description: String? = null) {
         logger.debug {
             description.let {
                 if (description != null) "Job ${id}: $status: $description"

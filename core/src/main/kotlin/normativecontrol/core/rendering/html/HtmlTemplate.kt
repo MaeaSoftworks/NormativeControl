@@ -1,4 +1,4 @@
-package normativecontrol.core.html
+package normativecontrol.core.rendering.html
 
 import normativecontrol.core.abstractions.mistakes.MistakeSerializer
 import normativecontrol.core.contexts.VerificationContext

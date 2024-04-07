@@ -1,12 +1,10 @@
 package normativecontrol.core.annotations
 
-import normativecontrol.core.abstractions.states.UndefinedState
 import kotlin.reflect.KClass
 
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
-annotation class Handler(
+annotation class ReflectHandler(
     val target: KClass<*>,
-    val configuration: KClass<*>,
-    val state: KClass<*> = UndefinedState::class
+    val configuration: KClass<*>
 )

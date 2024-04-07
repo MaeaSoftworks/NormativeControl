@@ -1,6 +1,5 @@
-package normativecontrol.core.implementations.ufru
+package normativecontrol.core.implementations.ufru.utils
 
-import normativecontrol.core.abstractions.states.PointerState
 import normativecontrol.core.contexts.VerificationContext
 
 context(VerificationContext)

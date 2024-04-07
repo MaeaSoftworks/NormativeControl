@@ -1,4 +1,4 @@
-package normativecontrol.core.html
+package normativecontrol.core.rendering.html
 
 object Constants {
     const val PIXELS_IN_POINT = 20.0

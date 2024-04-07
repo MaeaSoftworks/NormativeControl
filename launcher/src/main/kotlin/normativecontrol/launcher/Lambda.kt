@@ -1,9 +1,8 @@
 package normativecontrol.launcher
 
-import normativecontrol.core.Document
+import normativecontrol.core.Core
 import normativecontrol.core.implementations.ufru.UrFUConfiguration
 import java.awt.Desktop
-import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.nio.file.Files
@@ -11,20 +10,12 @@ import java.nio.file.Files
 class Lambda(private val configuration: Configuration) {
     fun run() {
         val file = File(configuration.source)
-
-        Document(UrFUConfiguration).apply {
-            load(file.inputStream())
-            runVerification()
-            val stream = ByteArrayOutputStream()
-            writeResult(stream)
-            FileOutputStream(configuration.result ?: (file.parent + File.separator + "result.docx")).use {
-                stream.writeTo(it)
-            }
-            if (configuration.render) {
-                Files.createTempFile("render-", ".html").toFile().also {
-                    it.writeText(this.ctx.render.getString())
-                    Desktop.getDesktop().browse(it.toURI())
-                }
+        val result = Core.verify(file.inputStream(), UrFUConfiguration)
+        result.first.writeTo(FileOutputStream(configuration.result ?: (file.parent + File.separator + "result.docx")))
+        if (configuration.render) {
+            Files.createTempFile("render-", ".html").toFile().also {
+                it.writeText(result.second)
+                Desktop.getDesktop().browse(it.toURI())
             }
         }
     }

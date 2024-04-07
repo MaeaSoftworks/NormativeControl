@@ -1,8 +1,6 @@
 package normativecontrol.launcher.client.components
 
 import normativecontrol.launcher.cli.environment.environment
-import normativecontrol.launcher.cli.environment.optionalVariable
-import normativecontrol.launcher.cli.environment.variable
 import org.slf4j.LoggerFactory
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials
 import software.amazon.awssdk.core.sync.RequestBody
@@ -74,16 +72,6 @@ object S3 : Closeable {
                 .build(),
             RequestBody.fromBytes(file)
         )
-    }
-
-    fun getTags(objectName: String): Map<String, String> {
-        return s3Client.getObjectTagging(
-            GetObjectTaggingRequest
-                .builder()
-                .bucket(bucket)
-                .key(objectName)
-                .build()
-        ).let { tagSet -> tagSet.tagSet().associate { it.key() to it.value() } }
     }
 
     fun getObject(objectName: String): ByteArray? {

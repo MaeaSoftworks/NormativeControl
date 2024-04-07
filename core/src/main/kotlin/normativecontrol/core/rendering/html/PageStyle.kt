@@ -1,8 +1,8 @@
-package normativecontrol.core.html
+package normativecontrol.core.rendering.html
 
 import normativecontrol.core.contexts.VerificationContext
-import normativecontrol.core.css.Style
-import normativecontrol.core.implementations.ufru.UrFUConfiguration.runState
+import normativecontrol.core.rendering.css.Style
+import normativecontrol.core.implementations.ufru.UrFUConfiguration.state as runState
 import org.docx4j.wml.SectPr
 
 context(VerificationContext)

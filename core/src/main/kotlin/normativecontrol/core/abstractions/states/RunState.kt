@@ -1,3 +1,3 @@
 package normativecontrol.core.abstractions.states
 
-abstract class RunState
+interface RunState: State

@@ -1,7 +1,7 @@
-package normativecontrol.core.html
+package normativecontrol.core.rendering.html
 
 import normativecontrol.core.contexts.VerificationContext
-import normativecontrol.core.css.Stylesheet
+import normativecontrol.core.rendering.css.Stylesheet
 import org.intellij.lang.annotations.Language
 
 @HtmlDsl
