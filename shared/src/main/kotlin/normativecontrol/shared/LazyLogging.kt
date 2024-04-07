@@ -6,8 +6,8 @@ inline fun Logger.info(message: () -> String) {
     if (this.isInfoEnabled) this.info(message())
 }
 
-inline fun Logger.error(message: () -> String) {
-    if (this.isErrorEnabled) this.error(message())
+inline fun Logger.error(throwable: Throwable? = null, message: () -> String) {
+    if (this.isErrorEnabled) this.error(message(), throwable)
 }
 
 inline fun Logger.debug(message: () -> String) {

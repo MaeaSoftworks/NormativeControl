@@ -5,7 +5,7 @@ import normativecontrol.core.annotations.Handler
 import normativecontrol.core.contexts.VerificationContext
 import normativecontrol.core.html.span
 import normativecontrol.core.implementations.ufru.UrFUConfiguration
-import normativecontrol.core.implementations.ufru.UrFUConfiguration.globalState
+import normativecontrol.core.implementations.ufru.UrFUConfiguration.runState
 import org.docx4j.TextUtils
 import org.docx4j.wml.Text
 
@@ -21,7 +21,7 @@ object TextHandler : AbstractHandler() {
         element as Text
         val rawText = TextUtils.getText(element)
 
-        globalState.referencesInText.addAll(getAllReferences(rawText))
+        runState.referencesInText.addAll(getAllReferences(rawText))
         render append span {
             content = rawText.replace("<", "&lt;").replace(">", "&gt;")
         }

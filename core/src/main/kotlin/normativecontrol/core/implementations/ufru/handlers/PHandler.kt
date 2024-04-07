@@ -6,6 +6,7 @@ import normativecontrol.core.abstractions.handlers.AbstractHandler
 import normativecontrol.core.abstractions.handlers.HandlerMapper
 import normativecontrol.core.abstractions.states.PointerState
 import normativecontrol.core.abstractions.states.State
+import normativecontrol.core.abstractions.states.StateFactory
 import normativecontrol.core.abstractions.verifier
 import normativecontrol.core.abstractions.verifyBy
 import normativecontrol.core.annotations.Handler
@@ -16,7 +17,7 @@ import normativecontrol.core.html.p
 import normativecontrol.core.implementations.ufru.Chapters
 import normativecontrol.core.implementations.ufru.Reason
 import normativecontrol.core.implementations.ufru.UrFUConfiguration
-import normativecontrol.core.implementations.ufru.UrFUConfiguration.globalState
+import normativecontrol.core.implementations.ufru.UrFUConfiguration.runState
 import normativecontrol.core.implementations.ufru.describeState
 import normativecontrol.core.math.abs
 import normativecontrol.core.math.asPointsToLine
@@ -49,8 +50,8 @@ object PHandler : AbstractHandler(), ChapterHeader {
 
         if (element.pPr?.sectPr != null) {
             render.pageBreak(-1, createPageStyle(element.pPr.sectPr))
-            globalState.foldStylesheet(render.globalStylesheet)
-            globalState.rSinceBr = 0
+            runState.foldStylesheet(render.globalStylesheet)
+            runState.rSinceBr = 0
         }
         render append p {
             style += {
@@ -92,13 +93,13 @@ object PHandler : AbstractHandler(), ChapterHeader {
                 if ((currentListConfig!!.listPosition == -1 && currentListConfig!!.start == -1) || currentListConfig!!.start != lvl.start.`val`.toInt()) {
                     currentListConfig!!.listPosition = lvl.start.`val`.toInt()
                     currentListConfig!!.start = currentListConfig!!.listPosition
-                    if (currentListConfig!!.listPosition !in globalState.referencesInText) {
+                    if (currentListConfig!!.listPosition !in runState.referencesInText) {
                         mistake(Reason.ReferenceNotMentionedInText)
                     }
                     return@with
                 } else {
                     currentListConfig!!.listPosition++
-                    if (currentListConfig!!.listPosition !in globalState.referencesInText) {
+                    if (currentListConfig!!.listPosition !in runState.referencesInText) {
                         mistake(Reason.ReferenceNotMentionedInText)
                     }
                 }
@@ -250,7 +251,7 @@ object PHandler : AbstractHandler(), ChapterHeader {
     }
 
     class PState : State {
-        override val key: State.Key = Companion
+        override val key = Companion
 
         var currentListConfig: ListConfig? = null
         var currentText: String? = null
@@ -274,7 +275,7 @@ object PHandler : AbstractHandler(), ChapterHeader {
             var start: Int = -1
         }
 
-        companion object : State.Key {
+        companion object : StateFactory {
             override fun createState(): State {
                 return PState()
             }

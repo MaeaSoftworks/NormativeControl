@@ -1,11 +1,9 @@
 package normativecontrol.core.abstractions.states
 
-interface State {
-    val key: Key
+import normativecontrol.core.abstractions.Findable
 
-    interface Key {
-        fun createState(): State
-    }
+interface State: Findable {
+    override val key: StateFactory
 
     fun reset() { }
 }

@@ -1,15 +1,15 @@
 package normativecontrol.core.abstractions.handlers
 
-import normativecontrol.core.abstractions.Configuration
-import normativecontrol.core.implementations.predefined.BuiltInConfiguration
+import normativecontrol.core.abstractions.HandlerCollection
+import normativecontrol.core.implementations.predefined.Predefined
 import kotlin.reflect.KClass
 
 object HandlerMapper {
-    private val implementedChains = mutableMapOf<Configuration, MutableMap<KClass<*>, AbstractHandler>>()
+    private val implementedChains = mutableMapOf<HandlerCollection, MutableMap<KClass<*>, AbstractHandler>>()
     private val predefinedChain = mutableMapOf<KClass<*>, AbstractHandler>()
 
-    fun add(configuration: Configuration, target: KClass<*>, handler: AbstractHandler) {
-        if (configuration != BuiltInConfiguration) {
+    fun add(configuration: HandlerCollection, target: KClass<*>, handler: AbstractHandler) {
+        if (configuration != Predefined) {
             if (!implementedChains.containsKey(configuration)) {
                 implementedChains[configuration] = mutableMapOf()
             }
@@ -26,7 +26,7 @@ object HandlerMapper {
      * @param target object that requires handler
      * @return mapped handler if found, else `null`
      */
-    operator fun get(configuration: Configuration, target: Any): AbstractHandler? {
+    operator fun get(configuration: HandlerCollection, target: Any): AbstractHandler? {
         if (!implementedChains.containsKey(configuration)) {
             throw IllegalArgumentException("Implementation didn't registered any handler")
         }

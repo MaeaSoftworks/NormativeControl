@@ -6,7 +6,7 @@ import normativecontrol.core.annotations.Handler
 import normativecontrol.core.contexts.VerificationContext
 import normativecontrol.core.html.span
 import normativecontrol.core.implementations.ufru.UrFUConfiguration
-import normativecontrol.core.implementations.ufru.UrFUConfiguration.globalState
+import normativecontrol.core.implementations.ufru.UrFUConfiguration.runState
 import normativecontrol.core.utils.resolvedRPr
 import org.docx4j.wml.R
 
@@ -15,7 +15,7 @@ object RHandler : AbstractHandler() {
     context(VerificationContext)
     override fun handle(element: Any) {
         element as R
-        globalState.rSinceBr++
+        runState.rSinceBr++
         val rPr = element.resolvedRPr
         render append span {
             style += {

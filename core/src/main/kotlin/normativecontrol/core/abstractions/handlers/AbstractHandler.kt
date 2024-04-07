@@ -1,7 +1,8 @@
 package normativecontrol.core.abstractions.handlers
 
 import normativecontrol.core.abstractions.states.State
-import normativecontrol.core.annotations.StateFactory
+import normativecontrol.core.abstractions.states.StateFactory
+import normativecontrol.core.annotations.StateFactoryBind
 import normativecontrol.core.contexts.VerificationContext
 
 /**
@@ -11,8 +12,8 @@ import normativecontrol.core.contexts.VerificationContext
  * @sample normativecontrol.core.implementations.predefined.JAXBElementHandler
  */
 abstract class AbstractHandler {
-    @StateFactory
-    private var stateKey: State.Key? = null
+    @StateFactoryBind
+    private var stateKey: StateFactory? = null
 
     context(VerificationContext)
     open val state: State?

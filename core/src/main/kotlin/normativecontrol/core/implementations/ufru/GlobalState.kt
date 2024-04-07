@@ -1,9 +1,9 @@
 package normativecontrol.core.implementations.ufru
 
-import normativecontrol.core.abstractions.states.AbstractGlobalState
+import normativecontrol.core.abstractions.states.RunState
 import normativecontrol.core.css.Stylesheet
 
-class GlobalState : AbstractGlobalState() {
+class GlobalState : RunState() {
     var rSinceBr: Int = 0
     var pageStyleId: Int = 0
     var externalGlobalStylesheet = Stylesheet()

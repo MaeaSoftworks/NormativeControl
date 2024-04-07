@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 
-class Document(configuration: Configuration) {
+class Document(configuration: Configuration<*>) {
     private lateinit var mlPackage: WordprocessingMLPackage
     val ctx = VerificationContext(configuration)
 

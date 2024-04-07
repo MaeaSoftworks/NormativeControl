@@ -7,7 +7,7 @@ import normativecontrol.core.html.HtmlElement
 import normativecontrol.core.html.createPageStyle
 import normativecontrol.core.html.div
 import normativecontrol.core.html.htmlTemplate
-import normativecontrol.core.implementations.ufru.UrFUConfiguration.globalState
+import normativecontrol.core.implementations.ufru.UrFUConfiguration.runState
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
 
 context(VerificationContext)
@@ -27,7 +27,7 @@ class RenderingContext(doc: MainDocumentPart?) {
 
     init {
         createPage(createPageStyle(doc?.contents?.body?.sectPr).also { lastPageStyleId = it })
-        globalState.foldStylesheet(globalStylesheet)
+        runState.foldStylesheet(globalStylesheet)
     }
 
     fun pageBreak(copyingLevel: Int, pageStyleId: String? = null) {

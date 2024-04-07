@@ -6,7 +6,7 @@ import normativecontrol.core.abstractions.handlers.HandlerMapper
 import normativecontrol.core.annotations.Handler
 import normativecontrol.core.contexts.VerificationContext
 
-@Handler(JAXBElement::class, BuiltInConfiguration::class)
+@Handler(JAXBElement::class, Predefined::class)
 object JAXBElementHandler : AbstractHandler() {
     context(VerificationContext)
     override fun handle(element: Any) {

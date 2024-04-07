@@ -1,17 +1,17 @@
 package normativecontrol.core.implementations.ufru
 
 import normativecontrol.core.abstractions.Configuration
+import normativecontrol.core.abstractions.HandlerCollection
 import normativecontrol.core.abstractions.chapters.ChapterConfiguration
 import normativecontrol.core.configurations.VerificationConfiguration
-import normativecontrol.core.contexts.VerificationContext
 
-object UrFUConfiguration : Configuration(
+object UrFUConfiguration : Configuration<GlobalState>(
     Chapters.FrontPage,
-    VerificationConfiguration().initialize {
-        chapterConfiguration = ChapterConfiguration.create<Chapters>()
-    },
-    { GlobalState() }
+    VerificationConfiguration(
+        ChapterConfiguration.create<Chapters>()
+    )
 ) {
-    override val VerificationContext.globalState: GlobalState
-        get() = globalStateHolder as GlobalState
+    override fun createRunState(): GlobalState {
+        return GlobalState()
+    }
 }

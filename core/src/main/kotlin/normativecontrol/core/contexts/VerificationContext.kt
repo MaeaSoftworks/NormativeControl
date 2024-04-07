@@ -5,8 +5,9 @@ import normativecontrol.core.abstractions.Configuration
 import normativecontrol.core.abstractions.chapters.Chapter
 import normativecontrol.core.abstractions.chapters.ChapterHeader
 import normativecontrol.core.abstractions.mistakes.MistakeReason
-import normativecontrol.core.abstractions.states.AbstractGlobalState
+import normativecontrol.core.abstractions.states.RunState
 import normativecontrol.core.abstractions.states.State
+import normativecontrol.core.abstractions.states.StateFactory
 import normativecontrol.core.utils.PropertyResolver
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage
 import org.docx4j.openpackaging.parts.WordprocessingML.CommentsPart
@@ -15,14 +16,14 @@ import org.docx4j.wml.*
 import java.math.BigInteger
 import java.util.*
 
-class VerificationContext(val configuration: Configuration) {
+class VerificationContext(val configuration: Configuration<*>) {
     val resolver: PropertyResolver by lazy { PropertyResolver(mlPackage) }
     val render: RenderingContext by lazy { RenderingContext(doc) }
     var chapter: Chapter = configuration.startChapter
     val doc: MainDocumentPart by lazy { mlPackage.mainDocumentPart }
-    val states = mutableMapOf<State.Key, State>()
+    val states = mutableMapOf<StateFactory, State>()
     var mistakeUid: String? = null
-    val globalStateHolder: AbstractGlobalState? = configuration.sharedStateFactory?.invoke()
+    val globalStateHolder = configuration.createRunState()
     var isHeader = false
     var sinceHeader = -1
 
@@ -52,7 +53,6 @@ class VerificationContext(val configuration: Configuration) {
             doc.addTargetPart(this)
         }
         mistakeId = comments.jaxbElement.comment.size.toLong()
-        configuration.sharedStateFactory
     }
 
     fun getCurrentElement(): Any? {
