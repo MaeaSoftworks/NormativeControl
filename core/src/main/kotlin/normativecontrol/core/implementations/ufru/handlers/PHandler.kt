@@ -4,7 +4,6 @@ import normativecontrol.core.abstractions.chapters.Chapter
 import normativecontrol.core.abstractions.chapters.ChapterHeader
 import normativecontrol.core.abstractions.handlers.StatefulHandler
 import normativecontrol.core.abstractions.handlers.HandlerMapper
-import normativecontrol.core.implementations.ufru.utils.PointerState
 import normativecontrol.core.abstractions.states.State
 import normativecontrol.core.abstractions.states.StateFactory
 import normativecontrol.core.abstractions.verifier
@@ -17,8 +16,7 @@ import normativecontrol.core.rendering.html.p
 import normativecontrol.core.implementations.ufru.Chapters
 import normativecontrol.core.implementations.ufru.Reason
 import normativecontrol.core.implementations.ufru.UrFUConfiguration
-import normativecontrol.core.implementations.ufru.UrFUConfiguration.state as runState
-import normativecontrol.core.implementations.ufru.utils.describeState
+import normativecontrol.core.implementations.ufru.UrFUConfiguration.runState
 import normativecontrol.core.math.abs
 import normativecontrol.core.math.asPointsToLine
 import normativecontrol.core.math.asTwip
@@ -49,6 +47,7 @@ object PHandler : StatefulHandler<P, PHandler.PState>, ChapterHeader {
             runState.foldStylesheet(render.globalStylesheet)
             runState.rSinceBr = 0
         }
+        pPr.resolvedNumberingStyle?.let { handleListElement(element, it) } ?: run { state.currentListConfig = null }
         render append p {
             style += {
                 marginLeft set (pPr.ind.left verifyBy Rules.leftIndent)
@@ -65,7 +64,6 @@ object PHandler : StatefulHandler<P, PHandler.PState>, ChapterHeader {
                 addChild(br())
             }
         }
-        pPr.resolvedNumberingStyle?.let { handleListElement(element, it) } ?: run { state.currentListConfig = null }
         render.inLastElementScope {
             element.iterate { child, _ ->
                 HandlerMapper[configuration, child]?.handleElement(child)
@@ -83,7 +81,7 @@ object PHandler : StatefulHandler<P, PHandler.PState>, ChapterHeader {
 
         if (chapter == Chapters.References) {
             if (lvl.numFmt?.`val` != NumberFormat.DECIMAL) {
-                mistake(Reason.ForbiddenMarkerTypeReferences)
+                return mistake(Reason.ForbiddenMarkerTypeReferences)
             }
             with(state) {
                 if ((currentListConfig!!.listPosition == -1 && currentListConfig!!.start == -1) || currentListConfig!!.start != lvl.start.`val`.toInt()) {
@@ -101,6 +99,7 @@ object PHandler : StatefulHandler<P, PHandler.PState>, ChapterHeader {
                 }
             }
         } else {
+            state.currentListConfig?.level = lvl.ilvl.toInt()
             if (lvl.suff?.`val` != "space") {
                 mistake(Reason.TabInList)
             }
@@ -134,13 +133,23 @@ object PHandler : StatefulHandler<P, PHandler.PState>, ChapterHeader {
     override fun checkChapterStart(element: Any): Chapter? {
         val text = state.getText(element).trim().uppercase()
         val result = configuration.verificationSettings.chapterConfiguration.headers[text]
-        if (result != null) return result
+        if (result != null) {
+            state.isHeader = true
+            state.sinceHeader = 0
+            return result
+        }
         if (isChapterBodyHeader(text)) {
+            state.isHeader = true
+            state.sinceHeader = 0
            return Chapters.Body
         }
         if (isAppendixHeader(text)) {
+            state.isHeader = true
+            state.sinceHeader = 0
             return Chapters.Appendix
         }
+        state.isHeader = false
+        state.sinceHeader++
         return null
     }
 
@@ -161,80 +170,93 @@ object PHandler : StatefulHandler<P, PHandler.PState>, ChapterHeader {
     object Rules {
         val leftIndent = verifier<BigInteger?> {
             if (state.currentText!!.isBlank()) return@verifier
-            when(describeState()) {
-                PointerState.Header -> {
-                    if (it != null && it.asTwip().cm != 0.0.cm) mistake(Reason.LeftIndentOnHeader)
+            val value = it?.asTwip()?.cm?.round(2) ?: 0.0.cm
+
+            if (state.isHeader) {
+                if (value != 0.0.cm) {
+                    return@verifier mistake(Reason.LeftIndentOnHeader)
                 }
-                PointerState.UnderHeader -> {
-                    return@verifier
+                return@verifier
+            }
+            //if (runState.sinceDrawing) {
+            //    if (it != null && it.asTwip().cm != 0.0.cm) mistake(Reason.LeftIndentOnPictureDescription)
+            //}
+            if (state.currentListConfig != null) {
+                val expected = 0.75.cm * (state.currentListConfig!!.level)
+                if (value != expected) {
+                    return@verifier mistake(
+                        Reason.IncorrectLeftIndentInList,
+                        value.double.toString(),
+                        expected.double.toString()
+                    )
                 }
-                PointerState.Text -> {
-                    if (it != null && it.asTwip().cm != 0.0.cm) mistake(Reason.LeftIndentOnText)
-                }
-                PointerState.PictureDescription -> {
-                    if (it != null && it.asTwip().cm != 0.0.cm) mistake(Reason.LeftIndentOnPictureDescription)
-                }
+                return@verifier
+            }
+            if (value != 0.0.cm) {
+                return@verifier mistake(Reason.LeftIndentOnText)
             }
         }
 
         val rightIndent = verifier<BigInteger?> {
             if (state.currentText!!.isBlank()) return@verifier
-            if (isHeader) {
-                if (it != null && it.asTwip().cm != 0.0.cm) mistake(Reason.RightIndentOnHeader)
+            if (state.isHeader) {
+                if (it != null && it.asTwip().cm != 0.0.cm) {
+                    return@verifier mistake(Reason.RightIndentOnHeader)
+                }
+                return@verifier
             } else {
-                if (it != null && it.asTwip().cm != 0.0.cm) mistake(Reason.RightIndentOnText)
+                if (it != null && it.asTwip().cm != 0.0.cm) {
+                    return@verifier mistake(Reason.RightIndentOnText)
+                }
+                return@verifier
             }
         }
 
         val firstLineIndent = verifier<BigInteger?> {
             if (state.currentText!!.isBlank()) return@verifier
             val value = it?.asTwip()?.cm ?: 0.0.cm
-            when (describeState()) {
-                PointerState.Header -> {
-                    when (chapter) {
-                        Chapters.Body -> {
-                            if (abs(value - 1.25.cm) >= 0.01.cm)
-                                mistake(Reason.IncorrectFirstLineIndentInHeader, value.double.toString(), "1.25")
+            if (state.isHeader) {
+                when (chapter) {
+                    Chapters.Body -> {
+                        if (abs(value - 1.25.cm) >= 0.01.cm) {
+                            return@verifier mistake(Reason.IncorrectFirstLineIndentInHeader, value.double.toString(), "1.25")
                         }
-                        else -> {
-                            if (abs(value - 1.25.cm) <= 0.01.cm)
-                                mistake(Reason.IncorrectFirstLineIndentInHeader, value.double.toString(), "0")
+                        return@verifier
+                    }
+
+                    else -> {
+                        if (abs(value - 1.25.cm) <= 0.01.cm) {
+                            return@verifier mistake(Reason.IncorrectFirstLineIndentInHeader, value.double.toString(), "0")
                         }
+                        return@verifier
                     }
                 }
-                PointerState.Text -> {
-                    if (abs(value - 1.25.cm) >= 0.01.cm)
-                        mistake(Reason.IncorrectFirstLineIndentInText, value.double.toString(), "1.25")
-                }
-                PointerState.PictureDescription -> {
-                    if (abs(value - 1.25.cm) <= 0.01.cm)
-                        mistake(Reason.IncorrectFirstLineIndentInHeader, value.double.toString(), "0")
-                }
-                else -> Unit
             }
+            //if (runState.sinceDrawing) {
+            //    if (abs(value - 1.25.cm) <= 0.01.cm)
+            //        mistake(Reason.IncorrectFirstLineIndentInHeader, value.double.toString(), "0")
+            //}
+            if (abs(value - 1.25.cm) >= 0.01.cm)
+                return@verifier mistake(Reason.IncorrectFirstLineIndentInText, value.double.toString(), "1.25")
         }
 
         val spacingBefore = verifier<BigInteger?> {
-
+            return@verifier
         }
 
         val spacingAfter = verifier<BigInteger?> {
-
+            return@verifier
         }
 
         val spacingLine = verifier<Spacing?> {
             val line = it?.line?.asPointsToLine() ?: 0.0
-            when (describeState()) {
-                PointerState.Header -> {
-                    if (abs(line - 1.0) >= 0.001)
-                        mistake(Reason.IncorrectLineSpacingHeader, line.toString(), "1")
-                }
-                PointerState.UnderHeader,
-                PointerState.Text -> {
-                    if (it?.lineRule == STLineSpacingRule.AUTO && abs(line - 1.5) >= 0.001)
-                        mistake(Reason.IncorrectLineSpacingText, line.toString(), "1.5")
-                }
-                PointerState.PictureDescription -> TODO()
+            if (state.isHeader) {
+                if (abs(line - 1.0) >= 0.001)
+                     mistake(Reason.IncorrectLineSpacingHeader, line.toString(), "1")
+                return@verifier
+            }
+            if (it?.lineRule == STLineSpacingRule.AUTO && abs(line - 1.5) >= 0.001) {
+                return@verifier mistake(Reason.IncorrectLineSpacingText, line.toString(), "1.5")
             }
         }
     }
@@ -245,6 +267,9 @@ object PHandler : StatefulHandler<P, PHandler.PState>, ChapterHeader {
         var currentListConfig: ListConfig? = null
         var currentText: String? = null
             private set
+
+        var isHeader = false
+        var sinceHeader = -1
 
         override fun reset() {
             currentText = null
@@ -262,6 +287,7 @@ object PHandler : StatefulHandler<P, PHandler.PState>, ChapterHeader {
         ) {
             var listPosition: Int = -1
             var start: Int = -1
+            var level: Int = -1
         }
 
         companion object : StateFactory {

@@ -20,11 +20,12 @@ class VerificationContext(val configuration: Configuration<*>) {
     val render: RenderingContext by lazy { RenderingContext(doc) }
     var chapter: Chapter = configuration.startChapter
     val doc: MainDocumentPart by lazy { mlPackage.mainDocumentPart }
-    val states = mutableMapOf<StateFactory, State>()
-    var mistakeUid: String? = null
+
+    @Suppress("PropertyName") //disable hint in ide
+    val __states = mutableMapOf<StateFactory, State>()
     val globalStateHolder = configuration.stateFactory.createState()
-    var isHeader = false
-    var sinceHeader = -1
+
+    var mistakeUid: String? = null
 
     context(ChapterHeader)
     var lastDefinedChapter: Chapter

@@ -5,16 +5,16 @@ import normativecontrol.core.annotations.ReflectHandler
 import normativecontrol.core.contexts.VerificationContext
 import normativecontrol.core.implementations.ufru.UrFUConfiguration
 import normativecontrol.core.implementations.ufru.UrFUConfiguration.runState
-import org.docx4j.wml.Br
-import org.docx4j.wml.STBrType
+import normativecontrol.shared.debug
+import org.docx4j.wml.Drawing
+import org.slf4j.LoggerFactory
 
-@ReflectHandler(Br::class, UrFUConfiguration::class)
-object BrHandler : Handler<Br> {
+@ReflectHandler(Drawing::class, UrFUConfiguration::class)
+object DrawingHandler: Handler<Drawing> {
+    private val logger = LoggerFactory.getLogger(this::class.java)
+
     context(VerificationContext)
-    override fun handle(element: Br) {
-        if (element.type == STBrType.PAGE) {
-            runState.rSinceBr = 0
-            render.pageBreak(1)
-        }
+    override fun handle(element: Drawing) {
+        logger.debug { "Found drawing at $pointer" }
     }
 }

@@ -1,11 +1,14 @@
 package normativecontrol.core.wrappers
 
+import normativecontrol.core.contexts.VerificationContext
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage
+import org.docx4j.openpackaging.parts.WordprocessingML.NumberingDefinitionsPart
 import org.docx4j.openpackaging.parts.WordprocessingML.StyleDefinitionsPart
 import org.docx4j.wml.*
 
 class PropertyResolver(mlPackage: WordprocessingMLPackage) {
     val styleDefinitionsPart: StyleDefinitionsPart = mlPackage.mainDocumentPart.styleDefinitionsPart
+    val numbering: Numbering? = mlPackage.mainDocumentPart.numberingDefinitionsPart?.jaxbElement
     val dPPr: PPr
     val dRPr: RPr
 
@@ -16,9 +19,17 @@ class PropertyResolver(mlPackage: WordprocessingMLPackage) {
         }
     }
 
+    fun resolveNumberingStyle(p: P): Lvl? {
+        if (p.pPr.numPr == null) return null
+        val abstractNumId = numbering?.num?.firstOrNull { it.numId == p.pPr.numPr.numId?.`val` }?.abstractNumId?.`val`
+        val abstract = numbering?.abstractNum?.firstOrNull { it.abstractNumId == abstractNumId }
+        return p.pPr.numPr.ilvl?.`val`?.toInt()?.let { abstract?.lvl?.get(it) }
+    }
+
     inline fun <T> getActualProperty(p: P, path: PPr.() -> T?): T? {
         val pStyle = styleDefinitionsPart.getStyleById(p.pPr?.pStyle?.`val`)
         return p.pPr?.path()
+            ?: resolveNumberingStyle(p)?.pPr?.path()
             ?: styleDefinitionsPart.getStyleById(p.pPr?.pStyle?.`val`)?.pPr?.path()
             ?: getFirstValueInBasedStylesP(pStyle, path)
             ?: dPPr.path()
@@ -33,6 +44,7 @@ class PropertyResolver(mlPackage: WordprocessingMLPackage) {
         return r.rPr?.path()
             ?: rStyle?.rPr?.path()
             ?: pStyle?.rPr?.path()
+            ?: p?.let { resolveNumberingStyle(it)?.rPr?.path() }
             ?: styleDefinitionsPart.getStyleById("${p?.pPr?.pStyle?.`val`}Char")?.rPr?.path()
             ?: styleDefinitionsPart.getStyleById(p?.pPr?.pStyle?.`val`)?.rPr?.path()
             ?: getFirstValueInBasedStylesR(pStyle, path)

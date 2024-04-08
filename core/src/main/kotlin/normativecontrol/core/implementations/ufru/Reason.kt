@@ -17,4 +17,5 @@ enum class Reason(override val description: String) : MistakeReason {
     RightIndentOnText("Обнаружен отступ справа у текста."),
     IncorrectFirstLineIndentInText("Неверный отступ первой строки у текста"),
     IncorrectFirstLineIndentInHeader("Неверный отступ первой строки у текста"),
+    IncorrectLeftIndentInList("Неверный отступ слева в списке")
 }

@@ -33,12 +33,7 @@ class Document(configuration: Configuration<*>) {
                         if (handler is ChapterHeader) {
                             val chapter = handler.checkChapterStart(element)
                             if (chapter != null) {
-                                isHeader = true
-                                sinceHeader = 0
                                 handler.checkChapterOrderAndUpdateContext(chapter)
-                            } else {
-                                isHeader = false
-                                sinceHeader++
                             }
                         }
                         handler.handleElement(element)

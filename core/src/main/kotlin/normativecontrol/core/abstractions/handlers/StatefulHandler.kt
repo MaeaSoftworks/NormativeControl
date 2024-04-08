@@ -8,5 +8,5 @@ interface StatefulHandler<T, S: State>: Handler<T>, Stateful<S> {
     context(VerificationContext)
     @Suppress("UNCHECKED_CAST")
     override val state: S
-        get() = (states[stateFactory] ?: stateFactory.createState().also { states[stateFactory] = it }) as S
+        get() = (__states[stateFactory] ?: stateFactory.createState().also { __states[stateFactory] = it }) as S
 }

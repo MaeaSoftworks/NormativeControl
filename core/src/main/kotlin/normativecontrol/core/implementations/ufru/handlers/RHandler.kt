@@ -6,7 +6,7 @@ import normativecontrol.core.annotations.ReflectHandler
 import normativecontrol.core.contexts.VerificationContext
 import normativecontrol.core.rendering.html.span
 import normativecontrol.core.implementations.ufru.UrFUConfiguration
-import normativecontrol.core.implementations.ufru.UrFUConfiguration.state as runState
+import normativecontrol.core.implementations.ufru.UrFUConfiguration.runState
 import normativecontrol.core.wrappers.resolvedRPr
 import org.docx4j.wml.R
 
