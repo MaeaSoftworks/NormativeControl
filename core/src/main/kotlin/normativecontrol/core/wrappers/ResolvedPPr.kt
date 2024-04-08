@@ -3,6 +3,7 @@ package normativecontrol.core.wrappers
 import normativecontrol.core.contexts.VerificationContext
 import org.docx4j.wml.*
 import org.docx4j.wml.PPrBase.*
+import java.math.BigInteger
 
 @JvmInline
 @Suppress("unused")
@@ -96,8 +97,8 @@ value class ResolvedPPr(private val p: P) {
         get() = resolver.getActualProperty(p) { spacing }
 
     context(VerificationContext)
-    val ind: Ind?
-        get() = resolver.getActualProperty(p) { ind }
+    val ind: ResolvedInd
+        get() = ResolvedInd(p)
 
     context(VerificationContext)
     val contextualSpacing: BooleanDefaultTrue?
@@ -147,6 +148,42 @@ value class ResolvedPPr(private val p: P) {
             val abstract = numbering?.abstractNum?.firstOrNull { it.abstractNumId == abstractNumId }
             return numPr?.ilvl?.`val`?.toInt()?.let { abstract?.lvl?.get(it) }
         }
+
+    @JvmInline
+    value class ResolvedInd(private val p: P) {
+        context(VerificationContext)
+        val left: BigInteger?
+            get() = resolver.getActualProperty(p) { ind?.left }
+
+        context(VerificationContext)
+        val leftChars: BigInteger?
+            get() = resolver.getActualProperty(p) { ind?.leftChars }
+
+        context(VerificationContext)
+        val right: BigInteger?
+            get() = resolver.getActualProperty(p) { ind?.right }
+
+        context(VerificationContext)
+        val rightChars: BigInteger?
+            get() = resolver.getActualProperty(p) { ind?.rightChars }
+
+        context(VerificationContext)
+        val hanging: BigInteger?
+            get() = resolver.getActualProperty(p) { ind?.hanging }
+
+        context(VerificationContext)
+        val hangingChars: BigInteger?
+            get() = resolver.getActualProperty(p) { ind?.hangingChars }
+
+        context(VerificationContext)
+        val firstLine: BigInteger?
+            get() = resolver.getActualProperty(p) { ind?.firstLine }
+
+        context(VerificationContext)
+        val firstLineChars: BigInteger?
+            get() = resolver.getActualProperty(p) { ind?.firstLineChars }
+
+    }
 }
 
 context(VerificationContext)

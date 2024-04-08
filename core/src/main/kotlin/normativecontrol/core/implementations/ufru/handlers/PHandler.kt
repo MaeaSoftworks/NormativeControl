@@ -51,12 +51,12 @@ object PHandler : StatefulHandler<P, PHandler.PState>, ChapterHeader {
         }
         render append p {
             style += {
-                marginLeft set (pPr.ind?.left verifyBy Rules.leftIndent)
-                marginRight set (pPr.ind?.right verifyBy Rules.rightIndent)
+                marginLeft set (pPr.ind.left verifyBy Rules.leftIndent)
+                marginRight set (pPr.ind.right verifyBy Rules.rightIndent)
                 marginBottom set (pPr.spacing?.after verifyBy Rules.spacingAfter)
                 marginTop set (pPr.spacing?.before verifyBy Rules.spacingBefore)
                 lineHeight set (pPr.spacing verifyBy Rules.spacingLine)?.line
-                textIndent set (pPr.ind?.firstLine verifyBy Rules.firstLineIndent)
+                textIndent set (pPr.ind.firstLine verifyBy Rules.firstLineIndent)
                 textAlign set pPr.jc?.`val`
                 backgroundColor set pPr.shd?.fill
                 hyphens set pPr.suppressAutoHyphens?.isVal.let { if (it == true) true else null }

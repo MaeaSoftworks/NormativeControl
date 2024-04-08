@@ -17,8 +17,10 @@ class PropertyResolver(mlPackage: WordprocessingMLPackage) {
     }
 
     inline fun <T> getActualProperty(p: P, path: PPr.() -> T?): T? {
+        val pStyle = styleDefinitionsPart.getStyleById(p.pPr?.pStyle?.`val`)
         return p.pPr?.path()
             ?: styleDefinitionsPart.getStyleById(p.pPr?.pStyle?.`val`)?.pPr?.path()
+            ?: getFirstValueInBasedStylesP(pStyle, path)
             ?: dPPr.path()
             ?: styleDefinitionsPart.defaultParagraphStyle?.pPr?.path()
     }
@@ -33,20 +35,26 @@ class PropertyResolver(mlPackage: WordprocessingMLPackage) {
             ?: pStyle?.rPr?.path()
             ?: styleDefinitionsPart.getStyleById("${p?.pPr?.pStyle?.`val`}Char")?.rPr?.path()
             ?: styleDefinitionsPart.getStyleById(p?.pPr?.pStyle?.`val`)?.rPr?.path()
-            ?: getFirstValueInBasedStyles(pStyle, path)
+            ?: getFirstValueInBasedStylesR(pStyle, path)
             ?: styleDefinitionsPart.defaultCharacterStyle.rPr?.path()
             ?: styleDefinitionsPart.defaultParagraphStyle.rPr?.path()
             ?: dRPr.path()
     }
 
-    inline fun <T> getFirstValueInBasedStyles(rPrStyle: Style?, path: RPr.() -> T?): T? {
+    inline fun <T> getFirstValueInBasedStylesR(rPrStyle: Style?, path: RPr.() -> T?): T? {
         var current: Style? = rPrStyle
         while (current != null) {
             current = styleDefinitionsPart.getStyleById(current.basedOn?.`val`)
-            val value = current?.rPr?.path()
-            if (value != null) {
-                return value
-            }
+            return current?.rPr?.path() ?: continue
+        }
+        return null
+    }
+
+    inline fun <T> getFirstValueInBasedStylesP(pPrStyle: Style?, path: PPr.() -> T?): T? {
+        var current: Style? = pPrStyle
+        while (current != null) {
+            current = styleDefinitionsPart.getStyleById(current.basedOn?.`val`)
+            return current?.pPr?.path() ?: continue
         }
         return null
     }
