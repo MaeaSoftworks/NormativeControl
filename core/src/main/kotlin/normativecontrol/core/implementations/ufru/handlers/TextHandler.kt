@@ -1,16 +1,17 @@
 package normativecontrol.core.implementations.ufru.handlers
 
+import normativecontrol.core.abstractions.handlers.Factory
 import normativecontrol.core.abstractions.handlers.Handler
-import normativecontrol.core.annotations.ReflectHandler
+import normativecontrol.core.annotations.HandlerFactory
+import normativecontrol.core.abstractions.handlers.StateProvider
 import normativecontrol.core.contexts.VerificationContext
-import normativecontrol.core.rendering.html.span
 import normativecontrol.core.implementations.ufru.UrFUConfiguration
-import normativecontrol.core.implementations.ufru.UrFUConfiguration.runState
+import normativecontrol.core.rendering.html.span
+import normativecontrol.core.implementations.ufru.UrFUState
 import org.docx4j.TextUtils
 import org.docx4j.wml.Text
 
-@ReflectHandler(Text::class, UrFUConfiguration::class)
-object TextHandler : Handler<Text> {
+class TextHandler : Handler<Text>(), StateProvider<UrFUState> {
     private val inBrackets = """\[(.*?)]""".toRegex()
     private val removePages = """,\s*С\.(?:.*)*""".toRegex()
     private val removeAndMatchRanges = """(\d+)\s*-\s*(\d+)""".toRegex()
@@ -20,7 +21,7 @@ object TextHandler : Handler<Text> {
     override fun handle(element: Text) {
         val rawText = TextUtils.getText(element)
 
-        runState.referencesInText.addAll(getAllReferences(rawText))
+        state.referencesInText.addAll(getAllReferences(rawText))
         render append span {
             content = rawText.replace("<", "&lt;").replace(">", "&gt;")
         }
@@ -59,5 +60,10 @@ object TextHandler : Handler<Text> {
 
     fun findAllReferences(refs: List<String>): List<Int> {
         return refs.flatMap { line -> matchReference.findAll(line).map { it.groups[1]!!.value.toInt() } }
+    }
+
+    @HandlerFactory(Text::class, UrFUConfiguration::class)
+    companion object: Factory<TextHandler> {
+        override fun create() = TextHandler()
     }
 }

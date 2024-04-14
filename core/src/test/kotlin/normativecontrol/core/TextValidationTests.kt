@@ -21,11 +21,11 @@ class TextValidationTests : ShouldSpec({
         """.trimIndent()
 
         should("brackets found correctly") {
-            TextHandler.findAllInBrackets(text) shouldHaveCount 6
+            TextHandler().findAllInBrackets(text) shouldHaveCount 6
         }
 
         should("find ranges correctly") {
-            TextHandler.apply {
+            TextHandler().apply {
                 val (refs, ranges) = findAllRanges(clearPages(findAllInBrackets(text)))
                 refs shouldHaveCount 6
                 ranges.size shouldBe 4
@@ -33,7 +33,7 @@ class TextValidationTests : ShouldSpec({
         }
 
         should("find single references correctly") {
-            TextHandler.apply {
+            TextHandler().apply {
                 val (refStrings, _) = findAllRanges(clearPages(findAllInBrackets(text)))
                 val refs = findAllReferences(refStrings.toList())
                 refs shouldHaveSize 5
@@ -41,7 +41,7 @@ class TextValidationTests : ShouldSpec({
         }
 
         should("find all referenced references") {
-            val refs = TextHandler.getAllReferences(text)
+            val refs = TextHandler().getAllReferences(text)
             /*
             [31]
             [12-17, 19]

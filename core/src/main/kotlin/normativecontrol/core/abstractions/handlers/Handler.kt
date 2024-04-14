@@ -2,12 +2,8 @@ package normativecontrol.core.abstractions.handlers
 
 import normativecontrol.core.contexts.VerificationContext
 
-/**
- * Parent interface for any object handler that verifies and renders docx4j objects.
- * For registration in [normativecontrol.core.abstractions.handlers.HandlerMapper]
- * annotate implementation with [normativecontrol.core.annotations.ReflectHandler] annotation.
- */
-interface Handler<T> {
+abstract class Handler<T> {
+
     /**
      * External entrypoint to element handling. It usually doesn't need to be overridden.
      *
@@ -25,5 +21,5 @@ interface Handler<T> {
      * @param element an element that need to be handled
      */
     context(VerificationContext)
-    fun handle(element: T)
+    protected abstract fun handle(element: T)
 }

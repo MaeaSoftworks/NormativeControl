@@ -1,20 +1,18 @@
 package normativecontrol.core.implementations.ufru.handlers
 
-import normativecontrol.core.abstractions.handlers.Handler
-import normativecontrol.core.abstractions.handlers.HandlerMapper
-import normativecontrol.core.annotations.ReflectHandler
+import normativecontrol.core.abstractions.handlers.*
+import normativecontrol.core.annotations.HandlerFactory
 import normativecontrol.core.contexts.VerificationContext
 import normativecontrol.core.rendering.html.span
 import normativecontrol.core.implementations.ufru.UrFUConfiguration
-import normativecontrol.core.implementations.ufru.UrFUConfiguration.runState
+import normativecontrol.core.implementations.ufru.UrFUState
 import normativecontrol.core.wrappers.resolvedRPr
 import org.docx4j.wml.R
 
-@ReflectHandler(R::class, UrFUConfiguration::class)
-object RHandler : Handler<R> {
+class RHandler : Handler<R>(), StateProvider<UrFUState> {
     context(VerificationContext)
     override fun handle(element: R) {
-        runState.rSinceBr++
+        state.rSinceBr++
         val rPr = element.resolvedRPr
         render append span {
             style += {
@@ -35,5 +33,10 @@ object RHandler : Handler<R> {
                 HandlerMapper[configuration, it]?.handleElement(it)
             }
         }
+    }
+
+    @HandlerFactory(R::class, UrFUConfiguration::class)
+    companion object: Factory<RHandler> {
+        override fun create() = RHandler()
     }
 }

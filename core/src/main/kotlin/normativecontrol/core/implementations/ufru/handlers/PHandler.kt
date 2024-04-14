@@ -2,13 +2,10 @@ package normativecontrol.core.implementations.ufru.handlers
 
 import normativecontrol.core.abstractions.chapters.Chapter
 import normativecontrol.core.abstractions.chapters.ChapterHeader
-import normativecontrol.core.abstractions.handlers.StatefulHandler
-import normativecontrol.core.abstractions.handlers.HandlerMapper
-import normativecontrol.core.abstractions.states.State
-import normativecontrol.core.abstractions.states.StateFactory
+import normativecontrol.core.abstractions.handlers.*
 import normativecontrol.core.abstractions.verifier
 import normativecontrol.core.abstractions.verifyBy
-import normativecontrol.core.annotations.ReflectHandler
+import normativecontrol.core.annotations.HandlerFactory
 import normativecontrol.core.contexts.VerificationContext
 import normativecontrol.core.rendering.html.br
 import normativecontrol.core.rendering.html.createPageStyle
@@ -16,7 +13,7 @@ import normativecontrol.core.rendering.html.p
 import normativecontrol.core.implementations.ufru.Chapters
 import normativecontrol.core.implementations.ufru.Reason
 import normativecontrol.core.implementations.ufru.UrFUConfiguration
-import normativecontrol.core.implementations.ufru.UrFUConfiguration.runState
+import normativecontrol.core.implementations.ufru.UrFUState
 import normativecontrol.core.math.abs
 import normativecontrol.core.math.asPointsToLine
 import normativecontrol.core.math.asTwip
@@ -32,11 +29,34 @@ import org.docx4j.wml.STLineSpacingRule
 import java.math.BigInteger
 import kotlin.math.abs
 
-@ReflectHandler(P::class, UrFUConfiguration::class)
-object PHandler : StatefulHandler<P, PHandler.PState>, ChapterHeader {
+class PHandler : Handler<P>(), StateProvider<UrFUState>, ChapterHeader {
     private val headerRegex = Regex("""^(\d+(?:\.\d)*)\s*.*$""")
 
-    override var stateFactory: StateFactory = PState
+    private val rules = Rules()
+
+    var currentText: String? = null
+        private set
+    var isHeader = false
+
+    private var sinceHeader = -1
+
+    private fun cacheText(element: Any): String {
+        if (currentText == null) {
+            currentText = TextUtils.getText(element)
+        }
+        return currentText!!
+    }
+
+    inner class ListData {
+        var isListElement: Boolean = false
+        var isOrdered: Boolean = false
+        var listPosition: Int = -1
+        var start: Int = -1
+        var level: Int = -1
+    }
+
+    private val listData = ListData()
+
 
     context(VerificationContext)
     override fun handle(element: P) {
@@ -44,18 +64,18 @@ object PHandler : StatefulHandler<P, PHandler.PState>, ChapterHeader {
 
         if (element.pPr?.sectPr != null) {
             render.pageBreak(-1, createPageStyle(element.pPr.sectPr))
-            runState.foldStylesheet(render.globalStylesheet)
-            runState.rSinceBr = 0
+            state.foldStylesheet(render.globalStylesheet)
+            state.rSinceBr = 0
         }
-        pPr.resolvedNumberingStyle?.let { handleListElement(element, it) } ?: run { state.currentListConfig = null }
+        pPr.resolvedNumberingStyle?.let { handleListElement(element, it) } ?: run { listData.isListElement = false }
         render append p {
             style += {
-                marginLeft set (pPr.ind.left verifyBy Rules.leftIndent)
-                marginRight set (pPr.ind.right verifyBy Rules.rightIndent)
-                marginBottom set (pPr.spacing?.after verifyBy Rules.spacingAfter)
-                marginTop set (pPr.spacing?.before verifyBy Rules.spacingBefore)
-                lineHeight set (pPr.spacing verifyBy Rules.spacingLine)?.line
-                textIndent set (pPr.ind.firstLine verifyBy Rules.firstLineIndent)
+                marginLeft set (pPr.ind.left verifyBy rules.leftIndent)
+                marginRight set (pPr.ind.right verifyBy rules.rightIndent)
+                marginBottom set (pPr.spacing?.after verifyBy rules.spacingAfter)
+                marginTop set (pPr.spacing?.before verifyBy rules.spacingBefore)
+                lineHeight set (pPr.spacing verifyBy rules.spacingLine)?.line
+                textIndent set (pPr.ind.firstLine verifyBy rules.firstLineIndent)
                 textAlign set pPr.jc?.`val`
                 backgroundColor set pPr.shd?.fill
                 hyphens set pPr.suppressAutoHyphens?.isVal.let { if (it == true) true else null }
@@ -69,37 +89,34 @@ object PHandler : StatefulHandler<P, PHandler.PState>, ChapterHeader {
                 HandlerMapper[configuration, child]?.handleElement(child)
             }
         }
+        currentText = null
     }
 
     context(VerificationContext)
     private fun handleListElement(element: P, lvl: Lvl) {
-        with(state) {
-            if (currentListConfig == null) {
-                currentListConfig = PState.ListConfig(lvl.numFmt?.`val` == NumberFormat.BULLET)
-            }
+        if (!listData.isListElement) {
+            listData.isListElement = true
+            listData.isOrdered = lvl.numFmt?.`val` == NumberFormat.BULLET
         }
 
         if (chapter == Chapters.References) {
             if (lvl.numFmt?.`val` != NumberFormat.DECIMAL) {
                 return mistake(Reason.ForbiddenMarkerTypeReferences)
             }
-            with(state) {
-                if ((currentListConfig!!.listPosition == -1 && currentListConfig!!.start == -1) || currentListConfig!!.start != lvl.start.`val`.toInt()) {
-                    currentListConfig!!.listPosition = lvl.start.`val`.toInt()
-                    currentListConfig!!.start = currentListConfig!!.listPosition
-                    if (currentListConfig!!.listPosition !in runState.referencesInText) {
-                        mistake(Reason.ReferenceNotMentionedInText)
-                    }
-                    return@with
-                } else {
-                    currentListConfig!!.listPosition++
-                    if (currentListConfig!!.listPosition !in runState.referencesInText) {
-                        mistake(Reason.ReferenceNotMentionedInText)
-                    }
+            if ((listData.listPosition == -1 && listData.start == -1) || listData.start != lvl.start.`val`.toInt()) {
+                listData.listPosition = lvl.start.`val`.toInt()
+                listData.start = listData.listPosition
+                if (listData.listPosition !in state.referencesInText) {
+                    mistake(Reason.ReferenceNotMentionedInText)
+                }
+            } else {
+                listData.listPosition++
+                if (listData.listPosition !in state.referencesInText) {
+                    mistake(Reason.ReferenceNotMentionedInText)
                 }
             }
         } else {
-            state.currentListConfig?.level = lvl.ilvl.toInt()
+            listData.level = lvl.ilvl.toInt()
             if (lvl.suff?.`val` != "space") {
                 mistake(Reason.TabInList)
             }
@@ -131,25 +148,25 @@ object PHandler : StatefulHandler<P, PHandler.PState>, ChapterHeader {
 
     context(VerificationContext)
     override fun checkChapterStart(element: Any): Chapter? {
-        val text = state.getText(element).trim().uppercase()
+        val text = cacheText(element).trim().uppercase()
         val result = configuration.verificationSettings.chapterConfiguration.headers[text]
         if (result != null) {
-            state.isHeader = true
-            state.sinceHeader = 0
+            isHeader = true
+            sinceHeader = 0
             return result
         }
         if (isChapterBodyHeader(text)) {
-            state.isHeader = true
-            state.sinceHeader = 0
+            isHeader = true
+            sinceHeader = 0
            return Chapters.Body
         }
         if (isAppendixHeader(text)) {
-            state.isHeader = true
-            state.sinceHeader = 0
+            isHeader = true
+            sinceHeader = 0
             return Chapters.Appendix
         }
-        state.isHeader = false
-        state.sinceHeader++
+        isHeader = false
+        sinceHeader++
         return null
     }
 
@@ -167,12 +184,12 @@ object PHandler : StatefulHandler<P, PHandler.PState>, ChapterHeader {
         chapter = target
     }
 
-    object Rules {
+    inner class Rules {
         val leftIndent = verifier<BigInteger?> {
-            if (state.currentText!!.isBlank()) return@verifier
+            if (currentText!!.isBlank()) return@verifier
             val value = it?.asTwip()?.cm?.round(2) ?: 0.0.cm
 
-            if (state.isHeader) {
+            if (isHeader) {
                 if (value != 0.0.cm) {
                     return@verifier mistake(Reason.LeftIndentOnHeader)
                 }
@@ -181,8 +198,8 @@ object PHandler : StatefulHandler<P, PHandler.PState>, ChapterHeader {
             //if (runState.sinceDrawing) {
             //    if (it != null && it.asTwip().cm != 0.0.cm) mistake(Reason.LeftIndentOnPictureDescription)
             //}
-            if (state.currentListConfig != null) {
-                val expected = 0.75.cm * (state.currentListConfig!!.level)
+            if (listData.isListElement) {
+                val expected = 0.75.cm * (listData.level)
                 if (value != expected) {
                     return@verifier mistake(
                         Reason.IncorrectLeftIndentInList,
@@ -198,8 +215,8 @@ object PHandler : StatefulHandler<P, PHandler.PState>, ChapterHeader {
         }
 
         val rightIndent = verifier<BigInteger?> {
-            if (state.currentText!!.isBlank()) return@verifier
-            if (state.isHeader) {
+            if (currentText!!.isBlank()) return@verifier
+            if (isHeader) {
                 if (it != null && it.asTwip().cm != 0.0.cm) {
                     return@verifier mistake(Reason.RightIndentOnHeader)
                 }
@@ -213,9 +230,9 @@ object PHandler : StatefulHandler<P, PHandler.PState>, ChapterHeader {
         }
 
         val firstLineIndent = verifier<BigInteger?> {
-            if (state.currentText!!.isBlank()) return@verifier
+            if (currentText!!.isBlank()) return@verifier
             val value = it?.asTwip()?.cm ?: 0.0.cm
-            if (state.isHeader) {
+            if (isHeader) {
                 when (chapter) {
                     Chapters.Body -> {
                         if (abs(value - 1.25.cm) >= 0.01.cm) {
@@ -250,7 +267,7 @@ object PHandler : StatefulHandler<P, PHandler.PState>, ChapterHeader {
 
         val spacingLine = verifier<Spacing?> {
             val line = it?.line?.asPointsToLine() ?: 0.0
-            if (state.isHeader) {
+            if (isHeader) {
                 if (abs(line - 1.0) >= 0.001)
                      mistake(Reason.IncorrectLineSpacingHeader, line.toString(), "1")
                 return@verifier
@@ -261,39 +278,8 @@ object PHandler : StatefulHandler<P, PHandler.PState>, ChapterHeader {
         }
     }
 
-    class PState : State {
-        override val key = Companion
-
-        var currentListConfig: ListConfig? = null
-        var currentText: String? = null
-            private set
-
-        var isHeader = false
-        var sinceHeader = -1
-
-        override fun reset() {
-            currentText = null
-        }
-
-        fun getText(element: Any): String {
-            if (currentText == null) {
-                currentText = TextUtils.getText(element)
-            }
-            return currentText!!
-        }
-
-        data class ListConfig(
-            val isOrdered: Boolean
-        ) {
-            var listPosition: Int = -1
-            var start: Int = -1
-            var level: Int = -1
-        }
-
-        companion object : StateFactory {
-            override fun createState(): State {
-                return PState()
-            }
-        }
+    @HandlerFactory(P::class, UrFUConfiguration::class)
+    companion object: Factory<PHandler> {
+        override fun create() = PHandler()
     }
 }

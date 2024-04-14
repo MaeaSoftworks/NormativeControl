@@ -4,35 +4,34 @@ import normativecontrol.core.implementations.predefined.Predefined
 import kotlin.reflect.KClass
 
 object HandlerMapper {
-    private val implementedChains = mutableMapOf<HandlerCollection, MutableMap<KClass<*>, Handler<*>>>()
-    private val predefinedChain = mutableMapOf<KClass<*>, Handler<*>>()
+    val factories = mutableMapOf<String, MutableMap<KClass<*>, Factory<*>>>()
 
-    fun add(configuration: HandlerCollection, target: KClass<*>, handler: Handler<*>) {
-        if (configuration != Predefined) {
-            if (!implementedChains.containsKey(configuration)) {
-                implementedChains[configuration] = mutableMapOf()
-            }
-            implementedChains[configuration]!! += target to handler
-        } else {
-            predefinedChain += target to handler
-        }
+    init {
+        factories[Predefined.NAME] = mutableMapOf()
     }
 
-    /**
-     * Searches applicable [StatefulHandler] in registered handlers. If no custom handlers was registered,
-     * it will search in builtin mappings. And if no mappers was found, returns `null`.
-     * @param configuration current verification profile
-     * @param target object that requires handler
-     * @return mapped handler if found, else `null`
-     */
-    operator fun get(configuration: HandlerCollection, target: Any): Handler<*>? {
-        if (!implementedChains.containsKey(configuration)) {
+    operator fun get(collection: HandlerCollection, target: Any): Handler<*>? {
+        val targetClass = target::class
+        if (collection.instances.containsKey(targetClass))
+            return collection.instances[targetClass]
+
+        if (!factories.containsKey(collection.name)) {
             throw IllegalArgumentException("Implementation didn't registered any handler")
         }
-        return findHandlerOf(target, implementedChains[configuration]!!) ?: findHandlerOf(target, predefinedChain)
-    }
+        val factory = factories[collection.name]!![target::class]
+        if (factory == null) {
+            val handler = factories[Predefined.NAME]!![target::class]?.create() as? Handler<*>
+            if (handler != null) {
+                collection.instances[targetClass] = handler
+                return handler
+            }
+        }
 
-    private fun findHandlerOf(target: Any, mappingChain: MutableMap<KClass<*>, Handler<*>>): Handler<*>? {
-        return mappingChain[target::class]
+        val instance = factory?.create() as? Handler<*>
+        if (instance != null) {
+            collection.instances[targetClass] = instance
+            return instance
+        }
+        return null
     }
 }

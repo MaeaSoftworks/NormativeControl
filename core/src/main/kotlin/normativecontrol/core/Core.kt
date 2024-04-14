@@ -1,10 +1,12 @@
 package normativecontrol.core
 
 import normativecontrol.core.abstractions.Configuration
-import normativecontrol.core.abstractions.handlers.HandlerCollection
-import normativecontrol.core.abstractions.handlers.Handler
+import normativecontrol.core.abstractions.handlers.Factory
+import normativecontrol.core.annotations.HandlerFactory
+import normativecontrol.core.annotations.HandlerGroup
 import normativecontrol.core.abstractions.handlers.HandlerMapper
-import normativecontrol.core.annotations.ReflectHandler
+import normativecontrol.core.utils.LogColor
+import normativecontrol.core.utils.highlight
 import normativecontrol.core.utils.timer
 import normativecontrol.shared.debug
 import normativecontrol.shared.error
@@ -12,39 +14,49 @@ import org.reflections.Reflections
 import org.slf4j.LoggerFactory
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
-import kotlin.reflect.full.*
+import kotlin.reflect.KClass
+import kotlin.reflect.full.findAnnotation
 
 object Core {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     init {
         val packageName = this::class.java.`package`.name
-        logger.debug { "Searching handlers at '$packageName'..." }
-        val loaded = mutableMapOf<String, MutableList<String>>()
+        logger.debug { "Searching handler factories at '$packageName'..." }
         timer({ logger.debug { "Handlers' initialization done in $it ms" } }) {
-            Reflections(packageName)
-                .getTypesAnnotatedWith(ReflectHandler::class.java)
+            val configNames = mutableMapOf<KClass<*>, String>()
+
+            val reflections = Reflections(packageName)
+            reflections.getTypesAnnotatedWith(HandlerGroup::class.java)
                 .map { it.kotlin }
-                .forEach { handlerClass ->
+                .forEach { configuration ->
+                    val setup = configuration.findAnnotation<HandlerGroup>()!!
+                    configNames += configuration to setup.name
+                }
+
+            reflections.getTypesAnnotatedWith(HandlerFactory::class.java)
+                .map { it.kotlin }
+                .forEach { factoryObject ->
                     try {
-                        val reflectHandlerAnnotation = handlerClass.findAnnotation<ReflectHandler>()!!
-                        val config = reflectHandlerAnnotation.configuration.objectInstance as HandlerCollection
-                        HandlerMapper.add(config, reflectHandlerAnnotation.target, handlerClass.objectInstance as Handler<*>)
-                        if (!loaded.containsKey(reflectHandlerAnnotation.configuration.simpleName)) {
-                            loaded[reflectHandlerAnnotation.configuration.simpleName!!] = mutableListOf()
+                        val factory = factoryObject.findAnnotation<HandlerFactory>()!!
+                        val configName = configNames[factory.configuration]!!
+                        if (!HandlerMapper.factories.containsKey(configName)) {
+                            HandlerMapper.factories[configName] = mutableMapOf()
                         }
-                        loaded[reflectHandlerAnnotation.configuration.simpleName!!]!! += handlerClass.simpleName!!
+                        HandlerMapper.factories[configName]!![factory.target] = factoryObject.objectInstance as Factory<*>
+                        logger.debug {
+                            factoryObject.java.declaringClass.kotlin.simpleName!!.highlight(LogColor.ANSI_YELLOW) + " loaded to group " +
+                                    configName.highlight(generateColor(configName))
+                        }
                     } catch (e: Exception) {
-                        logger.error(e) { "Unable to load handler ${handlerClass.qualifiedName}." }
+                        logger.error(e) { "Unable to load handler ${factoryObject.qualifiedName}." }
                     }
                 }
         }
-        if (logger.isDebugEnabled) {
-            logger.debug { "Loaded handlers:" }
-            loaded.forEach { (key, value) ->
-                logger.debug { "$key: [${value.joinToString()}]" }
-            }
-        }
+    }
+
+    private fun generateColor(value: String): LogColor {
+        return LogColor.entries[value.hashCode() % LogColor.entries.count()]
     }
 
     fun verify(source: InputStream, configuration: Configuration<*>): Pair<ByteArrayOutputStream, String> {

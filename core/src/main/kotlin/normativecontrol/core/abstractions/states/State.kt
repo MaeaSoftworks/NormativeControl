@@ -1,9 +1,13 @@
 package normativecontrol.core.abstractions.states
 
-import normativecontrol.core.abstractions.Findable
+import normativecontrol.core.rendering.css.Stylesheet
 
-interface State: Findable {
-    override val key: StateFactory
+abstract class State {
+    var externalGlobalStylesheet = Stylesheet()
+    var pageStyleId: Int = 0
 
-    fun reset() { }
+    fun foldStylesheet(target: Stylesheet) {
+        target.fold(externalGlobalStylesheet)
+        externalGlobalStylesheet = Stylesheet()
+    }
 }

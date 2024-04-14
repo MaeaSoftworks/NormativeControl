@@ -25,7 +25,7 @@ class JobRunnable(private val job: Job): Runnable {
         }
 
         val results = try {
-            Core.verify(ByteArrayInputStream(source), UrFUConfiguration)
+            Core.verify(ByteArrayInputStream(source), UrFUConfiguration())
         } catch (_: Exception) {
             job.sendResult(Status.ERROR, "Error during document verification")
             return

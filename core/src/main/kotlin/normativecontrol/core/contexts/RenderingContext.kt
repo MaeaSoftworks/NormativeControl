@@ -1,5 +1,6 @@
 package normativecontrol.core.contexts
 
+import normativecontrol.core.abstractions.handlers.AbstractStateProvider
 import normativecontrol.core.abstractions.mistakes.MistakeSerializer
 import normativecontrol.core.rendering.css.Rule
 import normativecontrol.core.rendering.css.Stylesheet
@@ -7,11 +8,10 @@ import normativecontrol.core.rendering.html.HtmlElement
 import normativecontrol.core.rendering.html.createPageStyle
 import normativecontrol.core.rendering.html.div
 import normativecontrol.core.rendering.html.htmlTemplate
-import normativecontrol.core.implementations.ufru.UrFUConfiguration.runState
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
 
 context(VerificationContext)
-class RenderingContext(doc: MainDocumentPart?) {
+class RenderingContext(doc: MainDocumentPart?) : AbstractStateProvider {
     val mistakeSerializer = MistakeSerializer()
     val styleCache = mutableMapOf<Rule, String>()
     val globalStylesheet by lazy { html.children[0]!!.children.list.first { it.type == HtmlElement.Type.STYLE }.content as Stylesheet }
@@ -27,7 +27,7 @@ class RenderingContext(doc: MainDocumentPart?) {
 
     init {
         createPage(createPageStyle(doc?.contents?.body?.sectPr).also { lastPageStyleId = it })
-        runState.foldStylesheet(globalStylesheet)
+        state.foldStylesheet(globalStylesheet)
     }
 
     fun pageBreak(copyingLevel: Int, pageStyleId: String? = null) {

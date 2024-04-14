@@ -5,8 +5,6 @@ import normativecontrol.core.abstractions.Configuration
 import normativecontrol.core.abstractions.chapters.Chapter
 import normativecontrol.core.abstractions.chapters.ChapterHeader
 import normativecontrol.core.abstractions.mistakes.MistakeReason
-import normativecontrol.core.abstractions.states.State
-import normativecontrol.core.abstractions.states.StateFactory
 import normativecontrol.core.wrappers.PropertyResolver
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage
 import org.docx4j.openpackaging.parts.WordprocessingML.CommentsPart
@@ -20,10 +18,6 @@ class VerificationContext(val configuration: Configuration<*>) {
     val render: RenderingContext by lazy { RenderingContext(doc) }
     var chapter: Chapter = configuration.startChapter
     val doc: MainDocumentPart by lazy { mlPackage.mainDocumentPart }
-
-    @Suppress("PropertyName") //disable hint in ide
-    val __states = mutableMapOf<StateFactory, State>()
-    val globalStateHolder = configuration.stateFactory.createState()
 
     var mistakeUid: String? = null
 

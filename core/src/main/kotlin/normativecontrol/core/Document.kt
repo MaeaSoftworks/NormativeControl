@@ -3,7 +3,6 @@ package normativecontrol.core
 import normativecontrol.core.abstractions.Configuration
 import normativecontrol.core.abstractions.chapters.ChapterHeader
 import normativecontrol.core.abstractions.handlers.HandlerMapper
-import normativecontrol.core.abstractions.handlers.StatefulHandler
 import normativecontrol.core.contexts.VerificationContext
 import normativecontrol.core.utils.timer
 import normativecontrol.shared.debug
@@ -37,9 +36,6 @@ class Document(configuration: Configuration<*>) {
                             }
                         }
                         handler.handleElement(element)
-                        if (handler is StatefulHandler<*, *>) {
-                            handler.state.reset()
-                        }
                     }
                 }
             }
