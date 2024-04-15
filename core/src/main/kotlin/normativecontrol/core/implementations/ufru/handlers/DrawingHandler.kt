@@ -9,7 +9,7 @@ import normativecontrol.shared.debug
 import org.docx4j.wml.Drawing
 import org.slf4j.LoggerFactory
 
-class DrawingHandler: Handler<Drawing>() {
+internal class DrawingHandler: Handler<Drawing>() {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     context(VerificationContext)

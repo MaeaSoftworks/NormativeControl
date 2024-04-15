@@ -9,7 +9,7 @@ import normativecontrol.core.implementations.ufru.UrFUState
 import normativecontrol.core.wrappers.resolvedRPr
 import org.docx4j.wml.R
 
-class RHandler : Handler<R>(), StateProvider<UrFUState> {
+internal class RHandler : Handler<R>(), StateProvider<UrFUState> {
     context(VerificationContext)
     override fun handle(element: R) {
         state.rSinceBr++

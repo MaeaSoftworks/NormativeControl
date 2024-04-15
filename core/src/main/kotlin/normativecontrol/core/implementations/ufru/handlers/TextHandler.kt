@@ -11,7 +11,7 @@ import normativecontrol.core.implementations.ufru.UrFUState
 import org.docx4j.TextUtils
 import org.docx4j.wml.Text
 
-class TextHandler : Handler<Text>(), StateProvider<UrFUState> {
+internal class TextHandler : Handler<Text>(), StateProvider<UrFUState> {
     private val inBrackets = """\[(.*?)]""".toRegex()
     private val removePages = """,\s*С\.(?:.*)*""".toRegex()
     private val removeAndMatchRanges = """(\d+)\s*-\s*(\d+)""".toRegex()

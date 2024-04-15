@@ -1,14 +1,12 @@
 package normativecontrol.core.wrappers
 
-import normativecontrol.core.contexts.VerificationContext
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage
-import org.docx4j.openpackaging.parts.WordprocessingML.NumberingDefinitionsPart
 import org.docx4j.openpackaging.parts.WordprocessingML.StyleDefinitionsPart
 import org.docx4j.wml.*
 
 class PropertyResolver(mlPackage: WordprocessingMLPackage) {
     val styleDefinitionsPart: StyleDefinitionsPart = mlPackage.mainDocumentPart.styleDefinitionsPart
-    val numbering: Numbering? = mlPackage.mainDocumentPart.numberingDefinitionsPart?.jaxbElement
+    private val numbering: Numbering? = mlPackage.mainDocumentPart.numberingDefinitionsPart?.jaxbElement
     val dPPr: PPr
     val dRPr: RPr
 

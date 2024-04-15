@@ -9,7 +9,7 @@ import normativecontrol.core.implementations.ufru.UrFUConfiguration
 import normativecontrol.core.implementations.ufru.UrFUState
 import org.docx4j.wml.R
 
-class RLastRenderedPageBreakHandler : Handler<R.LastRenderedPageBreak>(), StateProvider<UrFUState> {
+internal class RLastRenderedPageBreakHandler : Handler<R.LastRenderedPageBreak>(), StateProvider<UrFUState> {
     context(VerificationContext)
     override fun handle(element: R.LastRenderedPageBreak) {
         if (state.rSinceBr > 2)

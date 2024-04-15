@@ -2,7 +2,7 @@ package normativecontrol.core.implementations.ufru
 
 import normativecontrol.core.abstractions.mistakes.MistakeReason
 
-enum class Reason(override val description: String) : MistakeReason {
+internal enum class Reason(override val description: String) : MistakeReason {
     ChapterOrderMismatch("Неверный порядок разделов"),
     IncorrectLineSpacingHeader("Некорректный межстрочный интервал заголовка"),
     IncorrectLineSpacingText("Некорректный межстрочный интервал текста"),

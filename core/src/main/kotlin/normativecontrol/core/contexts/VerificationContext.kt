@@ -13,7 +13,7 @@ import org.docx4j.wml.*
 import java.math.BigInteger
 import java.util.*
 
-class VerificationContext(val configuration: Configuration<*>) {
+internal class VerificationContext(val configuration: Configuration<*>) {
     val resolver: PropertyResolver by lazy { PropertyResolver(mlPackage) }
     val render: RenderingContext by lazy { RenderingContext(doc) }
     var chapter: Chapter = configuration.startChapter

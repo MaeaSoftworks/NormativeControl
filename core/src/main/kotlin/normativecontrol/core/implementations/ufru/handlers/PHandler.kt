@@ -29,7 +29,7 @@ import org.docx4j.wml.STLineSpacingRule
 import java.math.BigInteger
 import kotlin.math.abs
 
-class PHandler : Handler<P>(), StateProvider<UrFUState>, ChapterHeader {
+internal class PHandler : Handler<P>(), StateProvider<UrFUState>, ChapterHeader {
     private val headerRegex = Regex("""^(\d+(?:\.\d)*)\s*.*$""")
 
     private val rules = Rules()
@@ -171,7 +171,7 @@ class PHandler : Handler<P>(), StateProvider<UrFUState>, ChapterHeader {
     }
 
     context(VerificationContext)
-    override fun checkChapterOrderAndUpdateContext(target: Chapter) {
+    override fun checkChapterOrder(target: Chapter) {
         val nextChapters = configuration.verificationSettings.chapterConfiguration.getNextChapters(lastDefinedChapter)
         if (target !in nextChapters) {
             mistake(
@@ -180,8 +180,7 @@ class PHandler : Handler<P>(), StateProvider<UrFUState>, ChapterHeader {
                 nextChapters.flatMap { configuration.verificationSettings.chapterConfiguration.names[it]!! }.joinToString("/")
             )
         }
-        lastDefinedChapter = target
-        chapter = target
+        super.checkChapterOrder(target)
     }
 
     inner class Rules {

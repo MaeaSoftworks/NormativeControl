@@ -1,12 +1,18 @@
 package normativecontrol.core.abstractions.handlers
 
 import normativecontrol.core.contexts.VerificationContext
+import normativecontrol.core.annotations.HandlerFactory
 
-abstract class Handler<T> {
-
+/**
+ * Parent interface for any handler that verifies and renders docx4j objects.
+ * For registration in [HandlerMapper] inheritor should have companion object
+ * of type [Factory] and be annotated by [HandlerFactory] annotation.
+ * @param T type of element that can be handled by this handler.
+ */
+internal abstract class Handler<T> {
     /**
-     * External entrypoint to element handling. It usually doesn't need to be overridden.
-     *
+     * External entrypoint to element handling.
+     * Always will call [handle] with element cast to [T].
      * @param element an element that need to be handled
      */
     context(VerificationContext)

@@ -2,19 +2,27 @@ package normativecontrol.core.abstractions.chapters
 
 import normativecontrol.core.contexts.VerificationContext
 
-interface ChapterHeader {
+/**
+ * Marks handler as handler of type that can be a chapter header.
+ */
+internal interface ChapterHeader {
+    /**
+     * Check if the provided element is header of any chapter.
+     * @param element element that need to be checked
+     * @return [Chapter] if element is header of this chapter, else `null`.
+     */
     context(VerificationContext)
     fun checkChapterStart(element: Any): Chapter?
 
     /**
-     * This method checks the order of the provided chapter and updates the context accordingly.
-     * Implementation should:
-     * - check correctness of chapter order, using context's `lastDefinedChapter` & `chapter`;
-     * - add mistakes, if they were found;
-     * - update context's `lastDefinedChapter` & `chapter` according to new chapter.
+     * Checks the correctness of order of the provided chapter.
+     * Implementation should call `super.`[checkChapterOrder] at the end.
      *
-     * @param target The chapter to be checked and that will update context.
+     * @param target The chapter to be checked.
      */
     context(VerificationContext)
-    fun checkChapterOrderAndUpdateContext(target: Chapter)
+    fun checkChapterOrder(target: Chapter) {
+        lastDefinedChapter = target
+        chapter = target
+    }
 }

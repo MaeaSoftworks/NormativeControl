@@ -2,7 +2,7 @@ package normativecontrol.core.implementations.ufru
 
 import normativecontrol.core.abstractions.chapters.Chapter
 
-enum class Chapters(
+internal enum class Chapters(
     override val names: Array<String>? = null,
     override val nextChapters: (() -> Array<Chapter>)? = null,
     override val prefixes: Array<String>? = null,

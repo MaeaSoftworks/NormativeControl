@@ -13,7 +13,7 @@ import java.io.InputStream
 
 class Document(configuration: Configuration<*>) {
     private lateinit var mlPackage: WordprocessingMLPackage
-    val ctx = VerificationContext(configuration)
+    internal val ctx = VerificationContext(configuration)
 
     internal fun load(stream: InputStream) {
         timer({ logger.debug { "Unpacking: $it ms" } }) {
@@ -32,7 +32,7 @@ class Document(configuration: Configuration<*>) {
                         if (handler is ChapterHeader) {
                             val chapter = handler.checkChapterStart(element)
                             if (chapter != null) {
-                                handler.checkChapterOrderAndUpdateContext(chapter)
+                                handler.checkChapterOrder(chapter)
                             }
                         }
                         handler.handleElement(element)

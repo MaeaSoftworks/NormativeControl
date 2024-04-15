@@ -3,8 +3,11 @@ package normativecontrol.core.abstractions.mistakes
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+/**
+ * Serializable mistake representation which will be used in JavaScript generated code.
+ */
 @Serializable
-data class Mistake(
+internal data class Mistake(
     @SerialName("c")
     val code: Int,
     @SerialName("i")

@@ -7,7 +7,7 @@ import normativecontrol.core.annotations.HandlerFactory
 import normativecontrol.core.abstractions.handlers.HandlerMapper
 import normativecontrol.core.contexts.VerificationContext
 
-class JAXBElementHandler : Handler<JAXBElement<*>>() {
+internal class JAXBElementHandler : Handler<JAXBElement<*>>() {
     context(VerificationContext)
     override fun handle(element: JAXBElement<*>) {
         HandlerMapper[configuration, element.value]?.handleElement(element.value)

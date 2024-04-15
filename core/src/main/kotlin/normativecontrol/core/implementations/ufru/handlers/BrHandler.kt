@@ -10,7 +10,7 @@ import normativecontrol.core.implementations.ufru.UrFUState
 import org.docx4j.wml.Br
 import org.docx4j.wml.STBrType
 
-class BrHandler : Handler<Br>(), StateProvider<UrFUState> {
+internal class BrHandler : Handler<Br>(), StateProvider<UrFUState> {
     context(VerificationContext)
     override fun handle(element: Br) {
         if (element.type == STBrType.PAGE) {

@@ -5,11 +5,11 @@ import normativecontrol.core.abstractions.handlers.HandlerCollection
 import normativecontrol.core.abstractions.states.State
 import normativecontrol.core.configurations.VerificationSettings
 
-abstract class Configuration<S: State>(
+abstract class Configuration<S: State> internal constructor(
     name: String,
     val startChapter: Chapter,
     val verificationSettings: VerificationSettings
 ) : HandlerCollection(name) {
     @Suppress("UNCHECKED_CAST") // never called in correct implementation
-    open val state: S = object : State() {} as S
+    internal open val state: S = object : State() {} as S
 }

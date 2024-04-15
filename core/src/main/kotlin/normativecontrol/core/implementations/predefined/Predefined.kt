@@ -4,7 +4,7 @@ import normativecontrol.core.abstractions.handlers.HandlerCollection
 import normativecontrol.core.annotations.HandlerGroup
 
 @HandlerGroup(Predefined.NAME)
-class Predefined : HandlerCollection(NAME) {
+internal class Predefined : HandlerCollection(NAME) {
     companion object {
         const val NAME = "__PREDEFINED"
     }

@@ -3,7 +3,7 @@ package normativecontrol.core.abstractions.handlers
 import normativecontrol.core.implementations.predefined.Predefined
 import kotlin.reflect.KClass
 
-object HandlerMapper {
+internal object HandlerMapper {
     val factories = mutableMapOf<String, MutableMap<KClass<*>, Factory<*>>>()
 
     init {
