@@ -1,7 +1,7 @@
 package normativecontrol.launcher
 
 import normativecontrol.core.Core
-import normativecontrol.core.implementations.ufru.UrFUConfiguration
+import normativecontrol.implementation.urfu.UrFUConfiguration
 import java.awt.Desktop
 import java.io.File
 import java.io.FileOutputStream

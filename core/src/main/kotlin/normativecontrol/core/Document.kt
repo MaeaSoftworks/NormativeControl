@@ -1,10 +1,9 @@
 package normativecontrol.core
 
-import normativecontrol.core.abstractions.Configuration
-import normativecontrol.core.abstractions.chapters.ChapterHeader
-import normativecontrol.core.abstractions.handlers.HandlerMapper
+import normativecontrol.core.chapters.ChapterHeader
+import normativecontrol.core.handlers.HandlerMapper
 import normativecontrol.core.contexts.VerificationContext
-import normativecontrol.core.utils.timer
+import normativecontrol.shared.timer
 import normativecontrol.shared.debug
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage
 import org.slf4j.LoggerFactory

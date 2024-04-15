@@ -1,8 +1,8 @@
 package normativecontrol.core.configurations
 
-import normativecontrol.core.abstractions.chapters.ChapterConfiguration
+import normativecontrol.core.chapters.ChapterConfiguration
 
-data class VerificationSettings internal constructor(
-    internal val chapterConfiguration: ChapterConfiguration,
+data class VerificationSettings(
+    val chapterConfiguration: ChapterConfiguration,
     val forceStyleInlining: Boolean = false
 )

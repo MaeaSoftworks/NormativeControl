@@ -3,7 +3,7 @@ package normativecontrol.launcher.client
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import normativecontrol.core.Core
-import normativecontrol.core.implementations.ufru.UrFUConfiguration
+import normativecontrol.implementation.urfu.UrFUConfiguration
 import normativecontrol.launcher.client.components.Database
 import normativecontrol.launcher.client.components.S3
 import normativecontrol.launcher.client.entities.Result

@@ -13,7 +13,7 @@ application {
 }
 
 dependencies {
-    implementation(project(":core"))
+    implementation(project(":implementation"))
     implementation(project(":shared"))
 
     implementation(kotlin("reflect"))

@@ -1,10 +1,10 @@
 package normativecontrol.core.contexts
 
-import normativecontrol.core.abstractions.Pointer
-import normativecontrol.core.abstractions.Configuration
-import normativecontrol.core.abstractions.chapters.Chapter
-import normativecontrol.core.abstractions.chapters.ChapterHeader
-import normativecontrol.core.abstractions.mistakes.MistakeReason
+import normativecontrol.core.Pointer
+import normativecontrol.core.Configuration
+import normativecontrol.core.chapters.Chapter
+import normativecontrol.core.chapters.ChapterHeader
+import normativecontrol.core.mistakes.MistakeReason
 import normativecontrol.core.wrappers.PropertyResolver
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage
 import org.docx4j.openpackaging.parts.WordprocessingML.CommentsPart
@@ -13,7 +13,7 @@ import org.docx4j.wml.*
 import java.math.BigInteger
 import java.util.*
 
-internal class VerificationContext(val configuration: Configuration<*>) {
+class VerificationContext(val configuration: Configuration<*>) {
     val resolver: PropertyResolver by lazy { PropertyResolver(mlPackage) }
     val render: RenderingContext by lazy { RenderingContext(doc) }
     var chapter: Chapter = configuration.startChapter

@@ -1,13 +1,12 @@
 package normativecontrol.core
 
-import normativecontrol.core.abstractions.Configuration
-import normativecontrol.core.abstractions.handlers.Factory
+import normativecontrol.core.handlers.Factory
 import normativecontrol.core.annotations.HandlerFactory
 import normativecontrol.core.annotations.HandlerGroup
-import normativecontrol.core.abstractions.handlers.HandlerMapper
+import normativecontrol.core.handlers.HandlerMapper
 import normativecontrol.core.utils.LogColor
 import normativecontrol.core.utils.highlight
-import normativecontrol.core.utils.timer
+import normativecontrol.shared.timer
 import normativecontrol.shared.debug
 import normativecontrol.shared.error
 import org.reflections.Reflections
@@ -21,7 +20,7 @@ object Core {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     init {
-        val packageName = this::class.java.`package`.name
+        val packageName = "normativecontrol"
         logger.debug { "Searching handler factories at '$packageName'..." }
         timer({ logger.debug { "Handlers' initialization done in $it ms" } }) {
             val configNames = mutableMapOf<KClass<*>, String>()

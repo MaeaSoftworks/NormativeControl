@@ -1,6 +1,6 @@
 package normativecontrol.core.rendering.html
 
-import normativecontrol.core.abstractions.mistakes.MistakeSerializer
+import normativecontrol.core.mistakes.MistakeSerializer
 import normativecontrol.core.contexts.VerificationContext
 import normativecontrol.core.utils.lazySerializable
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart

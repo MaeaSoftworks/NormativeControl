@@ -1,7 +1,6 @@
 package normativecontrol.core.contexts
 
-import normativecontrol.core.abstractions.handlers.AbstractStateProvider
-import normativecontrol.core.abstractions.mistakes.MistakeSerializer
+import normativecontrol.core.handlers.AbstractStateProvider
 import normativecontrol.core.rendering.css.Rule
 import normativecontrol.core.rendering.css.Stylesheet
 import normativecontrol.core.rendering.html.HtmlElement
@@ -12,7 +11,7 @@ import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
 
 context(VerificationContext)
 class RenderingContext(doc: MainDocumentPart?) : AbstractStateProvider {
-    val mistakeSerializer = MistakeSerializer()
+    val mistakeSerializer = normativecontrol.core.mistakes.MistakeSerializer()
     val styleCache = mutableMapOf<Rule, String>()
     val globalStylesheet by lazy { html.children[0]!!.children.list.first { it.type == HtmlElement.Type.STYLE }.content as Stylesheet }
     private val html = htmlTemplate(doc, mistakeSerializer)
