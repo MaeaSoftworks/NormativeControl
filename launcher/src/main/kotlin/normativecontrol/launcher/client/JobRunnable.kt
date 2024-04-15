@@ -3,6 +3,7 @@ package normativecontrol.launcher.client
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import normativecontrol.core.Core
+import normativecontrol.core.Statistics
 import normativecontrol.implementation.urfu.UrFUConfiguration
 import normativecontrol.launcher.client.components.Database
 import normativecontrol.launcher.client.components.S3
@@ -32,8 +33,8 @@ class JobRunnable(private val job: Job): Runnable {
         }
 
         try {
-            S3.putObject(results.first.toByteArray(), job.results.docx)
-            S3.putObject(results.second.toByteArray(), job.results.html)
+            S3.putObject(results.docx.toByteArray(), job.results.docx)
+            S3.putObject(results.html.toByteArray(), job.results.html)
         } catch (_: Exception) {
             job.sendResult(Status.ERROR, "Error during document uploading")
             return
@@ -42,7 +43,7 @@ class JobRunnable(private val job: Job): Runnable {
         job.sendResult(Status.OK)
     }
 
-    private fun Job.sendResult(status: Status, description: String? = null) {
+    private fun Job.sendResult(status: Status, description: String? = null, statistics: Statistics? = null) {
         logger.debug {
             description.let {
                 if (description != null) "Job ${id}: $status: $description"
@@ -53,7 +54,8 @@ class JobRunnable(private val job: Job): Runnable {
             Result(
                 id,
                 status,
-                description
+                description,
+                statistics
             )
         )
     }

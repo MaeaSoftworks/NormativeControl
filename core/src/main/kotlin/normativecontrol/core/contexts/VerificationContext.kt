@@ -37,7 +37,8 @@ class VerificationContext(val configuration: Configuration<*>) {
     var totalChildSize: Int = 0
         private set
     var pointer = Pointer()
-    private var mistakeId: Long = 0
+    var mistakeId: Int = 0
+        private set
 
     fun load(mlPackage: WordprocessingMLPackage) {
         this.mlPackage = mlPackage
@@ -46,7 +47,7 @@ class VerificationContext(val configuration: Configuration<*>) {
             jaxbElement = Comments()
             doc.addTargetPart(this)
         }
-        mistakeId = comments.jaxbElement.comment.size.toLong()
+        mistakeId = comments.jaxbElement.comment.size
     }
 
     fun getCurrentElement(): Any? {
@@ -86,8 +87,7 @@ class VerificationContext(val configuration: Configuration<*>) {
         } else {
             mistakeReason.description
         }
-
-        val id = BigInteger.valueOf(mistakeId++)
+        val id = BigInteger.valueOf(mistakeId++.toLong())
         mistakeUid = "m$id"
 
         render.mistakeSerializer.addMistake(

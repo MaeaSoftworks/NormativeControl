@@ -58,11 +58,17 @@ object Core {
         return LogColor.entries[value.hashCode() % LogColor.entries.count()]
     }
 
-    fun verify(source: InputStream, configuration: Configuration<*>): Pair<ByteArrayOutputStream, String> {
+    fun verify(source: InputStream, configuration: Configuration<*>): Result {
         Document(configuration).apply {
             load(source)
             runVerification()
-            return ByteArrayOutputStream().also { writeResult(it) } to this.ctx.render.getString()
+            return Result(
+                ByteArrayOutputStream().also { writeResult(it) },
+                this.ctx.render.getString(),
+                Statistics(
+                    this.ctx.mistakeId
+                )
+            )
         }
     }
 }
