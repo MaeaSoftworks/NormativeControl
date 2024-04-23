@@ -18,7 +18,7 @@ import normativecontrol.core.math.asPointsToLine
 import normativecontrol.core.math.asTwip
 import normativecontrol.core.math.cm
 import normativecontrol.core.utils.flatMap
-import normativecontrol.core.wrappers.resolvedPPr
+import normativecontrol.core.wrappers.PPr.Companion.resolve
 import normativecontrol.implementation.urfu.UrFUConfiguration
 import org.docx4j.TextUtils
 import org.docx4j.wml.Lvl
@@ -60,14 +60,14 @@ internal class PHandler : Handler<P>(), StateProvider<UrFUState>, ChapterHeader 
 
     context(VerificationContext)
     override fun handle(element: P) {
-        val pPr = element.resolvedPPr
+        val pPr = element.pPr.resolve()
 
         if (element.pPr?.sectPr != null) {
             render.pageBreak(-1, createPageStyle(element.pPr.sectPr))
             state.foldStylesheet(render.globalStylesheet)
             state.rSinceBr = 0
         }
-        pPr.resolvedNumberingStyle?.let { handleListElement(element, it) } ?: run { listData.isListElement = false }
+        pPr.numberingStyle?.let { handleListElement(element, it) } ?: run { listData.isListElement = false }
         render append p {
             style += {
                 marginLeft set (pPr.ind.left verifyBy rules.leftIndent)

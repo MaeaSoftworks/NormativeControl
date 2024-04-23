@@ -13,8 +13,9 @@ object HandlerMapper {
 
     operator fun get(collection: HandlerCollection, target: Any): Handler<*>? {
         val targetClass = target::class
-        if (collection.instances.containsKey(targetClass))
+        if (collection.instances.containsKey(targetClass)) {
             return collection.instances[targetClass]
+        }
 
         if (!factories.containsKey(collection.name)) {
             throw IllegalArgumentException("Implementation didn't registered any handler")

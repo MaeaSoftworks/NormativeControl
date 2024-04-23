@@ -4,8 +4,8 @@ import normativecontrol.core.handlers.*
 import normativecontrol.core.annotations.HandlerFactory
 import normativecontrol.core.contexts.VerificationContext
 import normativecontrol.core.rendering.html.span
+import normativecontrol.core.wrappers.RPr.Companion.resolve
 import normativecontrol.implementation.urfu.UrFUState
-import normativecontrol.core.wrappers.resolvedRPr
 import normativecontrol.implementation.urfu.UrFUConfiguration
 import org.docx4j.wml.R
 
@@ -13,7 +13,7 @@ internal class RHandler : Handler<R>(), StateProvider<UrFUState> {
     context(VerificationContext)
     override fun handle(element: R) {
         state.rSinceBr++
-        val rPr = element.resolvedRPr
+        val rPr = element.rPr.resolve()
         render append span {
             style += {
                 fontFamily set rPr.rFonts.ascii

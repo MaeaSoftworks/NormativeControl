@@ -6,255 +6,255 @@ import org.docx4j.wml.*
 
 @JvmInline
 @Suppress("unused")
-value class ResolvedRPr(private val r: R) {
+value class RPr(private val rPr: org.docx4j.wml.RPr?) {
     context(VerificationContext)
     val rStyle: RStyle?
-        get() = resolver.getActualProperty(r) { rStyle }
+        get() = resolver.getActualProperty(rPr) { rStyle }
 
     context(VerificationContext)
-    val rFonts: ResolvedRFonts
-        get() = ResolvedRFonts(r)
+    val rFonts: RFonts
+        get() = RFonts(rPr)
 
     context(VerificationContext)
     val b: BooleanDefaultTrue?
-        get() = resolver.getActualProperty(r) { b }
+        get() = resolver.getActualProperty(rPr) { b }
 
     context(VerificationContext)
     val bCs: BooleanDefaultTrue?
-        get() = resolver.getActualProperty(r) { bCs }
+        get() = resolver.getActualProperty(rPr) { bCs }
 
     context(VerificationContext)
     val i: BooleanDefaultTrue?
-        get() = resolver.getActualProperty(r) { i }
+        get() = resolver.getActualProperty(rPr) { i }
 
     context(VerificationContext)
     val iCs: BooleanDefaultTrue?
-        get() = resolver.getActualProperty(r) { iCs }
+        get() = resolver.getActualProperty(rPr) { iCs }
 
     context(VerificationContext)
     val caps: BooleanDefaultTrue?
-        get() = resolver.getActualProperty(r) { caps }
+        get() = resolver.getActualProperty(rPr) { caps }
 
     context(VerificationContext)
     val smallCaps: BooleanDefaultTrue?
-        get() = resolver.getActualProperty(r) { smallCaps }
+        get() = resolver.getActualProperty(rPr) { smallCaps }
 
     context(VerificationContext)
     val strike: BooleanDefaultTrue?
-        get() = resolver.getActualProperty(r) { strike }
+        get() = resolver.getActualProperty(rPr) { strike }
 
     context(VerificationContext)
     val dstrike: BooleanDefaultTrue?
-        get() = resolver.getActualProperty(r) { dstrike }
+        get() = resolver.getActualProperty(rPr) { dstrike }
 
     context(VerificationContext)
     val outline: BooleanDefaultTrue?
-        get() = resolver.getActualProperty(r) { outline }
+        get() = resolver.getActualProperty(rPr) { outline }
 
     context(VerificationContext)
     val shadow: BooleanDefaultTrue?
-        get() = resolver.getActualProperty(r) { shadow }
+        get() = resolver.getActualProperty(rPr) { shadow }
 
     context(VerificationContext)
     val emboss: BooleanDefaultTrue?
-        get() = resolver.getActualProperty(r) { emboss }
+        get() = resolver.getActualProperty(rPr) { emboss }
 
     context(VerificationContext)
     val imprint: BooleanDefaultTrue?
-        get() = resolver.getActualProperty(r) { imprint }
+        get() = resolver.getActualProperty(rPr) { imprint }
 
     context(VerificationContext)
     val noProof: BooleanDefaultTrue?
-        get() = resolver.getActualProperty(r) { noProof }
+        get() = resolver.getActualProperty(rPr) { noProof }
 
     context(VerificationContext)
     val snapToGrid: BooleanDefaultTrue?
-        get() = resolver.getActualProperty(r) { snapToGrid }
+        get() = resolver.getActualProperty(rPr) { snapToGrid }
 
     context(VerificationContext)
     val vanish: BooleanDefaultTrue?
-        get() = resolver.getActualProperty(r) { vanish }
+        get() = resolver.getActualProperty(rPr) { vanish }
 
     context(VerificationContext)
     val webHidden: BooleanDefaultTrue?
-        get() = resolver.getActualProperty(r) { webHidden }
+        get() = resolver.getActualProperty(rPr) { webHidden }
 
     context(VerificationContext)
     val color: Color?
-        get() = resolver.getActualProperty(r) { color }
+        get() = resolver.getActualProperty(rPr) { color }
 
     context(VerificationContext)
     val spacing: CTSignedTwipsMeasure?
-        get() = resolver.getActualProperty(r) { spacing }
+        get() = resolver.getActualProperty(rPr) { spacing }
 
     context(VerificationContext)
     val w: CTTextScale?
-        get() = resolver.getActualProperty(r) { w }
+        get() = resolver.getActualProperty(rPr) { w }
 
     context(VerificationContext)
     val kern: HpsMeasure?
-        get() = resolver.getActualProperty(r) { kern }
+        get() = resolver.getActualProperty(rPr) { kern }
 
     context(VerificationContext)
     val position: CTSignedHpsMeasure?
-        get() = resolver.getActualProperty(r) { position }
+        get() = resolver.getActualProperty(rPr) { position }
 
     context(VerificationContext)
     val sz: HpsMeasure?
-        get() = resolver.getActualProperty(r) { sz }
+        get() = resolver.getActualProperty(rPr) { sz }
 
     context(VerificationContext)
     val szCs: HpsMeasure?
-        get() = resolver.getActualProperty(r) { szCs }
+        get() = resolver.getActualProperty(rPr) { szCs }
 
     context(VerificationContext)
     val highlight: Highlight?
-        get() = resolver.getActualProperty(r) { highlight }
+        get() = resolver.getActualProperty(rPr) { highlight }
 
     context(VerificationContext)
     val u: U?
-        get() = resolver.getActualProperty(r) { u }
+        get() = resolver.getActualProperty(rPr) { u }
 
     context(VerificationContext)
     val effect: CTTextEffect?
-        get() = resolver.getActualProperty(r) { effect }
+        get() = resolver.getActualProperty(rPr) { effect }
 
     context(VerificationContext)
     val bdr: CTBorder?
-        get() = resolver.getActualProperty(r) { bdr }
+        get() = resolver.getActualProperty(rPr) { bdr }
 
     context(VerificationContext)
     val shd: CTShd?
-        get() = resolver.getActualProperty(r) { shd }
+        get() = resolver.getActualProperty(rPr) { shd }
 
     context(VerificationContext)
     val fitText: CTFitText?
-        get() = resolver.getActualProperty(r) { fitText }
+        get() = resolver.getActualProperty(rPr) { fitText }
 
     context(VerificationContext)
     val vertAlign: CTVerticalAlignRun?
-        get() = resolver.getActualProperty(r) { vertAlign }
+        get() = resolver.getActualProperty(rPr) { vertAlign }
 
     context(VerificationContext)
     val rtl: BooleanDefaultTrue?
-        get() = resolver.getActualProperty(r) { rtl }
+        get() = resolver.getActualProperty(rPr) { rtl }
 
     context(VerificationContext)
     val cs: BooleanDefaultTrue?
-        get() = resolver.getActualProperty(r) { cs }
+        get() = resolver.getActualProperty(rPr) { cs }
 
     context(VerificationContext)
     val em: CTEm?
-        get() = resolver.getActualProperty(r) { em }
+        get() = resolver.getActualProperty(rPr) { em }
 
     context(VerificationContext)
     val lang: CTLanguage?
-        get() = resolver.getActualProperty(r) { lang }
+        get() = resolver.getActualProperty(rPr) { lang }
 
     context(VerificationContext)
     val eastAsianLayout: CTEastAsianLayout?
-        get() = resolver.getActualProperty(r) { eastAsianLayout }
+        get() = resolver.getActualProperty(rPr) { eastAsianLayout }
 
     context(VerificationContext)
     val specVanish: BooleanDefaultTrue?
-        get() = resolver.getActualProperty(r) { specVanish }
+        get() = resolver.getActualProperty(rPr) { specVanish }
 
     context(VerificationContext)
     val oMath: BooleanDefaultTrue?
-        get() = resolver.getActualProperty(r) { oMath }
+        get() = resolver.getActualProperty(rPr) { oMath }
 
     context(VerificationContext)
     val glow: CTGlow?
-        get() = resolver.getActualProperty(r) { glow }
+        get() = resolver.getActualProperty(rPr) { glow }
 
     context(VerificationContext)
     val shadow14: CTShadow?
-        get() = resolver.getActualProperty(r) { shadow14 }
+        get() = resolver.getActualProperty(rPr) { shadow14 }
 
     context(VerificationContext)
     val reflection: CTReflection?
-        get() = resolver.getActualProperty(r) { reflection }
+        get() = resolver.getActualProperty(rPr) { reflection }
 
     context(VerificationContext)
     val textOutline: CTTextOutlineEffect?
-        get() = resolver.getActualProperty(r) { textOutline }
+        get() = resolver.getActualProperty(rPr) { textOutline }
 
     context(VerificationContext)
     val textFill: CTFillTextEffect?
-        get() = resolver.getActualProperty(r) { textFill }
+        get() = resolver.getActualProperty(rPr) { textFill }
 
     context(VerificationContext)
     val scene3D: CTScene3D?
-        get() = resolver.getActualProperty(r) { scene3D }
+        get() = resolver.getActualProperty(rPr) { scene3D }
 
     context(VerificationContext)
     val props3D: CTProps3D?
-        get() = resolver.getActualProperty(r) { props3D }
+        get() = resolver.getActualProperty(rPr) { props3D }
 
     context(VerificationContext)
     val ligatures: CTLigatures?
-        get() = resolver.getActualProperty(r) { ligatures }
+        get() = resolver.getActualProperty(rPr) { ligatures }
 
     context(VerificationContext)
     val numForm: CTNumForm?
-        get() = resolver.getActualProperty(r) { numForm }
+        get() = resolver.getActualProperty(rPr) { numForm }
 
     context(VerificationContext)
     val numSpacing: CTNumSpacing?
-        get() = resolver.getActualProperty(r) { numSpacing }
+        get() = resolver.getActualProperty(rPr) { numSpacing }
 
     context(VerificationContext)
     val stylisticSets: CTStylisticSets?
-        get() = resolver.getActualProperty(r) { stylisticSets }
+        get() = resolver.getActualProperty(rPr) { stylisticSets }
 
     context(VerificationContext)
     val cntxtAlts: CTOnOff?
-        get() = resolver.getActualProperty(r) { cntxtAlts }
+        get() = resolver.getActualProperty(rPr) { cntxtAlts }
 
     context(VerificationContext)
     val rPrChange: CTRPrChange?
-        get() = resolver.getActualProperty(r) { rPrChange }
+        get() = resolver.getActualProperty(rPr) { rPrChange }
 
     @JvmInline
-    value class ResolvedRFonts(private val r: R) {
+    value class RFonts(private val rPr: org.docx4j.wml.RPr?) {
         context(VerificationContext)
         val hint: STHint?
-            get() = resolver.getActualProperty(r) { rFonts?.hint }
+            get() = resolver.getActualProperty(rPr) { rFonts?.hint }
 
         context(VerificationContext)
         val ascii: String?
-            get() = resolver.getActualProperty(r) { rFonts?.ascii }
+            get() = resolver.getActualProperty(rPr) { rFonts?.ascii }
 
         context(VerificationContext)
         val hAnsi: String?
-            get() = resolver.getActualProperty(r) { rFonts?.hAnsi }
+            get() = resolver.getActualProperty(rPr) { rFonts?.hAnsi }
 
         context(VerificationContext)
         val eastAsia: String?
-            get() = resolver.getActualProperty(r) { rFonts?.eastAsia }
+            get() = resolver.getActualProperty(rPr) { rFonts?.eastAsia }
 
         context(VerificationContext)
         val cs: String?
-            get() = resolver.getActualProperty(r) { rFonts?.cs }
+            get() = resolver.getActualProperty(rPr) { rFonts?.cs }
 
         context(VerificationContext)
         val asciiTheme: STTheme?
-            get() = resolver.getActualProperty(r) { rFonts?.asciiTheme }
+            get() = resolver.getActualProperty(rPr) { rFonts?.asciiTheme }
 
         context(VerificationContext)
         val hAnsiTheme: STTheme?
-            get() = resolver.getActualProperty(r) { rFonts?.hAnsiTheme }
+            get() = resolver.getActualProperty(rPr) { rFonts?.hAnsiTheme }
 
         context(VerificationContext)
         val eastAsiaTheme: STTheme?
-            get() = resolver.getActualProperty(r) { rFonts?.eastAsiaTheme }
+            get() = resolver.getActualProperty(rPr) { rFonts?.eastAsiaTheme }
 
         context(VerificationContext)
         val cstheme: STTheme?
-            get() = resolver.getActualProperty(r) { rFonts?.cstheme }
+            get() = resolver.getActualProperty(rPr) { rFonts?.cstheme }
+    }
+
+    companion object {
+        fun org.docx4j.wml.RPr?.resolve(): RPr = RPr(this)
     }
 }
-
-context(VerificationContext)
-val R.resolvedRPr: ResolvedRPr
-    get() = ResolvedRPr(this)

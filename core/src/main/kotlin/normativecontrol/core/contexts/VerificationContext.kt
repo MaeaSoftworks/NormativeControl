@@ -14,7 +14,8 @@ import java.math.BigInteger
 import java.util.*
 
 class VerificationContext(val configuration: Configuration<*>) {
-    val resolver: PropertyResolver by lazy { PropertyResolver(mlPackage) }
+    lateinit var resolver: PropertyResolver
+        private set
     val render: RenderingContext by lazy { RenderingContext(doc) }
     var chapter: Chapter = configuration.startChapter
     val doc: MainDocumentPart by lazy { mlPackage.mainDocumentPart }
@@ -42,6 +43,7 @@ class VerificationContext(val configuration: Configuration<*>) {
 
     fun load(mlPackage: WordprocessingMLPackage) {
         this.mlPackage = mlPackage
+        resolver = PropertyResolver(mlPackage)
         totalChildSize = doc.content.size
         comments = doc.commentsPart ?: CommentsPart().apply {
             jaxbElement = Comments()
