@@ -1,7 +1,7 @@
 package normativecontrol.core.handlers
 
-import normativecontrol.core.contexts.VerificationContext
 import normativecontrol.core.annotations.HandlerFactory
+import normativecontrol.core.contexts.VerificationContext
 
 /**
  * Parent interface for any handler that verifies and renders docx4j objects.

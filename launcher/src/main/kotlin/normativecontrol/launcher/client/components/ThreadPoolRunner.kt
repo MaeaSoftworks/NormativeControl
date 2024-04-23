@@ -4,7 +4,7 @@ import normativecontrol.launcher.client.JobRunnable
 import normativecontrol.launcher.client.messages.Job
 import java.util.concurrent.Executors
 
-class ThreadPoolRunner: Runner {
+class ThreadPoolRunner : Runner {
     private val threads: Int = Runtime.getRuntime().availableProcessors()
     private val executor = Executors.newFixedThreadPool(threads)
 

@@ -1,8 +1,8 @@
 package normativecontrol.implementation.urfu
 
 import normativecontrol.core.Configuration
-import normativecontrol.core.chapters.ChapterConfiguration
 import normativecontrol.core.annotations.HandlerGroup
+import normativecontrol.core.chapters.ChapterConfiguration
 import normativecontrol.core.configurations.VerificationSettings
 
 @HandlerGroup(UrFUConfiguration.NAME)

@@ -10,11 +10,11 @@ import normativecontrol.launcher.client.components.S3
 import normativecontrol.launcher.client.entities.Result
 import normativecontrol.launcher.client.entities.Status
 import normativecontrol.launcher.client.messages.Job
-import normativecontrol.shared.*
+import normativecontrol.shared.debug
 import org.slf4j.LoggerFactory
 import java.io.ByteArrayInputStream
 
-class JobRunnable(private val job: Job): Runnable {
+class JobRunnable(private val job: Job) : Runnable {
     override fun run() {
         logger.debug { "Received job '${job.id}' with body: ${Json.encodeToString(job)}" }
 

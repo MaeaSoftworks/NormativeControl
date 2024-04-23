@@ -1,25 +1,28 @@
 package normativecontrol.implementation.urfu.handlers
 
+import normativecontrol.core.annotations.HandlerFactory
 import normativecontrol.core.chapters.Chapter
 import normativecontrol.core.chapters.ChapterHeader
-import normativecontrol.core.handlers.*
-import normativecontrol.core.verifier
-import normativecontrol.core.verifyBy
-import normativecontrol.core.annotations.HandlerFactory
 import normativecontrol.core.contexts.VerificationContext
-import normativecontrol.core.rendering.html.br
-import normativecontrol.core.rendering.html.createPageStyle
-import normativecontrol.core.rendering.html.p
-import normativecontrol.implementation.urfu.Chapters
-import normativecontrol.implementation.urfu.Reason
-import normativecontrol.implementation.urfu.UrFUState
+import normativecontrol.core.handlers.Factory
+import normativecontrol.core.handlers.Handler
+import normativecontrol.core.handlers.HandlerMapper
+import normativecontrol.core.handlers.StateProvider
 import normativecontrol.core.math.abs
 import normativecontrol.core.math.asPointsToLine
 import normativecontrol.core.math.asTwip
 import normativecontrol.core.math.cm
+import normativecontrol.core.rendering.html.br
+import normativecontrol.core.rendering.html.createPageStyle
+import normativecontrol.core.rendering.html.p
 import normativecontrol.core.utils.flatMap
+import normativecontrol.core.verifier
+import normativecontrol.core.verifyBy
 import normativecontrol.core.wrappers.PPr.Companion.resolve
+import normativecontrol.implementation.urfu.Chapters
+import normativecontrol.implementation.urfu.Reason
 import normativecontrol.implementation.urfu.UrFUConfiguration
+import normativecontrol.implementation.urfu.UrFUState
 import org.docx4j.TextUtils
 import org.docx4j.wml.Lvl
 import org.docx4j.wml.NumberFormat
@@ -30,7 +33,7 @@ import java.math.BigInteger
 import kotlin.math.abs
 
 internal class PHandler : Handler<P>(), StateProvider<UrFUState>, ChapterHeader {
-    private val headerRegex = Regex("""^(\d+(?:\.\d)*)\s*.*$""")
+    private val headerRegex = Regex("""^(\d+(?:\.\d)*)\s(?:\w\s?)*$""")
 
     private val rules = Rules()
 
@@ -158,7 +161,7 @@ internal class PHandler : Handler<P>(), StateProvider<UrFUState>, ChapterHeader 
         if (isChapterBodyHeader(text)) {
             isHeader = true
             sinceHeader = 0
-           return Chapters.Body
+            return Chapters.Body
         }
         if (isAppendixHeader(text)) {
             isHeader = true
@@ -268,7 +271,7 @@ internal class PHandler : Handler<P>(), StateProvider<UrFUState>, ChapterHeader 
             val line = it?.line?.asPointsToLine() ?: 0.0
             if (isHeader) {
                 if (abs(line - 1.0) >= 0.001)
-                     mistake(Reason.IncorrectLineSpacingHeader, line.toString(), "1")
+                    mistake(Reason.IncorrectLineSpacingHeader, line.toString(), "1")
                 return@verifier
             }
             if (it?.lineRule == STLineSpacingRule.AUTO && abs(line - 1.5) >= 0.001) {
@@ -278,7 +281,7 @@ internal class PHandler : Handler<P>(), StateProvider<UrFUState>, ChapterHeader 
     }
 
     @HandlerFactory(P::class, UrFUConfiguration::class)
-    companion object: Factory<PHandler> {
+    companion object : Factory<PHandler> {
         override fun create() = PHandler()
     }
 }

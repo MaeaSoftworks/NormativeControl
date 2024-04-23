@@ -38,7 +38,7 @@ class JobPool(isBlocking: Boolean) : Closeable {
         private var _instance: JobPool? = null
 
         val instance: JobPool
-            get() =  _instance ?: throw UnsupportedOperationException("JobPool is not initialized")
+            get() = _instance ?: throw UnsupportedOperationException("JobPool is not initialized")
 
         fun run(job: Job) = instance.run(job)
     }

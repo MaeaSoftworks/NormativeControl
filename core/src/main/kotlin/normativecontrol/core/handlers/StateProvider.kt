@@ -1,7 +1,7 @@
 package normativecontrol.core.handlers
 
-import normativecontrol.core.contexts.VerificationContext
 import normativecontrol.core.Configuration
+import normativecontrol.core.contexts.VerificationContext
 
 /**
  * Casts [Configuration.state] to provided type [S] using [VerificationContext].

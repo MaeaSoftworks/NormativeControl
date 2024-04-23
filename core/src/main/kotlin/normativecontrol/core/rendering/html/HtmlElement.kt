@@ -10,7 +10,7 @@ open class HtmlElement(
     private val hasClosingTag: Boolean = true,
 ) {
     val classes: MutableList<String> = mutableListOf()
-    var id: String? = null
+    private var id: String? = null
     var content: Serializable? = null
     var style: Style = Style(classes)
     val params: Params by lazy { Params() }

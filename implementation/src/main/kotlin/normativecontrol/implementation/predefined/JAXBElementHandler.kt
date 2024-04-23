@@ -1,11 +1,11 @@
 package normativecontrol.implementation.predefined
 
 import jakarta.xml.bind.JAXBElement
+import normativecontrol.core.annotations.HandlerFactory
+import normativecontrol.core.contexts.VerificationContext
 import normativecontrol.core.handlers.Factory
 import normativecontrol.core.handlers.Handler
-import normativecontrol.core.annotations.HandlerFactory
 import normativecontrol.core.handlers.HandlerMapper
-import normativecontrol.core.contexts.VerificationContext
 
 internal class JAXBElementHandler : Handler<JAXBElement<*>>() {
     context(VerificationContext)
@@ -14,7 +14,7 @@ internal class JAXBElementHandler : Handler<JAXBElement<*>>() {
     }
 
     @HandlerFactory(JAXBElement::class, Predefined::class)
-    companion object: Factory<JAXBElementHandler> {
+    companion object : Factory<JAXBElementHandler> {
         override fun create() = JAXBElementHandler()
     }
 }

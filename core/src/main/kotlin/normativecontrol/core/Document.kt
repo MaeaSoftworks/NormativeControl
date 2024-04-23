@@ -1,10 +1,10 @@
 package normativecontrol.core
 
 import normativecontrol.core.chapters.ChapterHeader
-import normativecontrol.core.handlers.HandlerMapper
 import normativecontrol.core.contexts.VerificationContext
-import normativecontrol.shared.timer
+import normativecontrol.core.handlers.HandlerMapper
 import normativecontrol.shared.debug
+import normativecontrol.shared.timer
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage
 import org.slf4j.LoggerFactory
 import java.io.ByteArrayOutputStream

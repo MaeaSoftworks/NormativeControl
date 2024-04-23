@@ -1,12 +1,15 @@
 package normativecontrol.implementation.urfu.handlers
 
-import normativecontrol.core.handlers.*
 import normativecontrol.core.annotations.HandlerFactory
 import normativecontrol.core.contexts.VerificationContext
+import normativecontrol.core.handlers.Factory
+import normativecontrol.core.handlers.Handler
+import normativecontrol.core.handlers.HandlerMapper
+import normativecontrol.core.handlers.StateProvider
 import normativecontrol.core.rendering.html.span
 import normativecontrol.core.wrappers.RPr.Companion.resolve
-import normativecontrol.implementation.urfu.UrFUState
 import normativecontrol.implementation.urfu.UrFUConfiguration
+import normativecontrol.implementation.urfu.UrFUState
 import org.docx4j.wml.R
 
 internal class RHandler : Handler<R>(), StateProvider<UrFUState> {
@@ -36,7 +39,7 @@ internal class RHandler : Handler<R>(), StateProvider<UrFUState> {
     }
 
     @HandlerFactory(R::class, UrFUConfiguration::class)
-    companion object: Factory<RHandler> {
+    companion object : Factory<RHandler> {
         override fun create() = RHandler()
     }
 }

@@ -1,7 +1,7 @@
 package normativecontrol.core.handlers
 
-import kotlin.reflect.KClass
 import normativecontrol.core.annotations.HandlerGroup
+import kotlin.reflect.KClass
 
 /**
  * Base class for handler groups. For correct registration in [HandlerMapper]

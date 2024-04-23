@@ -182,7 +182,7 @@ value class PPr(private val pPr: org.docx4j.wml.PPr?) {
         val firstLineChars: BigInteger?
             get() = resolver.getActualProperty(pPr) { ind?.firstLineChars }
     }
-    
+
     companion object {
         fun org.docx4j.wml.PPr?.resolve() = PPr(this)
     }

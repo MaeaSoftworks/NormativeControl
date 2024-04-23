@@ -1,10 +1,10 @@
 package normativecontrol.implementation.urfu.handlers
 
+import normativecontrol.core.annotations.HandlerFactory
+import normativecontrol.core.contexts.VerificationContext
 import normativecontrol.core.handlers.Factory
 import normativecontrol.core.handlers.Handler
-import normativecontrol.core.annotations.HandlerFactory
 import normativecontrol.core.handlers.StateProvider
-import normativecontrol.core.contexts.VerificationContext
 import normativecontrol.core.rendering.html.span
 import normativecontrol.implementation.urfu.UrFUConfiguration
 import normativecontrol.implementation.urfu.UrFUState
@@ -27,7 +27,7 @@ internal class TextHandler : Handler<Text>(), StateProvider<UrFUState> {
         }
     }
 
-    private fun getAllReferences(text: String): Set<Int> {
+    fun getAllReferences(text: String): Set<Int> {
         val set = mutableSetOf<Int>()
         val (refs, ranges) = findAllRanges(clearPages(findAllInBrackets(text))).let { it.first.toList() to it.second }
         ranges.forEach {
@@ -63,7 +63,7 @@ internal class TextHandler : Handler<Text>(), StateProvider<UrFUState> {
     }
 
     @HandlerFactory(Text::class, UrFUConfiguration::class)
-    companion object: Factory<TextHandler> {
+    companion object : Factory<TextHandler> {
         override fun create() = TextHandler()
     }
 }

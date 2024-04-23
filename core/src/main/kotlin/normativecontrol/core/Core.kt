@@ -1,14 +1,14 @@
 package normativecontrol.core
 
-import normativecontrol.core.handlers.Factory
 import normativecontrol.core.annotations.HandlerFactory
 import normativecontrol.core.annotations.HandlerGroup
+import normativecontrol.core.handlers.Factory
 import normativecontrol.core.handlers.HandlerMapper
 import normativecontrol.core.utils.LogColor
 import normativecontrol.core.utils.highlight
-import normativecontrol.shared.timer
 import normativecontrol.shared.debug
 import normativecontrol.shared.error
+import normativecontrol.shared.timer
 import org.reflections.Reflections
 import org.slf4j.LoggerFactory
 import java.io.ByteArrayOutputStream

@@ -9,6 +9,7 @@ enum class LogColor(val value: String) {
     ANSI_PURPLE("\u001B[35m"),
     ANSI_CYAN("\u001B[36m"),
     ANSI_WHITE("\u001B[37m");
+
     companion object {
         const val ANSI_RESET = "\u001B[0m"
     }

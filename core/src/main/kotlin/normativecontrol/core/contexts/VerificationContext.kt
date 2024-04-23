@@ -1,7 +1,7 @@
 package normativecontrol.core.contexts
 
-import normativecontrol.core.Pointer
 import normativecontrol.core.Configuration
+import normativecontrol.core.Pointer
 import normativecontrol.core.chapters.Chapter
 import normativecontrol.core.chapters.ChapterHeader
 import normativecontrol.core.mistakes.MistakeReason
