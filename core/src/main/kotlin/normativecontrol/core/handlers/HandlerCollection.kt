@@ -14,4 +14,7 @@ abstract class HandlerCollection(val name: String) {
      * Map of instances of handlers. Should not be modified manually.
      */
     internal val instances = mutableMapOf<KClass<*>, Handler<*>>()
+
+    val handlerInstances: Map<KClass<*>, Handler<*>>
+        get() = instances
 }

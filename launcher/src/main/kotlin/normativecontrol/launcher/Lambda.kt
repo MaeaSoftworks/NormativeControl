@@ -10,7 +10,7 @@ import java.nio.file.Files
 class Lambda(private val configuration: Configuration) {
     fun run() {
         val file = File(configuration.source)
-        val result = Core.verify(file.inputStream(), UrFUConfiguration())
+        val result = Core.verify(file.inputStream(), UrFUConfiguration.NAME)
         result.docx.writeTo(FileOutputStream(configuration.result ?: (file.parent + File.separator + "result.docx")))
         if (configuration.render) {
             Files.createTempFile("render-", ".html").toFile().also {

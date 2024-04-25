@@ -3,6 +3,7 @@ package normativecontrol.core
 import normativecontrol.core.annotations.HandlerFactory
 import normativecontrol.core.annotations.HandlerGroup
 import normativecontrol.core.handlers.Factory
+import normativecontrol.core.handlers.HandlerCollection
 import normativecontrol.core.handlers.HandlerMapper
 import normativecontrol.core.utils.LogColor
 import normativecontrol.core.utils.highlight
@@ -13,11 +14,13 @@ import org.reflections.Reflections
 import org.slf4j.LoggerFactory
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
+import java.io.InvalidObjectException
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
 
 object Core {
     private val logger = LoggerFactory.getLogger(this::class.java)
+    private val configurations = mutableMapOf<String, () -> HandlerCollection>()
 
     init {
         val packageName = "normativecontrol"
@@ -31,6 +34,10 @@ object Core {
                 .forEach { configuration ->
                     val setup = configuration.findAnnotation<HandlerGroup>()!!
                     configNames += configuration to setup.name
+                    configurations += setup.name to
+                        (configuration.constructors.firstOrNull()
+                            ?: throw InvalidObjectException("Configuration class should have only primary constructor without args")
+                        ).let { { it.call() as HandlerCollection } }
                 }
 
             reflections.getTypesAnnotatedWith(HandlerFactory::class.java)
@@ -58,8 +65,12 @@ object Core {
         return LogColor.entries[value.hashCode() % LogColor.entries.count()]
     }
 
-    fun verify(source: InputStream, configuration: Configuration<*>): Result {
-        Document(configuration).apply {
+    fun verify(source: InputStream, configurationName: String): Result {
+        val runtime = Runtime(
+            configurationName,
+            configurations
+        )
+        Document(runtime).apply {
             load(source)
             runVerification()
             return Result(

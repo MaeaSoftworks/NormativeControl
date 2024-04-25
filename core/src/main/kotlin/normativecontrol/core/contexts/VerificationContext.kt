@@ -2,6 +2,7 @@ package normativecontrol.core.contexts
 
 import normativecontrol.core.Configuration
 import normativecontrol.core.Pointer
+import normativecontrol.core.Runtime
 import normativecontrol.core.chapters.Chapter
 import normativecontrol.core.chapters.ChapterHeader
 import normativecontrol.core.mistakes.MistakeReason
@@ -13,7 +14,8 @@ import org.docx4j.wml.*
 import java.math.BigInteger
 import java.util.*
 
-class VerificationContext(val configuration: Configuration<*>) {
+class VerificationContext(val runtime: Runtime) {
+    val configuration: Configuration<*> = runtime.configuration
     lateinit var resolver: PropertyResolver
         private set
     val render: RenderingContext by lazy { RenderingContext(doc) }

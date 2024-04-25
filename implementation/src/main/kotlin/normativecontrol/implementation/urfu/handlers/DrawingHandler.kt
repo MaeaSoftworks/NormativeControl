@@ -11,10 +11,27 @@ import org.slf4j.LoggerFactory
 
 internal class DrawingHandler : Handler<Drawing>() {
     private val logger = LoggerFactory.getLogger(this::class.java)
+    var sinceDrawing = -1
+    var currentPWithDrawing = false
+
+    override fun addHooks() {
+        add {
+            hook(PHandler::class, HookType.AfterHandle) {
+                if (currentPWithDrawing) {
+                    currentPWithDrawing = false
+                    logger.debug { "currentPWithDrawing set to false" }
+                    return@hook
+                }
+                sinceDrawing++
+            }
+        }
+    }
 
     context(VerificationContext)
     override fun handle(element: Drawing) {
-        logger.debug { "Found drawing at $pointer" }
+        currentPWithDrawing = true
+        sinceDrawing = 0
+        logger.debug { "currentPWithDrawing set to true" }
     }
 
     @HandlerFactory(Drawing::class, UrFUConfiguration::class)

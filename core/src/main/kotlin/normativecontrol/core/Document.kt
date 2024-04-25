@@ -10,9 +10,9 @@ import org.slf4j.LoggerFactory
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 
-class Document(configuration: Configuration<*>) {
+internal class Document(runtime: Runtime) {
     private lateinit var mlPackage: WordprocessingMLPackage
-    internal val ctx = VerificationContext(configuration)
+    internal val ctx = VerificationContext(runtime)
 
     internal fun load(stream: InputStream) {
         timer({ logger.debug { "Unpacking: $it ms" } }) {
