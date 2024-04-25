@@ -16,22 +16,15 @@ import java.util.*
 
 class VerificationContext(val runtime: Runtime) {
     val configuration: Configuration<*> = runtime.configuration
-    lateinit var resolver: PropertyResolver
-        private set
     val render: RenderingContext by lazy { RenderingContext(doc) }
-    var chapter: Chapter = configuration.startChapter
+    val pointer = Pointer()
     val doc: MainDocumentPart by lazy { mlPackage.mainDocumentPart }
 
     var mistakeUid: String? = null
+    var chapter: Chapter = configuration.startChapter
 
-    context(ChapterHeader)
-    var lastDefinedChapter: Chapter
-        get() = _lastDefinedChapter
-        set(value) {
-            _lastDefinedChapter = value
-        }
-
-    private var _lastDefinedChapter: Chapter = configuration.startChapter
+    lateinit var resolver: PropertyResolver
+        private set
 
     private lateinit var mlPackage: WordprocessingMLPackage
 
@@ -39,7 +32,6 @@ class VerificationContext(val runtime: Runtime) {
 
     var totalChildSize: Int = 0
         private set
-    var pointer = Pointer()
     var mistakeId: Int = 0
         private set
 

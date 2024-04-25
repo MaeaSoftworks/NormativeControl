@@ -61,7 +61,8 @@ internal enum class Chapters(
 
     Appendix(
         arrayOf("ПРИЛОЖЕНИЕ"),
-        prefixes = arrayOf("ПРИЛОЖЕНИЕ"),
+        { arrayOf(Appendix) },
+        arrayOf("ПРИЛОЖЕНИЕ"),
         shouldBeVerified = false
     )
 }

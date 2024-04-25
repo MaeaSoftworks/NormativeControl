@@ -4,7 +4,6 @@ import normativecontrol.core.annotations.HandlerFactory
 import normativecontrol.core.contexts.VerificationContext
 import normativecontrol.core.handlers.Factory
 import normativecontrol.core.handlers.Handler
-import normativecontrol.core.handlers.HandlerMapper
 import normativecontrol.core.handlers.StateProvider
 import normativecontrol.core.rendering.html.span
 import normativecontrol.core.wrappers.RPr.Companion.resolve
@@ -33,7 +32,7 @@ internal class RHandler : Handler<R>(), StateProvider<UrFUState> {
         }
         render.inLastElementScope {
             element.content.forEach {
-                HandlerMapper[configuration, it]?.handleElement(it)
+                runtime.getHandlerFor(it)?.handleElement(it)
             }
         }
     }

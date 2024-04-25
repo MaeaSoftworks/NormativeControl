@@ -1,10 +1,11 @@
 package normativecontrol.core.handlers
 
+import normativecontrol.core.Runtime
 import normativecontrol.core.annotations.HandlerGroup
 import kotlin.reflect.KClass
 
 /**
- * Base class for handler groups. For correct registration in [HandlerMapper]
+ * Base class for handler groups. For correct registration in [Runtime]
  * should be annotated with [HandlerGroup].
  * @constructor creates a new handler collection with specified name.
  * @param name name of group

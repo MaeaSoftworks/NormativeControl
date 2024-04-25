@@ -16,13 +16,9 @@ interface ChapterHeader {
 
     /**
      * Checks the correctness of order of the provided chapter.
-     * Implementation should call `super.`[checkChapterOrder] at the end.
      *
      * @param target The chapter to be checked.
      */
     context(VerificationContext)
-    fun checkChapterOrder(target: Chapter) {
-        lastDefinedChapter = target
-        chapter = target
-    }
+    fun checkChapterOrder(target: Chapter)
 }

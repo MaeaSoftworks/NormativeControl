@@ -2,7 +2,6 @@ package normativecontrol.core
 
 import normativecontrol.core.chapters.ChapterHeader
 import normativecontrol.core.contexts.VerificationContext
-import normativecontrol.core.handlers.HandlerMapper
 import normativecontrol.shared.debug
 import normativecontrol.shared.timer
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage
@@ -13,6 +12,10 @@ import java.io.InputStream
 internal class Document(runtime: Runtime) {
     private lateinit var mlPackage: WordprocessingMLPackage
     internal val ctx = VerificationContext(runtime)
+
+    init {
+        runtime.context = ctx
+    }
 
     internal fun load(stream: InputStream) {
         timer({ logger.debug { "Unpacking: $it ms" } }) {
@@ -26,7 +29,7 @@ internal class Document(runtime: Runtime) {
             with(ctx) {
                 doc.content.iterate { pos ->
                     val element = doc.content[pos]
-                    val handler = HandlerMapper[configuration, element]
+                    val handler = runtime.getHandlerFor(element)
                     if (handler != null) {
                         if (handler is ChapterHeader) {
                             val chapter = handler.checkChapterStart(element)

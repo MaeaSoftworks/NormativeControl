@@ -4,7 +4,6 @@ import normativecontrol.core.annotations.HandlerFactory
 import normativecontrol.core.annotations.HandlerGroup
 import normativecontrol.core.handlers.Factory
 import normativecontrol.core.handlers.HandlerCollection
-import normativecontrol.core.handlers.HandlerMapper
 import normativecontrol.core.utils.LogColor
 import normativecontrol.core.utils.highlight
 import normativecontrol.shared.debug
@@ -19,13 +18,15 @@ import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
 
 object Core {
+    const val PREDEFINED_NAME = "__PREDEFINED"
+
     private val logger = LoggerFactory.getLogger(this::class.java)
     private val configurations = mutableMapOf<String, () -> HandlerCollection>()
 
     init {
         val packageName = "normativecontrol"
         logger.debug { "Searching handler factories at '$packageName'..." }
-        timer({ logger.debug { "Handlers' initialization done in $it ms" } }) {
+        timer({ logger.debug { "Searching done in $it ms" } }) {
             val configNames = mutableMapOf<KClass<*>, String>()
 
             val reflections = Reflections(packageName)
@@ -46,10 +47,10 @@ object Core {
                     try {
                         val factory = factoryObject.findAnnotation<HandlerFactory>()!!
                         val configName = configNames[factory.configuration]!!
-                        if (!HandlerMapper.factories.containsKey(configName)) {
-                            HandlerMapper.factories[configName] = mutableMapOf()
+                        if (!Runtime.factories.containsKey(configName)) {
+                            Runtime.factories[configName] = mutableMapOf()
                         }
-                        HandlerMapper.factories[configName]!![factory.target] = factoryObject.objectInstance as Factory<*>
+                        Runtime.factories[configName]!![factory.target] = factoryObject.objectInstance as Factory<*>
                         logger.debug {
                             factoryObject.java.declaringClass.kotlin.simpleName!!.highlight(LogColor.ANSI_YELLOW) + " loaded to group " +
                                     configName.highlight(generateColor(configName))
@@ -66,10 +67,12 @@ object Core {
     }
 
     fun verify(source: InputStream, configurationName: String): Result {
-        val runtime = Runtime(
-            configurationName,
-            configurations
-        )
+        val runtime = timer({ logger.debug { "Runtime initialization done in $it ms" } }) {
+            Runtime(
+                configurationName,
+                configurations
+            )
+        }
         Document(runtime).apply {
             load(source)
             runVerification()

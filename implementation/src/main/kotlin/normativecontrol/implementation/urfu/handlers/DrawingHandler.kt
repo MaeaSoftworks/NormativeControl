@@ -4,38 +4,35 @@ import normativecontrol.core.annotations.HandlerFactory
 import normativecontrol.core.contexts.VerificationContext
 import normativecontrol.core.handlers.Factory
 import normativecontrol.core.handlers.Handler
+import normativecontrol.core.handlers.StateProvider
 import normativecontrol.implementation.urfu.UrFUConfiguration
-import normativecontrol.shared.debug
+import normativecontrol.implementation.urfu.UrFUState
 import org.docx4j.wml.Drawing
 import org.slf4j.LoggerFactory
 
-internal class DrawingHandler : Handler<Drawing>() {
-    private val logger = LoggerFactory.getLogger(this::class.java)
-    var sinceDrawing = -1
-    var currentPWithDrawing = false
-
+internal class DrawingHandler : Handler<Drawing>(), StateProvider<UrFUState> {
     override fun addHooks() {
-        add {
-            hook(PHandler::class, HookType.AfterHandle) {
-                if (currentPWithDrawing) {
-                    currentPWithDrawing = false
-                    logger.debug { "currentPWithDrawing set to false" }
+        hook<PHandler, _>(HookType.AfterHandle) {
+            with(runtime.context) {
+                if (state.currentPWithDrawing) {
+                    state.currentPWithDrawing = false
                     return@hook
                 }
-                sinceDrawing++
+                state.sinceDrawing++
             }
         }
     }
 
     context(VerificationContext)
     override fun handle(element: Drawing) {
-        currentPWithDrawing = true
-        sinceDrawing = 0
-        logger.debug { "currentPWithDrawing set to true" }
+        state.currentPWithDrawing = true
+        state.sinceDrawing = 0
     }
 
     @HandlerFactory(Drawing::class, UrFUConfiguration::class)
     companion object : Factory<DrawingHandler> {
+        private val logger = LoggerFactory.getLogger(DrawingHandler::class.java)
+
         override fun create() = DrawingHandler()
     }
 }
