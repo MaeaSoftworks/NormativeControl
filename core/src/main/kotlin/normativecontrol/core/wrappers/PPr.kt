@@ -1,7 +1,5 @@
 package normativecontrol.core.wrappers
 
-import jakarta.xml.bind.annotation.XmlAttribute
-import jakarta.xml.bind.annotation.XmlTransient
 import normativecontrol.core.contexts.VerificationContext
 import org.docx4j.wml.*
 import org.docx4j.wml.PPrBase.*
@@ -12,7 +10,6 @@ import java.math.BigInteger
  * @param pPr target PPr
  */
 @JvmInline
-@Suppress("unused")
 value class PPr(private val pPr: org.docx4j.wml.PPr?) {
     context(VerificationContext)
     val pStyle: PStyle?

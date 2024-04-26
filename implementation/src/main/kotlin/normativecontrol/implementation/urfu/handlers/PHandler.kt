@@ -228,7 +228,7 @@ internal class PHandler : Handler<P>(), StateProvider<UrFUState>, ChapterHeader 
         chapter = target
     }
 
-    inner class Rules {
+    private inner class Rules {
         private val isPictureTitle: Boolean
             get() = with(runtime.context) { state.sinceDrawing == 0 && !state.currentPWithDrawing }
 

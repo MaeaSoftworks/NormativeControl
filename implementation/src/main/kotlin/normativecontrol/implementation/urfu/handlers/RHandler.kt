@@ -6,19 +6,24 @@ import normativecontrol.core.handlers.Factory
 import normativecontrol.core.handlers.Handler
 import normativecontrol.core.handlers.StateProvider
 import normativecontrol.core.rendering.html.span
+import normativecontrol.core.verifier
+import normativecontrol.core.verifyBy
 import normativecontrol.core.wrappers.RPr.Companion.resolve
+import normativecontrol.implementation.urfu.Reason
 import normativecontrol.implementation.urfu.UrFUConfiguration
 import normativecontrol.implementation.urfu.UrFUState
 import org.docx4j.wml.R
 
 internal class RHandler : Handler<R>(), StateProvider<UrFUState> {
+    private val rules = Rules()
+
     context(VerificationContext)
     override fun handle(element: R) {
         state.rSinceBr++
         val rPr = element.rPr.resolve()
         render append span {
             style += {
-                fontFamily set rPr.rFonts.ascii
+                fontFamily set (rPr.rFonts.ascii verifyBy rules.fonts)
                 fontSize set rPr.sz?.`val`?.toDouble()
                 fontStyle set rPr.i?.isVal
                 fontWeight set rPr.b?.isVal
@@ -33,6 +38,14 @@ internal class RHandler : Handler<R>(), StateProvider<UrFUState> {
         render.inLastElementScope {
             element.content.forEach {
                 runtime.getHandlerFor(it)?.handleElement(it)
+            }
+        }
+    }
+
+    private inner class Rules {
+        val fonts = verifier<String?> {
+            if (it != "Times New Roman") {
+                mistake(Reason.IncorrectFont)
             }
         }
     }

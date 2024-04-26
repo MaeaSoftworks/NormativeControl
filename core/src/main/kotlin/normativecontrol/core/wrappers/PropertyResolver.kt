@@ -49,13 +49,13 @@ class PropertyResolver(mlPackage: WordprocessingMLPackage) {
         return rPr?.path()
             ?: rStyle?.rPr?.path()
             ?: pStyle?.rPr?.path()
-            ?: resolveNumberingStyle(p?.pPr)?.rPr?.path()
             ?: getStyleByIdOptimized("${p?.pPr?.pStyle?.`val`}Char")?.rPr?.path()
             ?: getStyleByIdOptimized(p?.pPr?.pStyle?.`val`)?.rPr?.path()
             ?: getFirstValueInBasedStylesR(pStyle, path)
             ?: styleDefinitionsPart.defaultCharacterStyle.rPr?.path()
             ?: styleDefinitionsPart.defaultParagraphStyle.rPr?.path()
             ?: dRPr.path()
+            ?: resolveNumberingStyle(p?.pPr)?.rPr?.path()
     }
 
     inline fun <T> getFirstValueInBasedStylesR(rPrStyle: Style?, path: RPr.() -> T?): T? {

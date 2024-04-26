@@ -26,4 +26,5 @@ internal enum class Reason(override val description: String) : MistakeReason {
     BackgroundColor("Найден цветной фон"),
     SpacingBefore("Найден интервал перед абзацем"),
     SpacingAfter("Найден интервал после абзаца"),
+    IncorrectFont("Неверный шрифт: необходим Times New Roman")
 }
