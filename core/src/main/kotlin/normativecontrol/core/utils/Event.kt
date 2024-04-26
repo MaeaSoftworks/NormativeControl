@@ -1,9 +1,9 @@
 package normativecontrol.core.utils
 
 import normativecontrol.core.contexts.VerificationContext
-import normativecontrol.core.handlers.Handler
+import normativecontrol.core.handlers.AbstractHandler
 
-class Event<H : Handler<T>, T> {
+class Event<H : AbstractHandler<T>, T> {
     private val callbacks = mutableSetOf<H.(ctx: VerificationContext) -> Unit>()
 
     fun add(callback: H.(ctx: VerificationContext) -> Unit) {

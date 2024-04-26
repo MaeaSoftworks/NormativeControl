@@ -1,10 +1,9 @@
 package normativecontrol.core.contexts
 
-import normativecontrol.core.Configuration
+import normativecontrol.core.AbstractConfiguration
 import normativecontrol.core.Pointer
 import normativecontrol.core.Runtime
 import normativecontrol.core.chapters.Chapter
-import normativecontrol.core.chapters.ChapterHeader
 import normativecontrol.core.mistakes.MistakeReason
 import normativecontrol.core.wrappers.PropertyResolver
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage
@@ -15,7 +14,7 @@ import java.math.BigInteger
 import java.util.*
 
 class VerificationContext(val runtime: Runtime) {
-    val configuration: Configuration<*> = runtime.configuration
+    val configuration: AbstractConfiguration<*> = runtime.configuration
     val render: RenderingContext by lazy { RenderingContext(doc) }
     val pointer = Pointer()
     val doc: MainDocumentPart by lazy { mlPackage.mainDocumentPart }

@@ -1,12 +1,12 @@
 package normativecontrol.implementation.urfu
 
-import normativecontrol.core.Configuration
-import normativecontrol.core.annotations.HandlerGroup
+import normativecontrol.core.AbstractConfiguration
+import normativecontrol.core.annotations.Configuration
 import normativecontrol.core.chapters.ChapterConfiguration
 import normativecontrol.core.configurations.VerificationSettings
 
-@HandlerGroup(UrFUConfiguration.NAME)
-class UrFUConfiguration : Configuration<UrFUState>(
+@Configuration(UrFUConfiguration.NAME)
+class UrFUConfiguration : AbstractConfiguration<UrFUState>(
     NAME,
     Chapters.FrontPage,
     VerificationSettings(

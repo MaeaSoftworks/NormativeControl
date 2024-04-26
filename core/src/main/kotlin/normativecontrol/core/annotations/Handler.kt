@@ -4,7 +4,7 @@ import kotlin.reflect.KClass
 
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.CLASS)
-annotation class HandlerFactory(
+annotation class Handler(
     val target: KClass<*>,
     val configuration: KClass<*>
 )

@@ -1,19 +1,19 @@
 package normativecontrol.core.handlers
 
 import normativecontrol.core.Runtime
-import normativecontrol.core.annotations.HandlerFactory
+import normativecontrol.core.annotations.Handler
 import normativecontrol.core.contexts.VerificationContext
 import normativecontrol.core.utils.Event
 
 /**
  * Parent interface for any handler that verifies and renders docx4j objects.
  * For registration in [Runtime] inheritor should have companion object
- * of type [Factory] and be annotated by [HandlerFactory] annotation.
+ * of type [Factory] and be annotated by [Handler] annotation.
  * @param T type of element that can be handled by this handler.
  */
-abstract class Handler<T> {
-    private val beforeHandleEvent = Event<Handler<T>, T>()
-    private val afterHandleEvent = Event<Handler<T>, T>()
+abstract class AbstractHandler<T> {
+    private val beforeHandleEvent = Event<AbstractHandler<T>, T>()
+    private val afterHandleEvent = Event<AbstractHandler<T>, T>()
     lateinit var runtime: Runtime
         internal set
 
@@ -45,13 +45,13 @@ abstract class Handler<T> {
     protected abstract fun handle(element: T)
 
     @Suppress("UNCHECKED_CAST")
-    protected inline fun <H: Handler<V>, reified V> hook(hookType: HookType, noinline hook: H.(ctx: VerificationContext) -> Unit) {
+    protected inline fun <H: AbstractHandler<V>, reified V> hook(hookType: HookType, noinline hook: H.(ctx: VerificationContext) -> Unit) {
         val instance = runtime.handlers[V::class] ?: return
         val event = hookType.event(instance) as? Event<H, V> ?: return
         event.add(hook)
     }
 
-    enum class HookType(val event: Handler<*>.() -> Event<*, *>) {
+    enum class HookType(val event: AbstractHandler<*>.() -> Event<*, *>) {
         BeforeHandle({ beforeHandleEvent }),
         AfterHandle({ afterHandleEvent })
     }

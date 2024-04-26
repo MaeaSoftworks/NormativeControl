@@ -1,8 +1,8 @@
 package normativecontrol.core
 
-import normativecontrol.core.annotations.HandlerFactory
-import normativecontrol.core.annotations.HandlerGroup
-import normativecontrol.core.handlers.Factory
+import normativecontrol.core.annotations.Handler
+import normativecontrol.core.annotations.Configuration
+import normativecontrol.core.handlers.AbstractHandler
 import normativecontrol.core.handlers.HandlerCollection
 import normativecontrol.core.utils.LogColor
 import normativecontrol.core.utils.highlight
@@ -30,10 +30,10 @@ object Core {
             val configNames = mutableMapOf<KClass<*>, String>()
 
             val reflections = Reflections(packageName)
-            reflections.getTypesAnnotatedWith(HandlerGroup::class.java)
+            reflections.getTypesAnnotatedWith(Configuration::class.java)
                 .map { it.kotlin }
                 .forEach { configuration ->
-                    val setup = configuration.findAnnotation<HandlerGroup>()!!
+                    val setup = configuration.findAnnotation<Configuration>()!!
                     configNames += configuration to setup.name
                     configurations += setup.name to
                         (configuration.constructors.firstOrNull()
@@ -41,22 +41,24 @@ object Core {
                         ).let { { it.call() as HandlerCollection } }
                 }
 
-            reflections.getTypesAnnotatedWith(HandlerFactory::class.java)
+            reflections.getTypesAnnotatedWith(Handler::class.java)
                 .map { it.kotlin }
-                .forEach { factoryObject ->
+                .forEach { handlerClass ->
                     try {
-                        val factory = factoryObject.findAnnotation<HandlerFactory>()!!
-                        val configName = configNames[factory.configuration]!!
+                        val handlerAnnotation = handlerClass.findAnnotation<Handler>()!!
+                        val configName = configNames[handlerAnnotation.configuration]!!
                         if (!Runtime.factories.containsKey(configName)) {
                             Runtime.factories[configName] = mutableMapOf()
                         }
-                        Runtime.factories[configName]!![factory.target] = factoryObject.objectInstance as Factory<*>
+                        Runtime.factories[configName]!![handlerAnnotation.target] =
+                            handlerClass.constructors.find { it.parameters.isEmpty() }?.let { { it.call() as AbstractHandler<*> } }
+                                ?: throw InvalidObjectException("Hanler class should have only primary constructor without args")
                         logger.debug {
-                            factoryObject.java.declaringClass.kotlin.simpleName!!.highlight(LogColor.ANSI_YELLOW) + " loaded to group " +
+                            handlerClass.simpleName!!.highlight(LogColor.ANSI_YELLOW) + " loaded to group " +
                                     configName.highlight(generateColor(configName))
                         }
                     } catch (e: Exception) {
-                        logger.error(e) { "Unable to load handler ${factoryObject.qualifiedName}." }
+                        logger.error(e) { "Unable to load handler ${handlerClass.qualifiedName}." }
                     }
                 }
         }

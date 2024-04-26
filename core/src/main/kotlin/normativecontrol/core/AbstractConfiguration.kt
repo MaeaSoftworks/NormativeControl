@@ -5,7 +5,7 @@ import normativecontrol.core.configurations.VerificationSettings
 import normativecontrol.core.handlers.HandlerCollection
 import normativecontrol.core.states.State
 
-abstract class Configuration<S : State>(
+abstract class AbstractConfiguration<S : State>(
     name: String,
     val startChapter: Chapter,
     val verificationSettings: VerificationSettings

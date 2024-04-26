@@ -1,14 +1,14 @@
 package normativecontrol.implementation.urfu.handlers
 
-import normativecontrol.core.annotations.HandlerFactory
+import normativecontrol.core.annotations.Handler
 import normativecontrol.core.contexts.VerificationContext
-import normativecontrol.core.handlers.Factory
-import normativecontrol.core.handlers.Handler
+import normativecontrol.core.handlers.AbstractHandler
 import normativecontrol.core.rendering.html.create
 import normativecontrol.implementation.urfu.UrFUConfiguration
 import org.docx4j.wml.R.Tab
 
-internal class TabHandler : Handler<Tab>() {
+@Handler(Tab::class, UrFUConfiguration::class)
+internal class TabHandler : AbstractHandler<Tab>() {
     context(VerificationContext)
     override fun handle(element: Tab) {
         render.pointer!!.addChild(create("tab") {
@@ -19,10 +19,5 @@ internal class TabHandler : Handler<Tab>() {
                 "display" set "inline-block"
             }
         })
-    }
-
-    @HandlerFactory(Tab::class, UrFUConfiguration::class)
-    companion object : Factory<TabHandler> {
-        override fun create() = TabHandler()
     }
 }

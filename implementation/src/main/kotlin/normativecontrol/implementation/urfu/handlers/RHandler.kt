@@ -1,9 +1,8 @@
 package normativecontrol.implementation.urfu.handlers
 
-import normativecontrol.core.annotations.HandlerFactory
+import normativecontrol.core.annotations.Handler
 import normativecontrol.core.contexts.VerificationContext
-import normativecontrol.core.handlers.Factory
-import normativecontrol.core.handlers.Handler
+import normativecontrol.core.handlers.AbstractHandler
 import normativecontrol.core.handlers.StateProvider
 import normativecontrol.core.rendering.html.span
 import normativecontrol.core.verifier
@@ -14,7 +13,8 @@ import normativecontrol.implementation.urfu.UrFUConfiguration
 import normativecontrol.implementation.urfu.UrFUState
 import org.docx4j.wml.R
 
-internal class RHandler : Handler<R>(), StateProvider<UrFUState> {
+@Handler(R::class, UrFUConfiguration::class)
+internal class RHandler : AbstractHandler<R>(), StateProvider<UrFUState> {
     private val rules = Rules()
 
     context(VerificationContext)
@@ -48,10 +48,5 @@ internal class RHandler : Handler<R>(), StateProvider<UrFUState> {
                 mistake(Reason.IncorrectFont)
             }
         }
-    }
-
-    @HandlerFactory(R::class, UrFUConfiguration::class)
-    companion object : Factory<RHandler> {
-        override fun create() = RHandler()
     }
 }

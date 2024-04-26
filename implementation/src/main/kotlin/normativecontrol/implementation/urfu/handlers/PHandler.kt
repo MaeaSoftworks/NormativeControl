@@ -1,11 +1,10 @@
 package normativecontrol.implementation.urfu.handlers
 
-import normativecontrol.core.annotations.HandlerFactory
+import normativecontrol.core.annotations.Handler
 import normativecontrol.core.chapters.Chapter
 import normativecontrol.core.chapters.ChapterHeader
 import normativecontrol.core.contexts.VerificationContext
-import normativecontrol.core.handlers.Factory
-import normativecontrol.core.handlers.Handler
+import normativecontrol.core.handlers.AbstractHandler
 import normativecontrol.core.handlers.StateProvider
 import normativecontrol.core.math.abs
 import normativecontrol.core.math.asPointsToLine
@@ -28,7 +27,8 @@ import org.docx4j.wml.PPrBase.Spacing
 import java.math.BigInteger
 import kotlin.math.abs
 
-internal class PHandler : Handler<P>(), StateProvider<UrFUState>, ChapterHeader {
+@Handler(P::class, UrFUConfiguration::class)
+internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, ChapterHeader {
     private val headerRegex = Regex("""^(\d+(?:\.\d)*)\s(?:\S\s?)*$""")
 
     private val rules = Rules()
@@ -354,10 +354,5 @@ internal class PHandler : Handler<P>(), StateProvider<UrFUState>, ChapterHeader 
                 mistake(Reason.BackgroundColor)
             }
         }
-    }
-
-    @HandlerFactory(P::class, UrFUConfiguration::class)
-    companion object : Factory<PHandler> {
-        override fun create() = PHandler()
     }
 }
