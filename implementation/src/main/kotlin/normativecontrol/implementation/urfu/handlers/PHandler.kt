@@ -33,7 +33,6 @@ internal class PHandler : Handler<P>(), StateProvider<UrFUState>, ChapterHeader 
 
     private val rules = Rules()
 
-
     var isHeader = false
 
     private var sinceHeader = -1
@@ -45,7 +44,6 @@ internal class PHandler : Handler<P>(), StateProvider<UrFUState>, ChapterHeader 
         var start: Int = -1
         var level: Int = -1
     }
-
     private val listData = ListData()
 
     inner class Text {
@@ -123,7 +121,7 @@ internal class PHandler : Handler<P>(), StateProvider<UrFUState>, ChapterHeader 
                 lineHeight set (pPr.spacing verifyBy rules.spacingLine)?.line
                 textIndent set (pPr.ind.firstLine verifyBy rules.firstLineIndent)
                 textAlign set (pPr.jc?.`val` verifyBy rules.justifyContent)
-                backgroundColor set pPr.shd?.fill
+                backgroundColor set (pPr.shd.fill verifyBy rules.backgroundColor)
                 hyphens set pPr.suppressAutoHyphens?.isVal.let { if (it == true) true else null }
             }
             if (element.content.isEmpty()) {
@@ -309,11 +307,15 @@ internal class PHandler : Handler<P>(), StateProvider<UrFUState>, ChapterHeader 
         }
 
         val spacingBefore = verifier<BigInteger?> {
-            return@verifier
+            if (it != null && it.asTwip().cm != 0.0.cm) {
+                mistake(Reason.SpacingBefore)
+            }
         }
 
         val spacingAfter = verifier<BigInteger?> {
-            return@verifier
+            if (it != null && it.asTwip().cm != 0.0.cm) {
+                mistake(Reason.SpacingAfter)
+            }
         }
 
         val spacingLine = verifier<Spacing?> {
@@ -344,6 +346,12 @@ internal class PHandler : Handler<P>(), StateProvider<UrFUState>, ChapterHeader 
             } else {
                 if (it != JcEnumeration.BOTH) mistake(Reason.IncorrectJustifyOnText)
                 else return@verifier
+            }
+        }
+
+        val backgroundColor = verifier<String?> {
+            if (it != null && it != "FFFFFF") {
+                mistake(Reason.BackgroundColor)
             }
         }
     }

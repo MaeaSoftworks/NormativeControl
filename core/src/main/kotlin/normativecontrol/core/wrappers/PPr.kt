@@ -1,5 +1,7 @@
 package normativecontrol.core.wrappers
 
+import jakarta.xml.bind.annotation.XmlAttribute
+import jakarta.xml.bind.annotation.XmlTransient
 import normativecontrol.core.contexts.VerificationContext
 import org.docx4j.wml.*
 import org.docx4j.wml.PPrBase.*
@@ -49,8 +51,8 @@ value class PPr(private val pPr: org.docx4j.wml.PPr?) {
         get() = resolver.getActualProperty(pPr) { pBdr }
 
     context(VerificationContext)
-    val shd: CTShd?
-        get() = resolver.getActualProperty(pPr) { shd }
+    val shd: Shd
+        get() = Shd(pPr)
 
     context(VerificationContext)
     val tabs: Tabs?
@@ -181,6 +183,46 @@ value class PPr(private val pPr: org.docx4j.wml.PPr?) {
         context(VerificationContext)
         val firstLineChars: BigInteger?
             get() = resolver.getActualProperty(pPr) { ind?.firstLineChars }
+    }
+
+    @JvmInline
+    value class Shd(private val pPr: org.docx4j.wml.PPr?)
+    {
+        context(VerificationContext)
+        val `val`: STShd?
+            get() = resolver.getActualProperty(pPr) { shd?.`val` }
+
+        context(VerificationContext)
+        val color: String?
+            get() = resolver.getActualProperty(pPr) { shd?.color }
+
+        context(VerificationContext)
+        val themeColor: STThemeColor?
+            get() = resolver.getActualProperty(pPr) { shd?.themeColor }
+
+        context(VerificationContext)
+        val themeTint: String?
+            get() = resolver.getActualProperty(pPr) { shd?.themeTint }
+
+        context(VerificationContext)
+        val themeShade: String?
+            get() = resolver.getActualProperty(pPr) { shd?.themeShade }
+
+        context(VerificationContext)
+        val fill: String?
+            get() = resolver.getActualProperty(pPr) { shd?.fill }
+
+        context(VerificationContext)
+        val themeFill: STThemeColor?
+            get() = resolver.getActualProperty(pPr) { shd?.themeFill }
+
+        context(VerificationContext)
+        val themeFillTint: String?
+            get() = resolver.getActualProperty(pPr) { shd?.themeFillTint }
+
+        context(VerificationContext)
+        val themeFillShade: String?
+            get() = resolver.getActualProperty(pPr) { shd?.themeFillShade }
     }
 
     companion object {

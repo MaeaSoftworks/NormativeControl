@@ -23,4 +23,7 @@ internal enum class Reason(override val description: String) : MistakeReason {
     IncorrectJustifyOnHeader("Заголовок раздела должен быть выровнен по центру"),
     IncorrectJustifyOnPictureDescription("Подпись рисунка должна быть выровнена по центру"),
     IncorrectJustifyOnText("Текст должен быть выровнен по ширине"),
+    BackgroundColor("Найден цветной фон"),
+    SpacingBefore("Найден интервал перед абзацем"),
+    SpacingAfter("Найден интервал после абзаца"),
 }
