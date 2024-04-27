@@ -15,8 +15,12 @@ internal class TextHandler : AbstractHandler<Text>(), StateProvider<UrFUState> {
     context(VerificationContext)
     override fun handle(element: Text) {
         val rawText = TextUtils.getText(element)
-        render append span {
-            content = rawText.replace("<", "&lt;").replace(">", "&gt;")
+        render {
+            append {
+                span {
+                    content = rawText.replace("<", "&lt;").replace(">", "&gt;")
+                }
+            }
         }
     }
 }

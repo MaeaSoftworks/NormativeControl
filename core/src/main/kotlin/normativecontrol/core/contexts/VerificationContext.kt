@@ -15,7 +15,7 @@ import java.util.*
 
 class VerificationContext(val runtime: Runtime) {
     val configuration: AbstractConfiguration<*> = runtime.configuration
-    val render: RenderingContext by lazy { RenderingContext(doc) }
+    val render: RenderingContext by lazy { RenderingContext(runtime, doc) }
     val pointer = Pointer()
     val doc: MainDocumentPart by lazy { mlPackage.mainDocumentPart }
 
@@ -29,8 +29,8 @@ class VerificationContext(val runtime: Runtime) {
 
     private lateinit var comments: CommentsPart
 
-    var totalChildSize: Int = 0
-        private set
+    private var totalChildSize: Int = 0
+
     var mistakeId: Int = 0
         private set
 
@@ -45,7 +45,7 @@ class VerificationContext(val runtime: Runtime) {
         mistakeId = comments.jaxbElement.comment.size
     }
 
-    fun getCurrentElement(): Any? {
+    private fun getCurrentElement(): Any? {
         var element: Any? = doc.content
         for (i in pointer.value) {
             when (element) {
@@ -99,7 +99,6 @@ class VerificationContext(val runtime: Runtime) {
         val commentRangeEnd = CommentRangeEnd().apply { this.id = id }
         val runCommentReference = createRunCommentReference(id)
         val target = getCurrentElement()
-
 
         if (target is P) {
             val parent = target.parent as ContentAccessor

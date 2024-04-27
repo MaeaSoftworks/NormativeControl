@@ -21,23 +21,27 @@ internal class RHandler : AbstractHandler<R>(), StateProvider<UrFUState> {
     override fun handle(element: R) {
         state.rSinceBr++
         val rPr = element.rPr.resolve()
-        render append span {
-            style += {
-                fontFamily set (rPr.rFonts.ascii verifyBy rules.fonts)
-                fontSize set rPr.sz?.`val`?.toDouble()
-                fontStyle set rPr.i?.isVal
-                fontWeight set rPr.b?.isVal
-                color set rPr.color?.`val`
-                backgroundColor set rPr.highlight?.`val`
-                textTransform set rPr.caps?.isVal
-                fontVariantCaps set rPr.smallCaps?.isVal
-                fontVariantLigatures set rPr.ligatures?.`val`
-                letterSpacing set rPr.spacing?.`val`?.toDouble()
+        render {
+            append {
+                span {
+                    style += {
+                        fontFamily set (rPr.rFonts.ascii verifyBy rules.fonts)
+                        fontSize set rPr.sz?.`val`?.toDouble()
+                        fontStyle set rPr.i?.isVal
+                        fontWeight set rPr.b?.isVal
+                        color set rPr.color?.`val`
+                        backgroundColor set rPr.highlight?.`val`
+                        textTransform set rPr.caps?.isVal
+                        fontVariantCaps set rPr.smallCaps?.isVal
+                        fontVariantLigatures set rPr.ligatures?.`val`
+                        letterSpacing set rPr.spacing?.`val`?.toDouble()
+                    }
+                }
             }
-        }
-        render.inLastElementScope {
-            element.content.forEach {
-                runtime.getHandlerFor(it)?.handleElement(it)
+            inLastElementScope {
+                element.content.forEach {
+                    runtime.getHandlerFor(it)?.handleElement(it)
+                }
             }
         }
     }

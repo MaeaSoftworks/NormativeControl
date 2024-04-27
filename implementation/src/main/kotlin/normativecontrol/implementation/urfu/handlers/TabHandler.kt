@@ -11,13 +11,17 @@ import org.docx4j.wml.R.Tab
 internal class TabHandler : AbstractHandler<Tab>() {
     context(VerificationContext)
     override fun handle(element: Tab) {
-        render.pointer!!.addChild(create("tab") {
-            classes += "t"
-            content = "&emsp;"
-            style += {
-                width set doc.documentSettingsPart.jaxbElement.defaultTabStop.`val`.toDouble()
-                "display" set "inline-block"
+        render {
+            append {
+                create("tab") {
+                    classes += "t"
+                    content = "&emsp;"
+                    style += {
+                        width set doc.documentSettingsPart.jaxbElement.defaultTabStop.`val`.toDouble()
+                        "display" set "inline-block"
+                    }
+                }
             }
-        })
+        }
     }
 }

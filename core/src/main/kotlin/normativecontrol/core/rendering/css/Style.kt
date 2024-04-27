@@ -1,5 +1,6 @@
 package normativecontrol.core.rendering.css
 
+import normativecontrol.core.contexts.RenderingContext
 import normativecontrol.core.contexts.VerificationContext
 import org.jetbrains.annotations.Contract
 
@@ -30,7 +31,7 @@ class Style(
         return result.toString()
     }
 
-    context(VerificationContext)
+    context(RenderingContext)
     operator fun plusAssign(fn: context(Style, StyleProperties, StyleBuilder) () -> Unit) {
         fn(this, StyleProperties, StyleBuilder)
     }

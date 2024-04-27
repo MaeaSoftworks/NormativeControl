@@ -105,32 +105,35 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, Chapte
     context(VerificationContext)
     override fun handle(element: P) {
         val pPr = element.pPr.resolve()
-
-        if (element.pPr?.sectPr != null) {
-            render.pageBreak(-1, createPageStyle(element.pPr.sectPr))
-            state.foldStylesheet(render.globalStylesheet)
-            state.rSinceBr = 0
-        }
-        pPr.numberingStyle?.let { handleListElement(it) } ?: run { listData.isListElement = false }
-        render append p {
-            style += {
-                marginLeft set (pPr.ind.left verifyBy rules.leftIndent)
-                marginRight set (pPr.ind.right verifyBy rules.rightIndent)
-                marginBottom set (pPr.spacing?.after verifyBy rules.spacingAfter)
-                marginTop set (pPr.spacing?.before verifyBy rules.spacingBefore)
-                lineHeight set (pPr.spacing verifyBy rules.spacingLine)?.line
-                textIndent set (pPr.ind.firstLine verifyBy rules.firstLineIndent)
-                textAlign set (pPr.jc?.`val` verifyBy rules.justifyContent)
-                backgroundColor set (pPr.shd.fill verifyBy rules.backgroundColor)
-                hyphens set pPr.suppressAutoHyphens?.isVal.let { if (it == true) true else null }
+        render {
+            if (element.pPr?.sectPr != null) {
+                pageBreak(-1, createPageStyle(element.pPr.sectPr))
+                foldStylesheet(globalStylesheet)
+                this@PHandler.state.rSinceBr = 0
             }
-            if (element.content.isEmpty()) {
-                addChild(br())
+            pPr.numberingStyle?.let { handleListElement(it) } ?: run { listData.isListElement = false }
+            append {
+                p {
+                    style += {
+                        marginLeft set (pPr.ind.left verifyBy rules.leftIndent)
+                        marginRight set (pPr.ind.right verifyBy rules.rightIndent)
+                        marginBottom set (pPr.spacing?.after verifyBy rules.spacingAfter)
+                        marginTop set (pPr.spacing?.before verifyBy rules.spacingBefore)
+                        lineHeight set (pPr.spacing verifyBy rules.spacingLine)?.line
+                        textIndent set (pPr.ind.firstLine verifyBy rules.firstLineIndent)
+                        textAlign set (pPr.jc?.`val` verifyBy rules.justifyContent)
+                        backgroundColor set (pPr.shd.fill verifyBy rules.backgroundColor)
+                        hyphens set pPr.suppressAutoHyphens?.isVal.let { if (it == true) true else null }
+                    }
+                    if (element.content.isEmpty()) {
+                        addChild(br())
+                    }
+                }
             }
-        }
-        render.inLastElementScope {
-            element.iterate { child, _ ->
-                runtime.getHandlerFor(child)?.handleElement(child)
+            inLastElementScope {
+                element.iterate { child, _ ->
+                    runtime.getHandlerFor(child)?.handleElement(child)
+                }
             }
         }
         text.value = null

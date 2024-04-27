@@ -1,6 +1,8 @@
 package normativecontrol.core.contexts
 
+import normativecontrol.core.Runtime
 import normativecontrol.core.handlers.AbstractStateProvider
+import normativecontrol.core.mistakes.MistakeSerializer
 import normativecontrol.core.rendering.css.Rule
 import normativecontrol.core.rendering.css.Stylesheet
 import normativecontrol.core.rendering.html.HtmlElement
@@ -9,25 +11,42 @@ import normativecontrol.core.rendering.html.div
 import normativecontrol.core.rendering.html.htmlTemplate
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
 
-context(VerificationContext)
-class RenderingContext(doc: MainDocumentPart?) : AbstractStateProvider {
-    val mistakeSerializer = normativecontrol.core.mistakes.MistakeSerializer()
+class RenderingContext(private val runtime: Runtime?, doc: MainDocumentPart?) : AbstractStateProvider {
+    // region don't move down
+    var pageStyleId: Int = 0
     val styleCache = mutableMapOf<Rule, String>()
-    val globalStylesheet by lazy { html.children[0]!!.children.list.first { it.type == HtmlElement.Type.STYLE }.content as Stylesheet }
+    var externalGlobalStylesheet = Stylesheet()
+    val mistakeSerializer = MistakeSerializer()
+
+    private var lastPageStyleId: String? = null
+    // endregion
+
     private val html = htmlTemplate(doc, mistakeSerializer)
     private val root = html.children[1]!!.children[".container"]!!
-    private var lastPageStyleId: String? = null
 
-    lateinit var currentPage: HtmlElement
-        private set
+    val globalStylesheet by lazy { html.children[0]!!.children.list.first { it.type == HtmlElement.Type.STYLE }.content as Stylesheet }
+
+    var mistakeUid: String?
+        get() = runtime?.context?.mistakeUid
+        set(value) {
+            runtime?.context?.mistakeUid = value
+        }
+
+    val renderingSettings = runtime?.context?.configuration?.renderingSettings
+
+    private lateinit var currentPage: HtmlElement
 
     var pointer: HtmlElement? = null
         private set
 
+    constructor() : this(null, null)
+
     init {
         createPage(createPageStyle(doc?.contents?.body?.sectPr).also { lastPageStyleId = it })
-        state.foldStylesheet(globalStylesheet)
+        foldStylesheet(globalStylesheet)
     }
+
+    inline operator fun invoke(fn: RenderingContext.() -> Unit) = with(this) { fn() }
 
     fun pageBreak(copyingLevel: Int, pageStyleId: String? = null) {
         if (copyingLevel != -1) {
@@ -47,8 +66,8 @@ class RenderingContext(doc: MainDocumentPart?) : AbstractStateProvider {
         return html.toString()
     }
 
-    infix fun append(element: HtmlElement) {
-        pointer?.addChild(element)
+    fun append(element: () -> HtmlElement) {
+        pointer?.addChild(element())
     }
 
     inline fun inLastElementScope(fn: HtmlElement.() -> Unit) {
@@ -63,6 +82,11 @@ class RenderingContext(doc: MainDocumentPart?) : AbstractStateProvider {
 
     fun closeLastElementScope() {
         pointer = pointer?.parent
+    }
+
+    fun foldStylesheet(target: Stylesheet) {
+        target.fold(externalGlobalStylesheet)
+        externalGlobalStylesheet = Stylesheet()
     }
 
     private fun createPage(pageStyleId: String? = null): HtmlElement {

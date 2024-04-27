@@ -1,9 +1,9 @@
 package normativecontrol.core.rendering.css
 
-import normativecontrol.core.contexts.VerificationContext
+import normativecontrol.core.contexts.RenderingContext
 
 object StyleBuilder {
-    context(VerificationContext, Style)
+    context(RenderingContext, Style)
     infix fun <T> Property<T>.set(value: T?) {
         if (value != null) {
             val v = this.converter(value)
@@ -13,25 +13,25 @@ object StyleBuilder {
         }
     }
 
-    context(VerificationContext, Style)
+    context(RenderingContext, Style)
     infix fun String.set(value: String) {
         addRule(Rule(this, value))
     }
 
-    context(VerificationContext, Style)
+    context(RenderingContext, Style)
     private fun addRule(rule: Rule) {
-        if (configuration.verificationSettings.forceStyleInlining || noInline) {
+        if (renderingSettings?.forceStyleInlining == true || noInline) {
             rules.add(rule)
             return
         }
 
-        if (rule in render.styleCache.keys) {
-            classes.add(render.styleCache[rule]!!)
+        if (rule in styleCache.keys) {
+            classes.add(styleCache[rule]!!)
         } else {
-            val key = "s${render.styleCache.size}"
-            render.globalStylesheet.styles[".$key"] = Style(noInline = true).also { it.rules.add(rule) }
-            render.styleCache[rule] = key
-            classes.add(render.styleCache[rule]!!)
+            val key = "s${styleCache.size}"
+            globalStylesheet.styles[".$key"] = Style(noInline = true).also { it.rules.add(rule) }
+            styleCache[rule] = key
+            classes.add(styleCache[rule]!!)
         }
     }
 }

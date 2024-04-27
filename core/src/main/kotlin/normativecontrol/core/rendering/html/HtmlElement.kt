@@ -1,10 +1,10 @@
 package normativecontrol.core.rendering.html
 
-import normativecontrol.core.contexts.VerificationContext
+import normativecontrol.core.contexts.RenderingContext
 import normativecontrol.core.rendering.css.Style
 import java.io.Serializable
 
-context(VerificationContext)
+context(RenderingContext)
 open class HtmlElement(
     val type: Type,
     private val hasClosingTag: Boolean = true,

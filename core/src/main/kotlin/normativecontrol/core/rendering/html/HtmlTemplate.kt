@@ -1,11 +1,11 @@
 package normativecontrol.core.rendering.html
 
-import normativecontrol.core.contexts.VerificationContext
+import normativecontrol.core.contexts.RenderingContext
 import normativecontrol.core.mistakes.MistakeSerializer
 import normativecontrol.core.utils.lazySerializable
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
 
-context(VerificationContext)
+context(RenderingContext)
 fun htmlTemplate(doc: MainDocumentPart?, mistakes: MistakeSerializer) = html {
     head {
         script {
