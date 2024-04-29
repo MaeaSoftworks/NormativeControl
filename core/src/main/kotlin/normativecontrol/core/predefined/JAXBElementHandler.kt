@@ -1,4 +1,4 @@
-package normativecontrol.implementation.predefined
+package normativecontrol.core.predefined
 
 import jakarta.xml.bind.JAXBElement
 import normativecontrol.core.annotations.Handler

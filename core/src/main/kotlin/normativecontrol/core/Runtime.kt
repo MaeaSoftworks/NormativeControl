@@ -3,13 +3,14 @@ package normativecontrol.core
 import normativecontrol.core.contexts.VerificationContext
 import normativecontrol.core.handlers.AbstractHandler
 import normativecontrol.core.handlers.HandlerCollection
+import normativecontrol.core.predefined.Predefined
 import kotlin.reflect.KClass
 
 class Runtime(runtimeConfigurationName: String, collectionFactories: Map<String, () -> HandlerCollection>) {
     val configuration = (collectionFactories[runtimeConfigurationName] ?: throw Exception("Collection with name $runtimeConfigurationName not found"))
         .invoke() as? AbstractConfiguration<*> ?: throw Exception("Collection with name $runtimeConfigurationName is not an Configuration")
 
-    private val predefined = (collectionFactories[Core.PREDEFINED_NAME] ?: throw Exception("Predefined collection was not found")).invoke()
+    private val predefined = (collectionFactories[Predefined.NAME] ?: throw Exception("Predefined collection was not found")).invoke()
 
     val handlers: Map<KClass<*>, AbstractHandler<*>>
 
@@ -20,7 +21,7 @@ class Runtime(runtimeConfigurationName: String, collectionFactories: Map<String,
             configuration.instances[clazz] = factory().also { it.runtime = this }
         }
 
-        factories[Core.PREDEFINED_NAME]?.forEach { (clazz, factory) ->
+        factories[Predefined.NAME]?.forEach { (clazz, factory) ->
             predefined.instances[clazz] = factory().also { it.runtime = this }
         }
 

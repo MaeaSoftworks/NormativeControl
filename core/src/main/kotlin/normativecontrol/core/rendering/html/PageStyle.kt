@@ -1,7 +1,6 @@
 package normativecontrol.core.rendering.html
 
 import normativecontrol.core.contexts.RenderingContext
-import normativecontrol.core.contexts.VerificationContext
 import normativecontrol.core.rendering.css.Style
 import org.docx4j.wml.SectPr
 

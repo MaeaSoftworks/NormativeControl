@@ -1,7 +1,7 @@
 package normativecontrol.core
 
-import normativecontrol.core.annotations.Handler
 import normativecontrol.core.annotations.Configuration
+import normativecontrol.core.annotations.Handler
 import normativecontrol.core.handlers.AbstractHandler
 import normativecontrol.core.handlers.HandlerCollection
 import normativecontrol.core.utils.LogColor
@@ -18,8 +18,6 @@ import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
 
 object Core {
-    const val PREDEFINED_NAME = "__PREDEFINED"
-
     private val logger = LoggerFactory.getLogger(this::class.java)
     private val configurations = mutableMapOf<String, () -> HandlerCollection>()
 
@@ -36,9 +34,9 @@ object Core {
                     val setup = configuration.findAnnotation<Configuration>()!!
                     configNames += configuration to setup.name
                     configurations += setup.name to
-                        (configuration.constructors.firstOrNull()
-                            ?: throw InvalidObjectException("Configuration class should have only primary constructor without args")
-                        ).let { { it.call() as HandlerCollection } }
+                            (configuration.constructors.firstOrNull()
+                                ?: throw InvalidObjectException("Configuration class should have only primary constructor without args")
+                                    ).let { { it.call() as HandlerCollection } }
                 }
 
             reflections.getTypesAnnotatedWith(Handler::class.java)

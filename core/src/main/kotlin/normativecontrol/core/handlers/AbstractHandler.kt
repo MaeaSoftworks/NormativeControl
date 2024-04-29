@@ -20,7 +20,7 @@ abstract class AbstractHandler<T> {
     val ctx: VerificationContext
         get() = runtime.context
 
-    open fun addHooks() {  }
+    open fun addHooks() {}
 
     /**
      * External entrypoint to element handling.
@@ -45,7 +45,7 @@ abstract class AbstractHandler<T> {
     protected abstract fun handle(element: T)
 
     @Suppress("UNCHECKED_CAST")
-    protected inline fun <H: AbstractHandler<V>, reified V> hook(hookType: HookType, noinline hook: H.(ctx: VerificationContext) -> Unit) {
+    protected inline fun <H : AbstractHandler<V>, reified V> hook(hookType: HookType, noinline hook: H.(ctx: VerificationContext) -> Unit) {
         val instance = runtime.handlers[V::class] ?: return
         val event = hookType.event(instance) as? Event<H, V> ?: return
         event.add(hook)

@@ -183,8 +183,7 @@ value class PPr(private val pPr: org.docx4j.wml.PPr?) {
     }
 
     @JvmInline
-    value class Shd(private val pPr: org.docx4j.wml.PPr?)
-    {
+    value class Shd(private val pPr: org.docx4j.wml.PPr?) {
         context(VerificationContext)
         val `val`: STShd?
             get() = resolver.getActualProperty(pPr) { shd?.`val` }

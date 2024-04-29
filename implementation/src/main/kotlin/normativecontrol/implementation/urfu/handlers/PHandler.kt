@@ -44,6 +44,7 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, Chapte
         var start: Int = -1
         var level: Int = -1
     }
+
     private val listData = ListData()
 
     inner class Text {
@@ -100,6 +101,7 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, Chapte
             return refs.flatMap { line -> matchReference.findAll(line).map { it.groups[1]!!.value.toInt() } }
         }
     }
+
     private val text = Text()
 
     context(VerificationContext)

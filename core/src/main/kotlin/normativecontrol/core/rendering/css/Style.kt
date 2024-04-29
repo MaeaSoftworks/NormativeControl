@@ -1,7 +1,6 @@
 package normativecontrol.core.rendering.css
 
 import normativecontrol.core.contexts.RenderingContext
-import normativecontrol.core.contexts.VerificationContext
 import org.jetbrains.annotations.Contract
 
 class Style(
