@@ -7,15 +7,14 @@ import normativecontrol.core.utils.Event
 
 /**
  * Parent interface for any handler that verifies and renders docx4j objects.
- * For registration in [Runtime] inheritor should have companion object
- * of type [Factory] and be annotated by [Handler] annotation.
+ * For registration in [Runtime] inheritor should be annotated by [Handler] annotation.
  * @param T type of element that can be handled by this handler.
  */
 abstract class AbstractHandler<T> {
-    private val beforeHandleEvent = Event<AbstractHandler<T>, T>()
-    private val afterHandleEvent = Event<AbstractHandler<T>, T>()
     lateinit var runtime: Runtime
         internal set
+
+    val hooks = Hooks()
 
     val ctx: VerificationContext
         get() = runtime.context
@@ -28,12 +27,14 @@ abstract class AbstractHandler<T> {
      * @param element an element that need to be handled
      */
     fun handleElement(element: Any) {
-        beforeHandleEvent(this, ctx)
+        @Suppress("UNCHECKED_CAST")
+        element as T
+
         with(ctx) {
-            @Suppress("UNCHECKED_CAST")
-            handle(element as T)
+            hooks.beforeHandle(element)
+            handle(element)
+            hooks.afterHandle(element)
         }
-        afterHandleEvent(this, ctx)
     }
 
     /**
@@ -44,15 +45,12 @@ abstract class AbstractHandler<T> {
     context(VerificationContext)
     protected abstract fun handle(element: T)
 
-    @Suppress("UNCHECKED_CAST")
-    protected inline fun <H : AbstractHandler<V>, reified V> hook(hookType: HookType, noinline hook: H.(ctx: VerificationContext) -> Unit) {
-        val instance = runtime.handlers[V::class] ?: return
-        val event = hookType.event(instance) as? Event<H, V> ?: return
-        event.add(hook)
+    inline fun <reified H : AbstractHandler<*>> getHandlerOfType(): H? {
+        return runtime.handlersToOwnType[H::class] as? H
     }
 
-    enum class HookType(val event: AbstractHandler<*>.() -> Event<*, *>) {
-        BeforeHandle({ beforeHandleEvent }),
-        AfterHandle({ afterHandleEvent })
+    inner class Hooks {
+        val beforeHandle = Event<T>()
+        val afterHandle = Event<T>()
     }
 }

@@ -11,11 +11,11 @@ import org.docx4j.wml.Drawing
 @Handler(Drawing::class, UrFUConfiguration::class)
 internal class DrawingHandler : AbstractHandler<Drawing>(), StateProvider<UrFUState> {
     override fun addHooks() {
-        hook<PHandler, _>(HookType.AfterHandle) {
+        getHandlerOfType<PHandler>()?.hooks?.afterHandle?.subscribe {
             with(runtime.context) {
                 if (state.currentPWithDrawing) {
                     state.currentPWithDrawing = false
-                    return@hook
+                    return@subscribe
                 }
                 state.sinceDrawing++
             }

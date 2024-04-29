@@ -13,6 +13,7 @@ import normativecontrol.core.math.cm
 import normativecontrol.core.rendering.html.br
 import normativecontrol.core.rendering.html.createPageStyle
 import normativecontrol.core.rendering.html.p
+import normativecontrol.core.utils.TextContainer
 import normativecontrol.core.utils.flatMap
 import normativecontrol.core.verifier
 import normativecontrol.core.verifyBy
@@ -21,7 +22,6 @@ import normativecontrol.implementation.urfu.Chapters
 import normativecontrol.implementation.urfu.Reason
 import normativecontrol.implementation.urfu.UrFUConfiguration
 import normativecontrol.implementation.urfu.UrFUState
-import org.docx4j.TextUtils
 import org.docx4j.wml.*
 import org.docx4j.wml.PPrBase.Spacing
 import java.math.BigInteger
@@ -47,23 +47,16 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, Chapte
 
     private val listData = ListData()
 
-    inner class Text {
-        var value: String? = null
-        var isBlank: Boolean? = null
-
+    inner class Text(handler: PHandler): TextContainer<PHandler>(handler) {
         private val inBrackets = """\[(.*?)]""".toRegex()
         private val removePages = """,\s*С\.(?:.*)*""".toRegex()
         private val removeAndMatchRanges = """(\d+)\s*-\s*(\d+)""".toRegex()
         private val matchReference = """(\d+)""".toRegex()
 
-        context(VerificationContext)
-        fun cacheText(element: Any): String {
-            if (value == null) {
-                value = TextUtils.getText(element)
-                isBlank = value!!.isBlank()
+        override fun afterTextCached() {
+            with(ctx) {
                 state.referencesInText.addAll(getAllReferences(value!!))
             }
-            return value!!
         }
 
         private fun getAllReferences(text: String): Set<Int> {
@@ -102,7 +95,7 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, Chapte
         }
     }
 
-    private val text = Text()
+    private val text = Text(this)
 
     context(VerificationContext)
     override fun handle(element: P) {

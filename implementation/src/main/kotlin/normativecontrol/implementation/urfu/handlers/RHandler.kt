@@ -5,9 +5,10 @@ import normativecontrol.core.contexts.VerificationContext
 import normativecontrol.core.handlers.AbstractHandler
 import normativecontrol.core.handlers.StateProvider
 import normativecontrol.core.rendering.html.span
+import normativecontrol.core.utils.TextContainer
 import normativecontrol.core.verifier
 import normativecontrol.core.verifyBy
-import normativecontrol.core.wrappers.RPr.Companion.resolve
+import normativecontrol.core.wrappers.RPr.Companion.resolver
 import normativecontrol.implementation.urfu.Reason
 import normativecontrol.implementation.urfu.UrFUConfiguration
 import normativecontrol.implementation.urfu.UrFUState
@@ -16,11 +17,14 @@ import org.docx4j.wml.R
 @Handler(R::class, UrFUConfiguration::class)
 internal class RHandler : AbstractHandler<R>(), StateProvider<UrFUState> {
     private val rules = Rules()
+    private val text = Text(this)
+
+    inner class Text(handler: RHandler) : TextContainer<RHandler>(handler)
 
     context(VerificationContext)
     override fun handle(element: R) {
         state.rSinceBr++
-        val rPr = element.rPr.resolve()
+        val rPr = element.resolver().rPr
         render {
             append {
                 span {
@@ -48,8 +52,9 @@ internal class RHandler : AbstractHandler<R>(), StateProvider<UrFUState> {
 
     private inner class Rules {
         val fonts = verifier<String?> {
+            if (text.isBlank == true) return@verifier
             if (it != "Times New Roman") {
-                mistake(Reason.IncorrectFont)
+                return@verifier mistake(Reason.IncorrectFont)
             }
         }
     }

@@ -40,8 +40,8 @@ class PropertyResolver(mlPackage: WordprocessingMLPackage) {
             ?: styleDefinitionsPart.defaultParagraphStyle?.pPr?.path()
     }
 
-    inline fun <T> getActualProperty(rPr: RPr?, path: RPr.() -> T?): T? {
-        val r = rPr?.parent as? R
+    inline fun <T> getActualProperty(r: R?, path: RPr.() -> T?): T? {
+        val rPr = r?.rPr
         val p = r?.parent as? P
         val pStyle = getStyleByIdOptimized(p?.pPr?.pStyle?.`val`)
         val rStyle = getStyleByIdOptimized(rPr?.rStyle?.`val`)

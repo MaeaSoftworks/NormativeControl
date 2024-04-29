@@ -12,7 +12,8 @@ class Runtime(runtimeConfigurationName: String, collectionFactories: Map<String,
 
     private val predefined = (collectionFactories[Predefined.NAME] ?: throw Exception("Predefined collection was not found")).invoke()
 
-    val handlers: Map<KClass<*>, AbstractHandler<*>>
+    val handlersToHandledType: Map<KClass<*>, AbstractHandler<*>>
+    val handlersToOwnType: Map<KClass<*>, AbstractHandler<*>>
 
     lateinit var context: VerificationContext
 
@@ -25,7 +26,7 @@ class Runtime(runtimeConfigurationName: String, collectionFactories: Map<String,
             predefined.instances[clazz] = factory().also { it.runtime = this }
         }
 
-        handlers = configuration.instances.toMutableMap().apply {
+        handlersToHandledType = configuration.instances.toMutableMap().apply {
             predefined.instances.forEach { (clazz, instance) ->
                 if (!this.containsKey(clazz)) {
                     put(clazz, instance)
@@ -33,13 +34,15 @@ class Runtime(runtimeConfigurationName: String, collectionFactories: Map<String,
             }
         }
 
-        handlers.forEach { (_, handler) ->
+        handlersToOwnType = handlersToHandledType.map { (_, value) -> value::class to value }.toMap()
+
+        handlersToHandledType.forEach { (_, handler) ->
             handler.addHooks()
         }
     }
 
     fun getHandlerFor(element: Any): AbstractHandler<*>? {
-        return handlers[element::class]
+        return handlersToHandledType[element::class]
     }
 
     companion object {
