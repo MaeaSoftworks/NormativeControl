@@ -4,28 +4,28 @@ import normativecontrol.core.handlers.AbstractHandler
 import org.docx4j.TextUtils
 
 abstract class TextContainer<H: AbstractHandler<*>>(handler: H) {
-    var value: String? = null
+    var textValue: String? = null
     var isBlank: Boolean? = null
 
     init {
         handler.hooks.beforeHandle.subscribe { element ->
-            if (value != null) return@subscribe
-            value = cacheText(element!!)
+            if (textValue != null) return@subscribe
+            textValue = cacheText(element!!)
         }
         handler.hooks.afterHandle.subscribe {
-            value = null
+            textValue = null
             isBlank = null
         }
     }
 
     fun cacheText(element: Any): String {
-        if (value == null) {
-            value = TextUtils.getText(element)
-            isBlank = value!!.isBlank()
+        if (textValue == null) {
+            textValue = TextUtils.getText(element)
+            isBlank = textValue!!.isBlank()
         }
-        afterTextCached()
-        return value!!
+        defineStateByText()
+        return textValue!!
     }
 
-    open fun afterTextCached() { }
+    open fun defineStateByText() { }
 }

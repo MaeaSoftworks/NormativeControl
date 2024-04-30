@@ -315,26 +315,26 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, Chapte
         private val tableTitle = """^Таблица (?:[АБВГДЕЖИКЛМНПРСТУФХЦШЩЭЮЯ]\.)?\d+ – .*[^.]$""".toRegex()
         private val tableContinuation = """^Продолжение\sтаблицы\s(?:[АБВГДЕЖИКЛМНПРСТУФХЦШЩЭЮЯ]\.)?\d+[^.]?$""".toRegex()
 
-        override fun afterTextCached() {
+        override fun defineStateByText() {
             with(ctx) {
                 if (chapter.shouldBeVerified) {
                     if (state.sinceDrawing == 0 && !state.currentPWithDrawing) {
-                        if (value == null || !pictureDescription.matches(value!!)) {
+                        if (textValue == null || !pictureDescription.matches(textValue!!)) {
                             mistake(Reason.IncorrectPictureDescriptionPattern)
                         }
                     }
-                    if (value?.let { tableTitle.matches(it) } == true) {
+                    if (textValue?.let { tableTitle.matches(it) } == true) {
                         state.tableTitleCounter.reset()
                     } else {
                         state.tableTitleCounter.increment()
                     }
                     if (state.tableCounter.value == 1) {
-                        if (value != null && tableContinuation.matches(value!!)) {
+                        if (textValue != null && tableContinuation.matches(textValue!!)) {
                             state.tableTitleCounter.reset()
                         }
                     }
                 }
-                state.referencesInText.addAll(getAllReferences(value!!))
+                state.referencesInText.addAll(getAllReferences(textValue!!))
             }
         }
 
