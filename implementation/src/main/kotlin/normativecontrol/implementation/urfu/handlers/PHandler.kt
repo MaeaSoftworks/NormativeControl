@@ -202,46 +202,46 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, Chapte
 
         val rightIndent = verifier<BigInteger?> {
             if (text.isBlank != false) return@verifier
-            if (isHeader) {
+            return@verifier if (isHeader) {
                 if (it != null && it.asTwip().cm != 0.0.cm) {
-                    return@verifier mistake(Reason.RightIndentOnHeader)
-                }
-                return@verifier
+                    mistake(Reason.RightIndentOnHeader)
+                } else return@verifier
             } else {
                 if (it != null && it.asTwip().cm != 0.0.cm) {
-                    return@verifier mistake(Reason.RightIndentOnText)
-                }
-                return@verifier
+                    mistake(Reason.RightIndentOnText)
+                } else return@verifier
             }
         }
 
         val firstLineIndent = verifier<BigInteger?> {
             if (text.isBlank != false) return@verifier
             val value = it?.asTwip()?.cm ?: 0.0.cm
-            if (isHeader) {
+            return@verifier if (isHeader) {
                 when (chapter) {
                     Chapters.Body -> {
                         if (abs(value - 1.25.cm) >= 0.01.cm) {
-                            return@verifier mistake(Reason.IncorrectFirstLineIndentInHeader, value.value.toString(), "1.25")
-                        }
-                        return@verifier
+                            mistake(Reason.IncorrectFirstLineIndentInHeader, value.value.toString(), "1.25")
+                        } else return@verifier
                     }
-
                     else -> {
                         if (abs(value - 1.25.cm) <= 0.01.cm) {
                             return@verifier mistake(Reason.IncorrectFirstLineIndentInHeader, value.value.toString(), "0")
-                        }
-                        return@verifier
+                        } else return@verifier
                     }
                 }
-            }
-            if (isPictureTitle) {
+            } else if (isPictureTitle) {
                 if (value >= 0.01.cm)
                     return@verifier mistake(Reason.IncorrectFirstLineIndentInPictureDescription, value.value.toString(), "0")
-                return@verifier
+                else return@verifier
+            } else if (state.tableTitleCounter.isReset) {
+                if (value >= 0.01.cm)
+                    return@verifier mistake(Reason.IncorrectFirstLineIndentInTableTitle, value.value.toString(), "0")
+                else return@verifier
+            }  else {
+                if (abs(value - 1.25.cm) >= 0.01.cm)
+                    return@verifier mistake(Reason.IncorrectFirstLineIndentInText, value.value.toString(), "1.25")
+                else return@verifier
             }
-            if (abs(value - 1.25.cm) >= 0.01.cm)
-                return@verifier mistake(Reason.IncorrectFirstLineIndentInText, value.value.toString(), "1.25")
         }
 
         val spacingBefore = verifier<BigInteger?> {
@@ -281,6 +281,9 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, Chapte
             } else if (isPictureTitle) {
                 if (it != JcEnumeration.CENTER) mistake(Reason.IncorrectJustifyOnPictureDescription)
                 else return@verifier
+            } else if (state.tableTitleCounter.isReset) {
+                if (it != JcEnumeration.LEFT) mistake(Reason.IncorrectJustifyOnTableTitle)
+                else return@verifier
             } else {
                 if (it != JcEnumeration.BOTH) mistake(Reason.IncorrectJustifyOnText)
                 else return@verifier
@@ -308,8 +311,29 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, Chapte
         private val removeAndMatchRanges = """(\d+)\s*-\s*(\d+)""".toRegex()
         private val matchReference = """(\d+)""".toRegex()
 
+        private val pictureDescription = """^Рисунок (?:[АБВГДЕЖИКЛМНПРСТУФХЦШЩЭЮЯ]\.)?\d+ – .*[^.]$""".toRegex()
+        private val tableTitle = """^Таблица (?:[АБВГДЕЖИКЛМНПРСТУФХЦШЩЭЮЯ]\.)?\d+ – .*[^.]$""".toRegex()
+        private val tableContinuation = """^Продолжение\sтаблицы\s(?:[АБВГДЕЖИКЛМНПРСТУФХЦШЩЭЮЯ]\.)?\d+[^.]?$""".toRegex()
+
         override fun afterTextCached() {
             with(ctx) {
+                if (chapter.shouldBeVerified) {
+                    if (state.sinceDrawing == 0 && !state.currentPWithDrawing) {
+                        if (value == null || !pictureDescription.matches(value!!)) {
+                            mistake(Reason.IncorrectPictureDescriptionPattern)
+                        }
+                    }
+                    if (value?.let { tableTitle.matches(it) } == true) {
+                        state.tableTitleCounter.reset()
+                    } else {
+                        state.tableTitleCounter.increment()
+                    }
+                    if (state.tableCounter.value == 1) {
+                        if (value != null && tableContinuation.matches(value!!)) {
+                            state.tableTitleCounter.reset()
+                        }
+                    }
+                }
                 state.referencesInText.addAll(getAllReferences(value!!))
             }
         }

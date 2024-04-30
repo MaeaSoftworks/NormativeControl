@@ -10,10 +10,9 @@ abstract class TextContainer<H: AbstractHandler<*>>(handler: H) {
     init {
         handler.hooks.beforeHandle.subscribe { element ->
             if (value != null) return@subscribe
-            element!!
-            value = cacheText(element)
+            value = cacheText(element!!)
         }
-        handler.hooks.afterHandle.subscribe { _ ->
+        handler.hooks.afterHandle.subscribe {
             value = null
             isBlank = null
         }
