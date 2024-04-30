@@ -1,4 +1,4 @@
-package normativecontrol.core
+package normativecontrol.core.data
 
 import java.io.ByteArrayOutputStream
 

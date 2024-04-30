@@ -1,4 +1,4 @@
-package normativecontrol.core.utils
+package normativecontrol.core.components
 
 import normativecontrol.core.handlers.AbstractHandler
 import org.docx4j.TextUtils

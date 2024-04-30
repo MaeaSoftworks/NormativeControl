@@ -22,6 +22,7 @@ class Pointer {
         return values[level]
     }
 
+    @PointerTransformations
     operator fun set(level: Int, value: Int) {
         if (values.size <= level) {
             values.addAll(sequence { repeat(level - (values.size - 1)) { yield(0) } })
@@ -53,14 +54,20 @@ class Pointer {
         return values.last()
     }
 
+    @PointerTransformations
     fun clearTo(count: Int) {
         pop(values.size - count)
     }
 
+    @PointerTransformations
     fun pop(count: Int) {
         values.size - count
         for (i in values.size downTo values.size - count + 1) {
             values.removeAt(i - 1)
         }
     }
+
+    @RequiresOptIn(level = RequiresOptIn.Level.ERROR, message = "This functions transform pointer's state and should not be called outside core module.")
+    @Target(AnnotationTarget.FUNCTION)
+    internal annotation class PointerTransformations
 }

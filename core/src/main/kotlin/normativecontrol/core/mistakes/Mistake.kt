@@ -5,6 +5,10 @@ import kotlinx.serialization.Serializable
 
 /**
  * Serializable mistake representation which will be used in JavaScript generated code.
+ * @param code [MistakeReason] code mapped by [MistakeSerializer]
+ * @param id mistake unique id
+ * @param expected expected value
+ * @param actual actual value
  */
 @Serializable
 internal data class Mistake(

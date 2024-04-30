@@ -1,20 +1,17 @@
 package normativecontrol.core.utils
 
-import normativecontrol.core.contexts.VerificationContext
+open class Event<I> {
+    private val callbacks = mutableSetOf<(I) -> Unit>()
 
-class Event<I> {
-    private val callbacks = mutableSetOf<context(VerificationContext) (I) -> Unit>()
-
-    fun subscribe(callback: context(VerificationContext) (I) -> Unit) {
+    fun subscribe(callback: (I) -> Unit) {
         callbacks += callback
     }
 
-    operator fun plusAssign(callback: context(VerificationContext) (I) -> Unit) = subscribe(callback)
+    operator fun plusAssign(callback: (I) -> Unit) = subscribe(callback)
 
-    context(VerificationContext)
     operator fun invoke(arg: I) {
         callbacks.forEach {
-            it(this@VerificationContext, arg)
+            it(arg)
         }
     }
 }

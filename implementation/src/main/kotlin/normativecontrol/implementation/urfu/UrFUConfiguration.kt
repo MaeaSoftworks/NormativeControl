@@ -1,12 +1,12 @@
 package normativecontrol.implementation.urfu
 
-import normativecontrol.core.AbstractConfiguration
-import normativecontrol.core.annotations.Configuration
+import normativecontrol.core.configurations.AbstractConfiguration
+import normativecontrol.core.configurations.HandlerCollection
 import normativecontrol.core.chapters.ChapterConfiguration
 import normativecontrol.core.settings.RenderingSettings
 import normativecontrol.core.settings.VerificationSettings
 
-@Configuration(UrFUConfiguration.NAME)
+@HandlerCollection(UrFUConfiguration.NAME)
 class UrFUConfiguration : AbstractConfiguration<UrFUState>(
     NAME,
     Chapters.FrontPage,

@@ -1,7 +1,6 @@
 package normativecontrol.core.handlers
 
 import normativecontrol.core.Runtime
-import normativecontrol.core.annotations.Handler
 import normativecontrol.core.contexts.VerificationContext
 import normativecontrol.core.utils.Event
 
@@ -14,11 +13,24 @@ abstract class AbstractHandler<T> {
     lateinit var runtime: Runtime
         internal set
 
+    /**
+     * Handler's hooks. Every handler have its own hooks.
+     */
     val hooks = Hooks()
 
+    /**
+     * Easy access to [VerificationContext] where it is not defined.
+     */
     val ctx: VerificationContext
         get() = runtime.context
 
+    /**
+     * Function in which hooks for other handlers
+     * can be placed and initialized.
+     *
+     * **Note**: placing hooks in the `init` block probably
+     * will return `null` instead of handler.
+     */
     open fun addHooks() {}
 
     /**
@@ -45,12 +57,15 @@ abstract class AbstractHandler<T> {
     context(VerificationContext)
     protected abstract fun handle(element: T)
 
-    inline fun <reified H : AbstractHandler<*>> getHandlerOfType(): H? {
-        return runtime.handlersToOwnType[H::class] as? H
-    }
-
     inner class Hooks {
+        /**
+         * Event that will be called before every [handle] function call with element as parameter.
+         */
         val beforeHandle = Event<T>()
+
+        /**
+         * Event that will be called after every [handle] function call with element as parameter.
+         */
         val afterHandle = Event<T>()
     }
 }

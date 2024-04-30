@@ -4,7 +4,7 @@ import kotlin.enums.EnumEntries
 import kotlin.enums.enumEntries
 
 /**
- * Internal class. Represent chapters configuration.
+ * Structured configuration of chapters.
  * @param headers map of names of chapters to chapters themselves
  * @param names mirrored [headers] map: chapter mapped to its names
  * @param order order of chapters. Every chapter mapped to chapters that can be after it.

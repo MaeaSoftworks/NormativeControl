@@ -1,7 +1,6 @@
 package normativecontrol.core.contexts
 
 import normativecontrol.core.Runtime
-import normativecontrol.core.handlers.AbstractStateProvider
 import normativecontrol.core.mistakes.MistakeSerializer
 import normativecontrol.core.rendering.css.Rule
 import normativecontrol.core.rendering.css.Stylesheet
@@ -9,28 +8,41 @@ import normativecontrol.core.rendering.html.HtmlElement
 import normativecontrol.core.rendering.html.createPageStyle
 import normativecontrol.core.rendering.html.div
 import normativecontrol.core.rendering.html.htmlTemplate
-import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
 
-class RenderingContext(private val runtime: Runtime?, doc: MainDocumentPart?) : AbstractStateProvider {
+/**
+ * Part of [Runtime] created at the beginning of file rendering.
+ *
+ * @param runtime backlink to current [Runtime]
+ */
+class RenderingContext(private val runtime: Runtime?) {
     // region don't move down
+    /**
+     * Last page's page style id.
+     */
     var pageStyleId: Int = 0
+
+    /**
+     * Cache for style inlining.
+     */
     val styleCache = mutableMapOf<Rule, String>()
+
+    /**
+     * Global stylesheet which will be defined at template initialization.
+     * Should not be replaced by [globalStylesheet] due to initialization loop.
+     */
     var externalGlobalStylesheet = Stylesheet()
-    val mistakeSerializer = MistakeSerializer()
+
+    private val mistakeSerializer = MistakeSerializer()
 
     private var lastPageStyleId: String? = null
     // endregion
 
-    private val html = htmlTemplate(doc, mistakeSerializer)
+    private val html = htmlTemplate(runtime?.context?.doc, mistakeSerializer)
     private val root = html.children[1]!!.children[".container"]!!
 
     val globalStylesheet by lazy { html.children[0]!!.children.list.first { it.type == HtmlElement.Type.STYLE }.content as Stylesheet }
 
-    var mistakeUid: String?
-        get() = runtime?.context?.mistakeUid
-        set(value) {
-            runtime?.context?.mistakeUid = value
-        }
+    var mistakeUid: String? = null
 
     val renderingSettings = runtime?.context?.configuration?.renderingSettings
 
@@ -39,10 +51,18 @@ class RenderingContext(private val runtime: Runtime?, doc: MainDocumentPart?) : 
     var pointer: HtmlElement? = null
         private set
 
-    constructor() : this(null, null)
-
     init {
-        createPage(createPageStyle(doc?.contents?.body?.sectPr).also { lastPageStyleId = it })
+        createPage(createPageStyle(runtime?.context?.doc?.contents?.body?.sectPr).also { lastPageStyleId = it })
+        runtime?.context?.onMistakeEvent?.subscribe { mistake ->
+            val uid = "m${mistake.id}"
+            mistakeUid = uid
+            mistakeSerializer.addMistake(
+                mistake.mistakeReason,
+                uid,
+                mistake.expected,
+                mistake.actual
+            )
+        }
         foldStylesheet(globalStylesheet)
     }
 
@@ -62,7 +82,7 @@ class RenderingContext(private val runtime: Runtime?, doc: MainDocumentPart?) : 
         }
     }
 
-    fun getString(): String {
+    fun render(): String {
         return html.toString()
     }
 

@@ -1,6 +1,6 @@
 package normativecontrol.implementation.urfu.handlers
 
-import normativecontrol.core.annotations.Handler
+import normativecontrol.core.handlers.Handler
 import normativecontrol.core.contexts.VerificationContext
 import normativecontrol.core.handlers.AbstractHandler
 import normativecontrol.core.rendering.html.create

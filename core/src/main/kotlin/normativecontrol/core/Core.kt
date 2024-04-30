@@ -1,9 +1,11 @@
 package normativecontrol.core
 
-import normativecontrol.core.annotations.Configuration
-import normativecontrol.core.annotations.Handler
+import normativecontrol.core.configurations.HandlerCollection
+import normativecontrol.core.handlers.Handler
+import normativecontrol.core.data.Result
+import normativecontrol.core.data.Statistics
 import normativecontrol.core.handlers.AbstractHandler
-import normativecontrol.core.handlers.HandlerCollection
+import normativecontrol.core.configurations.AbstractHandlerCollection
 import normativecontrol.core.utils.LogColor
 import normativecontrol.core.utils.highlight
 import normativecontrol.shared.debug
@@ -17,9 +19,13 @@ import java.io.InvalidObjectException
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
 
+/**
+ * Entrypoint to core library. Scans package `normativecontrol`
+ * on initialization and build handlers mappings.
+ */
 object Core {
     private val logger = LoggerFactory.getLogger(this::class.java)
-    private val configurations = mutableMapOf<String, () -> HandlerCollection>()
+    private val configurations = mutableMapOf<String, () -> AbstractHandlerCollection>()
 
     init {
         val packageName = "normativecontrol"
@@ -28,15 +34,15 @@ object Core {
             val configNames = mutableMapOf<KClass<*>, String>()
 
             val reflections = Reflections(packageName)
-            reflections.getTypesAnnotatedWith(Configuration::class.java)
+            reflections.getTypesAnnotatedWith(HandlerCollection::class.java)
                 .map { it.kotlin }
                 .forEach { configuration ->
-                    val setup = configuration.findAnnotation<Configuration>()!!
+                    val setup = configuration.findAnnotation<HandlerCollection>()!!
                     configNames += configuration to setup.name
                     configurations += setup.name to
                             (configuration.constructors.firstOrNull()
                                 ?: throw InvalidObjectException("Configuration class should have only primary constructor without args")
-                                    ).let { { it.call() as HandlerCollection } }
+                                    ).let { { it.call() as AbstractHandlerCollection } }
                 }
 
             reflections.getTypesAnnotatedWith(Handler::class.java)
@@ -48,7 +54,7 @@ object Core {
                         if (!Runtime.factories.containsKey(configName)) {
                             Runtime.factories[configName] = mutableMapOf()
                         }
-                        Runtime.factories[configName]!![handlerAnnotation.target] =
+                        Runtime.factories[configName]!![handlerAnnotation.handledElementType] =
                             handlerClass.constructors.find { it.parameters.isEmpty() }?.let { { it.call() as AbstractHandler<*> } }
                                 ?: throw InvalidObjectException("Hanler class should have only primary constructor without args")
                         logger.debug {
@@ -66,6 +72,12 @@ object Core {
         return LogColor.entries[value.hashCode() % LogColor.entries.count()]
     }
 
+    /**
+     * Verifies [source] file.
+     * @param source [InputStream] of file
+     * @param configurationName name of configuration that will be applied to document verification
+     * @return results as [Result] object
+     */
     fun verify(source: InputStream, configurationName: String): Result {
         val runtime = timer({ logger.debug { "Runtime initialization done in $it ms" } }) {
             Runtime(
@@ -73,14 +85,18 @@ object Core {
                 configurations
             )
         }
-        Document(runtime).apply {
-            load(source)
-            runVerification()
-            return Result(
-                ByteArrayOutputStream().also { writeResult(it) },
-                this.ctx.render.getString(),
+        val document = timer({ logger.debug { "Unpacking: $it ms" } }) {
+            Document(runtime, source)
+        }
+        timer({ logger.debug { "Verification: $it ms" } }) {
+            document.runVerification()
+        }
+        return timer({ logger.debug { "Saving: $it ms" } }) {
+             Result(
+                ByteArrayOutputStream().also { document.writeResult(it) },
+                document.render,
                 Statistics(
-                    this.ctx.mistakeId
+                    document.mistakeCount
                 )
             )
         }

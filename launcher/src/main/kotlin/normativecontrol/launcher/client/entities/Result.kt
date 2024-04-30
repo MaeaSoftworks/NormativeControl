@@ -1,6 +1,6 @@
 package normativecontrol.launcher.client.entities
 
-import normativecontrol.core.Statistics
+import normativecontrol.core.data.Statistics
 
 data class Result(
     val id: Long,

@@ -3,6 +3,9 @@ package normativecontrol.core.mistakes
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
+/**
+ * Mistake serializer to JavaScript code minimized format.
+ */
 class MistakeSerializer {
     private val mistakes = mutableListOf<Mistake>()
     private val foundMistakes = mutableMapOf<MistakeReason, Int>()

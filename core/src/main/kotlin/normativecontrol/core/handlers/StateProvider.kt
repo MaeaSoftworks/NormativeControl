@@ -1,13 +1,14 @@
 package normativecontrol.core.handlers
 
-import normativecontrol.core.AbstractConfiguration
+import normativecontrol.core.configurations.AbstractConfiguration
 import normativecontrol.core.contexts.VerificationContext
+import normativecontrol.core.states.State
 
 /**
  * Casts [AbstractConfiguration.state] to provided type [S] using [VerificationContext].
  * @param S type of state object
  */
-interface StateProvider<S> {
+interface StateProvider<out S: State> {
     /**
      * [AbstractConfiguration.state] of [S] type from [VerificationContext].
      */

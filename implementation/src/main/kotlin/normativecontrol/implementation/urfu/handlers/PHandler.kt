@@ -1,6 +1,6 @@
 package normativecontrol.implementation.urfu.handlers
 
-import normativecontrol.core.annotations.Handler
+import normativecontrol.core.handlers.Handler
 import normativecontrol.core.chapters.Chapter
 import normativecontrol.core.chapters.ChapterHeader
 import normativecontrol.core.contexts.VerificationContext
@@ -13,7 +13,7 @@ import normativecontrol.core.math.cm
 import normativecontrol.core.rendering.html.br
 import normativecontrol.core.rendering.html.createPageStyle
 import normativecontrol.core.rendering.html.p
-import normativecontrol.core.utils.TextContainer
+import normativecontrol.core.components.TextContainer
 import normativecontrol.core.utils.flatMap
 import normativecontrol.core.verifier
 import normativecontrol.core.verifyBy
@@ -127,12 +127,10 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, Chapte
             }
             inLastElementScope {
                 element.iterate { child, _ ->
-                    runtime.getHandlerFor(child)?.handleElement(child)
+                    runtime.handlers[child]?.handleElement(child)
                 }
             }
         }
-        text.value = null
-        text.isBlank = null
     }
 
     context(VerificationContext)
@@ -249,8 +247,8 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, Chapte
                 if (value != expected) {
                     return@verifier mistake(
                         Reason.IncorrectLeftIndentInList,
-                        value.double.toString(),
-                        expected.double.toString()
+                        value.value.toString(),
+                        expected.value.toString()
                     )
                 }
                 return@verifier
@@ -282,14 +280,14 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, Chapte
                 when (chapter) {
                     Chapters.Body -> {
                         if (abs(value - 1.25.cm) >= 0.01.cm) {
-                            return@verifier mistake(Reason.IncorrectFirstLineIndentInHeader, value.double.toString(), "1.25")
+                            return@verifier mistake(Reason.IncorrectFirstLineIndentInHeader, value.value.toString(), "1.25")
                         }
                         return@verifier
                     }
 
                     else -> {
                         if (abs(value - 1.25.cm) <= 0.01.cm) {
-                            return@verifier mistake(Reason.IncorrectFirstLineIndentInHeader, value.double.toString(), "0")
+                            return@verifier mistake(Reason.IncorrectFirstLineIndentInHeader, value.value.toString(), "0")
                         }
                         return@verifier
                     }
@@ -297,11 +295,11 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, Chapte
             }
             if (isPictureTitle) {
                 if (value >= 0.01.cm)
-                    return@verifier mistake(Reason.IncorrectFirstLineIndentInPictureDescription, value.double.toString(), "0")
+                    return@verifier mistake(Reason.IncorrectFirstLineIndentInPictureDescription, value.value.toString(), "0")
                 return@verifier
             }
             if (abs(value - 1.25.cm) >= 0.01.cm)
-                return@verifier mistake(Reason.IncorrectFirstLineIndentInText, value.double.toString(), "1.25")
+                return@verifier mistake(Reason.IncorrectFirstLineIndentInText, value.value.toString(), "1.25")
         }
 
         val spacingBefore = verifier<BigInteger?> {
