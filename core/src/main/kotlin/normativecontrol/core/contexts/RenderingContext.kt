@@ -46,7 +46,8 @@ class RenderingContext(private val runtime: Runtime?) {
 
     val renderingSettings = runtime?.context?.configuration?.renderingSettings
 
-    private lateinit var currentPage: HtmlElement
+    lateinit var currentPage: HtmlElement
+        private set
 
     var pointer: HtmlElement? = null
         private set

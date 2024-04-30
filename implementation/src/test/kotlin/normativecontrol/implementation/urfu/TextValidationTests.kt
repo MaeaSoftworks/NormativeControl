@@ -2,7 +2,14 @@ package normativecontrol.implementation.urfu
 
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
-import normativecontrol.implementation.urfu.handlers.TextHandler
+import normativecontrol.core.Core
+import normativecontrol.core.Runtime
+import normativecontrol.core.contexts.VerificationContext
+import normativecontrol.implementation.urfu.handlers.PHandler
+import org.docx4j.openpackaging.packages.WordprocessingMLPackage
+import kotlin.reflect.full.functions
+import kotlin.reflect.full.memberProperties
+import kotlin.reflect.jvm.isAccessible
 
 class TextValidationTests : ShouldSpec({
     context("references") {
@@ -27,7 +34,24 @@ class TextValidationTests : ShouldSpec({
             [14, 17 - 21]
             [15 - 16, 17 - 18]
             */
-            TextHandler().getAllReferences(text) shouldBe setOf(31, 12, 13, 14, 15, 16, 17, 19, 18, 20, 21)
+            Core
+            val runtime = Runtime(
+                UrFUConfiguration.NAME,
+                mapOf(UrFUConfiguration.NAME to { UrFUConfiguration() })
+            )
+            val ctx = VerificationContext(
+                runtime,
+                WordprocessingMLPackage.createPackage()
+            )
+            runtime.context = ctx
+
+            with(ctx) {
+                val handler = runtime.handlers[PHandler::class] as PHandler
+                val textHolder = PHandler::class.memberProperties.find { it.name == "text" }?.apply { isAccessible = true }?.get(handler)
+                val fn = textHolder!!::class.functions.find { it.name == "getAllReferences" }
+                fn?.isAccessible = true
+                fn?.call(textHolder, text) shouldBe setOf(31, 12, 13, 14, 15, 16, 17, 19, 18, 20, 21)
+            }
         }
     }
 })

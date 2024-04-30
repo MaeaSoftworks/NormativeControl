@@ -36,66 +36,8 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, Chapte
     var isHeader = false
 
     private var sinceHeader = -1
-
-    inner class ListData {
-        var isListElement: Boolean = false
-        var isOrdered: Boolean = false
-        var listPosition: Int = -1
-        var start: Int = -1
-        var level: Int = -1
-    }
-
-    private val listData = ListData()
-
-    inner class Text(handler: PHandler): TextContainer<PHandler>(handler) {
-        private val inBrackets = """\[(.*?)]""".toRegex()
-        private val removePages = """,\s*С\.(?:.*)*""".toRegex()
-        private val removeAndMatchRanges = """(\d+)\s*-\s*(\d+)""".toRegex()
-        private val matchReference = """(\d+)""".toRegex()
-
-        override fun afterTextCached() {
-            with(ctx) {
-                state.referencesInText.addAll(getAllReferences(value!!))
-            }
-        }
-
-        private fun getAllReferences(text: String): Set<Int> {
-            val set = mutableSetOf<Int>()
-            val (refs, ranges) = findAllRanges(clearPages(findAllInBrackets(text))).let { it.first.toList() to it.second }
-            ranges.forEach {
-                for (i in it) {
-                    set += i
-                }
-            }
-            findAllReferences(refs).forEach(set::add)
-            return set
-        }
-
-        private fun findAllInBrackets(text: String): Sequence<String> {
-            return inBrackets.findAll(text).map { it.groups[1]!!.value }
-        }
-
-        private fun clearPages(refs: Sequence<String>): Sequence<String> {
-            return refs.map { removePages.replace(it, "") }
-        }
-
-        private fun findAllRanges(refs: Sequence<String>): Pair<Sequence<String>, List<IntRange>> {
-            val ranges = mutableListOf<IntRange>()
-            return refs.map {
-                val r = removeAndMatchRanges.findAll(it)
-                for (matchResult in r) {
-                    ranges += matchResult.groups[1]!!.value.toInt()..matchResult.groups[2]!!.value.toInt()
-                }
-                removeAndMatchRanges.replace(it, "")
-            } to ranges
-        }
-
-        private fun findAllReferences(refs: List<String>): List<Int> {
-            return refs.flatMap { line -> matchReference.findAll(line).map { it.groups[1]!!.value.toInt() } }
-        }
-    }
-
     private val text = Text(this)
+    private val listData = ListData()
 
     context(VerificationContext)
     override fun handle(element: P) {
@@ -349,6 +291,62 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, Chapte
             if (it != null && it != "FFFFFF") {
                 mistake(Reason.BackgroundColor)
             }
+        }
+    }
+
+    inner class ListData {
+        var isListElement: Boolean = false
+        var isOrdered: Boolean = false
+        var listPosition: Int = -1
+        var start: Int = -1
+        var level: Int = -1
+    }
+
+    inner class Text(handler: PHandler): TextContainer<PHandler>(handler) {
+        private val inBrackets = """\[(.*?)]""".toRegex()
+        private val removePages = """,\s*С\.(?:.*)*""".toRegex()
+        private val removeAndMatchRanges = """(\d+)\s*-\s*(\d+)""".toRegex()
+        private val matchReference = """(\d+)""".toRegex()
+
+        override fun afterTextCached() {
+            with(ctx) {
+                state.referencesInText.addAll(getAllReferences(value!!))
+            }
+        }
+
+        private fun getAllReferences(text: String): Set<Int> {
+            val set = mutableSetOf<Int>()
+            val (refs, ranges) = findAllRanges(clearPages(findAllInBrackets(text))).let { it.first.toList() to it.second }
+            ranges.forEach {
+                for (i in it) {
+                    set += i
+                }
+            }
+            findAllReferences(refs).forEach(set::add)
+            return set
+        }
+
+        private fun findAllInBrackets(text: String): Sequence<String> {
+            return inBrackets.findAll(text).map { it.groups[1]!!.value }
+        }
+
+        private fun clearPages(refs: Sequence<String>): Sequence<String> {
+            return refs.map { removePages.replace(it, "") }
+        }
+
+        private fun findAllRanges(refs: Sequence<String>): Pair<Sequence<String>, List<IntRange>> {
+            val ranges = mutableListOf<IntRange>()
+            return refs.map {
+                val r = removeAndMatchRanges.findAll(it)
+                for (matchResult in r) {
+                    ranges += matchResult.groups[1]!!.value.toInt()..matchResult.groups[2]!!.value.toInt()
+                }
+                removeAndMatchRanges.replace(it, "")
+            } to ranges
+        }
+
+        private fun findAllReferences(refs: List<String>): List<Int> {
+            return refs.flatMap { line -> matchReference.findAll(line).map { it.groups[1]!!.value.toInt() } }
         }
     }
 }
