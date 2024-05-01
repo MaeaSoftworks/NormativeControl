@@ -2,7 +2,7 @@ package normativecontrol.implementation.urfu
 
 import normativecontrol.core.mistakes.MistakeReason
 
-internal enum class Reason(override val description: String) : MistakeReason {
+internal enum class Reason(override val description: String, val expected: String? = null) : MistakeReason {
     ChapterOrderMismatch("Неверный порядок разделов. Методические указания, п. 3.1"),
     IncorrectLineSpacingHeader("Некорректный межстрочный интервал заголовка. Методические указания, п. 6.2"),
     IncorrectLineSpacingText("Некорректный межстрочный интервал текста. Методические указания, п. 6.1"),
@@ -30,5 +30,9 @@ internal enum class Reason(override val description: String) : MistakeReason {
     SpacingAfter("Найден интервал после абзаца. Методические указания, п. 6.1"),
     IncorrectFont("Неверный шрифт: необходим Times New Roman. Методические указания, п. 6.1"),
     IncorrectPictureDescriptionPattern("Неверный формат подписи рисунка. Методические указания, п. 6.8"),
-    TableWithoutTitle("Не найден заголовок таблицы/продолжение таблицы. Методические указания, п. 6.7")
+    TableWithoutTitle("Не найден заголовок таблицы/продолжение таблицы. Методические указания, п. 6.7"),
+    Italic("Найден курсивный текст"),
+    BoldText("Найден жирный текст"),
+    IncorrectFontSize("Неверный размер шрифта"),
+    IncorrectTextColor("Неверный цвет текста", "черный или авто")
 }

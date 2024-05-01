@@ -30,10 +30,10 @@ internal class RHandler : AbstractHandler<R>(), StateProvider<UrFUState> {
                 span {
                     style += {
                         fontFamily set (rPr.rFonts.ascii verifyBy rules.fonts)
-                        fontSize set rPr.sz?.`val`?.toDouble()
-                        fontStyle set rPr.i?.isVal
-                        fontWeight set rPr.b?.isVal
-                        color set rPr.color?.`val`
+                        fontSize set (rPr.sz?.`val`?.toDouble() verifyBy rules.fontSize)
+                        fontStyle set (rPr.i?.isVal verifyBy rules.italic)
+                        fontWeight set (rPr.b?.isVal verifyBy rules.bold)
+                        color set (rPr.color?.`val` verifyBy rules.color)
                         backgroundColor set rPr.highlight?.`val`
                         textTransform set rPr.caps?.isVal
                         fontVariantCaps set rPr.smallCaps?.isVal
@@ -55,6 +55,30 @@ internal class RHandler : AbstractHandler<R>(), StateProvider<UrFUState> {
             if (text.isBlank == true) return@verifier
             if (it != "Times New Roman") {
                 return@verifier mistake(Reason.IncorrectFont)
+            }
+        }
+        val italic = verifier<Boolean?> {
+            if (text.isBlank == true) return@verifier
+            if (it == true) {
+                return@verifier mistake(Reason.Italic)
+            }
+        }
+        val bold = verifier<Boolean?> {
+            if (text.isBlank == true) return@verifier
+            if (!state.isHeader && it == true) {
+                return@verifier mistake(Reason.BoldText)
+            }
+        }
+        val fontSize = verifier<Double?> {
+            val size = it?.div(2) ?: 0.0
+            if (size - 14 > 0.01) {
+                return@verifier mistake(Reason.IncorrectFontSize, size.toString(), "14")
+            }
+        }
+        val color = verifier<String?> {
+            if (text.isBlank == true) return@verifier
+            if (it != null && it != "FFFFFF") {
+                return@verifier mistake(Reason.IncorrectTextColor, it.toString(), Reason.IncorrectTextColor.expected)
             }
         }
     }

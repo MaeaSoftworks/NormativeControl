@@ -33,8 +33,6 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, Chapte
 
     private val rules = Rules()
 
-    var isHeader = false
-
     private var sinceHeader = -1
     private val text = Text(this)
     private val listData = ListData()
@@ -134,21 +132,21 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, Chapte
         val uppercaseText = text.cacheText(element).trim().uppercase()
         val result = configuration.verificationSettings.chapterConfiguration.headers[uppercaseText]
         if (result != null) {
-            isHeader = true
+            state.isHeader = true
             sinceHeader = 0
             return result
         }
         if (isChapterBodyHeader(uppercaseText)) {
-            isHeader = true
+            state.isHeader = true
             sinceHeader = 0
             return Chapters.Body
         }
         if (isAppendixHeader(uppercaseText)) {
-            isHeader = true
+            state.isHeader = true
             sinceHeader = 0
             return Chapters.Appendix
         }
-        isHeader = false
+        state.isHeader = false
         sinceHeader++
         return null
     }
@@ -174,7 +172,7 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, Chapte
             if (text.isBlank != false) return@verifier
             val value = it?.asTwip()?.cm?.round(2) ?: 0.0.cm
 
-            if (isHeader) {
+            if (state.isHeader) {
                 if (value != 0.0.cm) {
                     return@verifier mistake(Reason.LeftIndentOnHeader)
                 }
@@ -202,7 +200,7 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, Chapte
 
         val rightIndent = verifier<BigInteger?> {
             if (text.isBlank != false) return@verifier
-            return@verifier if (isHeader) {
+            return@verifier if (state.isHeader) {
                 if (it != null && it.asTwip().cm != 0.0.cm) {
                     mistake(Reason.RightIndentOnHeader)
                 } else return@verifier
@@ -216,7 +214,7 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, Chapte
         val firstLineIndent = verifier<BigInteger?> {
             if (text.isBlank != false) return@verifier
             val value = it?.asTwip()?.cm ?: 0.0.cm
-            return@verifier if (isHeader) {
+            return@verifier if (state.isHeader) {
                 when (chapter) {
                     Chapters.Body -> {
                         if (abs(value - 1.25.cm) >= 0.01.cm) {
@@ -258,7 +256,7 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, Chapte
 
         val spacingLine = verifier<Spacing?> {
             val line = it?.line?.asPointsToLine() ?: 0.0
-            return@verifier if (isHeader) {
+            return@verifier if (state.isHeader) {
                 if (abs(line - 1.0) >= 0.001) mistake(Reason.IncorrectLineSpacingHeader, line.toString(), "1")
                 else return@verifier
             } else {
@@ -270,7 +268,7 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, Chapte
 
         val justifyContent = verifier<JcEnumeration?> {
             if (text.isBlank != false) return@verifier
-            return@verifier if (isHeader) {
+            return@verifier if (state.isHeader) {
                 if (chapter == Chapters.Body) {
                     if (it != JcEnumeration.BOTH) mistake(Reason.IncorrectJustifyOnBodyHeader)
                     else return@verifier

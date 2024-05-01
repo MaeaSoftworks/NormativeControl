@@ -4,6 +4,8 @@ import normativecontrol.core.states.State
 import normativecontrol.core.utils.IntCounter
 
 class UrFUState : State() {
+    var isHeader = false
+
     var rSinceBr: Int = 0
     val referencesInText = mutableSetOf<Int>()
 
