@@ -52,31 +52,36 @@ internal class RHandler : AbstractHandler<R>(), StateProvider<UrFUState> {
 
     private inner class Rules {
         val fonts = verifier<String?> {
-            if (text.isBlank == true) return@verifier
+            if (text.isBlank == true || state.isCodeBlock) return@verifier
             if (it != "Times New Roman") {
                 return@verifier mistake(Reason.IncorrectFont)
             }
         }
         val italic = verifier<Boolean?> {
-            if (text.isBlank == true) return@verifier
+            if (text.isBlank == true || state.isCodeBlock) return@verifier
             if (it == true) {
                 return@verifier mistake(Reason.Italic)
             }
         }
         val bold = verifier<Boolean?> {
-            if (text.isBlank == true) return@verifier
+            if (text.isBlank == true || state.isCodeBlock) return@verifier
             if (!state.isHeader && it == true) {
                 return@verifier mistake(Reason.BoldText)
             }
         }
         val fontSize = verifier<Double?> {
             val size = it?.div(2) ?: 0.0
+            if (state.isCodeBlock) {
+                if (size > 14 || size < 8) {
+                    return@verifier mistake(Reason.IncorrectFontSizeInCode, size.toString(), "8 - 14")
+                } else return@verifier
+            }
             if (size - 14 > 0.01) {
                 return@verifier mistake(Reason.IncorrectFontSize, size.toString(), "14")
             }
         }
         val color = verifier<String?> {
-            if (text.isBlank == true) return@verifier
+            if (text.isBlank == true || state.isCodeBlock) return@verifier
             if (it != null && it != "FFFFFF") {
                 return@verifier mistake(Reason.IncorrectTextColor, it.toString(), Reason.IncorrectTextColor.expected)
             }

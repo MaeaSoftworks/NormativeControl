@@ -10,7 +10,8 @@ import org.docx4j.wml.Drawing
 
 @Handler(Drawing::class, UrFUConfiguration::class)
 internal class DrawingHandler : AbstractHandler<Drawing>(), StateProvider<UrFUState> {
-    override fun addHooks() {
+    @Suppress("RedundantUnitReturnType")
+    override fun addHooks(): Unit {
         runtime.handlers[PHandler::class]?.hooks?.afterHandle?.subscribe {
             with(runtime.context) {
                 if (state.currentPWithDrawing) {

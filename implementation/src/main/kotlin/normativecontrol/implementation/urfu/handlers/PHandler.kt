@@ -40,6 +40,7 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, Chapte
     context(VerificationContext)
     override fun handle(element: P) {
         val pPr = element.pPr.resolve()
+
         render {
             if (element.pPr?.sectPr != null) {
                 pageBreak(-1, createPageStyle(element.pPr.sectPr))
@@ -71,6 +72,7 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, Chapte
                 }
             }
         }
+        state.sinceCodeBlock++
     }
 
     context(VerificationContext)
@@ -171,41 +173,45 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, Chapte
         val leftIndent = verifier<BigInteger?> {
             if (text.isBlank != false) return@verifier
             val value = it?.asTwip()?.cm?.round(2) ?: 0.0.cm
-
-            if (state.isHeader) {
+            return@verifier if (state.isCodeBlock) {
                 if (value != 0.0.cm) {
-                    return@verifier mistake(Reason.LeftIndentOnHeader)
-                }
-                return@verifier
-            }
-            if (isPictureTitle) {
-                if (it != null && it.asTwip().cm != 0.0.cm) return@verifier mistake(Reason.LeftIndentOnPictureDescription)
-                return@verifier
-            }
-            if (listData.isListElement) {
+                    mistake(Reason.LeftIndentOnCode)
+                } else return@verifier
+            } else if (state.isHeader) {
+                if (value != 0.0.cm) {
+                    mistake(Reason.LeftIndentOnHeader)
+                } else return@verifier
+            } else if (isPictureTitle) {
+                if (it != null && it.asTwip().cm != 0.0.cm) {
+                    mistake(Reason.LeftIndentOnPictureDescription)
+                } else return@verifier
+            } else if (listData.isListElement) {
                 val expected = 0.75.cm * (listData.level)
                 if (value != expected) {
-                    return@verifier mistake(
+                    mistake(
                         Reason.IncorrectLeftIndentInList,
                         value.value.toString(),
                         expected.value.toString()
                     )
-                }
-                return@verifier
-            }
-            if (value != 0.0.cm) {
-                return@verifier mistake(Reason.LeftIndentOnText)
-            }
+                } else return@verifier
+            } else if (value != 0.0.cm) {
+                mistake(Reason.LeftIndentOnText)
+            } else return@verifier
         }
 
         val rightIndent = verifier<BigInteger?> {
             if (text.isBlank != false) return@verifier
-            return@verifier if (state.isHeader) {
-                if (it != null && it.asTwip().cm != 0.0.cm) {
+            val value = it?.asTwip()?.cm ?: 0.0.cm
+            return@verifier if (state.isCodeBlock) {
+                if (value != 0.0.cm) {
+                    mistake(Reason.RightIndentOnCode)
+                } else return@verifier
+            } else if (state.isHeader) {
+                if (value != 0.0.cm) {
                     mistake(Reason.RightIndentOnHeader)
                 } else return@verifier
             } else {
-                if (it != null && it.asTwip().cm != 0.0.cm) {
+                if (value != 0.0.cm) {
                     mistake(Reason.RightIndentOnText)
                 } else return@verifier
             }
@@ -214,7 +220,11 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, Chapte
         val firstLineIndent = verifier<BigInteger?> {
             if (text.isBlank != false) return@verifier
             val value = it?.asTwip()?.cm ?: 0.0.cm
-            return@verifier if (state.isHeader) {
+            return@verifier if (state.isCodeBlock) {
+                if (value >= 0.01.cm)
+                    mistake(Reason.FirstLineIndentOnCode, value.value.toString(), "0")
+                else return@verifier
+            } else if (state.isHeader) {
                 when (chapter) {
                     Chapters.Body -> {
                         if (abs(value - 1.25.cm) >= 0.01.cm) {
@@ -229,15 +239,15 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, Chapte
                 }
             } else if (isPictureTitle) {
                 if (value >= 0.01.cm)
-                    return@verifier mistake(Reason.IncorrectFirstLineIndentInPictureDescription, value.value.toString(), "0")
+                    mistake(Reason.IncorrectFirstLineIndentInPictureDescription, value.value.toString(), "0")
                 else return@verifier
             } else if (state.tableTitleCounter.isReset) {
                 if (value >= 0.01.cm)
-                    return@verifier mistake(Reason.IncorrectFirstLineIndentInTableTitle, value.value.toString(), "0")
+                    mistake(Reason.IncorrectFirstLineIndentInTableTitle, value.value.toString(), "0")
                 else return@verifier
             }  else {
                 if (abs(value - 1.25.cm) >= 0.01.cm)
-                    return@verifier mistake(Reason.IncorrectFirstLineIndentInText, value.value.toString(), "1.25")
+                    mistake(Reason.IncorrectFirstLineIndentInText, value.value.toString(), "1.25")
                 else return@verifier
             }
         }
@@ -256,7 +266,10 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, Chapte
 
         val spacingLine = verifier<Spacing?> {
             val line = it?.line?.asPointsToLine() ?: 0.0
-            return@verifier if (state.isHeader) {
+            return@verifier if (state.isCodeBlock) {
+                if (abs(line - 1.0) >= 0.001) mistake(Reason.IncorrectLineSpacingInCode, line.toString(), "1")
+                else return@verifier
+            } else if (state.isHeader) {
                 if (abs(line - 1.0) >= 0.001) mistake(Reason.IncorrectLineSpacingHeader, line.toString(), "1")
                 else return@verifier
             } else {
@@ -268,7 +281,11 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, Chapte
 
         val justifyContent = verifier<JcEnumeration?> {
             if (text.isBlank != false) return@verifier
-            return@verifier if (state.isHeader) {
+            return@verifier if (state.isCodeBlock) {
+                if (it != JcEnumeration.LEFT) {
+                    mistake(Reason.JustifyOnCode)
+                } else return@verifier
+            } else if (state.isHeader) {
                 if (chapter == Chapters.Body) {
                     if (it != JcEnumeration.BOTH) mistake(Reason.IncorrectJustifyOnBodyHeader)
                     else return@verifier
@@ -316,6 +333,19 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, Chapte
         override fun defineStateByText() {
             with(ctx) {
                 if (chapter.shouldBeVerified) {
+                    if (text.textValue?.startsWith("/**normative*control*code*start**/") == true
+                        || text.textValue?.startsWith("/**c*s**/") == true) {
+                        state.isCodeBlock = true
+                        state.sinceCodeBlock = 0
+                    } else if (text.textValue?.endsWith("/**normative*control*code*end**/") == true
+                        || text.textValue?.endsWith("/**c*e**/") == true) {
+                        hooks.afterHandle.subscribeOnce {
+                            state.isCodeBlock = false
+                            if (state.sinceCodeBlock > 30) {
+                                mistake(Reason.CodeBlockWasTooBig, state.sinceCodeBlock.toString(), "30")
+                            }
+                        }
+                    }
                     if (state.sinceDrawing == 0 && !state.currentPWithDrawing) {
                         if (textValue == null || !pictureDescription.matches(textValue!!)) {
                             mistake(Reason.IncorrectPictureDescriptionPattern)

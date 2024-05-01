@@ -34,5 +34,12 @@ internal enum class Reason(override val description: String, val expected: Strin
     Italic("Найден курсивный текст"),
     BoldText("Найден жирный текст"),
     IncorrectFontSize("Неверный размер шрифта"),
-    IncorrectTextColor("Неверный цвет текста", "черный или авто")
+    IncorrectTextColor("Неверный цвет текста", "черный или авто"),
+    LeftIndentOnCode("Обнаружен отступ слева у блока кода"),
+    RightIndentOnCode("Обнаружен отступ справа у блока кода"),
+    FirstLineIndentOnCode("Обнаружен отступ первой строки у блока кода"),
+    JustifyOnCode("Блок кода должен быть выровнен по левому краю"),
+    IncorrectFontSizeInCode("Неверный размер шрифта в коде"),
+    IncorrectLineSpacingInCode("Некорректный межстрочный интервал в коде"),
+    CodeBlockWasTooBig("Слишком большой блок кода")
 }
