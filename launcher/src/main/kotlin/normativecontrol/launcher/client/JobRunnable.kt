@@ -52,7 +52,7 @@ class JobRunnable(private val job: Job) : Runnable {
         }
         Database.updateResult(
             Result(
-                id,
+                documentId,
                 status,
                 description,
                 statistics
