@@ -82,7 +82,7 @@ internal class RHandler : AbstractHandler<R>(), StateProvider<UrFUState> {
         }
         val color = verifier<String?> {
             if (text.isBlank == true || state.isCodeBlock) return@verifier
-            if (it != null && it != "FFFFFF") {
+            if (it != null && it != "000000") {
                 return@verifier mistake(Reason.IncorrectTextColor, it.toString(), Reason.IncorrectTextColor.expected)
             }
         }
