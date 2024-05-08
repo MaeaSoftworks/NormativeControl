@@ -18,4 +18,6 @@ class UrFUState : State() {
     val tableTitleCounter = IntCounter()
 
     val tableCounter = IntCounter()
+
+    var suppressChapterRecognition = false
 }

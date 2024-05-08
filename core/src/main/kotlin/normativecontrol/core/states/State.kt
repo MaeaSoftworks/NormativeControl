@@ -1,3 +1,5 @@
 package normativecontrol.core.states
 
-abstract class State
+abstract class State {
+    val suppressed = mutableSetOf<Int>()
+}

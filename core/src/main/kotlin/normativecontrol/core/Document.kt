@@ -1,6 +1,5 @@
 package normativecontrol.core
 
-import normativecontrol.core.chapters.ChapterHeader
 import normativecontrol.core.contexts.VerificationContext
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage
 import java.io.ByteArrayOutputStream
@@ -23,16 +22,7 @@ internal class Document(runtime: Runtime, file: InputStream) {
     internal fun runVerification() {
         with(ctx) {
             doc.content.iterate { element, _ ->
-                val handler = runtime.handlers[element]
-                if (handler != null) {
-                    if (handler is ChapterHeader) {
-                        val chapter = handler.checkChapterStart(element)
-                        if (chapter != null) {
-                            handler.checkChapterOrder(chapter)
-                        }
-                    }
-                    handler.handleElement(element)
-                }
+                runtime.handlers[element]?.handleElement(element)
             }
         }
     }

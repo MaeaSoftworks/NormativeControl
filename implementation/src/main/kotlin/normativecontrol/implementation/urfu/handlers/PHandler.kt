@@ -2,7 +2,7 @@ package normativecontrol.implementation.urfu.handlers
 
 import normativecontrol.core.handlers.Handler
 import normativecontrol.core.chapters.Chapter
-import normativecontrol.core.chapters.ChapterHeader
+import normativecontrol.core.chapters.AbstractChapterHeaderHandler
 import normativecontrol.core.contexts.VerificationContext
 import normativecontrol.core.handlers.AbstractHandler
 import normativecontrol.core.handlers.StateProvider
@@ -13,7 +13,9 @@ import normativecontrol.core.math.cm
 import normativecontrol.core.rendering.html.br
 import normativecontrol.core.rendering.html.createPageStyle
 import normativecontrol.core.rendering.html.p
-import normativecontrol.core.components.TextContainer
+import normativecontrol.core.components.AbstractTextContentHandler
+import normativecontrol.core.traits.ChapterHeaderHandler
+import normativecontrol.core.traits.TextContentHandler
 import normativecontrol.core.utils.flatMap
 import normativecontrol.core.verifier
 import normativecontrol.core.verifyBy
@@ -28,14 +30,15 @@ import java.math.BigInteger
 import kotlin.math.abs
 
 @Handler(P::class, UrFUConfiguration::class)
-internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, ChapterHeader {
+internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, TextContentHandler, ChapterHeaderHandler {
     private val headerRegex = Regex("""^(\d+(?:\.\d)*)\s(?:\S\s?)*$""")
 
     private val rules = Rules()
 
     private var sinceHeader = -1
-    private val text = Text(this)
     private val listData = ListData()
+    override val text = Text(this)
+    override val chapterHeaderHandler = HeaderHandler(this)
 
     context(VerificationContext)
     override fun handle(element: P) {
@@ -127,43 +130,6 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, Chapte
 
     private fun isAppendixHeader(text: String): Boolean {
         return Chapters.Appendix.prefixes?.any { text.startsWith(it) } == true
-    }
-
-    context(VerificationContext)
-    override fun checkChapterStart(element: Any): Chapter? {
-        val uppercaseText = text.cacheText(element).trim().uppercase()
-        val result = configuration.verificationSettings.chapterConfiguration.headers[uppercaseText]
-        if (result != null) {
-            state.isHeader = true
-            sinceHeader = 0
-            return result
-        }
-        if (isChapterBodyHeader(uppercaseText)) {
-            state.isHeader = true
-            sinceHeader = 0
-            return Chapters.Body
-        }
-        if (isAppendixHeader(uppercaseText)) {
-            state.isHeader = true
-            sinceHeader = 0
-            return Chapters.Appendix
-        }
-        state.isHeader = false
-        sinceHeader++
-        return null
-    }
-
-    context(VerificationContext)
-    override fun checkChapterOrder(target: Chapter) {
-        val nextChapters = configuration.verificationSettings.chapterConfiguration.getNextChapters(chapter)
-        if (target !in nextChapters) {
-            mistake(
-                Reason.ChapterOrderMismatch,
-                target.names?.joinToString("/"),
-                nextChapters.flatMap { configuration.verificationSettings.chapterConfiguration.names[it]!! }.joinToString("/")
-            )
-        }
-        chapter = target
     }
 
     private inner class Rules {
@@ -320,7 +286,7 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, Chapte
         var level: Int = -1
     }
 
-    inner class Text(handler: PHandler): TextContainer<PHandler>(handler) {
+    inner class Text(handler: PHandler): AbstractTextContentHandler(handler) {
         private val inBrackets = """\[(.*?)]""".toRegex()
         private val removePages = """,\s*С\.(?:.*)*""".toRegex()
         private val removeAndMatchRanges = """(\d+)\s*-\s*(\d+)""".toRegex()
@@ -330,15 +296,17 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, Chapte
         private val tableTitle = """^Таблица (?:[АБВГДЕЖИКЛМНПРСТУФХЦШЩЭЮЯ]\.)?\d+ – .*[^.]$""".toRegex()
         private val tableContinuation = """^Продолжение\sтаблицы\s(?:[АБВГДЕЖИКЛМНПРСТУФХЦШЩЭЮЯ]\.)?\d+[^.]?$""".toRegex()
 
+        private val suppressor = """/\*\*suppress(\d+)\*\*/""".toRegex()
+
         override fun defineStateByText() {
             with(ctx) {
                 if (chapter.shouldBeVerified) {
-                    if (text.textValue?.startsWith("/**normative*control*code*start**/") == true
-                        || text.textValue?.startsWith("/**c*s**/") == true) {
+                    if (textValue?.startsWith("/**normative*control*code*start**/") == true
+                        || textValue?.startsWith("/**c*s**/") == true) {
                         state.isCodeBlock = true
                         state.sinceCodeBlock = 0
-                    } else if (text.textValue?.endsWith("/**normative*control*code*end**/") == true
-                        || text.textValue?.endsWith("/**c*e**/") == true) {
+                    } else if (textValue?.endsWith("/**normative*control*code*end**/") == true
+                        || textValue?.endsWith("/**c*e**/") == true) {
                         hooks.afterHandle.subscribeOnce {
                             state.isCodeBlock = false
                             if (state.sinceCodeBlock > 30) {
@@ -399,6 +367,49 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, Chapte
 
         private fun findAllReferences(refs: List<String>): List<Int> {
             return refs.flatMap { line -> matchReference.findAll(line).map { it.groups[1]!!.value.toInt() } }
+        }
+    }
+
+    inner class HeaderHandler(handler: AbstractHandler<*>): AbstractChapterHeaderHandler(handler) {
+        context(VerificationContext)
+        override fun checkChapterStart(element: Any): Chapter? {
+            if (state.suppressChapterRecognition) return null
+            val uppercaseText = text.cacheText(element).trim().uppercase()
+            val result = configuration.verificationSettings.chapterConfiguration.headers[uppercaseText]
+            if (result != null) {
+                state.isHeader = true
+                sinceHeader = 0
+                if (result == Chapters.Contents) {
+                    state.suppressChapterRecognition = true
+                }
+                return result
+            }
+            if (isChapterBodyHeader(uppercaseText)) {
+                state.isHeader = true
+                sinceHeader = 0
+                return Chapters.Body
+            }
+            if (isAppendixHeader(uppercaseText)) {
+                state.isHeader = true
+                sinceHeader = 0
+                return Chapters.Appendix
+            }
+            state.isHeader = false
+            sinceHeader++
+            return null
+        }
+
+        context(VerificationContext)
+        override fun checkChapterOrder(target: Chapter) {
+            val nextChapters = configuration.verificationSettings.chapterConfiguration.getNextChapters(chapter)
+            if (target !in nextChapters) {
+                mistake(
+                    Reason.ChapterOrderMismatch,
+                    target.names?.joinToString("/"),
+                    nextChapters.flatMap { configuration.verificationSettings.chapterConfiguration.names[it]!! }.joinToString("/")
+                )
+            }
+            chapter = target
         }
     }
 }

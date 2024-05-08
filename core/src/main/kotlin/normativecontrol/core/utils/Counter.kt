@@ -25,19 +25,8 @@ class IntCounter: Counter<Int>() {
         value = 0
         isReset = true
     }
-}
 
-class DoubleCounter: Counter<Double>() {
-    override var value: Double = -1.0
-
-    override fun increment(): Counter<Double> {
-        value++
-        isReset = false
-        return this
-    }
-
-    override fun reset() {
-        value = 0.0
-        isReset = true
+    override fun toString(): String {
+        return value.toString()
     }
 }

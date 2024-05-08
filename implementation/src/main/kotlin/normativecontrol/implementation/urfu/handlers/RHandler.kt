@@ -5,7 +5,7 @@ import normativecontrol.core.contexts.VerificationContext
 import normativecontrol.core.handlers.AbstractHandler
 import normativecontrol.core.handlers.StateProvider
 import normativecontrol.core.rendering.html.span
-import normativecontrol.core.components.TextContainer
+import normativecontrol.core.components.AbstractTextContentHandler
 import normativecontrol.core.verifier
 import normativecontrol.core.verifyBy
 import normativecontrol.core.wrappers.RPr.Companion.resolver
@@ -19,7 +19,7 @@ internal class RHandler : AbstractHandler<R>(), StateProvider<UrFUState> {
     private val rules = Rules()
     private val text = Text(this)
 
-    inner class Text(handler: RHandler) : TextContainer<RHandler>(handler)
+    inner class Text(handler: RHandler) : AbstractTextContentHandler(handler)
 
     context(VerificationContext)
     override fun handle(element: R) {
