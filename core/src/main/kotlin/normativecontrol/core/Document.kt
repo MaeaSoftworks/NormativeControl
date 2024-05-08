@@ -1,6 +1,7 @@
 package normativecontrol.core
 
 import normativecontrol.core.contexts.VerificationContext
+import normativecontrol.core.mocktypes.Metadata
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
@@ -21,6 +22,9 @@ internal class Document(runtime: Runtime, file: InputStream) {
 
     internal fun runVerification() {
         with(ctx) {
+            val metadata = Metadata((doc.`package` as WordprocessingMLPackage).docPropsCorePart.contents)
+            runtime.handlers[metadata]?.handleElement(metadata)
+
             doc.content.iterate { element, _ ->
                 runtime.handlers[element]?.handleElement(element)
             }

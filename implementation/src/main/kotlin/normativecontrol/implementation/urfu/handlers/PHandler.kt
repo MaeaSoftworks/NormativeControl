@@ -296,8 +296,6 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, TextCo
         private val tableTitle = """^Таблица (?:[АБВГДЕЖИКЛМНПРСТУФХЦШЩЭЮЯ]\.)?\d+ – .*[^.]$""".toRegex()
         private val tableContinuation = """^Продолжение\sтаблицы\s(?:[АБВГДЕЖИКЛМНПРСТУФХЦШЩЭЮЯ]\.)?\d+[^.]?$""".toRegex()
 
-        private val suppressor = """/\*\*suppress(\d+)\*\*/""".toRegex()
-
         override fun defineStateByText() {
             with(ctx) {
                 if (chapter.shouldBeVerified) {
