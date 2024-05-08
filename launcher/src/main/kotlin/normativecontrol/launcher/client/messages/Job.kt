@@ -12,7 +12,7 @@ data class Job(
     val id = "$userId/$documentId"
 
     @Transient
-    val source = "$id.source.docx"
+    val source = "$id/source.docx"
 
     @Transient
     val results = Results(this)
@@ -20,9 +20,9 @@ data class Job(
     @JvmInline
     value class Results(private val job: Job) {
         val docx: String
-            get() = "${job.id}.result.docx"
+            get() = "${job.id}/result.docx"
 
         val html: String
-            get() = "${job.id}.result.html"
+            get() = "${job.id}/result.html"
     }
 }
