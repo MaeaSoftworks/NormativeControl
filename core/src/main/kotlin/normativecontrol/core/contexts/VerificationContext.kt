@@ -52,6 +52,17 @@ class VerificationContext(val runtime: Runtime, mlPackage: WordprocessingMLPacka
         pointer.clearTo(level)
     }
 
+    @OptIn(Pointer.PointerTransformations::class)
+    inline fun List<Any>.iterate(count: Int, fn: (element: Any, pos: Int) -> Unit) {
+        val level = pointer.size
+        pointer[level] = 0
+        while (pointer[level] < count) {
+            fn(this[pointer[level]], pointer[level])
+            pointer[level]++
+        }
+        pointer.clearTo(level)
+    }
+
     /**
      * Iterates over [ContentAccessor.getContent].
      * @param fn function that will run on every element
@@ -66,6 +77,7 @@ class VerificationContext(val runtime: Runtime, mlPackage: WordprocessingMLPacka
      * @param expected expected value
      */
     fun mistake(mistakeReason: MistakeReason, actual: String? = null, expected: String? = null) {
+        if (!chapter.shouldBeVerified) return
         if (mistakeReason.id in configuration.state.suppressed) return
 
         val formattedText = if (actual != null && expected != null) {

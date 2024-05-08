@@ -19,7 +19,7 @@ class MetadataHandler: AbstractHandler<Metadata>() {
 
     context(VerificationContext)
     private fun findSuppressions(element: Metadata) {
-        val text = element.meta.keywords
+        val text = element.meta.keywords ?: return
         val suppress = suppressor.findAll(text).toList()
         if (suppress.isNotEmpty()) {
             suppress.forEach { match ->

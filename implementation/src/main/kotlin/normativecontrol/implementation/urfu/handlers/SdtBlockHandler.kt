@@ -13,7 +13,7 @@ class SdtBlockHandler : AbstractHandler<SdtBlock>(), StateProvider<UrFUState> {
     context(VerificationContext)
     override fun handle(element: SdtBlock) {
         render.inLastElementScope {
-            element.sdtContent.content.iterate { child, _ ->
+            element.sdtContent.content.iterate(1) { child, _ -> // inspect only contents title
                 runtime.handlers[child]?.handleElement(child)
             }
         }
