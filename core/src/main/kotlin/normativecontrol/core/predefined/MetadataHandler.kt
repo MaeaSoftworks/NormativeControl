@@ -3,11 +3,12 @@ package normativecontrol.core.predefined
 import normativecontrol.core.contexts.VerificationContext
 import normativecontrol.core.handlers.AbstractHandler
 import normativecontrol.core.handlers.Handler
+import normativecontrol.core.handlers.HandlerPriority
 import normativecontrol.core.mocktypes.Metadata
 import normativecontrol.shared.warn
 import org.slf4j.LoggerFactory
 
-@Handler(Metadata::class, Predefined::class)
+@Handler(Metadata::class, Predefined::class, HandlerPriority.EXTENDABLE)
 class MetadataHandler: AbstractHandler<Metadata>() {
     private val suppressor = """@suppress\((\d+)\)""".toRegex()
 

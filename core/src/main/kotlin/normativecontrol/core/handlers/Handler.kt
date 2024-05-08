@@ -17,5 +17,6 @@ import kotlin.reflect.KClass
 @Target(AnnotationTarget.CLASS)
 annotation class Handler(
     val handledElementType: KClass<*>,
-    val configuration: KClass<out AbstractHandlerCollection>
+    val configuration: KClass<out AbstractHandlerCollection>,
+    val priority: HandlerPriority = HandlerPriority.OVERRIDABLE
 )

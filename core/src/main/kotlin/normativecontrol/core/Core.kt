@@ -6,6 +6,7 @@ import normativecontrol.core.data.Result
 import normativecontrol.core.data.Statistics
 import normativecontrol.core.handlers.AbstractHandler
 import normativecontrol.core.configurations.AbstractHandlerCollection
+import normativecontrol.core.predefined.Predefined
 import normativecontrol.core.utils.LogColor
 import normativecontrol.core.utils.highlight
 import normativecontrol.shared.debug
@@ -51,12 +52,18 @@ object Core {
                     try {
                         val handlerAnnotation = handlerClass.findAnnotation<Handler>()!!
                         val configName = configNames[handlerAnnotation.configuration]!!
-                        if (!Runtime.factories.containsKey(configName)) {
-                            Runtime.factories[configName] = mutableMapOf()
+                        if (configName == Predefined.NAME) {
+                            Runtime.predefinedFactories[handlerAnnotation.handledElementType] =
+                                handlerAnnotation.priority to (handlerClass.constructors.find { it.parameters.isEmpty() }?.let { { it.call() as AbstractHandler<*> } }
+                                    ?: throw InvalidObjectException("Handler class should have only primary constructor without args"))
+                        } else {
+                            if (!Runtime.factories.containsKey(configName)) {
+                                Runtime.factories[configName] = mutableMapOf()
+                            }
+                            Runtime.factories[configName]!![handlerAnnotation.handledElementType] =
+                                handlerClass.constructors.find { it.parameters.isEmpty() }?.let { { it.call() as AbstractHandler<*> } }
+                                    ?: throw InvalidObjectException("Handler class should have only primary constructor without args")
                         }
-                        Runtime.factories[configName]!![handlerAnnotation.handledElementType] =
-                            handlerClass.constructors.find { it.parameters.isEmpty() }?.let { { it.call() as AbstractHandler<*> } }
-                                ?: throw InvalidObjectException("Hanler class should have only primary constructor without args")
                         logger.debug {
                             handlerClass.simpleName!!.highlight(LogColor.ANSI_YELLOW) + " loaded to group " +
                                     configName.highlight(generateColor(configName))

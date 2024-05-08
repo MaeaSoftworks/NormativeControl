@@ -1,10 +1,12 @@
 package normativecontrol.core
 
+import normativecontrol.core.annotations.CoreInternal
 import normativecontrol.core.configurations.AbstractConfiguration
 import normativecontrol.core.contexts.VerificationContext
 import normativecontrol.core.handlers.AbstractHandler
 import normativecontrol.core.configurations.AbstractHandlerCollection
-import normativecontrol.core.predefined.Predefined
+import normativecontrol.core.handlers.ExtendedHandler
+import normativecontrol.core.handlers.HandlerPriority
 import kotlin.reflect.KClass
 
 /**
@@ -21,36 +23,57 @@ class Runtime(
         .invoke() as? AbstractConfiguration<*> ?: throw Exception("Collection with name $configurationName is not an Configuration")
     val handlers = HandlersHolder()
 
+    private val predefinedFactoriesDynamic = predefinedFactories.toMutableMap()
+
     lateinit var context: VerificationContext
 
     init {
-        @OptIn(PrivateDirectAccess::class)
+        @OptIn(CoreInternal::class)
         factories[configurationName]?.forEach { (clazz, factory) ->
+            var instance: AbstractHandler<*>? = null
+            if (predefinedFactoriesDynamic.containsKey(clazz)) {
+                val pre = predefinedFactoriesDynamic[clazz]!!
+                if (pre.first == HandlerPriority.EXTENDABLE) {
+                    predefinedFactoriesDynamic.remove(clazz)
+                    @Suppress("UNCHECKED_CAST")
+                    val extender = (factory() as AbstractHandler<Any>).also { it.runtime = this }
+                    @Suppress("UNCHECKED_CAST")
+                    val extended = (pre.second() as AbstractHandler<Any>).also { it.runtime = this }
+                    instance = ExtendedHandler(extender, extended).also { it.runtime = this }
+
+                    handlers.handlersToOwnType[extender::class] = extender
+                    handlers.handlersToOwnType[extended::class] = extended
+                    handlers.handlersToHandledType[clazz] = instance
+                }
+            }
+            if (instance == null) {
+                instance = factory()
+                instance.runtime = this
+                handlers.handlersToOwnType[instance::class] = instance
+                handlers.handlersToHandledType[clazz] = instance
+            }
+        }
+
+        @OptIn(CoreInternal::class)
+        predefinedFactoriesDynamic.forEach { (clazz, pair) ->
+            val (_, factory) = pair
             val instance = factory()
             instance.runtime = this
             handlers.handlersToOwnType[instance::class] = instance
             handlers.handlersToHandledType[clazz] = instance
         }
 
-        @OptIn(PrivateDirectAccess::class)
-        factories[Predefined.NAME]?.forEach { (clazz, factory) ->
-            val instance = factory()
-            instance.runtime = this
-            handlers.handlersToOwnType[instance::class] = instance
-            handlers.handlersToHandledType[clazz] = instance
-        }
-
-        @OptIn(PrivateDirectAccess::class)
+        @OptIn(CoreInternal::class)
         handlers.handlersToHandledType.forEach { (_, handler) ->
             handler.addHooks()
         }
     }
 
-    @OptIn(PrivateDirectAccess::class)
+    @OptIn(CoreInternal::class)
     inner class HandlersHolder {
-        @PrivateDirectAccess
+        @CoreInternal
         val handlersToHandledType: MutableMap<KClass<*>, AbstractHandler<*>> = mutableMapOf()
-        @PrivateDirectAccess
+        @CoreInternal
         val handlersToOwnType: MutableMap<KClass<out AbstractHandler<*>>, AbstractHandler<*>> = mutableMapOf()
 
         operator fun <T: Any> get(elementType: T): AbstractHandler<T>? {
@@ -66,8 +89,6 @@ class Runtime(
 
     companion object {
         val factories = mutableMapOf<String, MutableMap<KClass<*>, () -> AbstractHandler<*>>>()
+        val predefinedFactories = mutableMapOf<KClass<*>, Pair<HandlerPriority, () -> AbstractHandler<*>>>()
     }
-
-    @RequiresOptIn(level = RequiresOptIn.Level.ERROR)
-    private annotation class PrivateDirectAccess
 }
