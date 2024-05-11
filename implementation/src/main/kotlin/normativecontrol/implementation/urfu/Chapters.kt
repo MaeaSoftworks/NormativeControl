@@ -8,9 +8,9 @@ internal enum class Chapters(
     override val prefixes: Array<String>? = null,
     override val shouldBeVerified: Boolean = true
 ) : Chapter {
-    FrontPage(
-        arrayOf("ТИТУЛЬНЫЙ ЛИСТ"),
-        { arrayOf(Annotation) },
+    NO_DETECT_BODY(
+        arrayOf("РАЗДЕЛ НЕ ОПРЕДЕЛЕН"),
+        { arrayOf(Annotation, Contents, Definitions, Abbreviations, Introduction) },
         shouldBeVerified = false
     ),
 

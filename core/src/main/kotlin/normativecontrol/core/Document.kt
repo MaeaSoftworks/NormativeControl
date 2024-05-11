@@ -22,9 +22,10 @@ internal class Document(runtime: Runtime, file: InputStream) {
 
     internal fun runVerification() {
         with(ctx) {
+            // region metadata verification
             val metadata = Metadata((doc.`package` as WordprocessingMLPackage).docPropsCorePart.contents)
             runtime.handlers[metadata]?.handleElement(metadata)
-
+            // endregion
             doc.content.iterate { element, _ ->
                 runtime.handlers[element]?.handleElement(element)
             }

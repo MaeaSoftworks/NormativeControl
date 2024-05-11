@@ -12,12 +12,13 @@ class PropertyResolver(mlPackage: WordprocessingMLPackage) {
     private val numbering: Numbering? = mlPackage.mainDocumentPart.numberingDefinitionsPart?.jaxbElement
     val dPPr: PPr
     val dRPr: RPr
+    private val resolver = org.docx4j.model.PropertyResolver(mlPackage)
 
     @OptIn(InternalConstructor::class)
     val numberingResolver = NumberingResolver()
 
     init {
-        org.docx4j.model.PropertyResolver(mlPackage).apply {
+        resolver.apply {
             dPPr = this.documentDefaultPPr
             dRPr = this.documentDefaultRPr
         }

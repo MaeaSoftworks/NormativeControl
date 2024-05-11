@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory
 import java.io.Closeable
 
 class JobPool(isBlocking: Boolean) : Closeable {
-    private val logger: Logger = LoggerFactory.getLogger(this::class.java)
     private val runner: Runner
 
     init {
@@ -20,9 +19,6 @@ class JobPool(isBlocking: Boolean) : Closeable {
             logger.info { "Multithreading runner is set up" }
             ThreadPoolRunner()
         }
-    }
-
-    init {
         ApplicationFinalizer.add(this)
     }
 
@@ -35,6 +31,7 @@ class JobPool(isBlocking: Boolean) : Closeable {
     }
 
     companion object {
+        private val logger: Logger = LoggerFactory.getLogger(JobPool::class.java)
         private var _instance: JobPool? = null
 
         val instance: JobPool

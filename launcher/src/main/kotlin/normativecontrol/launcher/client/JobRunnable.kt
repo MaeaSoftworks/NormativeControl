@@ -21,23 +21,20 @@ class JobRunnable(private val job: Job) : Runnable {
         val source = try {
             S3.getObject(job.source)
         } catch (_: Exception) {
-            job.sendResult(Status.ERROR, "Error during document downloading")
-            return
+            return job.sendResult(Status.ERROR, "Error during document downloading")
         }
 
         val results = try {
             Core.verify(ByteArrayInputStream(source), UrFUConfiguration.NAME)
         } catch (_: Exception) {
-            job.sendResult(Status.ERROR, "Error during document verification")
-            return
+            return job.sendResult(Status.ERROR, "Error during document verification")
         }
 
         try {
             S3.putObject(results.docx.toByteArray(), job.results.docx)
             S3.putObject(results.html.toByteArray(), job.results.html)
         } catch (_: Exception) {
-            job.sendResult(Status.ERROR, "Error during document uploading")
-            return
+            return job.sendResult(Status.ERROR, "Error during document uploading")
         }
 
         job.sendResult(Status.OK)
@@ -50,14 +47,7 @@ class JobRunnable(private val job: Job) : Runnable {
                 else "Job ${id}: $status"
             }
         }
-        Database.updateResult(
-            Result(
-                documentId,
-                status,
-                description,
-                statistics
-            )
-        )
+        Database.updateResult(Result(documentId, status, description, statistics))
     }
 
     companion object {

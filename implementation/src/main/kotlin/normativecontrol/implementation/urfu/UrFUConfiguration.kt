@@ -9,7 +9,7 @@ import normativecontrol.core.settings.VerificationSettings
 @HandlerCollection(UrFUConfiguration.NAME)
 class UrFUConfiguration : AbstractConfiguration<UrFUState>(
     NAME,
-    Chapters.FrontPage,
+    Chapters.NO_DETECT_BODY,
     VerificationSettings(
         ChapterConfiguration.create<Chapters>()
     ),

@@ -1,5 +1,7 @@
 package normativecontrol.core.wrappers
 
+import jakarta.xml.bind.annotation.XmlAttribute
+import jakarta.xml.bind.annotation.XmlTransient
 import normativecontrol.core.contexts.VerificationContext
 import org.docx4j.wml.*
 import org.docx4j.wml.PPrBase.*
@@ -96,8 +98,8 @@ value class PPr(private val pPr: org.docx4j.wml.PPr?) {
         get() = resolver.getActualProperty(pPr) { snapToGrid }
 
     context(VerificationContext)
-    val spacing: Spacing?
-        get() = resolver.getActualProperty(pPr) { spacing }
+    val spacing: Spacing
+        get() = Spacing(pPr)
 
     context(VerificationContext)
     val ind: Ind
@@ -219,6 +221,34 @@ value class PPr(private val pPr: org.docx4j.wml.PPr?) {
         context(VerificationContext)
         val themeFillShade: String?
             get() = resolver.getActualProperty(pPr) { shd?.themeFillShade }
+    }
+
+    @JvmInline
+    value class Spacing(private val pPr: org.docx4j.wml.PPr?)
+    {
+        context(VerificationContext)
+        val before: BigInteger?
+            get() = resolver.getActualProperty(pPr) { spacing?.before }
+
+        context(VerificationContext)
+        val beforeLines: BigInteger?
+            get() = resolver.getActualProperty(pPr) { spacing?.beforeLines }
+
+        context(VerificationContext)
+        val after: BigInteger?
+            get() = resolver.getActualProperty(pPr) { spacing?.after }
+
+        context(VerificationContext)
+        val afterLines: BigInteger?
+            get() = resolver.getActualProperty(pPr) { spacing?.afterLines }
+
+        context(VerificationContext)
+        val line: BigInteger?
+            get() = resolver.getActualProperty(pPr) { spacing?.line }
+
+        context(VerificationContext)
+        val lineRule: STLineSpacingRule?
+            get() = resolver.getActualProperty(pPr) { spacing?.lineRule }
     }
 
     companion object {

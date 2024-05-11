@@ -19,6 +19,7 @@ import normativecontrol.core.traits.TextContentHandler
 import normativecontrol.core.utils.flatMap
 import normativecontrol.core.verifier
 import normativecontrol.core.verifyBy
+import normativecontrol.core.wrappers.PPr
 import normativecontrol.core.wrappers.PPr.Companion.resolve
 import normativecontrol.implementation.urfu.Chapters
 import normativecontrol.implementation.urfu.Reason
@@ -56,9 +57,9 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, TextCo
                     style += {
                         marginLeft set (pPr.ind.left verifyBy rules.leftIndent)
                         marginRight set (pPr.ind.right verifyBy rules.rightIndent)
-                        marginBottom set (pPr.spacing?.after verifyBy rules.spacingAfter)
-                        marginTop set (pPr.spacing?.before verifyBy rules.spacingBefore)
-                        lineHeight set (pPr.spacing verifyBy rules.spacingLine)?.line
+                        marginBottom set (pPr.spacing.after verifyBy rules.spacingAfter)
+                        marginTop set (pPr.spacing.before verifyBy rules.spacingBefore)
+                        lineHeight set (pPr.spacing verifyBy rules.spacingLine).line
                         textIndent set (pPr.ind.firstLine verifyBy rules.firstLineIndent)
                         textAlign set (pPr.jc?.`val` verifyBy rules.justifyContent)
                         backgroundColor set (pPr.shd.fill verifyBy rules.backgroundColor)
@@ -230,8 +231,8 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, TextCo
             }
         }
 
-        val spacingLine = verifier<Spacing?> {
-            val line = it?.line?.asPointsToLine() ?: 0.0
+        val spacingLine = verifier<PPr.Spacing> {
+            val line = it.line?.asPointsToLine() ?: 0.0
             return@verifier if (state.isCodeBlock) {
                 if (abs(line - 1.0) >= 0.001) mistake(Reason.IncorrectLineSpacingInCode, line.toString(), "1")
                 else return@verifier
@@ -239,7 +240,7 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, TextCo
                 if (abs(line - 1.0) >= 0.001) mistake(Reason.IncorrectLineSpacingHeader, line.toString(), "1")
                 else return@verifier
             } else {
-                if (it?.lineRule == STLineSpacingRule.AUTO && abs(line - 1.5) >= 0.001)
+                if (it.lineRule == STLineSpacingRule.AUTO && abs(line - 1.5) >= 0.001)
                     return@verifier mistake(Reason.IncorrectLineSpacingText, line.toString(), "1.5")
                 else return@verifier
             }
@@ -382,6 +383,7 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, TextCo
                 }
                 return result
             }
+            if (chapter == Chapters.NO_DETECT_BODY) return null
             if (isChapterBodyHeader(uppercaseText)) {
                 state.isHeader = true
                 sinceHeader = 0
