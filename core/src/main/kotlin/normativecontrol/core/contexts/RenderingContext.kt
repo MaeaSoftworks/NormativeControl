@@ -16,6 +16,8 @@ import normativecontrol.core.rendering.html.htmlTemplate
  */
 class RenderingContext(private val runtime: Runtime?) {
     // region don't move down
+    val nextElementClasses = mutableListOf<String>()
+
     /**
      * Last page's page style id.
      */
@@ -42,8 +44,6 @@ class RenderingContext(private val runtime: Runtime?) {
 
     val globalStylesheet by lazy { html.children[0]!!.children.list.first { it.type == HtmlElement.Type.STYLE }.content as Stylesheet }
 
-    var mistakeUid: String? = null
-
     val renderingSettings = runtime?.context?.configuration?.renderingSettings
 
     lateinit var currentPage: HtmlElement
@@ -55,14 +55,15 @@ class RenderingContext(private val runtime: Runtime?) {
     init {
         createPage(createPageStyle(runtime?.context?.doc?.contents?.body?.sectPr).also { lastPageStyleId = it })
         runtime?.context?.onMistakeEvent?.subscribe { mistake ->
-            val uid = "m${mistake.id}"
-            mistakeUid = uid
+            val mistakeUid = "m${mistake.id}"
             mistakeSerializer.addMistake(
                 mistake.mistakeReason,
-                uid,
+                mistakeUid,
                 mistake.expected,
                 mistake.actual
             )
+            nextElementClasses += mistakeUid
+            nextElementClasses += "m"
         }
         foldStylesheet(globalStylesheet)
     }

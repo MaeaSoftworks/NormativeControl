@@ -21,11 +21,8 @@ open class HtmlElement(
         private set
 
     init {
-        id = mistakeUid
-        if (mistakeUid != null) {
-            classes += "m"
-        }
-        mistakeUid = null
+        classes += nextElementClasses
+        nextElementClasses.clear()
     }
 
     constructor(type: String, hasClosingTag: Boolean = true) : this(Type.CUSTOM, hasClosingTag) {
