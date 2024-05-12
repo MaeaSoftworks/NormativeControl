@@ -31,7 +31,7 @@ class MistakeSerializer {
     fun serialize(): String {
         @Suppress("JSUnusedLocalSymbols")
         return """
-            let _map = [${foundMistakes.keys.joinToString { "\"${it.description.replace("\"", "\\")}\"" }}];
+            let _map = [${foundMistakes.keys.joinToString { "\"${it.description.replace("\"", "\\\"")}\"" }}];
             function mistakes() { 
                 return ${Json.encodeToString(mistakes)}.map(mistake => {
                     let description = _map[mistake.c];
