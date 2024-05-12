@@ -76,8 +76,8 @@ class VerificationContext(val runtime: Runtime, mlPackage: WordprocessingMLPacka
      * @param actual actual value
      * @param expected expected value
      */
-    fun mistake(mistakeReason: MistakeReason, actual: String? = null, expected: String? = null) {
-        if (!chapter.shouldBeVerified) return
+    fun mistake(mistakeReason: MistakeReason, actual: String? = null, expected: String? = null, force: Boolean = false) {
+        if (!chapter.shouldBeVerified && !force) return
         if (mistakeReason.id in configuration.state.suppressed) return
 
         val formattedText = if (actual != null && expected != null) {

@@ -13,9 +13,12 @@ class SdtBlockHandler : AbstractHandler<SdtBlock>(), StateProvider<UrFUState> {
     context(VerificationContext)
     override fun handle(element: SdtBlock) {
         render.inLastElementScope {
+            state.inSdtBlock = true
             element.sdtContent.content.iterate(1) { child, _ -> // inspect only contents title
                 runtime.handlers[child]?.handleElement(child)
             }
+            state.inSdtBlock = false
+            state.sinceSdtBlock = 0
         }
         state.suppressChapterRecognition = false
     }

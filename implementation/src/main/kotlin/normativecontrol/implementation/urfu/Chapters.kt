@@ -27,7 +27,7 @@ internal enum class Chapters(
     ),
 
     Definitions(
-        arrayOf("ТЕРМИНЫ И ОПРЕДЕЛЕНИЯ"),
+        arrayOf("ТЕРМИНЫ И ОПРЕДЕЛЕНИЯ", "ПЕРЕЧЕНЬ ОПРЕДЕЛЕНИЙ, СОКРАЩЕНИЙ И ОБОЗНАЧЕНИЙ"),
         { arrayOf(Abbreviations, Introduction) },
         shouldBeVerified = false
     ),

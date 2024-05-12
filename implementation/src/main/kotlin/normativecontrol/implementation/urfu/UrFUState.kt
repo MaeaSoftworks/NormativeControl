@@ -20,4 +20,12 @@ class UrFUState : State() {
     val tableCounter = IntCounter()
 
     var suppressChapterRecognition = false
+
+    var inSdtBlock = false
+
+    var sinceSdtBlock = -1
+
+    var noSdtBlockReported = false
+
+    var forceLegacyHeaderSearch = false
 }

@@ -26,7 +26,6 @@ import normativecontrol.implementation.urfu.Reason
 import normativecontrol.implementation.urfu.UrFUConfiguration
 import normativecontrol.implementation.urfu.UrFUState
 import org.docx4j.wml.*
-import org.docx4j.wml.PPrBase.Spacing
 import java.math.BigInteger
 import kotlin.math.abs
 
@@ -109,13 +108,11 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, TextCo
             }
             if (lvl.ilvl.toInt() == 0) {
                 when (lvl.numFmt?.`val`) {
-                    NumberFormat.RUSSIAN_LOWER -> {
+                    NumberFormat.RUSSIAN_LOWER -> {}
 
-                    }
+                    NumberFormat.BULLET -> {}
 
-                    NumberFormat.BULLET -> {
-
-                    }
+                    NumberFormat.DECIMAL -> {}
 
                     else -> {
                         mistake(Reason.ForbiddenMarkerTypeLevel1)
@@ -372,14 +369,40 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, TextCo
     inner class HeaderHandler(handler: AbstractHandler<*>): AbstractChapterHeaderHandler(handler) {
         context(VerificationContext)
         override fun checkChapterStart(element: Any): Chapter? {
-            if (state.suppressChapterRecognition) return null
+            if (state.suppressChapterRecognition && state.sinceSdtBlock <= 0) {
+                state.isHeader = false
+                sinceHeader++
+                return null
+            }
+            if (state.forceLegacyHeaderSearch && state.sinceSdtBlock > -1) {
+                if ((element as P).pPr.resolve().outlineLvl?.`val`?.toInt() == null) {
+                    state.isHeader = false
+                    sinceHeader++
+                    return null
+                }
+            }
             val uppercaseText = text.cacheText(element).trim().uppercase()
             val result = configuration.verificationSettings.chapterConfiguration.headers[uppercaseText]
             if (result != null) {
+                if (state.forceLegacyHeaderSearch) {
+                    state.forceLegacyHeaderSearch = false
+                }
                 state.isHeader = true
                 sinceHeader = 0
                 if (result == Chapters.Contents) {
-                    state.suppressChapterRecognition = true
+                    if (!state.inSdtBlock) {
+                        mistake(Reason.ContentsNotInSdtBlock, force = true)
+                        runtime.handlers[PHandler::class]!!.hooks.afterHandle.subscribe {
+                            state.sinceSdtBlock++
+                            state.forceLegacyHeaderSearch = true
+                            if (!state.noSdtBlockReported && state.sinceSdtBlock >= 10) {
+                                mistake(Reason.ContentsSdtBlockNotFound, force = true)
+                                state.noSdtBlockReported = true
+                            }
+                        }
+                    } else {
+                        state.suppressChapterRecognition = true
+                    }
                 }
                 return result
             }
