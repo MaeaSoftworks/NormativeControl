@@ -23,6 +23,7 @@ internal class RHandler : AbstractHandler<R>(), StateProvider<UrFUState> {
 
     context(VerificationContext)
     override fun handle(element: R) {
+        if (element.content.all { it is R.CommentReference }) return
         state.rSinceBr++
         val rPr = element.resolver().rPr
         render {
