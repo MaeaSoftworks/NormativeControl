@@ -28,7 +28,7 @@ class PropertyResolver(mlPackage: WordprocessingMLPackage) {
         if (pPr?.numPr == null) return null
         val abstractNumId = numberingResolver.numIdMap?.get(pPr.numPr?.numId?.`val`)?.abstractNumId?.`val`
         val abstract = numberingResolver.abstractIdMap?.get(abstractNumId)
-        return pPr.numPr.ilvl?.`val`?.toInt()?.let { abstract?.lvl?.get(it) }
+        return pPr.numPr.ilvl?.`val`?.toInt()?.let { abstract?.lvl?.getOrNull(it) }
     }
 
     inline fun <T> getActualProperty(pPr: PPr?, path: PPr.() -> T?): T? {
