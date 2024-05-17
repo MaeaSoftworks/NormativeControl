@@ -24,7 +24,7 @@ object Database {
         statement.setString(1, result.status.name)
         statement.setString(2, result.description)
         if (result.statistics?.mistakeCount == null) {
-            statement.setInt(3, Types.INTEGER)
+            statement.setNull(3, Types.INTEGER)
         } else {
             statement.setInt(3, result.statistics.mistakeCount)
         }

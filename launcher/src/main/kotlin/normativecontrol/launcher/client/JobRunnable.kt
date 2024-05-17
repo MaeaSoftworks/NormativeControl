@@ -37,7 +37,7 @@ class JobRunnable(private val job: Job) : Runnable {
             return job.sendResult(Status.ERROR, "Error during document uploading")
         }
 
-        job.sendResult(Status.OK)
+        job.sendResult(Status.OK, statistics =  results.statistics)
     }
 
     private fun Job.sendResult(status: Status, description: String? = null, statistics: Statistics? = null) {
