@@ -8,7 +8,7 @@ fun main(args: Array<String>) {
     val configuration = BootConfiguration(args)
     when (configuration.bootMode) {
         is BootMode.Lambda -> Lambda(configuration.bootMode.configuration).run()
-        is BootMode.Client -> Client(configuration.bootMode.isBlocking).run()
+        is BootMode.Client -> Client(configuration.bootMode.configuration).run()
         is BootMode.Help -> configuration.printHelp("core [OPTION]...")
     }
 }

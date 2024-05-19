@@ -6,6 +6,7 @@ import normativecontrol.core.data.Result
 import normativecontrol.core.data.Statistics
 import normativecontrol.core.handlers.AbstractHandler
 import normativecontrol.core.configurations.AbstractHandlerCollection
+import normativecontrol.core.locales.Locales
 import normativecontrol.core.predefined.Predefined
 import normativecontrol.core.utils.LogColor
 import normativecontrol.core.utils.highlight
@@ -85,7 +86,7 @@ object Core {
      * @param configurationName name of configuration that will be applied to document verification
      * @return results as [Result] object
      */
-    fun verify(source: InputStream, configurationName: String): Result {
+    fun verify(source: InputStream, configurationName: String, locale: Locales): Result {
         val runtime = timer({ logger.debug { "Runtime initialization done in $it ms" } }) {
             Runtime(
                 configurationName,
@@ -93,7 +94,7 @@ object Core {
             )
         }
         val document = timer({ logger.debug { "Unpacking: $it ms" } }) {
-            Document(runtime, source)
+            Document(runtime, source, locale)
         }
         timer({ logger.debug { "Verification: $it ms" } }) {
             document.runVerification()

@@ -1,21 +1,28 @@
 package normativecontrol.core.wrappers
 
+import normativecontrol.core.contexts.VerificationContext
+import normativecontrol.core.exceptions.CoreException
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage
 import org.docx4j.openpackaging.parts.WordprocessingML.StyleDefinitionsPart
 import org.docx4j.wml.*
 import org.docx4j.wml.PPr
 import org.docx4j.wml.RPr
 
+context(VerificationContext)
 class PropertyResolver(mlPackage: WordprocessingMLPackage) {
     val styleDefinitionsPart: StyleDefinitionsPart = mlPackage.mainDocumentPart.styleDefinitionsPart
-    private val stylesMap = styleDefinitionsPart.jaxbElement.style.associateBy { it.styleId }
+
+    init {
+        if (styleDefinitionsPart.jaxbElement?.style == null) {
+            throw CoreException.IncorrectStylesPart(locale)
+        }
+    }
+
+    private val stylesMap = styleDefinitionsPart.jaxbElement?.style?.associateBy { it.styleId }
     private val numbering: Numbering? = mlPackage.mainDocumentPart.numberingDefinitionsPart?.jaxbElement
     val dPPr: PPr
     val dRPr: RPr
     private val resolver = org.docx4j.model.PropertyResolver(mlPackage)
-
-    @OptIn(InternalConstructor::class)
-    val numberingResolver = NumberingResolver()
 
     init {
         resolver.apply {
@@ -23,6 +30,9 @@ class PropertyResolver(mlPackage: WordprocessingMLPackage) {
             dRPr = this.documentDefaultRPr
         }
     }
+
+    @OptIn(InternalConstructor::class)
+    val numberingResolver = NumberingResolver()
 
     fun resolveNumberingStyle(pPr: PPr?): Lvl? {
         if (pPr?.numPr == null) return null
@@ -79,7 +89,7 @@ class PropertyResolver(mlPackage: WordprocessingMLPackage) {
 
     fun getStyleByIdOptimized(id: String?): Style? {
         if (id == null) return null
-        return this.stylesMap[id]
+        return stylesMap?.get(id)
     }
 
     inner class NumberingResolver @InternalConstructor constructor() {

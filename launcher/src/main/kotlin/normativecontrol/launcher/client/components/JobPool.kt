@@ -1,29 +1,33 @@
 package normativecontrol.launcher.client.components
 
-import normativecontrol.launcher.client.messages.Job
+import normativecontrol.launcher.cli.ParallelMode
 import normativecontrol.shared.info
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.Closeable
 
-class JobPool(isBlocking: Boolean) : Closeable {
-    private val runner: Runner
+class JobPool(parallelMode: ParallelMode) : Closeable {
+    @PublishedApi
+    internal val runner: Runner
 
     init {
         if (_instance != null) throw UnsupportedOperationException("JobPool is already created")
         _instance = this
-        runner = if (isBlocking) {
-            logger.info { "Blocking runner is set up" }
-            BlockingRunner()
-        } else {
-            logger.info { "Multithreading runner is set up" }
-            ThreadPoolRunner()
+        runner = when (parallelMode) {
+            ParallelMode.SINGLE -> {
+                logger.info { "Blocking runner is set up" }
+                BlockingRunner()
+            }
+            ParallelMode.THREADS -> {
+                logger.info { "Multithreading runner is set up" }
+                ThreadPoolRunner()
+            }
         }
         ApplicationFinalizer.add(this)
     }
 
-    fun run(job: Job) {
-        runner.run(job)
+    fun run(runnable: Runnable) {
+        runner.run(runnable)
     }
 
     override fun close() {
@@ -34,9 +38,9 @@ class JobPool(isBlocking: Boolean) : Closeable {
         private val logger: Logger = LoggerFactory.getLogger(JobPool::class.java)
         private var _instance: JobPool? = null
 
-        val instance: JobPool
+        private val instance: JobPool
             get() = _instance ?: throw UnsupportedOperationException("JobPool is not initialized")
 
-        fun run(job: Job) = instance.run(job)
+        fun run(runnable: Runnable) = instance.run(runnable)
     }
 }

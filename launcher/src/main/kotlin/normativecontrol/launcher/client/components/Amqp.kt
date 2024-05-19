@@ -3,6 +3,7 @@ package normativecontrol.launcher.client.components
 import com.rabbitmq.client.*
 import kotlinx.serialization.json.Json
 import normativecontrol.launcher.cli.environment.environment
+import normativecontrol.launcher.client.JobRunnable
 import normativecontrol.launcher.client.messages.Job
 import normativecontrol.shared.warn
 import org.slf4j.LoggerFactory
@@ -56,7 +57,7 @@ object Amqp : Closeable {
                 logger.warn { "Unrecognized message body: $message" }
                 return
             }
-            JobPool.instance.run(job)
+            JobPool.run(JobRunnable(job))
         }
     }
 }

@@ -1,6 +1,7 @@
 package normativecontrol.launcher.cli
 
 import normativecontrol.launcher.Lambda
+import normativecontrol.launcher.client.Client
 import org.apache.commons.cli.*
 
 class BootConfiguration(args: Array<String>) {
@@ -10,19 +11,25 @@ class BootConfiguration(args: Array<String>) {
 
     init {
         val cli = DefaultParser().parse(options, args)
+        val parallelMode = if (cli.hasOption(BootOptions.Blocking.option)) {
+            ParallelMode.SINGLE
+        } else {
+            ParallelMode.THREADS
+        }
         bootMode = if (cli.hasOption(BootOptions.Lambda.option)) {
             BootMode.Lambda(
                 Lambda.Configuration(
                     cli.getOptionValue(BootOptions.Source.option)
                         ?: throw MissingOptionException("${BootOptions.Lambda} requires '${BootOptions.Source}' option."),
                     cli.getOptionValue(BootOptions.Result.option),
-                    cli.hasOption(BootOptions.Render.option)
+                    cli.hasOption(BootOptions.Render.option),
+                    parallelMode
                 )
             )
         } else if (cli.hasOption(BootOptions.Help.option)) {
             BootMode.Help
         } else {
-            BootMode.Client(cli.hasOption(BootOptions.Blocking.option))
+            BootMode.Client(Client.Configuration(parallelMode))
         }
     }
 

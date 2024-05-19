@@ -4,6 +4,7 @@ import normativecontrol.core.configurations.AbstractConfiguration
 import normativecontrol.core.Pointer
 import normativecontrol.core.Runtime
 import normativecontrol.core.chapters.Chapter
+import normativecontrol.core.locales.Locales
 import normativecontrol.core.mistakes.MistakeEventArgs
 import normativecontrol.core.mistakes.MistakeReason
 import normativecontrol.core.utils.Event
@@ -20,7 +21,7 @@ import java.util.*
  *
  * @param runtime backlink to current [Runtime]
  */
-class VerificationContext(val runtime: Runtime, mlPackage: WordprocessingMLPackage) {
+class VerificationContext(val runtime: Runtime, mlPackage: WordprocessingMLPackage, val locale: Locales) {
     val doc: MainDocumentPart = mlPackage.mainDocumentPart
     val configuration: AbstractConfiguration<*> = runtime.configuration
     val render: RenderingContext by lazy { RenderingContext(runtime) }
