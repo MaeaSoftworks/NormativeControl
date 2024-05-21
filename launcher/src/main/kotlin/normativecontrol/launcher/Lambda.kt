@@ -12,7 +12,7 @@ import java.nio.file.Files
 
 class Lambda(private val configuration: Configuration) {
     fun run() {
-        JobPool(configuration.parallelMode)
+        JobPool.initialize(configuration.parallelMode)
         JobPool.run(runnable = {
             val file = File(configuration.source)
             val result = Core.verify(file.inputStream(), UrFUConfiguration.NAME, Locales.RU)

@@ -48,7 +48,7 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, TextCo
             if (element.pPr?.sectPr != null) {
                 pageBreak(-1, createPageStyle(element.pPr.sectPr))
                 foldStylesheet(globalStylesheet)
-                this@PHandler.state.rSinceBr = 0
+                state.rSinceBr = 0
             }
             pPr.numberingStyle?.let { handleListElement(it) } ?: run { listData.isListElement = false }
             append {
@@ -93,12 +93,12 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, TextCo
                 listData.listPosition = lvl.start.`val`.toInt()
                 listData.start = listData.listPosition
                 if (listData.listPosition !in state.referencesInText) {
-                    mistake(Reason.ReferenceNotMentionedInText)
+                    mistake(Reason.ReferenceNotMentionedInText, force = true)
                 }
             } else {
                 listData.listPosition++
                 if (listData.listPosition !in state.referencesInText) {
-                    mistake(Reason.ReferenceNotMentionedInText)
+                    mistake(Reason.ReferenceNotMentionedInText, force = true)
                 }
             }
         } else {
@@ -303,7 +303,7 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, TextCo
                         state.sinceCodeBlock = 0
                     } else if (textValue?.endsWith("/**normative*control*code*end**/") == true
                         || textValue?.endsWith("/**c*e**/") == true) {
-                        hooks.afterHandle.subscribeOnce {
+                        events.afterHandle.subscribeOnce {
                             state.isCodeBlock = false
                             if (state.sinceCodeBlock > 30) {
                                 mistake(Reason.CodeBlockWasTooBig, state.sinceCodeBlock.toString(), "30")
@@ -392,7 +392,7 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, TextCo
                 if (result == Chapters.Contents) {
                     if (!state.inSdtBlock) {
                         mistake(Reason.ContentsNotInSdtBlock, force = true)
-                        runtime.handlers[PHandler::class]!!.hooks.afterHandle.subscribe {
+                        runtime.handlers[PHandler::class]!!.events.afterHandle.subscribe {
                             state.sinceSdtBlock++
                             state.forceLegacyHeaderSearch = true
                             if (!state.noSdtBlockReported && state.sinceSdtBlock >= 10) {

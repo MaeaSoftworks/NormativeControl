@@ -14,11 +14,6 @@ abstract class AbstractHandler<T: Any> {
         internal set
 
     /**
-     * Handler's hooks. Every handler have its own hooks.
-     */
-    val hooks = Hooks()
-
-    /**
      * Easy access to [VerificationContext] where it is not defined.
      */
     val ctx: VerificationContext
@@ -31,7 +26,7 @@ abstract class AbstractHandler<T: Any> {
      * **Note**: placing hooks in the `init` block probably
      * will return `null` instead of handler.
      */
-    open fun addHooks() {}
+    open fun subscribeToEvents() {}
 
     /**
      * External entrypoint to element handling.
@@ -43,9 +38,9 @@ abstract class AbstractHandler<T: Any> {
         element as T
 
         with(ctx) {
-            hooks.beforeHandle(element)
+            events.beforeHandle(element)
             handle(element)
-            hooks.afterHandle(element)
+            events.afterHandle(element)
         }
     }
 
@@ -57,7 +52,12 @@ abstract class AbstractHandler<T: Any> {
     context(VerificationContext)
     protected abstract fun handle(element: T)
 
-    inner class Hooks {
+    /**
+     * Handler's hooks. Every handler have its own hooks.
+     */
+    val events = Events()
+
+    inner class Events {
         /**
          * Event that will be called before every [handle] function call with element as parameter.
          */

@@ -65,7 +65,7 @@ class Runtime(
 
         @OptIn(CoreInternal::class)
         handlers.handlersToHandledType.forEach { (_, handler) ->
-            handler.addHooks()
+            handler.subscribeToEvents()
         }
     }
 

@@ -6,13 +6,12 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.Closeable
 
-class JobPool(parallelMode: ParallelMode) : Closeable {
+object JobPool : Closeable {
     @PublishedApi
-    internal val runner: Runner
+    internal lateinit var runner: Runner
+    private val logger: Logger = LoggerFactory.getLogger(this::class.java)
 
-    init {
-        if (_instance != null) throw UnsupportedOperationException("JobPool is already created")
-        _instance = this
+    fun initialize(parallelMode: ParallelMode) {
         runner = when (parallelMode) {
             ParallelMode.SINGLE -> {
                 logger.info { "Blocking runner is set up" }
@@ -32,15 +31,5 @@ class JobPool(parallelMode: ParallelMode) : Closeable {
 
     override fun close() {
         runner.close()
-    }
-
-    companion object {
-        private val logger: Logger = LoggerFactory.getLogger(JobPool::class.java)
-        private var _instance: JobPool? = null
-
-        private val instance: JobPool
-            get() = _instance ?: throw UnsupportedOperationException("JobPool is not initialized")
-
-        fun run(runnable: Runnable) = instance.run(runnable)
     }
 }

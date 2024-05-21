@@ -10,8 +10,7 @@ import normativecontrol.core.traits.Implementor
  */
 abstract class AbstractChapterHeaderHandler(protected val handler: AbstractHandler<*>): Implementor<ChapterHeaderHandler> {
     init {
-        handler.hooks.beforeHandle.subscribe { element ->
-            element ?: return@subscribe
+        handler.events.beforeHandle.subscribe { element ->
             with(handler.ctx) {
                 val chapter = checkChapterStart(element)
                 if (chapter != null) {

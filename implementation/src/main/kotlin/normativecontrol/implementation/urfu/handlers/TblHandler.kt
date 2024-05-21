@@ -11,8 +11,8 @@ import org.docx4j.wml.Tbl
 
 @Handler(Tbl::class, UrFUConfiguration::class)
 class TblHandler: AbstractHandler<Tbl>(), StateProvider<UrFUState> {
-    override fun addHooks() {
-        runtime.handlers[PHandler::class]?.hooks?.afterHandle?.subscribe {
+    override fun subscribeToEvents() {
+        runtime.handlers[PHandler::class]?.events?.afterHandle?.subscribe {
             with(ctx) {
                 state.tableCounter.increment()
             }

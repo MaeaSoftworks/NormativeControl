@@ -10,11 +10,11 @@ abstract class AbstractTextContentHandler(handler: AbstractHandler<*>): Implemen
     var isBlank: Boolean? = null
 
     init {
-        handler.hooks.beforeHandle.subscribe { element ->
+        handler.events.beforeHandle.subscribe { element ->
             if (textValue != null) return@subscribe
-            textValue = cacheText(element!!)
+            textValue = cacheText(element)
         }
-        handler.hooks.afterHandle.subscribe {
+        handler.events.afterHandle.subscribe {
             textValue = null
             isBlank = null
         }

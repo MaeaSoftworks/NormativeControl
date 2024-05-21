@@ -5,10 +5,6 @@ open class Event<I> {
     private val oneTimeCallbacks = mutableSetOf<Long>()
     private var lastSubId: Long = 0
 
-    private fun getSubscriberId(): Long {
-        return lastSubId++
-    }
-
     fun subscribe(callback: (I) -> Unit): Long {
         val id = getSubscriberId()
         callbacks[id] = callback
@@ -28,9 +24,14 @@ open class Event<I> {
         oneTimeCallbacks.forEach {
             unsubscribe(it)
         }
+        oneTimeCallbacks.clear()
     }
 
     fun unsubscribe(code: Long) {
         callbacks.remove(code)
+    }
+
+    private fun getSubscriberId(): Long {
+        return lastSubId++
     }
 }

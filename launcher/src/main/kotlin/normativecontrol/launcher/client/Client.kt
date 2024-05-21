@@ -12,7 +12,7 @@ class Client(private val configuration: Configuration) {
 
     fun run() {
         logger.info("Starting normative control core client mode...")
-        JobPool(configuration.parallelMode)
+        JobPool.initialize(configuration.parallelMode)
         S3              // init block call
         Database
         Amqp.listen()
