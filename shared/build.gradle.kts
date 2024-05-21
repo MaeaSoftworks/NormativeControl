@@ -1,8 +1,8 @@
 plugins {
-    kotlin("jvm") version "1.9.22"
+    kotlin("jvm") version "2.0.0"
 }
 
-java.sourceCompatibility = JavaVersion.VERSION_20
+java.sourceCompatibility = JavaVersion.VERSION_21
 
 dependencies {
     implementation(kotlin("reflect"))

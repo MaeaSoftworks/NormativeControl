@@ -5,6 +5,7 @@ import io.kotest.matchers.shouldBe
 import normativecontrol.core.Core
 import normativecontrol.core.Runtime
 import normativecontrol.core.contexts.VerificationContext
+import normativecontrol.core.locales.Locales
 import normativecontrol.implementation.urfu.handlers.PHandler
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage
 import kotlin.reflect.full.functions
@@ -41,7 +42,8 @@ class TextValidationTests : ShouldSpec({
             )
             val ctx = VerificationContext(
                 runtime,
-                WordprocessingMLPackage.createPackage()
+                WordprocessingMLPackage.createPackage(),
+                Locales.RU
             )
             runtime.context = ctx
 

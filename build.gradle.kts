@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "1.9.22" apply false
+    kotlin("jvm") version "2.0.0" apply false
 }
 
 allprojects {
@@ -11,9 +11,8 @@ allprojects {
     version = "1.0"
 
     tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-        kotlinOptions {
-            jvmTarget = "20"
-            freeCompilerArgs += listOf("-Xcontext-receivers")
+        compilerOptions {
+            freeCompilerArgs.add("-Xcontext-receivers")
         }
     }
 }

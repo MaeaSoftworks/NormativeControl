@@ -1,12 +1,11 @@
 plugins {
     application
     id("com.github.johnrengelman.shadow") version ("8.1.1")
-    kotlin("jvm") version "1.9.22"
-    id("com.google.devtools.ksp") version "1.9.22-1.0.16"
-    id("org.jetbrains.kotlin.plugin.serialization") version "1.9.22"
+    kotlin("jvm") version "2.0.0"
+    id("org.jetbrains.kotlin.plugin.serialization") version "2.0.0"
 }
 
-java.sourceCompatibility = JavaVersion.VERSION_20
+java.sourceCompatibility = JavaVersion.VERSION_21
 
 application {
     mainClass.set("normativecontrol.launcher.MainKt")
@@ -18,7 +17,6 @@ dependencies {
 
     implementation(kotlin("reflect"))
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.7.3")
 
     implementation("org.apache.logging.log4j:log4j-api:2.23.0")
     implementation("org.apache.logging.log4j:log4j-core:2.23.0")
@@ -38,12 +36,4 @@ dependencies {
 
 tasks.getByName<Test>("test") {
     useJUnitPlatform()
-}
-
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-    kotlinOptions.freeCompilerArgs += listOf("-opt-in=org.komapper.annotation.KomapperExperimentalAssociation")
-}
-
-ksp {
-    arg("komapper.enableEntityMetamodelListing", "true")
 }

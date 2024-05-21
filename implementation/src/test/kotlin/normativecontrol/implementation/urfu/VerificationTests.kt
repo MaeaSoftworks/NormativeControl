@@ -6,6 +6,7 @@ import io.kotest.matchers.shouldBe
 import normativecontrol.core.Core
 import normativecontrol.core.Runtime
 import normativecontrol.core.contexts.VerificationContext
+import normativecontrol.core.locales.Locales
 import normativecontrol.implementation.urfu.handlers.PHandler
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage
 import org.docx4j.wml.Text
@@ -38,7 +39,8 @@ class VerificationTests : ShouldSpec({
                 )
                 val ctx = VerificationContext(
                     runtime,
-                    WordprocessingMLPackage.createPackage()
+                    WordprocessingMLPackage.createPackage(),
+                    Locales.RU
                 )
                 runtime.context = ctx
 
@@ -47,7 +49,7 @@ class VerificationTests : ShouldSpec({
                     val textHolder = PHandler::class.memberProperties.find { it.name == "text" }?.get(pHandler)
                     val value = textHolder!!::class.memberProperties.find { it.name == "value" } as KMutableProperty<*>
                     value.isAccessible = true
-                    pHandler.checkChapterStart(Text().apply { this.value = it.first }) shouldBe it.second
+                    pHandler.chapterHeaderHandler.checkChapterStart(Text().apply { this.value = it.first }) shouldBe it.second
                     value.setter.call(textHolder, null)
                 }
             }
