@@ -228,18 +228,27 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, TextCo
             }
         }
 
-        val spacingLine = verifier<PPr.Spacing> {
-            val line = it.line?.asPointsToLine() ?: 0.0
+        val spacingLine = verifier<PPr.Spacing> { l ->
+            val line = l.line?.asPointsToLine() ?: 0.0
             return@verifier if (state.isCodeBlock) {
-                if (abs(line - 1.0) >= 0.001) mistake(Reason.IncorrectLineSpacingInCode, line.toString(), "1")
+                if (l.lineRule != STLineSpacingRule.AUTO || abs(line - 1.0) >= 0.001)
+                    mistake(Reason.IncorrectLineSpacingInCode, line.toString(), "1")
                 else return@verifier
             } else if (state.isHeader) {
-                if (abs(line - 1.0) >= 0.001) mistake(Reason.IncorrectLineSpacingHeader, line.toString(), "1")
+                if (l.lineRule != STLineSpacingRule.AUTO || abs(line - 1.5) >= 0.001)
+                    mistake(Reason.IncorrectLineSpacingHeader, line.toString(), "1.5")
                 else return@verifier
             } else {
-                if (it.lineRule == STLineSpacingRule.AUTO && abs(line - 1.5) >= 0.001)
+                if (sinceHeader == 1) {
+                    events.beforeHandle.subscribeOnce {
+                        if (state.isHeader) { // line after header and before header
+                            if (l.lineRule != STLineSpacingRule.AUTO || abs(line - 1.0) >= 0.001)
+                                mistake(Reason.IncorrectLineSpacingBetweenHeaders, line.toString(), "1")
+                        }
+                    }
+                } else if (l.lineRule == STLineSpacingRule.AUTO && abs(line - 1.5) >= 0.001) {
                     return@verifier mistake(Reason.IncorrectLineSpacingText, line.toString(), "1.5")
-                else return@verifier
+                } else return@verifier
             }
         }
 
