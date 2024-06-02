@@ -294,84 +294,79 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, TextCo
     }
 
     inner class Text(handler: PHandler): AbstractTextContentHandler(handler) {
-        private val inBrackets = """\[(.*?)]""".toRegex()
-        private val removePages = """,\s*С\.(?:.*)*""".toRegex()
-        private val removeAndMatchRanges = """(\d+)\s*-\s*(\d+)""".toRegex()
-        private val matchReference = """(\d+)""".toRegex()
+        override fun defineStateByText(): Unit = with(ctx) {
+            if (chapter.shouldBeVerified) {
+                searchCodeBlockContext()
+                    ?: searchDrawingContext()
+                    ?: searchTableContext()
+                    ?: searchTableContinuationContext()
+            }
+            state.referencesInText.addAll(getAllReferences(textValue!!))
+        }
 
-        private val pictureDescription = """^Рисунок (?:[АБВГДЕЖИКЛМНПРСТУФХЦШЩЭЮЯ]\.)?\d+ – .*[^.]$""".toRegex()
-        private val tableTitle = """^Таблица (?:[АБВГДЕЖИКЛМНПРСТУФХЦШЩЭЮЯ]\.)?\d+ – .*[^.]$""".toRegex()
-        private val tableContinuation = """^Продолжение\sтаблицы\s(?:[АБВГДЕЖИКЛМНПРСТУФХЦШЩЭЮЯ]\.)?\d+[^.]?$""".toRegex()
-
-        override fun defineStateByText() {
-            with(ctx) {
-                if (chapter.shouldBeVerified) {
-                    if (textValue?.startsWith("/**normative*control*code*start**/") == true
-                        || textValue?.startsWith("/**c*s**/") == true) {
-                        state.isCodeBlock = true
-                        state.sinceCodeBlock = 0
-                    } else if (textValue?.endsWith("/**normative*control*code*end**/") == true
-                        || textValue?.endsWith("/**c*e**/") == true) {
-                        events.afterHandle.subscribeOnce {
-                            state.isCodeBlock = false
-                            if (state.sinceCodeBlock > 30) {
-                                mistake(Reason.CodeBlockWasTooBig, state.sinceCodeBlock.toString(), "30")
-                            }
-                        }
-                    }
-                    if (state.sinceDrawing == 0 && !state.currentPWithDrawing) {
-                        if (textValue == null || !pictureDescription.matches(textValue!!)) {
-                            mistake(Reason.IncorrectPictureDescriptionPattern)
-                        }
-                    }
-                    if (textValue?.let { tableTitle.matches(it) } == true) {
-                        state.tableTitleCounter.reset()
-                    } else {
-                        state.tableTitleCounter.increment()
-                    }
-                    if (state.tableCounter.value == 1) {
-                        if (textValue != null && tableContinuation.matches(textValue!!)) {
-                            state.tableTitleCounter.reset()
-                        }
+        context(VerificationContext)
+        private fun searchCodeBlockContext(): Unit? {
+            if (textValue?.startsWith("/**normative*control*code*start**/") == true || textValue?.startsWith("/**c*s**/") == true) {
+                state.isCodeBlock = true
+                state.sinceCodeBlock = 0
+                return Unit
+            } else if (textValue?.endsWith("/**normative*control*code*end**/") == true || textValue?.endsWith("/**c*e**/") == true) {
+                events.afterHandle.subscribeOnce {
+                    state.isCodeBlock = false
+                    if (state.sinceCodeBlock > 30) {
+                        mistake(Reason.CodeBlockWasTooBig, state.sinceCodeBlock.toString(), "30")
                     }
                 }
-                state.referencesInText.addAll(getAllReferences(textValue!!))
+                return Unit
             }
+            return null
+        }
+
+        context(VerificationContext)
+        private fun searchDrawingContext(): Unit? {
+            if (state.sinceDrawing == 0 && !state.currentPWithDrawing) {
+                if (text.textValue == null || !pictureDescriptionRegex.matches(text.textValue!!)) {
+                    mistake(Reason.IncorrectPictureDescriptionPattern)
+                }
+                return Unit
+            }
+            return null
+        }
+
+        context(VerificationContext)
+        private fun searchTableContext(): Unit? {
+            if (textValue?.let { tableTitleRegex.matches(it) } == true) {
+                state.tableTitleCounter.reset()
+                return Unit
+            } else {
+                state.tableTitleCounter.increment()
+                return null
+            }
+        }
+
+        context(VerificationContext)
+        private fun searchTableContinuationContext(): Unit? {
+            if (state.sinceLastTableCounter.value == 1) {
+                if (textValue != null && tableContinuationRegex.matches(textValue!!)) {
+                    state.tableTitleCounter.reset()
+                    return Unit
+                }
+            }
+            return null
         }
 
         private fun getAllReferences(text: String): Set<Int> {
-            val set = mutableSetOf<Int>()
-            val (refs, ranges) = findAllRanges(clearPages(findAllInBrackets(text))).let { it.first.toList() to it.second }
-            ranges.forEach {
-                for (i in it) {
-                    set += i
+            val intRefs = mutableSetOf<Int>()
+            val refs = squareBracketsRegex.findAll(text)
+                .map {
+                    val refWithoutPages = pageInRefRegex.replace(it.groups[1]!!.value, "")
+                    for (matchResult in intRangeRegex.findAll(refWithoutPages)) {
+                        intRefs.addAll(matchResult.groups[1]!!.value.toInt()..matchResult.groups[2]!!.value.toInt())
+                    }
+                    intRangeRegex.replace(refWithoutPages, "")
                 }
-            }
-            findAllReferences(refs).forEach(set::add)
-            return set
-        }
-
-        private fun findAllInBrackets(text: String): Sequence<String> {
-            return inBrackets.findAll(text).map { it.groups[1]!!.value }
-        }
-
-        private fun clearPages(refs: Sequence<String>): Sequence<String> {
-            return refs.map { removePages.replace(it, "") }
-        }
-
-        private fun findAllRanges(refs: Sequence<String>): Pair<Sequence<String>, List<IntRange>> {
-            val ranges = mutableListOf<IntRange>()
-            return refs.map {
-                val r = removeAndMatchRanges.findAll(it)
-                for (matchResult in r) {
-                    ranges += matchResult.groups[1]!!.value.toInt()..matchResult.groups[2]!!.value.toInt()
-                }
-                removeAndMatchRanges.replace(it, "")
-            } to ranges
-        }
-
-        private fun findAllReferences(refs: List<String>): List<Int> {
-            return refs.flatMap { line -> matchReference.findAll(line).map { it.groups[1]!!.value.toInt() } }
+            refs.flatMap { line -> simpleIntRefRegex.findAll(line).map { it.groups[1]!!.value.toInt() } }.forEach(intRefs::add)
+            return intRefs
         }
     }
 
@@ -443,5 +438,16 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, TextCo
             }
             chapter = target
         }
+    }
+
+    companion object {
+        private val squareBracketsRegex = """\[(.*?)]""".toRegex()
+        private val pageInRefRegex = """,\s*С\.(?:.*)*""".toRegex()
+        private val intRangeRegex = """(\d+)\s*-\s*(\d+)""".toRegex()
+        private val simpleIntRefRegex = """(\d+)""".toRegex()
+
+        private val pictureDescriptionRegex = """^Рисунок (?:[АБВГДЕЖИКЛМНПРСТУФХЦШЩЭЮЯ]\.)?\d+ – .*[^.]$""".toRegex()
+        private val tableTitleRegex = """^Таблица (?:[АБВГДЕЖИКЛМНПРСТУФХЦШЩЭЮЯ]\.)?\d+ – .*[^.]$""".toRegex()
+        private val tableContinuationRegex = """^Продолжение\sтаблицы\s(?:[АБВГДЕЖИКЛМНПРСТУФХЦШЩЭЮЯ]\.)?\d+[^.]?$""".toRegex()
     }
 }

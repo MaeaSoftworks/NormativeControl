@@ -14,7 +14,7 @@ class TblHandler: AbstractHandler<Tbl>(), StateProvider<UrFUState> {
     override fun subscribeToEvents() {
         runtime.handlers[PHandler::class]?.events?.afterHandle?.subscribe {
             with(ctx) {
-                state.tableCounter.increment()
+                state.sinceLastTableCounter.increment()
             }
         }
     }
@@ -25,6 +25,6 @@ class TblHandler: AbstractHandler<Tbl>(), StateProvider<UrFUState> {
             mistake(Reason.TableWithoutTitle)
         }
         state.tableTitleCounter.reset()
-        state.tableCounter.reset()
+        state.sinceLastTableCounter.reset()
     }
 }
