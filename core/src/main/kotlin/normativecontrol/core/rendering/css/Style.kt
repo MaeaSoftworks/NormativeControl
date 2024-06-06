@@ -1,6 +1,5 @@
 package normativecontrol.core.rendering.css
 
-import normativecontrol.core.contexts.RenderingContext
 import org.jetbrains.annotations.Contract
 
 class Style(
@@ -30,9 +29,12 @@ class Style(
         return result.toString()
     }
 
-    context(RenderingContext)
     operator fun plusAssign(fn: context(Style, StyleProperties, StyleBuilder) () -> Unit) {
         fn(this, StyleProperties, StyleBuilder)
+    }
+
+    fun apply(detached: Detached) {
+        detached.styleInitializer(this, StyleProperties, StyleBuilder)
     }
 
     @Contract(pure = true)
@@ -44,4 +46,6 @@ class Style(
         result.rules.addAll(another.rules)
         return result
     }
+
+    class Detached(val styleInitializer: context(Style, StyleProperties, StyleBuilder) () -> Unit)
 }

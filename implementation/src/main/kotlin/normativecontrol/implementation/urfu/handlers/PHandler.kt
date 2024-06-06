@@ -14,6 +14,8 @@ import normativecontrol.core.rendering.html.br
 import normativecontrol.core.rendering.html.createPageStyle
 import normativecontrol.core.rendering.html.p
 import normativecontrol.core.components.AbstractTextContentHandler
+import normativecontrol.core.rendering.css.Style
+import normativecontrol.core.rendering.css.Stylesheet
 import normativecontrol.core.traits.ChapterHeaderHandler
 import normativecontrol.core.traits.TextContentHandler
 import normativecontrol.core.utils.flatMap
@@ -50,26 +52,42 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, TextCo
                 foldStylesheet(globalStylesheet)
                 state.rSinceBr = 0
             }
-            pPr.numberingStyle?.let { handleListElement(it) } ?: run { listData.isListElement = false }
-            append {
-                p {
-                    style += {
-                        marginLeft set (pPr.ind.left verifyBy rules.leftIndent)
-                        marginRight set (pPr.ind.right verifyBy rules.rightIndent)
-                        marginBottom set (pPr.spacing.after verifyBy rules.spacingAfter)
-                        marginTop set (pPr.spacing.before verifyBy rules.spacingBefore)
-                        lineHeight.set(pPr.spacing.line, pPr.spacing.lineRule)
-                        pPr.spacing verifyBy rules.spacingLine
-                        textIndent set (pPr.ind.firstLine verifyBy rules.firstLineIndent)
-                        textAlign set (pPr.jc?.`val` verifyBy rules.justifyContent)
-                        backgroundColor set (pPr.shd.fill verifyBy rules.backgroundColor)
-                        hyphens set pPr.suppressAutoHyphens?.isVal.let { if (it == true) true else null }
-                    }
-                    if (element.content.isEmpty()) {
-                        addChild(br())
-                    }
+
+            if (pPr.numberingStyle == null) {
+                listData.isListElement = false
+            } else {
+                if (chapter != Chapters.References) {
+                    handleListElement(pPr.numberingStyle!!)
+                } else {
+                    verifyReferenceParagraph(pPr.numberingStyle!!)
                 }
             }
+
+            val style = Style.Detached {
+                marginLeft set (pPr.ind.left verifyBy rules.leftIndent)
+                marginRight set (pPr.ind.right verifyBy rules.rightIndent)
+                marginBottom set (pPr.spacing.after verifyBy rules.spacingAfter)
+                marginTop set (pPr.spacing.before verifyBy rules.spacingBefore)
+                lineHeight.set(pPr.spacing.line, pPr.spacing.lineRule)
+                pPr.spacing verifyBy rules.spacingLine
+                textIndent set (pPr.ind.firstLine verifyBy rules.firstLineIndent)
+                textAlign set (pPr.jc?.`val` verifyBy rules.justifyContent)
+                backgroundColor set (pPr.shd.fill verifyBy rules.backgroundColor)
+                hyphens set pPr.suppressAutoHyphens?.isVal.let { if (it == true) true else null }
+            }
+
+            val renderedElement = p {}
+
+            renderedElement.style.apply(style)
+
+            if (element.content.isEmpty()) {
+                renderedElement.addChild(br())
+            }
+
+            append {
+                renderedElement
+            }
+
             inLastElementScope {
                 element.iterate { child, _ ->
                     runtime.handlers[child]?.handleElement(child)
@@ -80,44 +98,46 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, TextCo
     }
 
     context(VerificationContext)
+    private fun verifyReferenceParagraph(lvl: Lvl) {
+        if (!listData.isListElement) {
+            listData.isListElement = true
+            listData.isOrdered = lvl.numFmt?.`val` == NumberFormat.BULLET
+        }
+        if (lvl.numFmt?.`val` != NumberFormat.DECIMAL) {
+            return mistake(Reason.ForbiddenMarkerTypeReferences)
+        }
+        if ((listData.listPosition == -1 && listData.start == -1) || listData.start != lvl.start.`val`.toInt()) {
+            listData.listPosition = lvl.start.`val`.toInt()
+            listData.start = listData.listPosition
+        } else {
+            listData.listPosition++
+        }
+        if (listData.listPosition !in state.referencesInText) {
+            mistake(Reason.ReferenceNotMentionedInText, force = true)
+        }
+    }
+
+    context(VerificationContext)
     private fun handleListElement(lvl: Lvl) {
         if (!listData.isListElement) {
             listData.isListElement = true
             listData.isOrdered = lvl.numFmt?.`val` == NumberFormat.BULLET
         }
 
-        if (chapter == Chapters.References) {
-            if (lvl.numFmt?.`val` != NumberFormat.DECIMAL) {
-                return mistake(Reason.ForbiddenMarkerTypeReferences)
-            }
-            if ((listData.listPosition == -1 && listData.start == -1) || listData.start != lvl.start.`val`.toInt()) {
-                listData.listPosition = lvl.start.`val`.toInt()
-                listData.start = listData.listPosition
-                if (listData.listPosition !in state.referencesInText) {
-                    mistake(Reason.ReferenceNotMentionedInText, force = true)
-                }
-            } else {
-                listData.listPosition++
-                if (listData.listPosition !in state.referencesInText) {
-                    mistake(Reason.ReferenceNotMentionedInText, force = true)
-                }
-            }
-        } else {
-            listData.level = lvl.ilvl.toInt()
-            if (lvl.suff?.`val` != "space") {
-                mistake(Reason.TabInList)
-            }
-            if (lvl.ilvl.toInt() == 0) {
-                when (lvl.numFmt?.`val`) {
-                    NumberFormat.RUSSIAN_LOWER -> {}
+        listData.level = lvl.ilvl.toInt()
+        if (lvl.suff?.`val` != "space") {
+            mistake(Reason.TabInList)
+        }
+        if (lvl.ilvl.toInt() == 0) {
+            when (lvl.numFmt?.`val`) {
+                NumberFormat.RUSSIAN_LOWER -> {}
 
-                    NumberFormat.BULLET -> {}
+                NumberFormat.BULLET -> {}
 
-                    NumberFormat.DECIMAL -> {}
+                NumberFormat.DECIMAL -> {}
 
-                    else -> {
-                        mistake(Reason.ForbiddenMarkerTypeLevel1)
-                    }
+                else -> {
+                    mistake(Reason.ForbiddenMarkerTypeLevel1)
                 }
             }
         }
