@@ -4,22 +4,7 @@ import normativecontrol.core.contexts.RenderingContext
 
 object StyleBuilder {
     context(RenderingContext, Style)
-    infix fun <T> Property<T>.set(value: T?) {
-        if (value != null) {
-            val v = this.converter(value)
-            if (v != null) {
-                addRule(Rule(name, v, measure))
-            }
-        }
-    }
-
-    context(RenderingContext, Style)
-    infix fun String.set(value: String) {
-        addRule(Rule(this, value))
-    }
-
-    context(RenderingContext, Style)
-    private fun addRule(rule: Rule) {
+    fun addRule(rule: Rule) {
         if (renderingSettings?.forceStyleInlining == true || noInline) {
             rules.add(rule)
             return

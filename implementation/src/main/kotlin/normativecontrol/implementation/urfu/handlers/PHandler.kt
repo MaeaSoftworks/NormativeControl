@@ -58,7 +58,8 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, TextCo
                         marginRight set (pPr.ind.right verifyBy rules.rightIndent)
                         marginBottom set (pPr.spacing.after verifyBy rules.spacingAfter)
                         marginTop set (pPr.spacing.before verifyBy rules.spacingBefore)
-                        lineHeight set (pPr.spacing verifyBy rules.spacingLine).line
+                        lineHeight.set(pPr.spacing.line, pPr.spacing.lineRule)
+                        pPr.spacing verifyBy rules.spacingLine
                         textIndent set (pPr.ind.firstLine verifyBy rules.firstLineIndent)
                         textAlign set (pPr.jc?.`val` verifyBy rules.justifyContent)
                         backgroundColor set (pPr.shd.fill verifyBy rules.backgroundColor)

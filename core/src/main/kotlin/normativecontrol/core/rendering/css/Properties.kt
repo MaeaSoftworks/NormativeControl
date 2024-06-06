@@ -1,8 +1,12 @@
 package normativecontrol.core.rendering.css
 
+import normativecontrol.core.annotations.CoreInternal
+import normativecontrol.core.contexts.RenderingContext
 import normativecontrol.core.rendering.html.Constants
 import org.docx4j.w14.STLigatures
 import org.docx4j.wml.JcEnumeration
+import org.docx4j.wml.STLineSpacingRule
+import java.math.BigInteger
 
 object StyleProperties {
     val boxSizing = BoxSizing
@@ -73,7 +77,23 @@ object Width : DoubleProperty("width", "px", Constants.PIXELS_IN_POINT)
 object MinWidth : DoubleProperty("min-width", "px", Constants.PIXELS_IN_POINT)
 object Height : DoubleProperty("height", "px", Constants.PIXELS_IN_POINT)
 object MinHeight : DoubleProperty("min-height", "px", Constants.PIXELS_IN_POINT)
-object LineHeight : BigIntegerProperty("line-height", Constants.POINTS_IN_LINES)
+object LineHeight : BigIntegerProperty("line-height", Constants.POINTS_IN_LINES) {
+    context(RenderingContext, Style, StyleBuilder)
+    @CoreInternal
+    override infix fun set(value: BigInteger?) {
+        super.set(value)
+    }
+
+    context(RenderingContext, Style, StyleBuilder)
+    fun set(value: BigInteger?, lineRule: STLineSpacingRule?) {
+        when (lineRule) {
+            STLineSpacingRule.AUTO -> name set (value?.toDouble()?.div(Constants.POINTS_IN_LINES)?.toString() ?: return)
+            STLineSpacingRule.EXACT -> name set (value?.toDouble()?.div(Constants.POINTS_IN_LINES)?.toString() ?: return)
+            STLineSpacingRule.AT_LEAST -> name set (value?.toString() ?: return)
+            null -> return
+        }
+    }
+}
 object TextIndent : BigIntegerProperty("text-indent", "px", Constants.PIXELS_IN_POINT)
 object Hyphens : Property<Boolean?>("hyphens", { if (it == true) "auto" else "none" })
 object TextTransform : Property<Boolean?>("text-transform", { if (it == true) "uppercase" else null })

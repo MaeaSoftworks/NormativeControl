@@ -2,6 +2,7 @@ package normativecontrol.core.rendering.html
 
 import normativecontrol.core.contexts.RenderingContext
 import normativecontrol.core.mistakes.MistakeSerializer
+import normativecontrol.core.rendering.css.set
 import normativecontrol.core.utils.lazySerializable
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
 
