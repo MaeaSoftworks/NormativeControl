@@ -12,7 +12,7 @@ abstract class Counter<T> {
     abstract fun reset()
 }
 
-class IntCounter: Counter<Int>() {
+class IntCounter : Counter<Int>() {
     override var value: Int = -1
 
     override fun increment(): Counter<Int> {

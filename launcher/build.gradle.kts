@@ -3,6 +3,7 @@ plugins {
     id("com.github.johnrengelman.shadow") version ("8.1.1")
     kotlin("jvm") version "2.0.0"
     id("org.jetbrains.kotlin.plugin.serialization") version "2.0.0"
+    kotlin("kapt")
 }
 
 java.sourceCompatibility = JavaVersion.VERSION_21
@@ -23,7 +24,8 @@ dependencies {
 
     implementation("software.amazon.awssdk:s3:2.21.37")
 
-    implementation("commons-cli:commons-cli:1.6.0")
+    implementation("info.picocli:picocli:4.7.6")
+    kapt("info.picocli:picocli-codegen:4.7.6")
 
     implementation("org.slf4j:slf4j-api:2.0.12")
 
@@ -36,4 +38,10 @@ dependencies {
 
 tasks.getByName<Test>("test") {
     useJUnitPlatform()
+}
+
+kapt {
+    arguments {
+        arg("project", "${project.group}/${project.name}")
+    }
 }

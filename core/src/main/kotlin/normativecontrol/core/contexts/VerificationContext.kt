@@ -1,9 +1,9 @@
 package normativecontrol.core.contexts
 
-import normativecontrol.core.configurations.AbstractConfiguration
 import normativecontrol.core.Pointer
 import normativecontrol.core.Runtime
 import normativecontrol.core.chapters.Chapter
+import normativecontrol.core.configurations.AbstractConfiguration
 import normativecontrol.core.locales.Locales
 import normativecontrol.core.mistakes.MistakeEventArgs
 import normativecontrol.core.mistakes.MistakeReason
@@ -19,7 +19,9 @@ import java.util.*
 /**
  * Part of [Runtime] created at the beginning of file verification.
  *
- * @param runtime backlink to current [Runtime]
+ * @property runtime backlink to current [Runtime]
+ * @param mlPackage verified file
+ * @property locale mistake & error text locale
  */
 class VerificationContext(val runtime: Runtime, mlPackage: WordprocessingMLPackage, val locale: Locales) {
     val doc: MainDocumentPart = mlPackage.mainDocumentPart
@@ -35,7 +37,7 @@ class VerificationContext(val runtime: Runtime, mlPackage: WordprocessingMLPacka
         doc.addTargetPart(this)
     }
 
-    var lastMistakeId: BigInteger = BigInteger.valueOf(comments.jaxbElement.comment.size.toLong())
+    internal var lastMistakeId: BigInteger = BigInteger.valueOf(comments.jaxbElement.comment.size.toLong())
         private set
 
     /**

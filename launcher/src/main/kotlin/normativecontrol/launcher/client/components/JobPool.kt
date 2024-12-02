@@ -1,6 +1,6 @@
 package normativecontrol.launcher.client.components
 
-import normativecontrol.launcher.cli.ParallelMode
+import normativecontrol.launcher.ParallelMode
 import normativecontrol.shared.info
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -17,6 +17,7 @@ object JobPool : Closeable {
                 logger.info { "Blocking runner is set up" }
                 BlockingRunner()
             }
+
             ParallelMode.THREADS -> {
                 logger.info { "Multithreading runner is set up" }
                 ThreadPoolRunner()

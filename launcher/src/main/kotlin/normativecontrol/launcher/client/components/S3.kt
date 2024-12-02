@@ -1,6 +1,6 @@
 package normativecontrol.launcher.client.components
 
-import normativecontrol.launcher.cli.environment.environment
+import normativecontrol.launcher.environment
 import org.slf4j.LoggerFactory
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials
 import software.amazon.awssdk.core.sync.RequestBody
@@ -20,7 +20,6 @@ object S3 : Closeable {
     private val endpoint = environment.variable("nc_s3_endpoint")
     private val accessKeyId = environment.optionalVariable("nc_s3_access_key_id")
     private val secretAccessKey = environment.optionalVariable("nc_s3_secret_key_id")
-
     private val accessKeyIdFile = environment.optionalVariable("nc_s3_access_key_id_file")
     private val secretAccessKeyFile = environment.optionalVariable("nc_s3_secret_key_id_file")
 

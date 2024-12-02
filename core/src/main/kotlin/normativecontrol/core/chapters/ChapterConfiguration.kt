@@ -1,13 +1,13 @@
 package normativecontrol.core.chapters
 
+import normativecontrol.core.annotations.CoreInternal
 import kotlin.enums.EnumEntries
 import kotlin.enums.enumEntries
 
 /**
  * Structured configuration of chapters.
- * @param headers map of names of chapters to chapters themselves
- * @param names mirrored [headers] map: chapter mapped to its names
- * @param order order of chapters. Every chapter mapped to chapters that can be after it.
+ * @property headers Map of names of chapters to chapters themselves
+ * @property names Mirrored [headers] map: chapter mapped to its names
  */
 class ChapterConfiguration private constructor(
     val headers: Map<String, Chapter>,
@@ -24,13 +24,20 @@ class ChapterConfiguration private constructor(
          * @param T enum type. Should be inherited from [Chapter]
          * @return [ChapterConfiguration] based on [Chapter] enum.
          */
-        @OptIn(ExperimentalStdlibApi::class)
+        @OptIn(CoreInternal::class)
         inline fun <reified T> create(): ChapterConfiguration where T : Enum<T>, T : Chapter {
             return createByEnumEntries(enumEntries<T>())
         }
 
-        @PublishedApi
-        internal fun <T> createByEnumEntries(enumEntries: EnumEntries<T>): ChapterConfiguration where T : Enum<T>, T : Chapter {
+        /**
+         * Internal function to create [ChapterConfiguration] from [EnumEntries].
+         * @param enumEntries configuration source
+         * @param T type of enum
+         * @return created from [EnumEntries] [ChapterConfiguration].
+         * @see create
+         */
+        @CoreInternal
+        fun <T> createByEnumEntries(enumEntries: EnumEntries<T>): ChapterConfiguration where T : Enum<T>, T : Chapter {
             val names = mutableMapOf<Chapter, Array<String>>()
             val headers = mutableMapOf<String, Chapter>()
             val order = mutableMapOf<Chapter, Array<Chapter>?>()

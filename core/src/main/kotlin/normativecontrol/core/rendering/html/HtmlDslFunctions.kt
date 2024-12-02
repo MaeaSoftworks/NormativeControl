@@ -5,8 +5,8 @@ import normativecontrol.core.rendering.css.Stylesheet
 import org.intellij.lang.annotations.Language
 
 @HtmlDsl
-inline fun css(body: Stylesheet.Builder.() -> Unit): Stylesheet {
-    return Stylesheet.Builder().apply(body).build()
+inline fun css(body: Stylesheet.() -> Unit): Stylesheet {
+    return Stylesheet().apply(body)
 }
 
 context(RenderingContext)

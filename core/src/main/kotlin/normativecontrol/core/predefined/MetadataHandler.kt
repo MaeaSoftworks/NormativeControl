@@ -9,7 +9,7 @@ import normativecontrol.shared.warn
 import org.slf4j.LoggerFactory
 
 @Handler(Metadata::class, Predefined::class, HandlerPriority.EXTENDABLE)
-class MetadataHandler: AbstractHandler<Metadata>() {
+class MetadataHandler : AbstractHandler<Metadata>() {
     private val suppressor = """@suppress\((\d+)\)""".toRegex()
 
     context(VerificationContext)

@@ -9,9 +9,9 @@ import kotlin.reflect.KClass
  * 1. be an inheritor of [AbstractHandler];
  * 2. have only primary constructor without args.
  *
- * @param handledElementType KClass of elements that can be handled
- * by annotated handler
- * @param configuration KClass of handlers collection
+ * @property handledElementType KClass of elements that can be handled by annotated handler
+ * @property configuration KClass of handlers collection
+ * @property priority Priority of this handler if another [Handler] of the same [handledElementType] is found
  */
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.CLASS)

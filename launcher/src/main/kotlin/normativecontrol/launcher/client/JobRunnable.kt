@@ -43,7 +43,7 @@ class JobRunnable(val job: Job) : Runnable {
             return job.sendResult(Status.ERROR, "Error during document uploading")
         }
 
-        job.sendResult(Status.OK, statistics =  results.statistics)
+        job.sendResult(Status.OK, statistics = results.statistics)
     }
 
     companion object {

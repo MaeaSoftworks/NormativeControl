@@ -7,6 +7,7 @@ package normativecontrol.core.configurations
  * 2. have only primary constructor without args.
  *
  * @param name name of collection. Should be same as [AbstractHandlerCollection.name]
+ * @sample normativecontrol.implementation.urfu.UrFUConfiguration
  */
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.CLASS)

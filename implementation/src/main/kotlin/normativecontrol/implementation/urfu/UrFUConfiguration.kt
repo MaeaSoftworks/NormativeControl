@@ -1,8 +1,8 @@
 package normativecontrol.implementation.urfu
 
+import normativecontrol.core.chapters.ChapterConfiguration
 import normativecontrol.core.configurations.AbstractConfiguration
 import normativecontrol.core.configurations.HandlerCollection
-import normativecontrol.core.chapters.ChapterConfiguration
 import normativecontrol.core.settings.RenderingSettings
 import normativecontrol.core.settings.VerificationSettings
 

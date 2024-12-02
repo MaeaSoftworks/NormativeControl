@@ -1,14 +1,8 @@
 package normativecontrol.launcher
 
-import normativecontrol.launcher.cli.BootConfiguration
-import normativecontrol.launcher.cli.BootMode
-import normativecontrol.launcher.client.Client
+import picocli.CommandLine
+import kotlin.system.exitProcess
 
 fun main(args: Array<String>) {
-    val configuration = BootConfiguration(args)
-    when (configuration.bootMode) {
-        is BootMode.Lambda -> Lambda(configuration.bootMode.configuration).run()
-        is BootMode.Client -> Client(configuration.bootMode.configuration).run()
-        is BootMode.Help -> configuration.printHelp("core [OPTION]...")
-    }
+    exitProcess(CommandLine(NormativeControl()).execute(*args))
 }

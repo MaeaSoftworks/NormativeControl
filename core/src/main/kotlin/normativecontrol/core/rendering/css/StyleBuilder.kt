@@ -2,8 +2,14 @@ package normativecontrol.core.rendering.css
 
 import normativecontrol.core.contexts.RenderingContext
 
+/**
+ * Context object for [CssDsl].
+ */
 object StyleBuilder {
-    context(RenderingContext, Style)
+    /**
+     * Adds rule to ruleset from context.
+     */
+    context(RenderingContext, DeclarationBlock)
     fun addRule(rule: Rule) {
         if (renderingSettings?.forceStyleInlining == true || noInline) {
             rules.add(rule)
@@ -14,7 +20,7 @@ object StyleBuilder {
             classes.add(styleCache[rule]!!)
         } else {
             val key = "s${styleCache.size}"
-            globalStylesheet.styles[".$key"] = Style(noInline = true).also { it.rules.add(rule) }
+            globalStylesheet.rulesets[".$key"] = DeclarationBlock(noInline = true).also { it.rules.add(rule) }
             styleCache[rule] = key
             classes.add(styleCache[rule]!!)
         }

@@ -1,14 +1,29 @@
 package normativecontrol.core.rendering.css
 
 import normativecontrol.core.contexts.RenderingContext
-import java.math.BigInteger
 
-abstract class Property<T>(val name: String, val converter: (T?) -> String?, private val measure: String?) {
-    constructor(name: String, measure: String? = null) : this(name, { it?.toString() }, measure)
-    constructor(name: String, converter: (T?) -> String?) : this(name, converter, null)
-    constructor(name: String) : this(name, null)
+/**
+ * Representation of CSS properties.
+ * @property name Property name
+ * @property measure Unit of measurements for property value
+ */
+abstract class Property<T> internal constructor(val name: String, private val measure: String? = null) {
+    /**
+     * Converts value of property to CSS recognizable string.
+     * @param value property of value that will be set during document verification
+     * @return CSS recognizable string
+     */
+    open fun converter(value: T?): String? {
+        return value.toString()
+    }
 
-    context(RenderingContext, Style, StyleBuilder)
+    /**
+     * Sets value to this property.
+     * Adds new [Rule] to current [DeclarationBlock] with incoming value.
+     * @param value property value
+     */
+    context(RenderingContext, DeclarationBlock, StyleBuilder)
+    @CssDsl
     open infix fun set(value: T?) {
         if (value != null) {
             val v = this.converter(value)
@@ -17,31 +32,16 @@ abstract class Property<T>(val name: String, val converter: (T?) -> String?, pri
             }
         }
     }
-}
 
-context(RenderingContext, Style, StyleBuilder)
-infix fun String.set(value: String) {
-    addRule(Rule(this, value))
-}
-
-open class DoubleProperty(name: String, converter: (Double?) -> String?, measure: String?, coefficient: Double) :
-    Property<Double>(name, { converter(it?.div(coefficient)) }, measure) {
-
-    constructor(name: String, converter: (Double?) -> String?, measure: String?) : this(name, converter, measure, 1.0)
-    constructor(name: String, measure: String?, coefficient: Double) : this(name, { it?.toString() }, measure, coefficient)
-    constructor(name: String, coefficient: Double) : this(name, null, coefficient)
-    constructor(name: String, converter: (Double?) -> String?) : this(name, converter, null)
-    constructor(name: String) : this(name, { it?.toString() })
-}
-
-open class BigIntegerProperty(name: String, converter: (Double?) -> String?, measure: String?, coefficient: Double? = null) : Property<BigInteger>(
-    name,
-    { if (coefficient == null) converter(it?.toDouble()) else converter(it?.toDouble()?.div(coefficient)) },
-    measure
-) {
-    constructor(name: String, converter: (Double?) -> String?, measure: String?) : this(name, converter, measure, 1.0)
-    constructor(name: String, measure: String?, coefficient: Double) : this(name, { it?.toString() }, measure, coefficient)
-    constructor(name: String, coefficient: Double) : this(name, null, coefficient)
-    constructor(name: String, converter: (Double?) -> String?) : this(name, converter, null)
-    constructor(name: String) : this(name, { it?.toString() })
+    protected fun colorConverter(color: String?): String? {
+        if (color == null) return null
+        if (color.startsWith('#')) return color
+        return try {
+            color.toLong(16)
+            "#$color"
+        } catch (e: NumberFormatException) {
+            if (color != "null") return color
+            null
+        }
+    }
 }

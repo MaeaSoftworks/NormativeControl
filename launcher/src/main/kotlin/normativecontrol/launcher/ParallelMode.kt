@@ -1,4 +1,4 @@
-package normativecontrol.launcher.cli
+package normativecontrol.launcher
 
 enum class ParallelMode {
     SINGLE,

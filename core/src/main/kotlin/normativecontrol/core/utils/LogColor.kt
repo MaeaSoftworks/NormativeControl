@@ -1,6 +1,6 @@
 package normativecontrol.core.utils
 
-enum class LogColor(val value: String) {
+internal enum class LogColor(val value: String) {
     ANSI_BLACK("\u001B[30m"),
     ANSI_RED("\u001B[31m"),
     ANSI_GREEN("\u001B[32m"),
@@ -15,6 +15,6 @@ enum class LogColor(val value: String) {
     }
 }
 
-fun String.highlight(color: LogColor): String {
+internal fun String.highlight(color: LogColor): String {
     return "${color.value}${this}${LogColor.ANSI_RESET}"
 }

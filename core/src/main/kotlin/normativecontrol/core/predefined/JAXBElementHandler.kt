@@ -1,9 +1,9 @@
 package normativecontrol.core.predefined
 
 import jakarta.xml.bind.JAXBElement
-import normativecontrol.core.handlers.Handler
 import normativecontrol.core.contexts.VerificationContext
 import normativecontrol.core.handlers.AbstractHandler
+import normativecontrol.core.handlers.Handler
 
 @Handler(JAXBElement::class, Predefined::class)
 open class JAXBElementHandler : AbstractHandler<JAXBElement<*>>() {

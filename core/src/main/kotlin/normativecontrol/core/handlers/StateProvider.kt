@@ -8,7 +8,7 @@ import normativecontrol.core.states.State
  * Casts [AbstractConfiguration.state] to provided type [S] using [VerificationContext].
  * @param S type of state object
  */
-interface StateProvider<out S: State> {
+interface StateProvider<out S : State> {
     /**
      * [AbstractConfiguration.state] of [S] type from [VerificationContext].
      */

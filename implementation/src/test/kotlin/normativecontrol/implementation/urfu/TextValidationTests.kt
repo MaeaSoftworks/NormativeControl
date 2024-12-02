@@ -47,13 +47,11 @@ class TextValidationTests : ShouldSpec({
             )
             runtime.context = ctx
 
-            with(ctx) {
-                val handler = runtime.handlers[PHandler::class] as PHandler
-                val textHolder = PHandler::class.memberProperties.find { it.name == "text" }?.apply { isAccessible = true }?.get(handler)
-                val fn = textHolder!!::class.functions.find { it.name == "getAllReferences" }
-                fn?.isAccessible = true
-                fn?.call(textHolder, text) shouldBe setOf(31, 12, 13, 14, 15, 16, 17, 19, 18, 20, 21, 50, 51, 52, 53, 54, 55, 56, 60, 61, 62, 63, 64, 65, 66, 100)
-            }
+            val handler = runtime.handlers[PHandler::class] as PHandler
+            val textHolder = PHandler::class.memberProperties.find { it.name == "text" }?.apply { isAccessible = true }?.get(handler)
+            val fn = textHolder!!::class.functions.find { it.name == "getAllReferences" }
+            fn?.isAccessible = true
+            fn?.call(textHolder, text) shouldBe setOf(31, 12, 13, 14, 15, 16, 17, 19, 18, 20, 21, 50, 51, 52, 53, 54, 55, 56, 60, 61, 62, 63, 64, 65, 66, 100)
         }
     }
 })

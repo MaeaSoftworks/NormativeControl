@@ -4,10 +4,10 @@ import java.math.BigInteger
 
 /**
  * Event args data class for [normativecontrol.core.contexts.VerificationContext.onMistakeEvent].
- * @param mistakeReason mistake description
- * @param id mistake unique id
- * @param expected expected value
- * @param actual actual value
+ * @property mistakeReason Mistake description
+ * @property id Mistake unique id
+ * @property expected Expected value
+ * @property actual Actual value
  */
 data class MistakeEventArgs(
     val mistakeReason: MistakeReason,

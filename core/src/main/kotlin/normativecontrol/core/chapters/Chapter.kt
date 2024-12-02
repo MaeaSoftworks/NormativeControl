@@ -1,7 +1,8 @@
 package normativecontrol.core.chapters
 
 /**
- * Base class for chapters.
+ * Base interface for chapters.
+ * @sample normativecontrol.implementation.urfu.Chapters
  */
 interface Chapter {
     /**

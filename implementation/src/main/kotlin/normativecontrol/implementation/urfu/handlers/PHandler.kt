@@ -1,23 +1,22 @@
 package normativecontrol.implementation.urfu.handlers
 
-import normativecontrol.core.handlers.Handler
 import normativecontrol.core.chapters.Chapter
-import normativecontrol.core.chapters.AbstractChapterHeaderHandler
 import normativecontrol.core.contexts.VerificationContext
 import normativecontrol.core.handlers.AbstractHandler
+import normativecontrol.core.handlers.Handler
 import normativecontrol.core.handlers.StateProvider
 import normativecontrol.core.math.abs
 import normativecontrol.core.math.asPointsToLine
 import normativecontrol.core.math.asTwip
 import normativecontrol.core.math.cm
+import normativecontrol.core.predefined.AbstractChapterHeaderTraitImplementor
+import normativecontrol.core.predefined.AbstractTextContentTraitImplementor
+import normativecontrol.core.predefined.ChapterHeaderTrait
+import normativecontrol.core.predefined.TextContentTrait
+import normativecontrol.core.rendering.css.DeclarationBlock
+import normativecontrol.core.rendering.html.Pages
 import normativecontrol.core.rendering.html.br
-import normativecontrol.core.rendering.html.createPageStyle
 import normativecontrol.core.rendering.html.p
-import normativecontrol.core.components.AbstractTextContentHandler
-import normativecontrol.core.rendering.css.Style
-import normativecontrol.core.rendering.css.Stylesheet
-import normativecontrol.core.traits.ChapterHeaderHandler
-import normativecontrol.core.traits.TextContentHandler
 import normativecontrol.core.utils.flatMap
 import normativecontrol.core.verifier
 import normativecontrol.core.verifyBy
@@ -32,7 +31,7 @@ import java.math.BigInteger
 import kotlin.math.abs
 
 @Handler(P::class, UrFUConfiguration::class)
-internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, TextContentHandler, ChapterHeaderHandler {
+internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, TextContentTrait, ChapterHeaderTrait {
     private val headerRegex = Regex("""^(\d+(?:\.\d)*)\s(?:\S\s?)*$""")
 
     private val rules = Rules()
@@ -48,8 +47,8 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, TextCo
 
         render {
             if (element.pPr?.sectPr != null) {
-                pageBreak(-1, createPageStyle(element.pPr.sectPr))
-                foldStylesheet(globalStylesheet)
+                pageBreak(-1, Pages.createPageStyle(element.pPr.sectPr))
+                joinStylesheet(globalStylesheet)
                 state.rSinceBr = 0
             }
 
@@ -63,12 +62,12 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, TextCo
                 }
             }
 
-            val style = Style.Detached {
+            val declarationBlock = DeclarationBlock.detached {
                 marginLeft set (pPr.ind.left verifyBy rules.leftIndent)
                 marginRight set (pPr.ind.right verifyBy rules.rightIndent)
                 marginBottom set (pPr.spacing.after verifyBy rules.spacingAfter)
                 marginTop set (pPr.spacing.before verifyBy rules.spacingBefore)
-                lineHeight.set(pPr.spacing.line, pPr.spacing.lineRule)
+                lineHeight set Pair(pPr.spacing.line, pPr.spacing.lineRule)
                 pPr.spacing verifyBy rules.spacingLine
                 textIndent set (pPr.ind.firstLine verifyBy rules.firstLineIndent)
                 textAlign set (pPr.jc?.`val` verifyBy rules.justifyContent)
@@ -78,7 +77,7 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, TextCo
 
             val renderedElement = p {}
 
-            renderedElement.style.apply(style)
+            renderedElement.style.apply(declarationBlock)
 
             if (element.content.isEmpty()) {
                 renderedElement.addChild(br())
@@ -216,6 +215,7 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, TextCo
                             mistake(Reason.IncorrectFirstLineIndentInHeader, value.value.toString(), "1.25")
                         } else return@verifier
                     }
+
                     else -> {
                         if (abs(value - 1.25.cm) <= 0.01.cm) {
                             return@verifier mistake(Reason.IncorrectFirstLineIndentInHeader, value.value.toString(), "0")
@@ -230,7 +230,7 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, TextCo
                 if (value >= 0.01.cm)
                     mistake(Reason.IncorrectFirstLineIndentInTableTitle, value.value.toString(), "0")
                 else return@verifier
-            }  else {
+            } else {
                 if (abs(value - 1.25.cm) >= 0.01.cm)
                     mistake(Reason.IncorrectFirstLineIndentInText, value.value.toString(), "1.25")
                 else return@verifier
@@ -314,7 +314,7 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, TextCo
         var level: Int = -1
     }
 
-    inner class Text(handler: PHandler): AbstractTextContentHandler(handler) {
+    inner class Text(handler: PHandler) : AbstractTextContentTraitImplementor(handler) {
         override fun defineStateByText(): Unit = with(ctx) {
             if (chapter.shouldBeVerified) {
                 searchCodeBlockContext()
@@ -391,7 +391,7 @@ internal class PHandler : AbstractHandler<P>(), StateProvider<UrFUState>, TextCo
         }
     }
 
-    inner class HeaderHandler(handler: AbstractHandler<*>): AbstractChapterHeaderHandler(handler) {
+    inner class HeaderHandler(handler: AbstractHandler<*>) : AbstractChapterHeaderTraitImplementor(handler) {
         context(VerificationContext)
         override fun checkChapterStart(element: Any): Chapter? {
             if (state.suppressChapterRecognition && state.sinceSdtBlock <= 0) {

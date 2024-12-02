@@ -6,7 +6,6 @@ import io.kotest.matchers.shouldBe
 import normativecontrol.core.contexts.RenderingContext
 import normativecontrol.core.rendering.html.HtmlElement
 import normativecontrol.core.rendering.html.div
-import normativecontrol.core.rendering.html.span
 
 class RenderingTests : ShouldSpec({
     context("appender") {
@@ -21,12 +20,12 @@ class RenderingTests : ShouldSpec({
                 root?.children?.size shouldBe 1
                 root?.children?.list?.last()?.type shouldBe HtmlElement.Type.DIV
                 root?.children?.list?.last()?.classes!!.shouldContain("layer1")
-                openLastElementScope()
-                pointer?.classes!!.shouldContain("layer1")
-                append { span { } }
-                pointer?.type shouldBe HtmlElement.Type.DIV
-                pointer?.children?.size shouldBe 1
-                closeLastElementScope()
+                inLastElementScope {
+                    classes.shouldContain("layer1")
+                    append { normativecontrol.core.rendering.html.span { } }
+                    type shouldBe HtmlElement.Type.DIV
+                    children.size shouldBe 1
+                }
                 pointer?.classes!!.shouldContain("page")
             }
         }

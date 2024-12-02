@@ -1,11 +1,10 @@
-package normativecontrol.core.components
+package normativecontrol.core.predefined
 
 import normativecontrol.core.handlers.AbstractHandler
 import normativecontrol.core.traits.Implementor
-import normativecontrol.core.traits.TextContentHandler
 import org.docx4j.TextUtils
 
-abstract class AbstractTextContentHandler(handler: AbstractHandler<*>): Implementor<TextContentHandler> {
+abstract class AbstractTextContentTraitImplementor(handler: AbstractHandler<*>) : Implementor<TextContentTrait> {
     var textValue: String? = null
     var isBlank: Boolean? = null
 
@@ -29,5 +28,5 @@ abstract class AbstractTextContentHandler(handler: AbstractHandler<*>): Implemen
         return textValue!!
     }
 
-    open fun defineStateByText() { }
+    open fun defineStateByText() {}
 }

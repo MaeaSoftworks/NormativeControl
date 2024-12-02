@@ -4,6 +4,10 @@ import normativecontrol.core.contexts.VerificationContext
 import org.docx4j.w14.*
 import org.docx4j.wml.*
 
+/**
+ * Redirection object for resolving RPr styles.
+ * @param r run of target RPr
+ */
 @JvmInline
 @Suppress("unused")
 value class RPr(private val r: R?) {

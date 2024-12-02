@@ -11,10 +11,12 @@ import normativecontrol.core.states.State
  * For correct registration in [Runtime] should be annotated with [HandlerCollection].
  * @constructor creates a new configuration.
  * @param name name of configuration and handler group
- * @param startChapter first chapter of document
- * @param verificationSettings settings for verification
- * @param renderingSettings settings for rendering
+ * @property startChapter First chapter of document
+ * @property verificationSettings Settings for verification
+ * @property renderingSettings Settings for rendering
  * @param S state type
+ *
+ * @sample normativecontrol.implementation.urfu.UrFUConfiguration
  */
 abstract class AbstractConfiguration<out S : State>(
     name: String,
@@ -22,5 +24,6 @@ abstract class AbstractConfiguration<out S : State>(
     val verificationSettings: VerificationSettings,
     val renderingSettings: RenderingSettings
 ) : AbstractHandlerCollection(name) {
+
     abstract val state: S
 }

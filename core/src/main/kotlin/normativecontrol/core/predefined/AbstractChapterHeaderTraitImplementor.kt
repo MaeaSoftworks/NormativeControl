@@ -1,14 +1,15 @@
-package normativecontrol.core.chapters
+package normativecontrol.core.predefined
 
+import normativecontrol.core.chapters.Chapter
 import normativecontrol.core.contexts.VerificationContext
 import normativecontrol.core.handlers.AbstractHandler
-import normativecontrol.core.traits.ChapterHeaderHandler
 import normativecontrol.core.traits.Implementor
 
 /**
  * Marks handler as handler of type that can be a chapter header.
+ * @property handler handler that will use this trait implementor
  */
-abstract class AbstractChapterHeaderHandler(protected val handler: AbstractHandler<*>): Implementor<ChapterHeaderHandler> {
+abstract class AbstractChapterHeaderTraitImplementor(protected val handler: AbstractHandler<*>) : Implementor<ChapterHeaderTrait> {
     init {
         handler.events.beforeHandle.subscribe { element ->
             with(handler.ctx) {

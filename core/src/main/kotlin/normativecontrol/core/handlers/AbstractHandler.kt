@@ -8,8 +8,9 @@ import normativecontrol.core.utils.Event
  * Parent interface for any handler that verifies and renders docx4j objects.
  * For registration in [Runtime] inheritor should be annotated by [Handler] annotation.
  * @param T type of element that can be handled by this handler.
+ * @sample normativecontrol.implementation.urfu.handlers.PHandler
  */
-abstract class AbstractHandler<T: Any> {
+abstract class AbstractHandler<T : Any> {
     lateinit var runtime: Runtime
         internal set
 

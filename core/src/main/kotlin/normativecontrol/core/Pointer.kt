@@ -2,15 +2,27 @@ package normativecontrol.core
 
 import kotlin.math.max
 
+/**
+ * Pointer to the current verified element in document.
+ */
 class Pointer {
     private val values = ArrayDeque<Int>()
 
+    /**
+     * Pointer value.
+     */
     val value: List<Int>
         get() = values
 
+    /**
+     * Pointer size (for cycles started from 0).
+     */
     val size: Int
         get() = values.size
 
+    /**
+     * Pointer depth.
+     */
     val depth: Int
         get() = values.size - 1
 
@@ -18,14 +30,31 @@ class Pointer {
         return value.toString()
     }
 
+    /**
+     * Get current pointer value on depth level.
+     * @param level depth level
+     * @return pointer value
+     */
     operator fun get(level: Int): Int {
         return values[level]
     }
 
+    /**
+     * Set pointer value on selected depth level. If level is not less that pointer size
+     * value will be prepended by zeros.
+     * @param level depth level
+     * @param value new value
+     */
     @PointerTransformations
     operator fun set(level: Int, value: Int) {
         if (values.size <= level) {
-            values.addAll(sequence { repeat(level - (values.size - 1)) { yield(0) } })
+            values.addAll(
+                sequence {
+                    repeat(level - (values.size - 1)) {
+                        yield(0)
+                    }
+                }
+            )
         }
         values[level] = value
     }
@@ -50,15 +79,27 @@ class Pointer {
         return 0
     }
 
+    /**
+     * Pointer value on last depth level.
+     * @return pointer level
+     */
     fun last(): Int {
         return values.last()
     }
 
+    /**
+     * Reset pointer depth to [count].
+     * @param count depth level which must be left
+     */
     @PointerTransformations
     fun clearTo(count: Int) {
         pop(values.size - count)
     }
 
+    /**
+     * Drop pointer depth levels.
+     * @param count depth level which must be dropped
+     */
     @PointerTransformations
     fun pop(count: Int) {
         values.size - count

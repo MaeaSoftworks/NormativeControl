@@ -1,11 +1,11 @@
 package normativecontrol.core
 
+import normativecontrol.core.configurations.AbstractHandlerCollection
 import normativecontrol.core.configurations.HandlerCollection
-import normativecontrol.core.handlers.Handler
 import normativecontrol.core.data.Result
 import normativecontrol.core.data.Statistics
 import normativecontrol.core.handlers.AbstractHandler
-import normativecontrol.core.configurations.AbstractHandlerCollection
+import normativecontrol.core.handlers.Handler
 import normativecontrol.core.locales.Locales
 import normativecontrol.core.predefined.Predefined
 import normativecontrol.core.utils.LogColor
@@ -22,17 +22,19 @@ import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
 
 /**
- * Entrypoint to core library. Scans package `normativecontrol`
- * on initialization and build handlers mappings.
+ * Document verification entrypoint. Scans classpath on startup and searches
+ * classes with [HandlerCollection] and [Handler] annotations.
  */
 object Core {
     private val logger = LoggerFactory.getLogger(this::class.java)
     private val configurations = mutableMapOf<String, () -> AbstractHandlerCollection>()
 
     init {
+        // todo: move to configs
         val packageName = "normativecontrol"
         logger.debug { "Searching handler factories at '$packageName'..." }
         timer({ logger.debug { "Searching done in $it ms" } }) {
+            // handler collections search
             val configNames = mutableMapOf<KClass<*>, String>()
 
             val reflections = Reflections(packageName)
@@ -47,6 +49,7 @@ object Core {
                                     ).let { { it.call() as AbstractHandlerCollection } }
                 }
 
+            // handler search and linking to collections
             reflections.getTypesAnnotatedWith(Handler::class.java)
                 .map { it.kotlin }
                 .forEach { handlerClass ->
@@ -76,10 +79,6 @@ object Core {
         }
     }
 
-    private fun generateColor(value: String): LogColor {
-        return LogColor.entries[value.hashCode() % LogColor.entries.count()]
-    }
-
     /**
      * Verifies [source] file.
      * @param source [InputStream] of file
@@ -100,7 +99,7 @@ object Core {
             document.runVerification()
         }
         return timer({ logger.debug { "Saving: $it ms" } }) {
-             Result(
+            Result(
                 ByteArrayOutputStream().also { document.writeResult(it) },
                 document.render,
                 Statistics(
@@ -108,5 +107,9 @@ object Core {
                 )
             )
         }
+    }
+
+    private fun generateColor(value: String): LogColor {
+        return LogColor.entries[value.hashCode() % LogColor.entries.count()]
     }
 }
